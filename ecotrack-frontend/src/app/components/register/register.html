@@ -1,67 +1,87 @@
-<div class="register-page">
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">🌿 EcoTrack</h1>
+      <p class="auth-subtitle">AI Powered Carbon Footprint Platform</p>
+    </div>
 
-  <div class="register-card">
+    <!-- Alerts -->
+    <div class="alert alert-danger mb-4 text-center" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+    <div class="alert alert-success mb-4 text-center" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
 
     <div class="text-center mb-4">
-      <h1 class="logo">🌿 EcoTrack</h1>
-      <p class="subtitle">
-        AI Powered Carbon Footprint & Sustainability Management Platform
-      </p>
+      <h2 class="auth-title">Join EcoTrack</h2>
+      <p class="auth-subtitle">Create an account to start tracking your impact</p>
     </div>
 
-    <h3 class="text-center mb-4">
-      Create Your Account
-    </h3>
+    <form [formGroup]="registerForm" (ngSubmit)="register()">
+      
+      <!-- Name Input -->
+      <div class="auth-form-group">
+        <label class="auth-label">Full Name</label>
+        <div class="auth-input-wrapper">
+          <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <input type="text" class="auth-input" [class.is-invalid]="registerForm.get('name')?.touched && registerForm.get('name')?.invalid" placeholder="John Doe" formControlName="name">
+        </div>
+        <small class="invalid-feedback" *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.errors?.['required']">
+          Name is required.
+        </small>
+        <small class="invalid-feedback" *ngIf="registerForm.get('name')?.touched && (registerForm.get('name')?.errors?.['minlength'] || registerForm.get('name')?.errors?.['maxlength'])">
+          Name must be between 2 and 50 characters.
+        </small>
+        <small class="invalid-feedback" *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.errors?.['pattern']">
+          Name can only contain letters and spaces.
+        </small>
+      </div>
 
-    <div class="mb-3">
-      <label>Full Name</label>
-      <input
-        type="text"
-        class="form-control custom-input"
-        placeholder="Enter your full name">
-    </div>
+      <!-- Email Input -->
+      <div class="auth-form-group">
+        <label class="auth-label">Email Address</label>
+        <div class="auth-input-wrapper">
+          <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <input type="email" class="auth-input" [class.is-invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" placeholder="you@example.com" formControlName="email">
+        </div>
+        <small class="invalid-feedback" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+          Please enter a valid email address.
+        </small>
+      </div>
 
-    <div class="mb-3">
-      <label>Email Address</label>
-      <input
-        type="email"
-        class="form-control custom-input"
-        placeholder="Enter your email">
-    </div>
+      <!-- Password Input -->
+      <div class="auth-form-group">
+        <label class="auth-label">Password</label>
+        <div class="auth-input-wrapper">
+          <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          
+          <input [type]="showPassword ? 'text' : 'password'" class="auth-input" [class.is-invalid]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" placeholder="Create a password" formControlName="password" style="padding-right: 40px;">
+          
+          <!-- Toggle Password Button -->
+          <button type="button" class="btn btn-link p-0 text-muted" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); border: none; background: transparent; display: flex; align-items: center;" tabindex="-1" (click)="togglePasswordVisibility($event)">
+            <svg *ngIf="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg *ngIf="showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+          </button>
+        </div>
+        <small class="invalid-feedback" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['required']">
+          Password is required.
+        </small>
+        <small class="invalid-feedback" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['pattern']">
+          Password must have at least 8 characters, an uppercase letter, a lowercase letter, a number, and a special character.
+        </small>
+      </div>
 
-    <div class="mb-3">
-      <label>Password</label>
-      <input
-        type="password"
-        class="form-control custom-input"
-        placeholder="Enter your password">
-    </div>
+      <!-- Submit Button -->
+      <button type="submit" class="auth-btn-primary" [disabled]="loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        {{ loading ? 'Please wait...' : 'Create Account' }}
+      </button>
+    </form>
 
-    <div class="mb-4">
-      <label>Confirm Password</label>
-      <input
-        type="password"
-        class="form-control custom-input"
-        placeholder="Confirm your password">
-    </div>
-
-    <button class="btn register-btn w-100">
-      Create Account
-    </button>
-
-    <div class="text-center mt-4">
+    <div class="text-center mt-4" style="font-size: 0.9rem; color: var(--text-muted);">
       Already have an account?
-
-      <a
-      routerLink="/"
-      class="login-link">
-
-      Login
-
-      </a>
-
+      <a routerLink="/" class="auth-link ml-1">Login</a>
     </div>
-
   </div>
-
 </div>

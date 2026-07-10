@@ -1,12 +1,12 @@
 .sidebar {
-  width: 250px;
+  width: 100%;
   height: 100vh;
   background: #146c43;
   color: white;
-  position: fixed;
-  left: 0;
-  top: 0;
   padding: 20px;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
 }
 
 .sidebar h3 {
@@ -32,7 +32,28 @@
   color: white;
 }
 
-.main-content {
-  margin-left: 270px;
-  padding: 30px;
+@media (max-width: 767px) {
+  .sidebar {
+    height: auto;
+    position: relative;
+    padding: 15px;
+  }
+  
+  .sidebar .nav {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+  }
+  
+  .sidebar .nav-item {
+    margin-right: 10px;
+  }
+  
+  .sidebar .nav-link {
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
 }

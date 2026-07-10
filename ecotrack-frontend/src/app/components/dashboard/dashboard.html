@@ -1,35 +1,32 @@
 <div class="container-fluid">
   <div class="row">
 
-    <div class="col-md-3">
+    <div class="col-md-3 p-0">
       <app-sidebar></app-sidebar>
     </div>
 
     <div class="col-md-9 p-4">
       <h2>Welcome to EcoTrack Dashboard</h2>
-      <p>You have successfully logged in.</p>
-
-      <div class="row mt-4">
-        <div class="col-md-4">
-          <div class="card p-3 shadow">
-            <h5>Total Carbon Footprint</h5>
-            <h3>120 kg CO₂</h3>
+      
+      <div class="card p-4 shadow-sm mt-4" *ngIf="user">
+        <h4 class="text-success mb-3">User Profile</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Name:</strong> {{ user.name || 'Not Available' }}</p>
+            <p><strong>Email:</strong> {{ user.email || 'Not Available' }}</p>
+            <p><strong>Role:</strong> <span class="badge bg-success">{{ user.role || 'Not Available' }}</span></p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <p><strong>Status:</strong> <span class="badge bg-primary">{{ user.status || 'Active' }}</span></p>
           </div>
         </div>
-
-        <div class="col-md-4">
-          <div class="card p-3 shadow">
-            <h5>Sustainability Score</h5>
-            <h3>82%</h3>
-          </div>
+      </div>
+      
+      <div class="text-center mt-5" *ngIf="!user">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
-
-        <div class="col-md-4">
-          <div class="card p-3 shadow">
-            <h5>Goals Completed</h5>
-            <h3>5 / 8</h3>
-          </div>
-        </div>
+        <p class="mt-2 text-muted">Loading profile data...</p>
       </div>
     </div>
 

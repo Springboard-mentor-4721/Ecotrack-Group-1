@@ -8,6 +8,9 @@ import { GoalsComponent } from './components/goals/goals';
 import { ReportsComponent } from './components/reports/reports';
 import { ProfileComponent } from './components/profile/profile';
 import { SettingsComponent } from './components/settings/settings';
+import { OAuth2SuccessComponent } from './components/oauth2-success/oauth2-success';
+import { ResetPasswordComponent } from './components/reset-password/reset-password';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -19,27 +22,41 @@ export const routes: Routes = [
     component: RegisterComponent
   },
   {
+    path: 'reset-password',
+    component: ResetPasswordComponent
+  },
+  {
     path: 'dashboard',
-    component: DashboardComponent
+    component: DashboardComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'oauth2/success',
+    component: OAuth2SuccessComponent
   },
   {
     path: 'carbon-tracker',
-    component: CarbonTrackerComponent
+    component: CarbonTrackerComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'goals',
-    component: GoalsComponent
+    component: GoalsComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'reports',
-    component: ReportsComponent
+    component: ReportsComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'profile',
-    component: ProfileComponent
+    component: ProfileComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'settings',
-    component: SettingsComponent
+    component: SettingsComponent,
+    canActivate: [authGuard]
   }
 ];

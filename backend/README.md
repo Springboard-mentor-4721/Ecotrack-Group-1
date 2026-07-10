@@ -12,15 +12,22 @@ The backend for the EcoTrack platform, providing secure user authentication, sta
 
 ## Tech Stack
 - Java 21
-- Spring Boot 3.3+
+- Spring Boot 3.5.x
 - Spring Security 6
+- Hibernate ORM
+- Spring Data JPA
 - JWT (io.jsonwebtoken)
 - MySQL 8.x
 - Maven
 
 ## Architecture
-- Layered architecture: Controllers -> Services -> Repositories -> Entities
-- Security: Stateless JWT configuration with integrated Google OAuth2 provider fallback
+- Presentation Layer (Controllers)
+- Business Layer (Services)
+- Persistence Layer (Repositories)
+- Domain Layer (Entities)
+- Security Layer (JWT Filter, Spring Security, OAuth2 Components)
+
+**Authentication Note:** Protected REST endpoints are configured to return HTTP `401 Unauthorized` JSON responses when authentication is missing or invalid, rather than redirecting to the Google OAuth login page.
 
 ## Folder Structure
 ```text
@@ -46,7 +53,7 @@ Fill in the `.env` file with your local MySQL credentials, Mailtrap SMTP setting
 
 ## Database Setup
 1. Open your MySQL client.
-2. Create the database: `CREATE DATABASE ecotrack_db;`
+2. Create the database: `CREATE DATABASE ecotrack_dev;`
 3. Spring Boot will automatically generate the schema on startup based on the JPA entities.
 
 ## Google OAuth Setup

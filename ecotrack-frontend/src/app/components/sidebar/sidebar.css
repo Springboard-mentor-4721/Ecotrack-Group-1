@@ -1,0 +1,38 @@
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background: #146c43;
+  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 20px;
+}
+
+.sidebar h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.sidebar hr {
+  border-color: rgba(255,255,255,0.3);
+}
+
+.sidebar .nav-link {
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: 0.3s;
+}
+
+.sidebar .nav-link:hover {
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+.main-content {
+  margin-left: 270px;
+  padding: 30px;
+}

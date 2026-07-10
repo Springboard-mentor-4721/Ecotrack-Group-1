@@ -1,9 +1,0 @@
-$kind: http-request
-name: http://localhost:8080/api/users/me
-description: ""
-url: http://localhost:8080/api/users/me
-method: GET
-headers:
-  Authorization: Bearer
-    eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuYW1lQHRlc3QuY29tIiwiaWF0IjoxNzgzNTg3NzIwLCJleHAiOjE3ODM2NzQxMjB9.95wNqTvM_0mYWe7ikOht0MMQzLH173pvxuniOiog6wg
-order: 4495220432194694

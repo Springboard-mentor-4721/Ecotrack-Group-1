@@ -84,7 +84,61 @@ Authorization: Bearer <jwt-token>
 
 ---
 
-### 3. Forgot password
+### 3. Login with Google
+
+- **Method:** `GET`
+- **Path:** `/oauth2/authorization/google`
+- **Description:** Starts the Google OAuth2 authentication flow by redirecting the user to Google's authentication page.
+
+#### Authentication
+
+None required.
+
+#### Request
+
+- No request body.
+- No Authorization header required.
+
+#### Success Response
+
+- **Status:** `302 Found`
+
+The backend redirects the browser to Google's OAuth2 consent page. After the user successfully signs in and grants permission, Google redirects back to the backend. The backend authenticates the user, generates a JWT access token, and finally redirects the user to the configured frontend callback URL with the JWT token.
+
+Example:
+
+```
+http://localhost:4200/oauth2/success?token=<JWT_TOKEN>
+```
+
+#### Frontend Usage
+
+To start Google Sign-In, redirect the user's browser to:
+
+```http
+GET /oauth2/authorization/google
+```
+
+or
+
+```javascript
+window.location.href = "http://localhost:8080/oauth2/authorization/google";
+```
+
+Do **not** call this endpoint using AJAX, `fetch()`, Axios, or Postman in production. It is designed for full browser redirection.
+
+#### Notes
+
+- This endpoint is public and does not require authentication.
+- The JWT is generated only after successful Google authentication.
+- The frontend should read the token from the callback URL and store it according to the application's authentication strategy.
+
+> **Do not document** `/login/oauth2/code/google`.
+>
+> It is an internal Spring Security callback endpoint handled automatically by Spring Security and is not intended to be called directly by clients.
+---
+
+### 4. Forgot password
 
 - **Method:** `POST`
 - **Path:** `/api/auth/forgot-password`
@@ -110,7 +164,7 @@ Authorization: Bearer <jwt-token>
 
 ---
 
-### 4. Reset password
+### 5. Reset password
 
 - **Method:** `POST`
 - **Path:** `/api/auth/reset-password`
@@ -142,7 +196,7 @@ Authorization: Bearer <jwt-token>
 
 ---
 
-### 5. Get current user
+### 6. Get current user
 
 - **Method:** `GET`
 - **Path:** `/api/users/me`

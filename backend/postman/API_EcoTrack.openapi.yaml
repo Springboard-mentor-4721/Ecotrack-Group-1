@@ -73,6 +73,28 @@ paths:
           description: 'Validation error or invalid credentials'
         '401':
           description: 'Unauthorized'
+  /oauth2/authorization/google:
+    get:
+      tags:
+        - 'Auth'
+      summary: 'Login with Google'
+      operationId: 'loginWithGoogle'
+      description: |
+  Initiates the Google OAuth2 authentication flow.
+
+  This endpoint redirects the user's browser to Google's OAuth 2.0 consent page.
+  It is intended for browser navigation only and should not be called using AJAX or fetch requests.
+
+  After successful authentication, the backend processes the OAuth2 callback,
+  generates a JWT, and redirects the user to the configured frontend callback URL.
+      responses:
+  '302':
+    description: 'Redirects the browser to Google OAuth2 consent page'
+    headers:
+      Location:
+        description: Google OAuth2 authorization URL.
+        schema:
+          type: string
   /api/auth/forgot-password:
     post:
       tags:

@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: EcoTrack
+  version: 1.0.0
+  description: ''
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /api/auth/register:
+    post:
+      summary: 'http://localhost:8080/api/auth/register'
+      responses: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+            example:
+              name: name2
+              email: name2@test.com
+              password: password123
+  /api/auth/login:
+    post:
+      summary: 'http://localhost:8080/api/auth/login'
+      responses: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+            example:
+              email: name@test.com
+              password: password123
+  /api/users/me:
+    get:
+      summary: 'http://localhost:8080/api/users/me'
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuYW1lQHRlc3QuY29tIiwiaWF0IjoxNzgzNTg3NzIwLCJleHAiOjE3ODM2NzQxMjB9.95wNqTvM_0mYWe7ikOht0MMQzLH173pvxuniOiog6wg
+      responses: {}

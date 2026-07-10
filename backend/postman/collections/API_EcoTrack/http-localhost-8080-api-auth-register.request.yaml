@@ -1,0 +1,16 @@
+$kind: http-request
+name: http://localhost:8080/api/auth/register
+url: http://localhost:8080/api/auth/register
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"name\":\"name2\",\r
+
+    \    \"email\":\"name2@test.com\",\r
+
+    \    \"password\":\"password123\"\r
+
+    }"
+order: 1433078205900

@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 521f851f-40c9-4b6e-88bd-5dd1e58b2b27
+
+localResources:
+  specs:
+    - ../postman/specs/EcoTrack/EcoTrack.yaml

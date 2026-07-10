@@ -1,0 +1,26 @@
+$kind: http-request
+name: 'Auth Login'
+method: POST
+url: '{{base_url}}/api/auth/login'
+order: 2000
+headers:
+  - key: 'Content-Type'
+    value: 'application/json'
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{loginEmail}}",
+      "password": "{{loginPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    language: 'text/javascript'
+    code: |-
+      pm.test('Status is 200 OK', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Login success message is returned', function () {
+        pm.expect(pm.response.text()).to.eql('Login successful');
+      });

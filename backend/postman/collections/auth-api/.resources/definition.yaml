@@ -1,0 +1,9 @@
+$kind: collection
+name: Auth API
+variables:
+  base_url: http://localhost:8080
+  registerEmail: jeevan.register.{{$timestamp}}@example.com
+auth:
+  - id: b647c4fe-81c0-40bd-b1c3-8294bf3c4ae8
+    type: apikey
+    name: API Key

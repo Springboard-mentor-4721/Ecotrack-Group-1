@@ -1,0 +1,227 @@
+openapi: 3.0.3
+info:
+  title: 'API_EcoTrack API'
+  version: '1.0.0'
+  description: |-
+    OpenAPI schema generated from the API_EcoTrack Postman collection and Spring controllers.
+
+    This schema currently documents the auth and user profile endpoints present in the collection,
+    and also includes the password reset endpoints found in the backend controllers.
+servers:
+  - url: 'http://localhost:8080'
+    description: 'Local development server'
+tags:
+  - name: 'Auth'
+    description: 'Authentication and password recovery endpoints'
+  - name: 'Users'
+    description: 'Authenticated user endpoints'
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - 'Auth'
+      summary: 'Register a new user'
+      operationId: 'registerUser'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              name: 'name2'
+              email: 'name2@test.com'
+              password: 'password123'
+      responses:
+        '201':
+          description: 'User registered successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: 'User registered successfully'
+        '400':
+          description: 'Validation error or invalid input'
+  /api/auth/login:
+    post:
+      tags:
+        - 'Auth'
+      summary: 'Authenticate a user'
+      operationId: 'loginUser'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: 'name@test.com'
+              password: 'password123'
+      responses:
+        '200':
+          description: 'Login successful'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                accessToken: 'jwt-token-value'
+                tokenType: 'Bearer'
+                message: 'Login successful'
+        '400':
+          description: 'Validation error or invalid credentials'
+        '401':
+          description: 'Unauthorized'
+  /api/auth/forgot-password:
+    post:
+      tags:
+        - 'Auth'
+      summary: 'Request a password reset link'
+      operationId: 'forgotPassword'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+            example:
+              email: 'name@test.com'
+      responses:
+        '200':
+          description: 'Password reset request accepted'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: 'If an account with that email exists, a password reset link has been sent.'
+        '400':
+          description: 'Validation error or invalid input'
+  /api/auth/reset-password:
+    post:
+      tags:
+        - 'Auth'
+      summary: 'Reset password using reset token'
+      operationId: 'resetPassword'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+            example:
+              token: 'reset-token-value'
+              newPassword: 'newPassword123'
+      responses:
+        '200':
+          description: 'Password reset completed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: 'Password has been reset successfully'
+        '400':
+          description: 'Validation error or invalid token'
+  /api/users/me:
+    get:
+      tags:
+        - 'Users'
+      summary: 'Get current authenticated user'
+      operationId: 'getCurrentUser'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 'Authenticated user details'
+          content:
+            application/json:
+              schema:
+                type: 'string'
+                example: 'Authenticated as: name@test.com'
+        '401':
+          description: 'Missing or invalid bearer token'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: 'http'
+      scheme: 'bearer'
+      bearerFormat: 'JWT'
+  schemas:
+    RegisterRequest:
+      type: 'object'
+      required:
+        - 'name'
+        - 'email'
+        - 'password'
+      properties:
+        name:
+          type: 'string'
+          minLength: 2
+          maxLength: 100
+          example: 'name2'
+        email:
+          type: 'string'
+          format: 'email'
+          example: 'name2@test.com'
+        password:
+          type: 'string'
+          minLength: 8
+          format: 'password'
+          example: 'password123'
+    LoginRequest:
+      type: 'object'
+      required:
+        - 'email'
+        - 'password'
+      properties:
+        email:
+          type: 'string'
+          format: 'email'
+          example: 'name@test.com'
+        password:
+          type: 'string'
+          format: 'password'
+          example: 'password123'
+    ForgotPasswordRequest:
+      type: 'object'
+      required:
+        - 'email'
+      properties:
+        email:
+          type: 'string'
+          format: 'email'
+          example: 'name@test.com'
+    ResetPasswordRequest:
+      type: 'object'
+      required:
+        - 'token'
+        - 'newPassword'
+      properties:
+        token:
+          type: 'string'
+          example: 'reset-token-value'
+        newPassword:
+          type: 'string'
+          minLength: 8
+          format: 'password'
+          example: 'newPassword123'
+    AuthResponse:
+      type: 'object'
+      properties:
+        accessToken:
+          type: 'string'
+          example: 'jwt-token-value'
+        tokenType:
+          type: 'string'
+          example: 'Bearer'
+        message:
+          type: 'string'
+          example: 'Login successful'
+    MessageResponse:
+      type: 'object'
+      properties:
+        message:
+          type: 'string'
+          example: 'Operation completed successfully'

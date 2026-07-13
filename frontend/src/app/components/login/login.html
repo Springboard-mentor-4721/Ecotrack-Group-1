@@ -1,88 +1,255 @@
-<div class="auth-wrapper">
-  <div class="auth-card">
-    <div class="auth-header">
-      <h1 class="auth-title">🌿 EcoTrack</h1>
-      <p class="auth-subtitle">AI Powered Carbon Footprint Platform</p>
-    </div>
+<div class="split-layout">
 
-    <!-- Alerts -->
-    <div class="alert alert-danger mb-4 text-center" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
-    <div class="alert alert-success mb-4 text-center" *ngIf="forgotPasswordMessage">
-      {{ forgotPasswordMessage }}
-    </div>
-
-    <div class="text-center mb-4">
-      <h2 class="auth-title">{{ forgotPasswordMode ? 'Reset Password' : 'Welcome Back' }}</h2>
-      <p class="auth-subtitle">{{ forgotPasswordMode ? 'Enter your email to receive a reset link' : 'Sign in to your account' }}</p>
-    </div>
-
-    <form [formGroup]="loginForm" (ngSubmit)="login()">
-      
-      <!-- Email Input -->
-      <div class="auth-form-group">
-        <label class="auth-label">Email Address</label>
-        <div class="auth-input-wrapper">
-          <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          <input type="email" class="auth-input" [class.is-invalid]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" placeholder="you@example.com" formControlName="email">
-        </div>
-        <small class="invalid-feedback" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
-          Please enter a valid email address.
-        </small>
-      </div>
-
-      <!-- Password Input -->
-      <div class="auth-form-group" *ngIf="!forgotPasswordMode">
-        <label class="auth-label">Password</label>
-        <div class="auth-input-wrapper">
-          <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          
-          <input [type]="showPassword ? 'text' : 'password'" class="auth-input" [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" placeholder="Enter your password" formControlName="password" style="padding-right: 40px;">
-          
-          <!-- Toggle Password Button -->
-          <button type="button" class="btn btn-link p-0 text-muted" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); border: none; background: transparent; display: flex; align-items: center;" tabindex="-1" (click)="togglePasswordVisibility($event)">
-            <svg *ngIf="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            <svg *ngIf="showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-          </button>
-        </div>
-        <small class="invalid-feedback" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-          Password is required.
-        </small>
-      </div>
-      <!-- Options -->
-      <div class="d-flex justify-content-between mb-4 align-items-center" *ngIf="!forgotPasswordMode">
-        <div class="d-flex align-items-center gap-2">
-          <input type="checkbox" id="rememberMe" style="cursor: pointer; width: 15px; height: 15px; accent-color: var(--primary-green);">
-          <label for="rememberMe" style="font-size: 0.85rem; cursor: pointer; color: var(--text-muted);">Remember Me</label>
-        </div>
-        <a href="#" class="auth-link" (click)="toggleForgotPassword($event)">Forgot Password?</a>
-      </div>
-      
-      <div class="d-flex justify-content-end mb-4" *ngIf="forgotPasswordMode">
-        <a href="#" class="auth-link" (click)="toggleForgotPassword($event)">Back to Login</a>
-      </div>
-
-      <!-- Submit Button -->
-      <button type="submit" class="auth-btn-primary" [disabled]="loginForm.invalid || loading">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        {{ loading ? 'Please wait...' : (forgotPasswordMode ? 'Send Reset Link' : 'Login') }}
-      </button>
-    </form>
-    
-    <!-- Google Login -->
-    <div *ngIf="!forgotPasswordMode">
-      <div class="auth-divider">OR</div>
-      
-      <button class="auth-btn-google" (click)="googleLogin()">
-        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Sign in with Google
-      </button>
-
-      <div class="text-center mt-4" style="font-size: 0.9rem; color: var(--text-muted);">
-        Don't have an account?
-        <a routerLink="/register" class="auth-link ml-1">Register</a>
-      </div>
-    </div>
+  <!-- Layer 3: Floating Leaves Layer -->
+  <div class="leaves-layer" id="leaves-layer">
+    <img class="leaf l-1" src="/leaf1.png" alt="">
+    <img class="leaf l-2" src="/leaf2.png" alt="">
+    <img class="leaf l-3" src="/leaf1.png" alt="">
+    <img class="leaf l-4" src="/leaf2.png" alt="">
+    <img class="leaf l-5" src="/leaf1.png" alt="">
+    <img class="leaf l-6" src="/leaf2.png" alt="">
+    <img class="leaf l-7" src="/leaf1.png" alt="">
+    <img class="leaf l-8" src="/leaf2.png" alt="">
+    <img class="leaf l-9" src="/leaf1.png" alt="">
+    <img class="leaf l-10" src="/leaf2.png" alt="">
+    <img class="leaf l-11" src="/leaf1.png" alt="">
+    <img class="leaf l-12" src="/leaf2.png" alt="">
   </div>
-</div>
+
+  <!-- Merged Centered Container -->
+  <div class="merged-auth-wrapper">
+    <!-- Left Side: Hero Section -->
+    <div class="split-left">
+      <div class="split-left-content">
+        <!-- Logo Section -->
+        <div class="d-flex justify-content-center align-items-center gap-1"
+          style="margin-bottom: clamp(1.5rem, 4vh, 2.5rem);">
+          <img src="/logo.png" alt="EcoTrack Logo" class="brand-logo-img">
+          <div class="brand-text-wrapper">
+            <div class="brand-text-main">Eco<span>Track</span></div>
+            <div class="brand-text-sub">Measure • Act • Impact</div>
+          </div>
+        </div>
+
+        <div class="text-center" style="margin-bottom: clamp(1.5rem, 3vh, 2rem);">
+          <h1 class="hero-title">Track today,<br><span style="color: var(--color-primary);">Protect</span> tomorrow.
+          </h1>
+          <p class="hero-subtitle mx-auto">Your AI-powered companion for a sustainable and greener future.</p>
+        </div>
+
+        <div class="features-list">
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h4 class="feature-title">Track Your Footprint</h4>
+              <p class="feature-desc">Log daily activities and measure your carbon impact.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="4"></circle>
+                <line x1="21.17" y1="8" x2="12" y2="8"></line>
+                <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
+                <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+              </svg>
+            </div>
+            <div>
+              <h4 class="feature-title">Achieve Your Goals</h4>
+              <p class="feature-desc">Set sustainability goals and monitor your progress.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <div>
+              <h4 class="feature-title">Make A Difference</h4>
+              <p class="feature-desc">Get insights and recommendations to live greener.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-card">
+          <div class="d-flex align-items-center gap-3">
+            <div class="d-flex" style="margin-right: 5px;">
+              <img src="https://ui-avatars.com/api/?name=Alex&background=random&color=fff" class="avatar-img"
+                style="margin-right: -12px; z-index: 3;">
+              <img src="https://ui-avatars.com/api/?name=Sam&background=random&color=fff" class="avatar-img"
+                style="margin-right: -12px; z-index: 2;">
+              <img src="https://ui-avatars.com/api/?name=Jordan&background=random&color=fff" class="avatar-img"
+                style="z-index: 1;">
+            </div>
+            <div>
+              <div style="font-weight: 800; font-size: clamp(0.9rem, 1.8vh, 1rem); color: #0f172a; margin-bottom: 2px;">
+                Be the Change</div>
+              <div style="font-size: clamp(0.75rem, 1.5vh, 0.85rem); color: #475569; font-weight: 500;">Join our
+                community</div>
+            </div>
+          </div>
+          <div style="background: rgba(34, 197, 94, 0.15); padding: 8px; border-radius: 50%; display: flex;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="3"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Authentication Panel -->
+    <div class="split-right">
+      <div class="auth-form-container animate-fade-in">
+        <div class="text-center mb-4">
+          <h2 class="auth-heading">
+            <ng-container *ngIf="forgotPasswordMode">Reset Password</ng-container>
+            <ng-container *ngIf="!forgotPasswordMode">Welcome back!</ng-container>
+          </h2>
+          <p class="auth-subheading">
+            {{ forgotPasswordMode ? 'Enter your email to receive a reset link' : 'Sign in to continue your
+            sustainability
+            journey' }}
+          </p>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alert alert-danger mb-3 text-center animate-fade-in" *ngIf="errorMessage"
+          style="border-radius: var(--radius-sm); font-size: 0.9rem;">
+          {{ errorMessage }}
+        </div>
+        <div class="alert alert-success mb-3 text-center animate-fade-in" *ngIf="forgotPasswordMessage"
+          style="border-radius: var(--radius-sm); font-size: 0.9rem;">
+          {{ forgotPasswordMessage }}
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+          <!-- Email Input -->
+          <div class="form-group" style="margin-bottom: clamp(1rem, 2.5vh, 1.5rem);">
+            <label class="form-label">Email address</label>
+            <div class="position-relative">
+              <svg class="position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"
+                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <input type="email" class="premium-input" style="padding-left: 2.8rem;"
+                [class.is-invalid]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+                placeholder="Enter your email" formControlName="email">
+            </div>
+            <small class="text-danger mt-1 d-block animate-fade-in"
+              *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" style="font-size: 0.8rem;">
+              Please enter a valid email address.
+            </small>
+          </div>
+
+          <!-- Password Input -->
+          <div class="form-group" style="margin-bottom: clamp(1rem, 2.5vh, 1.5rem);" *ngIf="!forgotPasswordMode">
+            <label class="form-label">Password</label>
+            <div class="position-relative">
+              <svg class="position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"
+                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <input [type]="showPassword ? 'text' : 'password'" class="premium-input"
+                style="padding-left: 2.8rem; padding-right: 2.8rem;"
+                [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+                placeholder="Enter your password" formControlName="password">
+              <button type="button" class="btn btn-link p-0 text-muted"
+                style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); border: none; background: transparent; display: flex; align-items: center; cursor: pointer;"
+                tabindex="-1" (click)="togglePasswordVisibility($event)">
+                <svg *ngIf="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg *ngIf="showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                  </path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+            <small class="text-danger mt-1 d-block animate-fade-in"
+              *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+              style="font-size: 0.8rem;">
+              Password is required.
+            </small>
+          </div>
+
+          <!-- Options -->
+          <div class="d-flex justify-content-between align-items-center"
+            style="margin-bottom: clamp(1.2rem, 3vh, 2rem);" *ngIf="!forgotPasswordMode">
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" id="rememberMe" class="custom-checkbox">
+              <label for="rememberMe"
+                style="font-weight: 500; font-size: 0.9rem; cursor: pointer; color: #334155; margin-bottom: 0;">Remember
+                me</label>
+            </div>
+            <a href="#" class="auth-action-link" (click)="toggleForgotPassword($event)">Forgot password?</a>
+          </div>
+
+          <div class="d-flex justify-content-end" style="margin-bottom: clamp(1.2rem, 3vh, 2rem);"
+            *ngIf="forgotPasswordMode">
+            <a href="#" class="auth-action-link" (click)="toggleForgotPassword($event)">Back to Login</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="premium-btn premium-btn-primary w-100" [disabled]="loginForm.invalid || loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+              style="margin-right: 8px;"></span>
+            {{ loading ? 'Please wait...' : (forgotPasswordMode ? 'Send Reset Link' : 'Sign in') }}
+          </button>
+        </form>
+
+        <!-- Google Login -->
+        <div *ngIf="!forgotPasswordMode">
+          <div class="divider-wrapper">
+            <span class="divider-text">or continue with</span>
+          </div>
+
+          <button class="premium-btn w-100 social-btn" (click)="googleLogin()">
+            <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"
+              style="margin-right: 6px;">
+              <path fill="#EA4335"
+                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+              <path fill="#4285F4"
+                d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+              <path fill="#FBBC05"
+                d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+              <path fill="#34A853"
+                d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="text-center text-muted" style="font-size: 0.9rem; margin-top: clamp(1rem, 3vh, 1.5rem);">
+            Don't have an account?
+            <a routerLink="/register" class="auth-action-link" style="font-weight: 700; margin-left: 4px;">Create
+              account</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End of merged-auth-wrapper -->
+  </div>

@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { finalize } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit, OnDestroy {
   loginForm: FormGroup;
   errorMessage = '';
   loading = false;
@@ -21,15 +21,83 @@ export class LoginComponent {
   forgotPasswordMessage = '';
   showPassword = false;
 
+  // Animation state
+  private mouseX = 0;
+  private mouseY = 0;
+  private animationFrameId: number | null = null;
+  private boundMouseMove: ((e: MouseEvent) => void) | null = null;
+  private leavesData = Array.from({length: 12}).map(() => ({ dx: 0, dy: 0 }));
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.boundMouseMove = this.onMouseMove.bind(this);
+      document.addEventListener('mousemove', this.boundMouseMove);
+      this.startAnimation();
+    }
+  }
+
+  ngOnDestroy() {
+    if (isPlatformBrowser(this.platformId) && this.boundMouseMove) {
+      document.removeEventListener('mousemove', this.boundMouseMove);
+      if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+    }
+  }
+
+  private onMouseMove(e: MouseEvent) {
+    this.mouseX = e.clientX;
+    this.mouseY = e.clientY;
+  }
+
+  private startAnimation() {
+    const updateLeaves = () => {
+      const leaves = document.querySelectorAll('.leaf') as NodeListOf<HTMLElement>;
+      if (leaves.length === 0) {
+        this.animationFrameId = requestAnimationFrame(updateLeaves);
+        return;
+      }
+
+      leaves.forEach((leaf, i) => {
+        if (!this.leavesData[i]) return;
+        const rect = leaf.getBoundingClientRect();
+        const leafX = rect.left + rect.width / 2;
+        const leafY = rect.top + rect.height / 2;
+        
+        const dist = Math.hypot(this.mouseX - leafX, this.mouseY - leafY);
+        let targetDx = 0;
+        let targetDy = 0;
+
+        if (dist < 100) { // 100px radius interaction
+          const force = (100 - dist) / 100;
+          const angle = Math.atan2(leafY - this.mouseY, leafX - this.mouseX);
+          targetDx = Math.cos(angle) * force * 20; // Drift away horizontally
+          targetDy = Math.sin(angle) * force * 10 - (force * 15); // Bias upward lift
+        }
+
+        // Smooth recovery lerp
+        this.leavesData[i].dx += (targetDx - this.leavesData[i].dx) * 0.05;
+        this.leavesData[i].dy += (targetDy - this.leavesData[i].dy) * 0.05;
+
+        if (Math.abs(this.leavesData[i].dx) > 0.1 || Math.abs(this.leavesData[i].dy) > 0.1 || targetDx !== 0) {
+          leaf.style.setProperty('--dx', `${this.leavesData[i].dx}px`);
+          leaf.style.setProperty('--dy', `${this.leavesData[i].dy}px`);
+        }
+      });
+      this.animationFrameId = requestAnimationFrame(updateLeaves);
+    };
+    this.animationFrameId = requestAnimationFrame(updateLeaves);
   }
 
   togglePasswordVisibility(event: Event) {
@@ -51,6 +119,7 @@ export class LoginComponent {
         .pipe(
           finalize(() => {
             this.loading = false;
+            this.cdr.detectChanges();
           })
         )
         .subscribe({
@@ -83,6 +152,7 @@ export class LoginComponent {
       .pipe(
         finalize(() => {
           this.loading = false;
+          this.cdr.detectChanges();
         })
       )
       .subscribe({

@@ -1,117 +1,529 @@
-.register-page{
+/* =========================================================
+   100VW / 100VH LAYOUT WITH FULL BACKGROUND
+   ========================================================= */
+.split-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  /* STRICT: No scrolling allowed as requested */
+  margin: 0;
+  padding: 0;
 
-height:100vh;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-background:linear-gradient(135deg,#0f9d58,#81c784);
-
+  /* Apply the image to the ENTIRE page */
+  background-image: url('/auth-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.register-card{
+/* =========================================================
+   MERGED CENTERED WRAPPER
+   ========================================================= */
+.merged-auth-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: max-content;
+  max-width: 98vw;
+  height: 90vh;
+  /* slightly less than 100vh to show background around it */
+  border-radius: 30px;
+  overflow: hidden;
+  /* ensures children don't bleed out of rounded corners */
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 20;
 
-width:450px;
-
-padding:40px;
-
-background:rgba(255,255,255,.96);
-
-border-radius:20px;
-
-box-shadow:0 20px 40px rgba(0,0,0,.25);
-
-animation:fadeIn .8s ease;
-
+  /* Apply glassmorphism to the entire wrapper so the right panel looks inside it */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-.logo{
-
-font-size:40px;
-
-font-weight:bold;
-
-color:#198754;
-
+/* =========================================================
+   LEFT SIDE: HERO CONTENT
+   ========================================================= */
+.split-left {
+  position: relative;
+  /* Symmetrical padding to balance the spacing on left and right sides */
+  padding: clamp(1rem, 2vh, 2rem) clamp(1rem, 2vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
 }
 
-.subtitle{
-
-font-size:14px;
-
-color:#666;
-
+.split-left-content {
+  position: relative;
+  z-index: 10;
+  max-width: 480px;
+  width: 100%;
+  margin: auto;
+  /* Centers the content both vertically and horizontally */
+  padding: clamp(0.5rem, 1vh, 1rem) 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.custom-input{
-
-height:48px;
-
-border-radius:10px;
-
+/* =========================================================
+   RIGHT SIDE: AUTHENTICATION PANEL
+   ========================================================= */
+.split-right {
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 20;
+  /* Reduced side padding: Top, Right, Bottom, Left */
+  padding: clamp(1rem, 2vh, 2rem) clamp(1rem, 2vw, 1.5rem);
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+  /* subtle shadow since it sits on top of left */
 }
 
-.custom-input:focus{
-
-border-color:#198754;
-
-box-shadow:0 0 10px rgba(25,135,84,.3);
-
+/* Premium Floating Auth Card (Now Transparent inside solid split-right) */
+.auth-form-container {
+  width: 100%;
+  max-width: 380px;
+  background: transparent;
+  padding: clamp(1.5rem, 2vh, 2.5rem);
+  position: relative;
+  z-index: 30;
 }
 
-.register-btn{
-
-height:50px;
-
-font-size:18px;
-
-border-radius:10px;
-
-background:#198754;
-
-color:white;
-
-transition:.3s;
-
+/* =========================================================
+   HERO TYPOGRAPHY & CARDS
+   ========================================================= */
+.brand-logo-img {
+  height: clamp(45px, 5vh, 60px);
+  width: auto;
 }
 
-.register-btn:hover{
-
-background:#157347;
-
-transform:translateY(-2px);
-
+.brand-text-wrapper {
+  display: flex;
+  flex-direction: column;
 }
 
-.login-link{
-
-text-decoration:none;
-
-font-weight:bold;
-
-color:#198754;
-
+.brand-text-main {
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-@keyframes fadeIn{
-
-from{
-
-opacity:0;
-
-transform:translateY(40px);
-
+.brand-text-main span {
+  color: var(--color-primary);
 }
 
-to{
-
-opacity:1;
-
-transform:translateY(0);
-
+.brand-text-sub {
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
 }
 
+.hero-title {
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  margin-top: clamp(0.2rem, 1vh, 0.5rem);
+  margin-bottom: clamp(0.2rem, 1vh, 0.5rem);
+}
+
+.hero-subtitle {
+  font-size: clamp(0.85rem, 1.2vw, 1.1rem);
+  color: #334155;
+  line-height: 1.4;
+  font-weight: 400;
+  max-width: 90%;
+  margin-bottom: clamp(0.5rem, 1.5vh, 1.5rem);
+}
+
+/* Feature Cards */
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1vh, 1rem);
+  margin-bottom: clamp(0.5rem, 1vh, 1.5rem);
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature-item {
+  transition: transform 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.feature-item:hover {
+  transform: translateY(-4px);
+}
+
+.feature-icon-wrapper {
+  width: clamp(40px, 4vh, 48px);
+  height: clamp(40px, 4vh, 48px);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.25s ease;
+}
+
+.feature-item:hover .feature-icon-wrapper {
+  box-shadow: 0 12px 24px rgba(34, 197, 94, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.feature-title {
+  font-size: clamp(0.95rem, 1.5vh, 1.15rem);
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.15rem;
+}
+
+.feature-desc {
+  font-size: clamp(0.8rem, 1.2vh, 0.9rem);
+  color: #334155;
+  /* Reverted to match hero subtitle */
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+.stats-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 16px;
+  padding: clamp(0.6rem, 1.5vh, 1rem) clamp(0.8rem, 2vw, 1.25rem);
+  width: 100%;
+  max-width: 400px;
+  margin-top: clamp(0.5rem, 1.5vh, 2rem);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.avatar-img {
+  width: clamp(28px, 3vh, 36px);
+  height: clamp(28px, 3vh, 36px);
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================================
+   AUTH CARD INTERNALS
+   ========================================================= */
+.auth-heading {
+  font-size: clamp(1.4rem, 2.5vh, 1.8rem);
+  font-weight: 800;
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.auth-subheading {
+  font-size: clamp(0.8rem, 1.5vh, 0.95rem);
+  color: var(--color-text-muted);
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e293b;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.auth-action-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.auth-action-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.divider-wrapper {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: clamp(1rem, 3vh, 1.5rem) 0;
+}
+
+.divider-wrapper::before,
+.divider-wrapper::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.divider-text {
+  padding: 0 15px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Google Button */
+.social-btn {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+}
+
+.social-btn:hover {
+  background-color: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.custom-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* =========================================================
+   FLOATING LEAVES (NATURAL WIND & INTERACTION)
+   ========================================================= */
+.leaves-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 5;
+  pointer-events: none;
+  /* Let pointer events pass */
+  overflow: hidden;
+}
+
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 0;
+  --dx: 0px;
+  --dy: 0px;
+  will-change: transform, opacity;
+  object-fit: contain;
+  /* Smoothly apply mouse displacement */
+  transition: transform 0.1s linear;
+}
+
+/* Foreground Leaves (Larger, slightly blurred, high opacity) */
+.l-1 {
+  --startY: 15vh;
+  width: 48px;
+  height: 48px;
+  opacity: 0.95;
+  filter: blur(1px);
+  animation: driftRight 35s linear infinite -5s;
+}
+
+.l-2 {
+  --startY: 55vh;
+  width: 44px;
+  height: 44px;
+  opacity: 0.95;
+  filter: blur(1px);
+  animation: driftRight 33s linear infinite -15s;
+}
+
+/* Middle Leaves (Medium size) */
+.l-3 {
+  --startY: 5vh;
+  width: 32px;
+  height: 32px;
+  opacity: 0.85;
+  filter: blur(0.5px);
+  animation: driftRight 28s linear infinite -2s;
+}
+
+.l-4 {
+  --startY: 40vh;
+  width: 34px;
+  height: 34px;
+  opacity: 0.85;
+  filter: blur(0.5px);
+  animation: driftRight 30s linear infinite -18s;
+}
+
+.l-5 {
+  --startY: 85vh;
+  width: 30px;
+  height: 30px;
+  opacity: 0.80;
+  filter: blur(0.5px);
+  animation: driftRight 27s linear infinite -12s;
+}
+
+/* Background Leaves (Smaller, sharper, lighter opacity) */
+.l-6 {
+  --startY: 25vh;
+  width: 22px;
+  height: 22px;
+  opacity: 0.70;
+  filter: blur(0px);
+  animation: driftRight 25s linear infinite -8s;
+}
+
+.l-7 {
+  --startY: 65vh;
+  width: 20px;
+  height: 20px;
+  opacity: 0.70;
+  filter: blur(0px);
+  animation: driftRight 26s linear infinite -20s;
+}
+
+.l-8 {
+  --startY: 95vh;
+  width: 18px;
+  height: 18px;
+  opacity: 0.65;
+  filter: blur(0px);
+  animation: driftRight 24s linear infinite -10s;
+}
+
+/* Hide excess leaves */
+.l-9,
+.l-10,
+.l-11,
+.l-12 {
+  display: none !important;
+}
+
+/* Single Unified Wind Direction: Left to Right */
+/* Uses var(--startY) to spawn leaves at different heights so they do not overlap */
+
+@keyframes driftRight {
+  0% {
+    transform: translate3d(calc(-20vw + var(--dx)), calc(var(--startY) + var(--dy)), 0) rotate(-20deg);
+  }
+
+  50% {
+    transform: translate3d(calc(50vw + var(--dx)), calc(var(--startY) + 15vh + var(--dy)), 0) rotate(50deg);
+  }
+
+  100% {
+    transform: translate3d(calc(120vw + var(--dx)), calc(var(--startY) - 10vh + var(--dy)), 0) rotate(160deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaf {
+    animation: none !important;
+    display: none;
+  }
+}
+
+/* =========================================================
+   RESPONSIVENESS (No scrolling allowed)
+   ========================================================= */
+@media (max-width: 768px) {
+  .split-layout {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    padding: clamp(1rem, 4vh, 3rem) 0;
+  }
+
+  .merged-auth-wrapper {
+    flex-direction: column;
+    width: 92vw;
+    max-width: 600px;
+    height: auto;
+  }
+
+  .split-left {
+    padding: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .split-left-content {
+    max-width: 100%;
+  }
+
+  .split-right {
+    width: 100%;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border-radius: 0 0 30px 30px; /* round the bottom instead of left */
+  }
+
+  .auth-form-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .l-9,
+  .l-10,
+  .l-11,
+  .l-12 {
+    display: none;
+  }
+
+  /* Tablet keeps 8 leaves */
+}
+
+@media (max-width: 576px) {
+  .auth-form-container {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .auth-heading {
+    font-size: 1.6rem;
+  }
+
+  .l-5,
+  .l-6,
+  .l-7,
+  .l-8 {
+    display: none;
+  }
+
+  /* Mobile keeps 4 leaves */
 }

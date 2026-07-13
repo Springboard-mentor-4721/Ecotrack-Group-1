@@ -1,5 +1,5 @@
 import { SidebarComponent } from '../sidebar/sidebar';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 export class DashboardComponent implements OnInit {
   user: any;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.authService.getCurrentUser().subscribe({
@@ -40,6 +40,7 @@ export class DashboardComponent implements OnInit {
           name: name,
           role: role
         };
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load user profile', err);
@@ -49,6 +50,7 @@ export class DashboardComponent implements OnInit {
           name: 'Error',
           role: 'UNKNOWN'
         };
+        this.cdr.detectChanges();
       }
     });
   }

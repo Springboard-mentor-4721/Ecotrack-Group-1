@@ -1,0 +1,17 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/carbon/:id'
+headers:
+  - key: Authorization
+    value: 'Bearer {{jwtToken}}'
+pathVariables:
+  - key: id
+    value: '999999'
+order: 3000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 404', function () {
+        pm.expect(pm.response.code).to.eql(404);
+      });

@@ -47,3 +47,7 @@ Thumbs.db
 
 ### Java ###
 *.class
+
+### Custom ###
+tmp/
+*.zip

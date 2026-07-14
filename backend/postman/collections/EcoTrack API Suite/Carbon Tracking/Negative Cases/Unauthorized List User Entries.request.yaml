@@ -1,0 +1,16 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/carbon'
+queryParams:
+  - key: page
+    value: '0'
+  - key: size
+    value: '10'
+order: 2000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 401', function () {
+        pm.expect(pm.response.code).to.eql(401);
+      });

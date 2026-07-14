@@ -5,3 +5,9 @@ workspace:
 localResources:
   specs:
     - ../postman/specs/EcoTrack/EcoTrack.yaml
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/EcoTrack API Suite: 12451bd4-d201-40e6-9499-5d3eea794801

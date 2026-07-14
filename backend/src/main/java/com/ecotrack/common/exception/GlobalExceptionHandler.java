@@ -1,5 +1,10 @@
 package com.ecotrack.common.exception;
 
+import com.ecotrack.tracking.exception.CarbonEntryNotFoundException;
+import com.ecotrack.tracking.exception.CarbonTrackingException;
+import com.ecotrack.tracking.exception.EmissionFactorNotFoundException;
+import com.ecotrack.tracking.exception.EntryModificationNotAllowedException;
+import com.ecotrack.tracking.exception.InvalidCarbonCategoryException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -64,5 +69,43 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // --- Carbon Tracking Exceptions ---
+
+    @ExceptionHandler(CarbonEntryNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCarbonEntryNotFoundException(CarbonEntryNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(InvalidCarbonCategoryException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCarbonCategoryException(InvalidCarbonCategoryException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(EmissionFactorNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEmissionFactorNotFoundException(EmissionFactorNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(EntryModificationNotAllowedException.class)
+    public ResponseEntity<Map<String, Object>> handleEntryModificationNotAllowedException(EntryModificationNotAllowedException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    // Fallback for any other CarbonTrackingException
+    @ExceptionHandler(CarbonTrackingException.class)
+    public ResponseEntity<Map<String, Object>> handleCarbonTrackingException(CarbonTrackingException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }

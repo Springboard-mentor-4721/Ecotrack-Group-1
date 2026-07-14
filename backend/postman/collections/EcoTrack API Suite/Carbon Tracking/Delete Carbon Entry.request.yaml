@@ -1,0 +1,21 @@
+$kind: http-request
+method: DELETE
+url: '{{baseUrl}}/api/carbon/:id'
+headers:
+  - key: Authorization
+    value: 'Bearer {{jwtToken}}'
+pathVariables:
+  - key: id
+    value: '{{carbonEntryId}}'
+order: 6000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is valid for delete flow', function () {
+        pm.expect(pm.response.code).to.be.oneOf([204, 403, 404]);
+      });
+
+      pm.test('Response time is under 2000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(2000);
+      });

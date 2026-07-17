@@ -38,7 +38,7 @@ scripts:
       });
 
       if (token) {
-        pm.collectionVariables.set('jwtToken', token);
+        pm.environment.set('jwtToken', token);
       }
 
       pm.test('Login response includes user details or token payload only', function () {

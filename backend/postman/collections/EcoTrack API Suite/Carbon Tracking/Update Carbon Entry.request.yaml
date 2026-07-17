@@ -25,8 +25,8 @@ scripts:
   - type: afterResponse
     language: text/javascript
     code: |-
-      pm.test('Status code is success', function () {
-        pm.expect(pm.response.code).to.be.oneOf([200, 403, 404]);
+      pm.test('Status code is 200', function () {
+        pm.expect(pm.response.code).to.eql(200);
       });
 
       pm.test('Response time is under 2000ms', function () {
@@ -34,15 +34,30 @@ scripts:
       });
 
       const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();
-      if (contentType.includes('application/json')) {
-        const json = pm.response.json();
-        if (pm.response.code === 200) {
-          pm.test('Updated entry id is present', function () {
-            pm.expect(json.id).to.exist;
-          });
-        } else {
-          pm.test('Error response contains message', function () {
-            pm.expect(json.message || (json.errors && json.errors.error)).to.exist;
-          });
-        }
+      pm.test('Response content type is JSON', function () {
+        pm.expect(contentType).to.include('application/json');
+      });
+
+      const json = pm.response.json();
+      const entity = json.data || json.entry || json.carbonEntry || json;
+      const payload = JSON.parse(pm.request.body.raw || '{}');
+
+      pm.test('Updated entry id is present', function () {
+        pm.expect(entity.id).to.exist;
+      });
+
+      if (entity.id !== undefined) {
+        pm.collectionVariables.set('carbonEntryId', String(entity.id));
+      }
+
+      if (entity.notes !== undefined) {
+        pm.test('Updated notes match request payload', function () {
+          pm.expect(entity.notes).to.eql(payload.notes);
+        });
+      }
+
+      if (entity.quantity !== undefined) {
+        pm.test('Updated quantity matches request payload', function () {
+          pm.expect(Number(entity.quantity)).to.eql(Number(payload.quantity));
+        });
       }

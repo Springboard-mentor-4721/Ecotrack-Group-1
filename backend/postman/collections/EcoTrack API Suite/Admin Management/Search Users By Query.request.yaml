@@ -1,0 +1,27 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/admin/users'
+headers:
+  - key: Authorization
+    value: 'Bearer {{jwtToken}}'
+queryParams:
+  - key: page
+    value: '0'
+  - key: size
+    value: '10'
+  - key: search
+    value: test
+order: 1500
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.expect(pm.response.code).to.eql(200);
+      });
+
+      const json = pm.response.json();
+      pm.test('Search response is paginated', function () {
+        pm.expect(json).to.have.property('content');
+        pm.expect(json.content).to.be.an('array');
+      });

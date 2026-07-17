@@ -12,10 +12,14 @@ scripts:
   - type: afterResponse
     language: text/javascript
     code: |-
-      pm.test('Status code is valid for delete flow', function () {
-        pm.expect(pm.response.code).to.be.oneOf([204, 403, 404]);
+      pm.test('Status code is 204', function () {
+        pm.expect(pm.response.code).to.eql(204);
       });
 
       pm.test('Response time is under 2000ms', function () {
         pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      pm.test('Delete response body is empty', function () {
+        pm.expect(pm.response.text()).to.eql('');
       });

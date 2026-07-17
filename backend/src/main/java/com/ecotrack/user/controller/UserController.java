@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class UserController {
     private final UserProfileService userProfileService;
     private final UserRepository userRepository;
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUserProfile(Authentication authentication) {
         log.info("Fetching current user profile");
@@ -33,6 +35,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/me")
     public ResponseEntity<UserProfileResponse> updateCurrentUserProfile(
             @Valid @RequestBody UpdateUserProfileRequest request,

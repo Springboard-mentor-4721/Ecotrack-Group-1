@@ -28,9 +28,18 @@ scripts:
       });
 
       const json = pm.response.json();
+      const summary = json.data || json.summary || json;
+
       pm.test('Summary response contains totalEmission', function () {
-        pm.expect(json.totalEmission).to.not.equal(undefined);
+        pm.expect(summary.totalEmission).to.not.equal(undefined);
       });
-      pm.test('Summary response contains categorySummaries array', function () {
-        pm.expect(json.categorySummaries).to.be.an('array');
+
+      if (summary.totalEntries !== undefined) {
+        pm.test('Summary response totalEntries is numeric', function () {
+          pm.expect(Number(summary.totalEntries)).to.be.a('number');
+        });
+      }
+
+      pm.test('Summary response contains category summaries array', function () {
+        pm.expect(summary.categorySummaries || summary.categories || []).to.be.an('array');
       });

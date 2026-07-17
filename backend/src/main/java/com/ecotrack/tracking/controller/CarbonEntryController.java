@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class CarbonEntryController {
     private final CarbonEntryService carbonEntryService;
     private final UserRepository userRepository;
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<CarbonEntryResponse> createEntry(
             @Valid @RequestBody CreateCarbonEntryRequest request,
@@ -39,6 +41,7 @@ public class CarbonEntryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> updateEntry(
             @PathVariable Long id,
@@ -50,6 +53,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(
             @PathVariable Long id,
@@ -60,6 +64,7 @@ public class CarbonEntryController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> getEntryById(
             @PathVariable Long id,
@@ -69,6 +74,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
     public ResponseEntity<Page<CarbonEntryResponse>> getUserEntries(
             Pageable pageable,
@@ -78,6 +84,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/summary")
     public ResponseEntity<CarbonSummaryResponse> getDashboardSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

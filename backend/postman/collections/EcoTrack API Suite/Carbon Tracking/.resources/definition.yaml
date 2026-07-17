@@ -1,2 +1,5 @@
 $kind: collection
+name: Carbon Tracking
+auth:
+  type: apikey
 order: 2000

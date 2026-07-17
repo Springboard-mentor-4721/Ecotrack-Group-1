@@ -29,10 +29,23 @@ scripts:
 
       const json = pm.response.json();
       const items = json.content || json.data || [];
+
       pm.test('Paginated response contains an array payload', function () {
         pm.expect(items).to.be.an('array');
       });
 
-      if (Array.isArray(json.content) && json.content.length > 0 && json.content[0].id !== undefined) {
-        pm.collectionVariables.set('carbonEntryId', String(json.content[0].id));
+      if (json.number !== undefined) {
+        pm.test('Page number is numeric', function () {
+          pm.expect(Number(json.number)).to.be.a('number');
+        });
+      }
+
+      if (json.size !== undefined) {
+        pm.test('Page size is numeric', function () {
+          pm.expect(Number(json.size)).to.be.a('number');
+        });
+      }
+
+      if (Array.isArray(items) && items.length > 0 && items[0].id !== undefined) {
+        pm.collectionVariables.set('carbonEntryId', String(items[0].id));
       }

@@ -26,10 +26,24 @@ scripts:
       });
 
       const json = pm.response.json();
+      const entity = json.data || json.entry || json.carbonEntry || json;
+
       pm.test('Response contains carbon entry id', function () {
-        pm.expect(json.id).to.exist;
+        pm.expect(entity.id).to.exist;
       });
 
-      if (json.id !== undefined) {
-        pm.collectionVariables.set('carbonEntryId', String(json.id));
+      if (entity.id !== undefined) {
+        pm.collectionVariables.set('carbonEntryId', String(entity.id));
+      }
+
+      if (entity.categoryId !== undefined) {
+        pm.test('Response contains categoryId', function () {
+          pm.expect(entity.categoryId).to.exist;
+        });
+      }
+
+      if (entity.quantity !== undefined) {
+        pm.test('Response contains numeric quantity', function () {
+          pm.expect(Number(entity.quantity)).to.be.a('number');
+        });
       }

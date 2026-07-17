@@ -4,7 +4,7 @@ url: '{{baseUrl}}/api/users/me'
 headers:
   - key: Authorization
     value: 'Bearer {{jwtToken}}'
-order: 5000
+order: 1000
 scripts:
   - type: afterResponse
     language: text/javascript
@@ -17,7 +17,7 @@ scripts:
         pm.expect(pm.response.responseTime).to.be.below(2000);
       });
 
-      const text = pm.response.text();
-      pm.test('Response contains authenticated principal text', function () {
-        pm.expect(text).to.include('Authenticated as:');
+      const res = pm.response.json();
+      pm.test('Response contains valid userId', function () {
+        pm.expect(res).to.have.property('userId');
       });

@@ -5,6 +5,7 @@ import com.ecotrack.tracking.exception.CarbonTrackingException;
 import com.ecotrack.tracking.exception.EmissionFactorNotFoundException;
 import com.ecotrack.tracking.exception.EntryModificationNotAllowedException;
 import com.ecotrack.tracking.exception.InvalidCarbonCategoryException;
+import com.ecotrack.user.exception.UserProfileNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -107,5 +108,14 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // --- User Profile Exceptions ---
+
+    @ExceptionHandler(UserProfileNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserProfileNotFoundException(UserProfileNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }

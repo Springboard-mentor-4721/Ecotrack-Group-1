@@ -7,6 +7,8 @@ import com.ecotrack.common.enums.Role;
 import com.ecotrack.common.enums.Status;
 import com.ecotrack.security.jwt.JwtService;
 import com.ecotrack.user.entity.User;
+import com.ecotrack.user.entity.UserProfile;
+import com.ecotrack.user.repository.UserProfileRepository;
 import com.ecotrack.user.repository.UserRepository;
 import com.ecotrack.auth.dto.ForgotPasswordRequest;
 import com.ecotrack.auth.dto.ResetPasswordRequest;
@@ -32,20 +34,23 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final UserProfileRepository userProfileRepository;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
     // Constructor injection
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, PasswordResetTokenRepository passwordResetTokenRepository, EmailService emailService) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, PasswordResetTokenRepository passwordResetTokenRepository, EmailService emailService, UserProfileRepository userProfileRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
+        this.userProfileRepository = userProfileRepository;
     }
 
     // Register a new user
+    @Transactional
     public void register(RegisterRequest request) {
         
         // Check if email already exists
@@ -68,8 +73,13 @@ public class AuthService {
         user.setEmailVerified(false);
         user.setOauthProvider(com.ecotrack.common.enums.OAuthProvider.LOCAL);
 
-        // Save to database
-        userRepository.save(user);
+        // Save user to database
+        user = userRepository.save(user);
+
+        // Create empty user profile
+        UserProfile userProfile = new UserProfile();
+        userProfile.setUser(user);
+        userProfileRepository.save(userProfile);
     }
 
     // Authenticate a user and generate JWT

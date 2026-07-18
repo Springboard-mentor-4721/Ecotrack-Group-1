@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Maven
+target/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IntelliJ IDEA
+.idea/
+*.iml

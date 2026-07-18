@@ -1,0 +1,58 @@
+/* USERS LIST CSS - PREMIUM SAAS */
+
+.page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+/* Typography & Helpers */
+.tracking-tight { letter-spacing: -0.03em; }
+.tracking-wide { letter-spacing: 0.05em; }
+.fs-7 { font-size: 0.85rem; }
+.fs-xs { font-size: 0.75rem; }
+.max-w-lg { max-width: 600px; }
+.max-w-sm { max-width: 320px; }
+
+/* Theme Bindings */
+.text-dark { color: var(--text-primary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.bg-surface { background-color: var(--bg-surface) !important; }
+.bg-surface-hover { background-color: var(--bg-surface-hover) !important; }
+.hover-bg-surface-light:hover { background-color: var(--bg-surface-hover) !important; }
+.border { border-color: var(--border-color) !important; }
+.border-bottom { border-bottom: 1px solid var(--border-color) !important; }
+
+.bg-emerald { background-color: var(--color-emerald) !important; }
+.text-emerald { color: var(--color-emerald) !important; }
+.bg-blue { background-color: var(--color-blue) !important; }
+.text-blue { color: var(--color-blue) !important; }
+.bg-danger { background-color: var(--color-danger) !important; }
+.text-danger { color: var(--color-danger) !important; }
+
+/* Search Input Overrides */
+.input-wrapper .input-icon {
+  top: 50%;
+  left: 1.25rem;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.search-btn:hover {
+  background-color: var(--text-secondary) !important;
+}
+
+/* Grid Override for Mobile */
+@media (max-width: 768px) {
+  .user-card {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+    text-align: center;
+  }
+  .user-card .d-flex {
+    flex-direction: column;
+    justify-content: center;
+  }
+  .user-actions {
+    justify-content: center !important;
+  }
+}

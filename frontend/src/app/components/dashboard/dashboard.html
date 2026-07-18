@@ -1,34 +1,232 @@
-<div class="container-fluid">
-  <div class="row">
+<div class="dashboard-wrapper animate-page">
 
-    <div class="col-md-3 p-0">
-      <app-sidebar></app-sidebar>
+  <!-- ===============================
+       LOADING STATE 
+       =============================== -->
+  <div *ngIf="isLoading" class="animate-page">
+    <div class="row">
+      <div class="col-12 mb-4"><app-loading-skeleton type="card"></app-loading-skeleton></div>
     </div>
-
-    <div class="col-md-9 p-4">
-      <h2>Welcome to EcoTrack Dashboard</h2>
-      
-      <div class="card p-4 shadow-sm mt-4" *ngIf="user">
-        <h4 class="text-success mb-3">User Profile</h4>
-        <div class="row">
-          <div class="col-md-6">
-            <p><strong>Name:</strong> {{ user.name || 'Not Available' }}</p>
-            <p><strong>Email:</strong> {{ user.email || 'Not Available' }}</p>
-            <p><strong>Role:</strong> <span class="badge bg-success">{{ user.role || 'Not Available' }}</span></p>
-          </div>
-          <div class="col-md-6 text-md-end">
-            <p><strong>Status:</strong> <span class="badge bg-primary">{{ user.status || 'Active' }}</span></p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="text-center mt-5" *ngIf="!user">
-        <div class="spinner-border text-success" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2 text-muted">Loading profile data...</p>
-      </div>
-    </div>
-
   </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- HERO SECTION -->
+    <div class="hero-section mb-4 animate-stagger-item d-flex align-items-center justify-content-between">
+      <div>
+        <h1 class="number-hero mb-1">Good {{ greeting.replace('Good ', '') }}, {{ user?.name?.split(' ')?.[0] || 'User' }}</h1>
+        <p class="desc-light mb-0">Your sustainable choices are creating a measurable difference.</p>
+      </div>
+      
+      <!-- Analytics Block -->
+      <div class="row g-4 mb-4">
+        <div class="col-6">
+          <div class="analytic-item">
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Eco Score</span>
+            <span class="fs-3 fw-bold text-dark d-block">{{ ecoScore !== null ? ecoScore : '&mdash;' }}</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="analytic-item">
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Profile</span>
+            <span class="fs-3 fw-bold text-dark d-block">{{ profileCompletion !== null ? profileCompletion + '%' : '&mdash;' }}</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="analytic-item">
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Weekly Goal</span>
+            <span class="fs-3 fw-bold text-dark d-block">&mdash;</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="analytic-item">
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Streak</span>
+            <span class="fs-3 fw-bold text-dark d-block">&mdash;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-4 animate-stagger-item">
+        <div class="card-premium card-variant-a h-100">
+          <span class="label-muted mb-2 d-block">Monthly Impact</span>
+          <div class="d-flex align-items-baseline gap-1 mb-1">
+            <span class="number-hero">{{ totalEmissions > 0 ? (totalEmissions | number:'1.0-0') : '&mdash;' }}</span>
+            <span class="text-muted fw-bold" *ngIf="totalEmissions > 0">kg</span>
+          </div>
+          <span class="desc-light">Total emissions this month</span>
+        </div>
+      </div>
+      
+      <div class="col-md-4 animate-stagger-item">
+        <div class="card-premium card-variant-b h-100" style="--color-blue: var(--color-amber);">
+          <span class="label-muted mb-2 d-block">Profile Completion</span>
+          <div class="d-flex align-items-baseline gap-1 mb-1">
+            <span class="number-hero">{{ profileCompletion !== null ? profileCompletion : '&mdash;' }}</span>
+            <span class="text-muted fw-bold" *ngIf="profileCompletion !== null">%</span>
+          </div>
+          <span class="desc-light">Account setup</span>
+        </div>
+      </div>
+      
+      <div class="col-md-4 animate-stagger-item">
+        <div class="card-premium card-variant-d h-100 position-relative overflow-hidden">
+          <svg class="position-absolute end-0 bottom-0 text-emerald opacity-20 mb-n3 me-n3" width="80" height="80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C12 22 20 18 20 12C20 6 12 2 12 2C12 2 4 6 4 12C4 18 12 22 12 22Z"/></svg>
+          <div class="position-relative z-1">
+            <span class="label-muted mb-2 d-block">Total Entries</span>
+            <div class="d-flex align-items-baseline gap-1 mb-1">
+              <span class="number-hero">{{ totalEntries > 0 ? totalEntries : '&mdash;' }}</span>
+            </div>
+            <span class="desc-light">Total activities logged</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-7 animate-stagger-item">
+        <div class="card-premium h-100 p-4">
+          <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+              <h3 class="fw-bold text-dark mb-1 fs-5">Emissions Trend</h3>
+              <span class="label-muted">Last 7 Days</span>
+            </div>
+          </div>
+          
+          <ng-container *ngIf="recentEntries.length > 0; else emptyChart">
+            <div class="chart-wrapper position-relative" style="height: 250px;">
+              <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
+            </div>
+          </ng-container>
+          <ng-template #emptyChart>
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-4">
+              <svg class="text-muted mb-3 opacity-50" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              <h5 class="fw-bold text-dark">No activity yet</h5>
+              <p class="desc-light max-w-sm">Start logging your daily actions to see your emission trends.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+      
+      <div class="col-lg-5 animate-stagger-item">
+        <div class="card-premium h-100 p-4">
+          <h3 class="fw-bold text-dark mb-1 fs-5">Source Distribution</h3>
+          <span class="label-muted mb-4 d-block">This Month</span>
+          
+          <ng-container *ngIf="carbonSources.length > 0; else emptyDoughnut">
+            <div class="d-flex align-items-center justify-content-center h-100 pb-2">
+              <div class="doughnut-wrapper position-relative" style="height: 160px; width: 160px;">
+                <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" [type]="doughnutChartType"></canvas>
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                  <span class="fw-bold text-dark d-block lh-1 fs-3">{{ totalEmissions | number:'1.0-0' }}</span>
+                  <span class="label-muted">kg</span>
+                </div>
+              </div>
+              <div class="custom-legend flex-grow-1 ps-4 ms-2 border-start">
+                <div class="d-flex align-items-center justify-content-between mb-3" *ngFor="let source of carbonSources">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle" [style.backgroundColor]="source.color" style="width: 8px; height: 8px;"></span>
+                    <span class="fw-bold text-dark fs-7">{{ source.name }}</span>
+                  </div>
+                  <span class="desc-light">{{ source.percentage }}%</span>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #emptyDoughnut>
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-4">
+              <svg class="text-muted mb-3 opacity-50" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2v10l5.5 5.5"></path></svg>
+              <h5 class="fw-bold text-dark">Data unavailable</h5>
+              <p class="desc-light max-w-sm">We need more data to break down your sources.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="row g-4 mb-5">
+      
+      <!-- Recent Journal Entries (Timeline) -->
+      <div class="col-lg-4 animate-stagger-item">
+        <div class="card-premium h-100 p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-dark mb-0 fs-5">Recent Journal</h3>
+            <a routerLink="/carbon-tracker" class="label-muted text-emerald">View All</a>
+          </div>
+          
+          <div class="d-flex flex-column gap-4 mt-2">
+            <div class="d-flex align-items-center justify-content-between" *ngFor="let entry of recentEntries.slice(0,3)">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-surface-hover rounded-3 p-2 text-muted border">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </div>
+                <div>
+                  <span class="fw-bold text-dark d-block fs-7">{{ entry.subType }}</span>
+                  <span class="desc-light">{{ entry.entryDate | date:'MMM d, h:mm a' }}</span>
+                </div>
+              </div>
+              <span class="fw-bold text-dark fs-7">{{ entry.emissionKgco2e | number:'1.1-1' }} <span class="text-muted fw-normal">kg</span></span>
+            </div>
+            
+            <div class="text-center py-3" *ngIf="recentEntries.length === 0">
+              <span class="desc-light">No recent entries.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="col-lg-4 animate-stagger-item">
+        <div class="card-premium h-100 p-4">
+          <h3 class="fw-bold text-dark mb-4 fs-5">Quick Actions</h3>
+          
+          <div class="d-flex flex-column gap-3">
+            <a routerLink="/carbon-tracker" class="d-flex align-items-center gap-3 p-3 rounded-3 border bg-surface-hover text-decoration-none btn-premium">
+              <div class="bg-emerald bg-opacity-10 text-emerald rounded p-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </div>
+              <div>
+                <span class="fw-bold text-dark d-block fs-7">Add Activity</span>
+                <span class="desc-light">Log your daily impact</span>
+              </div>
+            </a>
+            
+            <a routerLink="/profile" class="d-flex align-items-center gap-3 p-3 rounded-3 border bg-surface-hover text-decoration-none btn-premium">
+              <div class="bg-blue bg-opacity-10 text-blue rounded p-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <div>
+                <span class="fw-bold text-dark d-block fs-7">Update Profile</span>
+                <span class="desc-light">Complete your details</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Achievements -->
+      <div class="col-lg-4 animate-stagger-item">
+        <div class="card-premium h-100 p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-dark mb-0 fs-5">Achievements</h3>
+            <span class="label-muted">View All</span>
+          </div>
+          
+          <div class="d-flex flex-column gap-3 align-items-center justify-content-center text-center py-4">
+            <svg class="text-muted mb-2 opacity-50" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15l-2 5l9-5l-2-5l2-5l-9 5l2-5l-9 5l2 5l-2 5l9-5z"></path></svg>
+            <div>
+              <span class="fw-bold text-dark d-block fs-7">Achievements Pending</span>
+              <span class="desc-light">Coming in future update</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+  </ng-container>
 </div>

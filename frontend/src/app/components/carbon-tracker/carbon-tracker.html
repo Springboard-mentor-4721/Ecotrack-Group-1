@@ -1,1 +1,486 @@
-<p>carbon-tracker works!</p>
+<div class="page-container animate-page pb-5 position-relative">
+
+  <!-- TOASTS -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div *ngFor="let toast of toasts" class="toast show align-items-center text-white border-0 mb-2 shadow-lg" [ngClass]="toast.type === 'success' ? 'bg-success' : 'bg-danger'" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body fw-bold d-flex align-items-center">
+          <svg *ngIf="toast.type === 'success'" width="18" height="18" class="me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg *ngIf="toast.type === 'error'" width="18" height="18" class="me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          {{ toast.message }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="removeToast(toast.id)" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div *ngIf="isLoading && !loadError" class="animate-page">
+    <div class="row">
+      <div class="col-12 mb-4"><app-loading-skeleton type="card"></app-loading-skeleton></div>
+    </div>
+    <div class="row">
+      <div class="col-12"><app-loading-skeleton type="table"></app-loading-skeleton></div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoading || loadError">
+
+    <!-- ERROR STATE -->
+    <div *ngIf="loadError" class="card-premium p-5 text-center my-5 shadow-sm border-danger">
+      <div class="icon-circle bg-danger-soft text-danger mx-auto mb-3" style="width: 64px; height: 64px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      </div>
+      <h3 class="fw-bold text-dark mb-2">Unable to load carbon entries.</h3>
+      <p class="text-muted mb-4">There was a problem communicating with the server.</p>
+      <button class="btn btn-teal rounded-pill px-4 fw-bold" (click)="loadEntries()">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!loadError">
+      <!-- 1. HERO SECTION -->
+      <div class="hero-premium position-relative overflow-hidden mb-4 rounded-4 shadow-sm">
+        <div class="row align-items-center position-relative z-1 p-4 p-lg-5">
+          <div class="col-lg-6">
+            <h1 class="hero-title text-dark fw-bold mb-2">Carbon <span class="text-teal">Journal</span></h1>
+            <p class="text-slate-muted mb-4 fs-6">Track your daily activities and understand your carbon footprint in real time.</p>
+            
+            <div class="d-flex align-items-center gap-4">
+              <div class="d-inline-flex align-items-center bg-surface px-4 py-3 rounded-pill border shadow-sm">
+                <div class="icon-circle bg-teal-soft text-teal me-3">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                <div>
+                  <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Today's Total Emission</div>
+                  <div class="fs-4 fw-bold text-dark">- <span class="fs-6 text-muted fw-normal">kg CO₂e</span></div>
+                </div>
+              </div>
+              <div class="d-none d-xl-block">
+                <span class="fst-italic text-teal fw-bold">"Every small action counts<br>for a big change."</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6 mt-4 mt-lg-0 text-end d-flex flex-column align-items-end justify-content-center">
+             <div class="hero-stats-grid">
+               <div class="stat-pill bg-teal text-white p-3 rounded-4 text-start shadow-sm">
+                 <div class="fs-xs fw-bold opacity-75 text-uppercase tracking-wide mb-1">Total Emission (30 Days)</div>
+                 <div class="fs-3 fw-bold">{{ summary?.totalEmission || 0 | number:'1.0-1' }} <span class="fs-7 fw-normal">kg CO₂e</span></div>
+               </div>
+               <div class="stat-pill bg-surface text-dark border p-3 rounded-4 text-start shadow-sm">
+                 <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Total Entries</div>
+                 <div class="fs-3 fw-bold">{{ entries.length || 0 }} <span class="fs-7 fw-normal text-muted">This month</span></div>
+               </div>
+               <div class="stat-pill bg-surface text-dark border p-3 rounded-4 text-start shadow-sm">
+                 <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Most Used Category</div>
+                 <div class="fs-5 fw-bold text-dark text-truncate mt-2">{{ highestCategory || 'N/A' }}</div>
+               </div>
+               <div class="stat-pill bg-surface text-dark border p-3 rounded-4 text-start shadow-sm">
+                 <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Avg. Daily Emission</div>
+                 <div class="fs-3 fw-bold text-dark">- <span class="fs-7 fw-normal text-muted">kg CO₂e</span></div>
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. STATS CARDS -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-3">
+          <div class="card-premium p-4 h-100 d-flex flex-column justify-content-center">
+            <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-2">Today's Emission</div>
+            <div class="fs-2 fw-bold text-dark">- <span class="fs-6 text-muted fw-normal">kg CO₂e</span></div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card-premium p-4 h-100 d-flex flex-column justify-content-center">
+            <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-2">Total Entries</div>
+            <div class="fs-2 fw-bold text-dark">{{ entries.length || 0 }} <span class="fs-6 text-muted fw-normal">This month</span></div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card-premium p-4 h-100 d-flex flex-column justify-content-center">
+            <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-2">Highest Category</div>
+            <div class="fs-3 fw-bold text-dark text-truncate">{{ highestCategory || 'N/A' }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card-premium p-4 h-100 d-flex flex-column justify-content-center">
+            <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-2">This Month Emission</div>
+            <div class="fs-2 fw-bold text-dark">{{ summary?.totalEmission || 0 | number:'1.0-1' }} <span class="fs-6 text-muted fw-normal">kg CO₂e</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. SEARCH & FILTERS -->
+      <div class="filter-toolbar bg-surface border rounded-pill shadow-sm p-2 mb-4 d-flex align-items-center flex-wrap gap-2">
+        <div class="input-group search-input-group me-2" style="max-width: 250px;" title="Available in upcoming release">
+          <span class="input-group-text bg-transparent border-0 text-muted ps-3 pe-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+          <input type="text" class="form-control border-0 bg-transparent shadow-none" placeholder="Search by notes..." disabled>
+        </div>
+        <div class="vr mx-1"></div>
+        <div title="Available in upcoming release">
+          <select class="form-select border-0 bg-transparent shadow-none fw-bold text-dark" style="max-width: 150px;" disabled>
+            <option>All Categories</option>
+          </select>
+        </div>
+        <div class="vr mx-1"></div>
+        <div title="Available in upcoming release">
+          <select class="form-select border-0 bg-transparent shadow-none fw-bold text-dark" style="max-width: 150px;" disabled>
+            <option>All Units</option>
+          </select>
+        </div>
+        <div class="ms-auto d-flex gap-2">
+          <button class="btn btn-light rounded-pill fw-bold px-3 border shadow-sm">Reset</button>
+          <button class="btn btn-teal rounded-pill fw-bold px-4 shadow-sm text-white" (click)="showAddEntryCard = true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Entry
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. ADD ENTRY CARD (Collapsible) -->
+      <div class="card-premium p-4 mb-4 border-teal" *ngIf="showAddEntryCard">
+        <h4 class="fw-bold tracking-tight mb-4 text-dark">{{ isEditing ? 'Edit Entry' : 'New Carbon Entry' }}</h4>
+        
+        <form [formGroup]="entryForm" (ngSubmit)="onSubmit()">
+          <div class="row g-4 align-items-start">
+            <div class="col-md-2">
+              <label class="form-label text-muted fs-7 fw-bold text-uppercase">1. Category</label>
+              <select class="journal-input form-select" formControlName="categoryId">
+                <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted fs-7 fw-bold text-uppercase">2. Sub Category</label>
+              <input type="text" class="journal-input form-control" formControlName="subType" list="subTypeOptions" placeholder="Type or select...">
+              <datalist id="subTypeOptions">
+                <option *ngFor="let type of availableSubTypes" [value]="type"></option>
+              </datalist>
+              <div class="text-danger fs-xs mt-1" *ngIf="entryForm.get('subType')?.touched && entryForm.get('subType')?.invalid">
+                <span *ngIf="entryForm.get('subType')?.errors?.['required']">Required</span>
+                <span *ngIf="entryForm.get('subType')?.errors?.['maxlength']">Max 100 chars</span>
+                <span *ngIf="entryForm.get('subType')?.errors?.['serverError']">{{ entryForm.get('subType')?.errors?.['serverError'] }}</span>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label text-muted fs-7 fw-bold text-uppercase">3. Quantity</label>
+              <input type="number" class="journal-input form-control" formControlName="quantity" placeholder="0" step="any">
+              <div class="text-danger fs-xs mt-1" *ngIf="entryForm.get('quantity')?.touched && entryForm.get('quantity')?.invalid">
+                <span *ngIf="entryForm.get('quantity')?.errors?.['required']">Required</span>
+                <span *ngIf="entryForm.get('quantity')?.errors?.['min']">Must be positive</span>
+                <span *ngIf="entryForm.get('quantity')?.errors?.['serverError']">{{ entryForm.get('quantity')?.errors?.['serverError'] }}</span>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label text-muted fs-7 fw-bold text-uppercase">4. Unit</label>
+              <input type="text" class="journal-input form-control bg-surface" formControlName="unit" readonly>
+              <div class="text-danger fs-xs mt-1" *ngIf="entryForm.get('unit')?.touched && entryForm.get('unit')?.invalid">
+                <span *ngIf="entryForm.get('unit')?.errors?.['serverError']">{{ entryForm.get('unit')?.errors?.['serverError'] }}</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted fs-7 fw-bold text-uppercase">5. Entry Date</label>
+              <input type="datetime-local" class="journal-input form-control" formControlName="entryDate">
+              <div class="text-danger fs-xs mt-1" *ngIf="entryForm.get('entryDate')?.touched && entryForm.get('entryDate')?.invalid">
+                <span *ngIf="entryForm.get('entryDate')?.errors?.['required']">Required</span>
+                <span *ngIf="entryForm.get('entryDate')?.errors?.['pastOrPresent']">Cannot be in the future</span>
+                <span *ngIf="entryForm.get('entryDate')?.errors?.['serverError']">{{ entryForm.get('entryDate')?.errors?.['serverError'] }}</span>
+              </div>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label text-muted fs-7 fw-bold text-uppercase">6. Notes (Optional)</label>
+              <input type="text" class="journal-input form-control" formControlName="notes" placeholder="Notes (Optional)">
+              <div class="text-danger fs-xs mt-1" *ngIf="entryForm.get('notes')?.touched && entryForm.get('notes')?.invalid">
+                <span *ngIf="entryForm.get('notes')?.errors?.['maxlength']">Max 500 chars</span>
+                <span *ngIf="entryForm.get('notes')?.errors?.['serverError']">{{ entryForm.get('notes')?.errors?.['serverError'] }}</span>
+              </div>
+            </div>
+            <div class="col-md-3 text-end align-self-end">
+              <button type="button" class="btn-journal-cancel me-3" (click)="resetForm()" [disabled]="isSubmitting">Cancel</button>
+              <button type="submit" class="btn-journal-submit" [disabled]="entryForm.invalid || isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {{ isEditing ? 'Update Entry' : 'Save Entry' }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- 5 & 6. MAIN CONTENT ROW -->
+      <div class="row g-4">
+        <!-- TABLE (Left Side) -->
+        <div class="col-lg-8">
+          <div class="card-premium p-4 h-100 d-flex flex-column">
+            <div class="d-flex align-items-center mb-4">
+              <h4 class="fw-bold text-dark mb-0 tracking-tight">Your Carbon Entries</h4>
+              <span class="badge bg-teal-soft text-teal ms-3 rounded-pill px-3">{{ totalPages > 0 ? entries.length + ' shown' : 'Empty' }}</span>
+              
+              <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-sm btn-light border fw-bold rounded-3 shadow-sm" disabled title="Available in a future update">
+                  <svg width="14" height="14" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> CSV
+                </button>
+                <button class="btn btn-sm btn-light border fw-bold rounded-3 shadow-sm" disabled title="Available in a future update">
+                  <svg width="14" height="14" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line></svg> Excel
+                </button>
+                <button class="btn btn-sm btn-light text-danger border fw-bold rounded-3 shadow-sm" disabled title="Available in a future update">
+                  Bulk Delete
+                </button>
+              </div>
+            </div>
+            
+            <ng-container *ngIf="entries.length > 0; else emptyActivity">
+              <div class="table-responsive flex-grow-1">
+                <table class="table table-hover align-middle mb-0 journal-table">
+                  <thead class="sticky-top bg-surface">
+                    <tr>
+                      <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 border-0">Date</th>
+                      <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 border-0">Category</th>
+                      <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 border-0">Sub Category</th>
+                      <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 border-0 text-end">Quantity</th>
+                      <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 border-0">Unit</th>
+                      <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 border-0 text-end">Emission <span class="fw-normal text-muted">(kg CO₂e)</span></th>
+                      <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 border-0 text-end px-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let entry of entries" class="journal-row">
+                      <td class="text-dark fw-bold fs-7 py-3">{{ entry.entryDate | date:'MMM d, y' }}<br><span class="text-muted fw-normal fs-xs">{{ entry.entryDate | date:'h:mm a' }}</span></td>
+                      <td class="text-dark fw-bold fs-7">
+                        <div class="d-flex align-items-center">
+                          <div class="icon-circle-sm bg-teal-soft text-teal me-2">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+                          </div>
+                          {{ entry.categoryName }}
+                        </div>
+                      </td>
+                      <td class="text-muted fs-7">{{ entry.subType }}</td>
+                      <td class="text-dark fs-7 fw-bold text-end">{{ entry.quantity }}</td>
+                      <td class="text-muted fs-7">{{ entry.unit }}</td>
+                      <td class="text-success fw-bold text-end fs-7">{{ entry.emissionKgco2e | number:'1.2-2' }}</td>
+                      <td class="text-end px-4">
+                        <div class="d-flex justify-content-end gap-2">
+                          <button class="action-btn text-muted hover-teal" title="View" (click)="openViewModal(entry)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                          </button>
+                          <button class="action-btn text-muted hover-teal" title="Edit" (click)="editEntry(entry)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                          </button>
+                          <button class="action-btn text-muted hover-danger" title="Delete" (click)="initiateDelete(entry.id)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <div class="journal-pagination mt-4 d-flex justify-content-between align-items-center pt-3 border-top">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Rows per page:</span>
+                  <select class="form-select form-select-sm border border-light shadow-sm bg-surface text-dark fw-bold" style="width: 70px;" [value]="pageSize" (change)="changePageSize($event)">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <button class="btn btn-pagination d-flex align-items-center gap-2" [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <div class="page-indicator text-muted fw-bold fs-7">
+                    Page {{ currentPage + 1 }} of {{ totalPages || 1 }}
+                  </div>
+                  <button class="btn btn-pagination d-flex align-items-center gap-2" [disabled]="currentPage === totalPages - 1 || totalPages === 0" (click)="changePage(currentPage + 1)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #emptyActivity>
+              <div class="text-center py-5 mt-4 my-auto">
+                <div class="icon-circle bg-surface shadow-sm text-teal mx-auto mb-4" style="width: 80px; height: 80px;">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+                </div>
+                <h4 class="fw-bold text-dark mb-2">No Carbon Entries Yet</h4>
+                <p class="text-muted max-w-sm mx-auto mb-4">Start tracking your daily activities to understand your environmental impact.</p>
+                <button class="btn btn-teal rounded-pill px-4 py-2 fw-bold" (click)="showAddEntryCard = true">Add First Entry</button>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+        
+        <!-- ANALYTICS PANEL (Right Side) -->
+        <div class="col-lg-4">
+          <!-- Category Distribution -->
+          <div class="card-premium p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold text-dark mb-0">Category Distribution</h5>
+            </div>
+            <div style="height: 200px; position: relative;">
+              <canvas baseChart *ngIf="doughnutChartData.datasets[0].data.length > 0"
+                      [data]="doughnutChartData" 
+                      [options]="doughnutChartOptions" 
+                      [type]="doughnutChartType">
+              </canvas>
+              <div *ngIf="doughnutChartData.datasets[0].data.length === 0" class="h-100 d-flex align-items-center justify-content-center text-muted fs-7">
+                No data available
+              </div>
+              <!-- Center Text for Donut -->
+              <div *ngIf="doughnutChartData.datasets[0].data.length > 0" class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
+                <div class="fs-4 fw-bold text-dark">{{ summary?.totalEmission || 0 | number:'1.0-0' }}</div>
+                <div class="fs-xs text-muted">kg CO₂e</div>
+              </div>
+            </div>
+            
+            <!-- Legend -->
+            <div class="mt-4" *ngIf="carbonSources.length > 0">
+              <div class="d-flex justify-content-between align-items-center mb-2" *ngFor="let source of carbonSources">
+                <div class="d-flex align-items-center">
+                  <span class="d-inline-block rounded-circle me-2" [style.background-color]="source.color" style="width: 8px; height: 8px;"></span>
+                  <span class="text-dark fs-7 fw-bold">{{ source.name }}</span>
+                </div>
+                <span class="text-muted fs-7">{{ source.percentage }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Trend -->
+          <div class="card-premium p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold text-dark mb-0">Weekly Trend <span class="fs-xs fw-normal text-muted">(kg CO₂e)</span></h5>
+              <select class="form-select form-select-sm border-0 bg-surface shadow-none w-auto fs-xs fw-bold text-dark" disabled title="Available in upcoming release">
+                <option>Last 7 Days</option>
+              </select>
+            </div>
+            <div style="height: 150px;">
+               <!-- Empty chart since backend doesn't provide time series -->
+              <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted fs-7">
+                <svg class="mb-2 opacity-50" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Trend data unavailable.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7 & 8. BOTTOM ROW (Recent Activity & Tips) -->
+      <div class="row g-4 mt-1">
+        <!-- Recent Activity -->
+        <div class="col-lg-6">
+          <div class="card-premium p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold text-dark mb-0">Recent Activity</h5>
+              <a href="javascript:void(0)" class="text-teal text-decoration-none fw-bold fs-7">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+            
+            <div class="journal-timeline" *ngIf="entries.length > 0">
+              <div class="timeline-items">
+                <div class="timeline-item" *ngFor="let entry of entries.slice(0, 5)">
+                  <div class="item-time">{{ entry.entryDate | date:'MMM d' }}</div>
+                  <div class="item-node"></div>
+                  <div class="item-card flex-grow-1 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fs-7 text-muted">Added {{ entry.subType || entry.categoryName }}</div>
+                    </div>
+                    <div class="fw-bold text-dark fs-7">{{ entry.emissionKgco2e | number:'1.2-2' }} kg CO₂e</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="entries.length === 0" class="text-center text-muted fs-7 py-4">
+              No recent activity.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="col-lg-6">
+          <div class="card-premium p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold text-dark mb-0">Tips for You</h5>
+              <a href="javascript:void(0)" class="text-teal text-decoration-none fw-bold fs-7">View All Tips <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="row g-3">
+               <div class="col-12 text-center text-muted py-5 bg-surface rounded-3 border border-dashed">
+                  <svg class="mb-3 opacity-50" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                  <div class="fs-6 fw-bold text-dark mb-1">Insights coming soon.</div>
+                  <div class="fs-7">Recommendations will appear after more activities are logged.</div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DELETE MODAL -->
+      <div class="modal-backdrop fade show" *ngIf="entryToDeleteId !== null"></div>
+      <div class="modal fade show d-block" tabindex="-1" *ngIf="entryToDeleteId !== null" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-0 bg-surface pb-0">
+              <h5 class="modal-title fw-bold text-dark">Delete Carbon Entry</h5>
+              <button type="button" class="btn-close shadow-none" (click)="cancelDelete()" [disabled]="isDeleting"></button>
+            </div>
+            <div class="modal-body bg-surface text-muted py-4">
+              <p class="mb-0">Are you sure you want to delete this carbon entry? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0 bg-surface pt-0">
+              <button type="button" class="btn btn-light fw-bold px-4 rounded-pill" (click)="cancelDelete()" [disabled]="isDeleting">Cancel</button>
+              <button type="button" class="btn btn-danger fw-bold px-4 rounded-pill d-flex align-items-center" (click)="confirmDelete()" [disabled]="isDeleting">
+                <span *ngIf="isDeleting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW MODAL -->
+      <div class="modal-backdrop fade show" *ngIf="viewEntry"></div>
+      <div class="modal fade show d-block" tabindex="-1" *ngIf="viewEntry" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-0 bg-surface">
+              <h5 class="modal-title fw-bold text-dark">Carbon Entry Details</h5>
+              <button type="button" class="btn-close shadow-none" (click)="closeViewModal()"></button>
+            </div>
+            <div class="modal-body bg-surface py-4">
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="fs-xs text-muted text-uppercase fw-bold tracking-wide">Category</div>
+                  <div class="fs-6 text-dark fw-bold">{{ viewEntry.categoryName }}</div>
+                </div>
+                <div class="col-6">
+                  <div class="fs-xs text-muted text-uppercase fw-bold tracking-wide">Sub Category</div>
+                  <div class="fs-6 text-dark fw-bold">{{ viewEntry.subType }}</div>
+                </div>
+                <div class="col-6">
+                  <div class="fs-xs text-muted text-uppercase fw-bold tracking-wide">Date & Time</div>
+                  <div class="fs-6 text-dark fw-bold">{{ viewEntry.entryDate | date:'medium' }}</div>
+                </div>
+                <div class="col-6">
+                  <div class="fs-xs text-muted text-uppercase fw-bold tracking-wide">Emissions</div>
+                  <div class="fs-6 text-success fw-bold">{{ viewEntry.emissionKgco2e | number:'1.2-2' }} kg CO₂e</div>
+                </div>
+                <div class="col-12">
+                  <div class="fs-xs text-muted text-uppercase fw-bold tracking-wide">Quantity & Unit</div>
+                  <div class="fs-6 text-dark fw-bold">{{ viewEntry.quantity }} {{ viewEntry.unit }}</div>
+                </div>
+                <div class="col-12" *ngIf="viewEntry.notes">
+                  <div class="fs-xs text-muted text-uppercase fw-bold tracking-wide">Notes</div>
+                  <div class="fs-6 text-dark p-3 bg-surface-hover rounded-3 mt-1">{{ viewEntry.notes }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer border-0 bg-surface">
+              <button type="button" class="btn btn-teal fw-bold px-4 rounded-pill" (click)="closeViewModal()">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

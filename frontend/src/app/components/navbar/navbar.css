@@ -1,0 +1,134 @@
+/* NAVBAR CSS - PREMIUM SAAS */
+
+.top-navbar {
+  height: 72px;
+  background-color: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.max-w-sm {
+  max-width: 400px;
+}
+
+.search-input {
+  background-color: var(--bg-surface-hover);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: all 150ms ease-in-out;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--border-color);
+  background-color: var(--bg-surface);
+  box-shadow: 0 2px 8px var(--shadow-sm);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-shortcut {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Actions */
+.icon-btn {
+  background: transparent;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.notification-badge {
+  width: 10px;
+  height: 10px;
+  top: 8px;
+  right: 10px;
+}
+
+.divider {
+  height: 24px;
+  width: 1px;
+  background-color: var(--border-color);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+}
+
+.profile-btn {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.profile-btn:hover {
+  background-color: var(--bg-surface-hover);
+}
+
+/* Custom Theme Toggle */
+.theme-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.toggle-track {
+  width: 52px;
+  height: 28px;
+  background-color: var(--bg-surface-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: var(--bg-surface);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform: translateX(0);
+}
+
+.toggle-thumb.dark {
+  transform: translateX(22px);
+  background-color: var(--color-blue);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.toggle-thumb svg {
+  transition: opacity 0.2s ease;
+}

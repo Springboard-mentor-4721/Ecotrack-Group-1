@@ -1,6 +1,7 @@
 package com.ecotrack.admin.controller;
 
 import com.ecotrack.admin.dto.request.UpdateUserStatusRequest;
+import com.ecotrack.admin.dto.response.AdminDashboardResponse;
 import com.ecotrack.admin.dto.response.UserDetailResponse;
 import com.ecotrack.admin.dto.response.UserSummaryResponse;
 import com.ecotrack.admin.service.AdminService;
@@ -31,6 +32,12 @@ public class AdminController {
 
     private final AdminService adminService;
     private final UserRepository userRepository;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/dashboard")
+    public ResponseEntity<AdminDashboardResponse> getDashboardSummary() {
+        return ResponseEntity.ok(adminService.getDashboardSummary());
+    }
 
     @GetMapping("/users")
     public ResponseEntity<Page<UserSummaryResponse>> getUsers(

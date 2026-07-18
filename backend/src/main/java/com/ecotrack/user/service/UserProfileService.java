@@ -20,13 +20,17 @@ public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserProfileMapper userProfileMapper;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserProfileResponse getProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         UserProfile userProfile = userProfileRepository.findByUser_Id(userId)
-                .orElseThrow(UserProfileNotFoundException::new);
+                .orElseGet(() -> {
+                    UserProfile newProfile = new UserProfile();
+                    newProfile.setUser(user);
+                    return userProfileRepository.save(newProfile);
+                });
 
         return userProfileMapper.toResponse(user, userProfile);
     }
@@ -37,7 +41,11 @@ public class UserProfileService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         UserProfile userProfile = userProfileRepository.findByUser_Id(userId)
-                .orElseThrow(UserProfileNotFoundException::new);
+                .orElseGet(() -> {
+                    UserProfile newProfile = new UserProfile();
+                    newProfile.setUser(user);
+                    return userProfileRepository.save(newProfile);
+                });
 
         if (request.getBio() != null) {
             userProfile.setBio(request.getBio());

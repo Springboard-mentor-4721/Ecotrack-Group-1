@@ -1,5 +1,6 @@
 package com.ecotrack.admin.service;
 
+import com.ecotrack.admin.dto.response.AdminDashboardResponse;
 import com.ecotrack.admin.dto.response.UserDetailResponse;
 import com.ecotrack.admin.dto.response.UserSummaryResponse;
 import com.ecotrack.admin.mapper.AdminUserMapper;
@@ -57,5 +58,20 @@ public class AdminService {
         
         UserProfile profile = userProfileRepository.findByUser_Id(targetUserId).orElse(null);
         return adminUserMapper.toDetailResponse(user, profile);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminDashboardResponse getDashboardSummary() {
+        long totalUsers = userRepository.count();
+        long activeUsers = userRepository.countByStatus(Status.ACTIVE);
+        long suspendedUsers = userRepository.countByStatus(Status.SUSPENDED);
+        long adminUsers = userRepository.countByRole(com.ecotrack.common.enums.Role.ADMIN);
+
+        return AdminDashboardResponse.builder()
+                .totalUsers(totalUsers)
+                .activeUsers(activeUsers)
+                .suspendedUsers(suspendedUsers)
+                .adminUsers(adminUsers)
+                .build();
     }
 }

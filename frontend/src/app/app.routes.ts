@@ -4,7 +4,7 @@ import { LoginComponent } from './components/login/login';
 import { RegisterComponent } from './components/register/register';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { CarbonTrackerComponent } from './components/carbon-tracker/carbon-tracker';
-import { GoalsComponent } from './components/goals/goals';
+import { GoalsPageComponent } from './features/goals/pages/goals-page.component';
 import { ReportsComponent } from './components/reports/reports';
 import { ProfileComponent } from './components/profile/profile';
 import { SettingsComponent } from './components/settings/settings';
@@ -41,7 +41,7 @@ export const routes: Routes = [
   },
   {
     path: 'goals',
-    component: GoalsComponent,
+    component: GoalsPageComponent,
     canActivate: [authGuard]
   },
   {

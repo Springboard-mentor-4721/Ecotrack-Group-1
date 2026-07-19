@@ -42,6 +42,18 @@
   --transition-slow: 0.5s ease;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-body: #0f172a;
+    --color-bg-card: #1e293b;
+    --color-text-main: #f8fafc;
+    --color-text-muted: #94a3b8;
+    --color-border: #334155;
+    --color-input-bg: #0f172a;
+    --shadow-glass: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+}
+
 /* =========================================
    GLOBAL RESET
    ========================================= */
@@ -88,7 +100,7 @@ h1, h2, h3, h4, h5, h6 {
 .premium-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background-color: #ffffff;
+  background-color: var(--color-bg-card);
   box-shadow: var(--shadow-focus);
 }
 

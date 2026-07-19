@@ -14,6 +14,7 @@ export interface PageableResponse<T> {
 
 export interface CarbonEntryResponse {
   id: number;
+  subCategoryId: number;
   categoryId: number;
   categoryName: string;
   subType: string;
@@ -39,7 +40,7 @@ export interface CarbonSummaryResponse {
 
 export interface CreateCarbonEntryRequest {
   categoryId: number;
-  subType: string;
+  subCategoryId: number;
   quantity: number;
   unit: string;
   entryDate: string; // YYYY-MM-DD
@@ -48,7 +49,7 @@ export interface CreateCarbonEntryRequest {
 
 export interface UpdateCarbonEntryRequest {
   categoryId: number;
-  subType: string;
+  subCategoryId: number;
   quantity: number;
   unit: string;
   entryDate: string; // YYYY-MM-DD

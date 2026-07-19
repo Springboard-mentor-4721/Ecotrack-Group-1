@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,17 +20,16 @@ public interface CarbonEntryRepository extends JpaRepository<CarbonEntry, Long> 
 
     Page<CarbonEntry> findByUserId(Long userId, Pageable pageable);
 
-    Page<CarbonEntry> findByUserIdAndEntryDateBetween(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<CarbonEntry> findByUserIdAndEntryDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    Page<CarbonEntry> findByUserIdAndCategory_CategoryId(Long userId, Long categoryId, Pageable pageable);
 
-    @Query("SELECT c.category.name AS categoryName, SUM(c.emissionKgco2e) AS totalEmission " +
+    @Query("SELECT c.subCategory.category.name AS categoryName, SUM(c.emissionKgco2e) AS totalEmission " +
            "FROM CarbonEntry c " +
            "WHERE c.user.id = :userId " +
            "AND c.entryDate BETWEEN :startDate AND :endDate " +
-           "GROUP BY c.category.name")
+           "GROUP BY c.subCategory.category.name")
     List<CategoryEmissionProjection> getEmissionSummaryByUserAndDateRange(
             @Param("userId") Long userId,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate);
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

@@ -1,19 +1,22 @@
 <nav class="top-navbar bg-surface border-bottom px-4">
   <div class="navbar-content d-flex align-items-center justify-content-between h-100">
     
-    <!-- BRAND / LOGO (For Mobile or Sidebar collapsed state) -->
-    <div class="navbar-brand d-lg-none d-flex align-items-center gap-2">
-      <img src="/logo.png" alt="EcoTrack Logo" style="width: 28px; height: 28px; object-fit: contain;">
-      <span class="fw-bold fs-5 text-dark">EcoTrack</span>
+    <!-- BRAND & HAMBURGER -->
+    <div class="d-flex align-items-center gap-3">
+      <button class="icon-btn border-0 bg-transparent p-0 text-dark" (click)="toggleSidebar.emit()" aria-label="Toggle Sidebar" style="cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="navbar-brand d-flex align-items-center gap-2">
+        <img src="/logo.png" alt="EcoTrack Logo" style="width: 28px; height: 28px; object-fit: contain;">
+        <span class="fw-bold fs-5 text-dark">EcoTrack</span>
+      </div>
     </div>
 
-    <!-- SEARCH -->
-    <div class="navbar-search position-relative d-none d-md-flex align-items-center flex-grow-1 max-w-sm ms-lg-0 ms-md-4">
-      <svg class="search-icon position-absolute ms-3 text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" class="search-input w-100" placeholder="Search anything...">
-      <div class="search-shortcut position-absolute end-0 me-2 text-muted fs-xs fw-bold rounded border px-2 py-1 bg-surface-hover">Ctrl + K</div>
-    </div>
-    
     <!-- ACTIONS -->
     <div class="navbar-actions d-flex align-items-center gap-3 ms-auto">
       

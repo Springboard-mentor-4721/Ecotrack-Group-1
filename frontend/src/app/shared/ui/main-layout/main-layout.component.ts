@@ -10,10 +10,10 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar';
   imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent],
   template: `
     <div class="layout-wrapper">
-      <app-navbar class="layout-navbar"></app-navbar>
+      <app-navbar class="layout-navbar" (toggleSidebar)="toggleSidebar()"></app-navbar>
       
       <div class="layout-body">
-        <app-sidebar class="layout-sidebar"></app-sidebar>
+        <app-sidebar class="layout-sidebar" [class.open]="isSidebarVisible"></app-sidebar>
         
         <main class="layout-content">
           <router-outlet></router-outlet>
@@ -49,6 +49,12 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar';
       z-index: 40;
       background-color: var(--color-bg-card);
       border-right: 1px solid var(--color-border);
+      display: none; /* Hidden by default */
+      transition: width 0.3s ease;
+    }
+    
+    .layout-sidebar.open {
+      display: flex; /* Sidebar component is a flex column */
     }
     
     .layout-content {
@@ -56,13 +62,20 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar';
       overflow-y: auto;
       overflow-x: hidden;
       position: relative;
+      padding: 0.5rem;
     }
     
-    @media (max-width: 991px) {
-      .layout-sidebar {
-        display: none; /* In a real app, we'd use a drawer here */
+    @media (max-width: 768px) {
+      .layout-content {
+        padding: 1rem;
       }
     }
   `]
 })
-export class MainLayoutComponent {}
+export class MainLayoutComponent {
+  isSidebarVisible = false;
+
+  toggleSidebar() {
+    this.isSidebarVisible = !this.isSidebarVisible;
+  }
+}

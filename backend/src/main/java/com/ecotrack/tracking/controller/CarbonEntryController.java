@@ -30,7 +30,7 @@ public class CarbonEntryController {
     private final CarbonEntryService carbonEntryService;
     private final UserRepository userRepository;
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<CarbonEntryResponse> createEntry(
             @Valid @RequestBody CreateCarbonEntryRequest request,
@@ -41,7 +41,7 @@ public class CarbonEntryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> updateEntry(
             @PathVariable Long id,
@@ -53,7 +53,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(
             @PathVariable Long id,
@@ -64,7 +64,7 @@ public class CarbonEntryController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> getEntryById(
             @PathVariable Long id,
@@ -74,17 +74,26 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping
     public ResponseEntity<Page<CarbonEntryResponse>> getUserEntries(
+            @RequestParam(value = "category", required = false) Long categoryId,
+            @RequestParam(value = "subCategory", required = false) Long subCategoryId,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(value = "emissionMin", required = false) java.math.BigDecimal emissionMin,
+            @RequestParam(value = "emissionMax", required = false) java.math.BigDecimal emissionMax,
+            @RequestParam(value = "quantityMin", required = false) java.math.BigDecimal quantityMin,
+            @RequestParam(value = "quantityMax", required = false) java.math.BigDecimal quantityMax,
             Pageable pageable,
             Authentication authentication) {
         Long userId = getUserId(authentication);
-        Page<CarbonEntryResponse> response = carbonEntryService.getUserEntries(userId, pageable);
+        Page<CarbonEntryResponse> response = carbonEntryService.getUserEntries(userId, categoryId, subCategoryId, search, startDate, endDate, emissionMin, emissionMax, quantityMin, quantityMax, pageable);
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/summary")
     public ResponseEntity<CarbonSummaryResponse> getDashboardSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

@@ -73,7 +73,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**", "/error", "/oauth2/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/carbon/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/carbon/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2

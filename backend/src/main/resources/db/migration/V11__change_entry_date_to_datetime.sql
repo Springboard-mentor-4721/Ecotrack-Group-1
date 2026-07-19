@@ -1,0 +1,1 @@
+ALTER TABLE carbon_entries MODIFY COLUMN entry_date DATETIME NOT NULL;

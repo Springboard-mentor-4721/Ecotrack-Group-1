@@ -42,23 +42,13 @@ public class CarbonEntry {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private CarbonCategory category;
-
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "sub_type", nullable = false)
-    private String subType;
+    @JoinColumn(name = "sub_category_id", nullable = false)
+    private CarbonSubCategory subCategory;
 
     @NotNull
     @Positive
     @Column(name = "quantity", nullable = false, precision = 10, scale = 4)
     private BigDecimal quantity;
-
-    @NotBlank
-    @Size(max = 30)
-    @Column(name = "unit", nullable = false)
-    private String unit;
 
     @NotNull
     @PositiveOrZero
@@ -68,7 +58,7 @@ public class CarbonEntry {
     @NotNull
     @PastOrPresent
     @Column(name = "entry_date", nullable = false)
-    private LocalDate entryDate;
+    private LocalDateTime entryDate;
 
     @Size(max = 500)
     @Column(name = "notes")

@@ -6,7 +6,7 @@
 
 :root {
   /* LIGHT MODE */
-  --bg-body: #F6F8FB;
+  --bg-body: #E8EEF2;
   --bg-surface: #FFFFFF;
   --bg-surface-hover: #F1F5F9;
   --bg-sidebar: #FFFFFF;
@@ -16,7 +16,7 @@
   
   --text-primary: #111827;
   --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
+  --text-muted: #64748B; /* Darkened from #9CA3AF for better visibility */
   
   /* Brand Colors */
   --color-emerald: #10B981;

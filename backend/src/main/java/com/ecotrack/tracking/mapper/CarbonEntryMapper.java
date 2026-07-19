@@ -15,9 +15,7 @@ public class CarbonEntryMapper {
         }
 
         return CarbonEntry.builder()
-                .subType(request.getSubType())
                 .quantity(request.getQuantity())
-                .unit(request.getUnit())
                 .entryDate(request.getEntryDate())
                 .notes(request.getNotes())
                 .build();
@@ -28,9 +26,7 @@ public class CarbonEntryMapper {
             return;
         }
         
-        entity.setSubType(request.getSubType());
         entity.setQuantity(request.getQuantity());
-        entity.setUnit(request.getUnit());
         entity.setEntryDate(request.getEntryDate());
         entity.setNotes(request.getNotes());
     }
@@ -42,11 +38,12 @@ public class CarbonEntryMapper {
 
         return CarbonEntryResponse.builder()
                 .id(entity.getId())
-                .categoryId(entity.getCategory() != null ? entity.getCategory().getCategoryId() : null)
-                .categoryName(entity.getCategory() != null ? entity.getCategory().getName() : null)
-                .subType(entity.getSubType())
+                .subCategoryId(entity.getSubCategory() != null ? entity.getSubCategory().getId() : null)
+                .categoryId(entity.getSubCategory() != null && entity.getSubCategory().getCategory() != null ? entity.getSubCategory().getCategory().getCategoryId() : null)
+                .categoryName(entity.getSubCategory() != null && entity.getSubCategory().getCategory() != null ? entity.getSubCategory().getCategory().getName() : null)
+                .subType(entity.getSubCategory() != null ? entity.getSubCategory().getName() : null)
                 .quantity(entity.getQuantity())
-                .unit(entity.getUnit())
+                .unit(entity.getSubCategory() != null ? entity.getSubCategory().getDefaultUnit() : null)
                 .emissionKgco2e(entity.getEmissionKgco2e())
                 .entryDate(entity.getEntryDate())
                 .notes(entity.getNotes())

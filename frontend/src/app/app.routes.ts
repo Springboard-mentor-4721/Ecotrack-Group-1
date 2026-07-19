@@ -12,6 +12,7 @@ import { OAuth2SuccessComponent } from './components/oauth2-success/oauth2-succe
 import { ResetPasswordComponent } from './components/reset-password/reset-password';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { userGuard } from './guards/user.guard';
 import { AdminUsersListComponent } from './components/admin/users-list/users-list';
 import { AdminUserDetailsComponent } from './components/admin/user-details/user-details';
 import { ForbiddenComponent } from './components/forbidden/forbidden';
@@ -41,19 +42,23 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        component: DashboardComponent
+        component: DashboardComponent,
+        canActivate: [userGuard]
       },
       {
         path: 'carbon-tracker',
-        component: CarbonTrackerComponent
+        component: CarbonTrackerComponent,
+        canActivate: [userGuard]
       },
       {
         path: 'goals',
-        component: GoalsComponent
+        component: GoalsComponent,
+        canActivate: [userGuard]
       },
       {
         path: 'reports',
-        component: ReportsComponent
+        component: ReportsComponent,
+        canActivate: [userGuard]
       },
       {
         path: 'profile',

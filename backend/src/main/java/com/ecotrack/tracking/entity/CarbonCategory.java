@@ -38,9 +38,21 @@ public class CarbonCategory {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "display_order", nullable = false)
+    @Builder.Default
+    private Integer displayOrder = 0;
+
     @Size(max = 500)
     @Column(name = "icon")
     private String icon;
+
+    @Size(max = 7)
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
 
     @Builder.Default
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)

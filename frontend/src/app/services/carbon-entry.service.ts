@@ -18,12 +18,35 @@ export class CarbonEntryService {
 
   constructor(private http: HttpClient) {}
 
-  getEntries(page: number = 0, size: number = 20): Observable<PageableResponse<CarbonEntryResponse>> {
-    const params = new HttpParams()
+  getEntries(
+    page: number = 0, size: number = 20, 
+    categoryId?: number, subCategoryId?: number, 
+    search?: string, 
+    startDate?: string, endDate?: string, 
+    emissionMin?: number, emissionMax?: number,
+    quantityMin?: number, quantityMax?: number,
+    sort?: string
+  ): Observable<PageableResponse<CarbonEntryResponse>> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+      
+    if (categoryId) params = params.set('category', categoryId.toString());
+    if (subCategoryId) params = params.set('subCategory', subCategoryId.toString());
+    if (search) params = params.set('search', search);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    if (emissionMin != null) params = params.set('emissionMin', emissionMin.toString());
+    if (emissionMax != null) params = params.set('emissionMax', emissionMax.toString());
+    if (quantityMin != null) params = params.set('quantityMin', quantityMin.toString());
+    if (quantityMax != null) params = params.set('quantityMax', quantityMax.toString());
+    if (sort) params = params.set('sort', sort);
     
     return this.http.get<PageableResponse<CarbonEntryResponse>>(`${this.apiUrl}/api/carbon`, { params });
+  }
+
+  getCategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/api/carbon/categories`);
   }
 
   getEntryById(id: number): Observable<CarbonEntryResponse> {

@@ -19,7 +19,16 @@ export class OAuth2SuccessComponent implements OnInit {
       const token = params['token'];
       if (token) {
         this.authService.saveToken(token);
-        this.router.navigate(['/dashboard']);
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if (payload.role === 'ADMIN') {
+            this.router.navigate(['/admin/users']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+        } catch (e) {
+          this.router.navigate(['/dashboard']);
+        }
       } else {
         this.router.navigate(['/']);
       }

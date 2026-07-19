@@ -158,7 +158,17 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.authService.saveToken(res.accessToken);
-          this.router.navigate(['/dashboard']);
+          
+          try {
+            const payload = JSON.parse(atob(res.accessToken.split('.')[1]));
+            if (payload.role === 'ADMIN') {
+              this.router.navigate(['/admin/users']);
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
+          } catch (e) {
+            this.router.navigate(['/dashboard']);
+          }
         },
         error: (err) => {
           if (err.status === 0) {

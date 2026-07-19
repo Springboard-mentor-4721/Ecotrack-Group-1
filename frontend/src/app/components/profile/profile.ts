@@ -5,7 +5,6 @@ import { ProfileService } from '../../services/profile.service';
 import { UserProfileResponse } from '../../models/profile.models';
 import { finalize } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
-import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-profile',

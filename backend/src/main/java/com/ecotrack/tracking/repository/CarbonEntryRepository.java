@@ -22,6 +22,8 @@ public interface CarbonEntryRepository extends JpaRepository<CarbonEntry, Long> 
 
     Page<CarbonEntry> findByUserIdAndEntryDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
+    long countByUserIdAndEntryDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate);
+
 
     @Query("SELECT c.subCategory.category.name AS categoryName, SUM(c.emissionKgco2e) AS totalEmission " +
            "FROM CarbonEntry c " +

@@ -15,6 +15,7 @@ export class SidebarComponent implements OnInit {
   userEmail = '';
   userRole = '';
   isAdmin = false;
+  isSuspended = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -27,6 +28,7 @@ export class SidebarComponent implements OnInit {
         this.userEmail = payload.sub || 'eco@track.com'; // Usually sub holds email
         this.userRole = payload.role || 'USER';
         this.isAdmin = this.userRole === 'ADMIN';
+        this.isSuspended = payload.status === 'SUSPENDED';
       } catch (e) {}
     }
   }

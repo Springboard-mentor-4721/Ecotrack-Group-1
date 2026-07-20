@@ -35,6 +35,7 @@ export interface CategoryEmissionResponse {
 
 export interface CarbonSummaryResponse {
   totalEmission: number;
+  totalEntriesCount: number;
   categorySummaries: CategoryEmissionResponse[];
 }
 

@@ -22,7 +22,7 @@ public class CarbonCategoryController {
     private final CarbonCategoryRepository categoryRepository;
     private final CarbonSubCategoryRepository subCategoryRepository;
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
     public ResponseEntity<List<CarbonCategoryDto>> getAllCategories() {
         var subCategories = subCategoryRepository.findAll();

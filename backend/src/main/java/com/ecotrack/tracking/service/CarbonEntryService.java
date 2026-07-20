@@ -82,8 +82,6 @@ public class CarbonEntryService {
         CarbonEntry entity = carbonEntryRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(CarbonEntryNotFoundException::new);
 
-        enforceSameDayEditRule(entity.getEntryDate());
-
         com.ecotrack.tracking.entity.CarbonSubCategory subCategory = carbonSubCategoryRepository.findById(request.getSubCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subcategory"));
 
@@ -107,8 +105,6 @@ public class CarbonEntryService {
 
         CarbonEntry entity = carbonEntryRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(CarbonEntryNotFoundException::new);
-
-        enforceSameDayEditRule(entity.getEntryDate());
 
         carbonEntryRepository.delete(entity);
     }
@@ -270,8 +266,11 @@ public class CarbonEntryService {
                 })
                 .collect(Collectors.toList());
 
+        long totalEntries = carbonEntryRepository.countByUserIdAndEntryDateBetween(userId, startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+
         return CarbonSummaryResponse.builder()
                 .totalEmission(grandTotal)
+                .totalEntriesCount(totalEntries)
                 .categorySummaries(categorySummaries)
                 .build();
     }

@@ -30,7 +30,7 @@ public class CarbonEntryController {
     private final CarbonEntryService carbonEntryService;
     private final UserRepository userRepository;
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<CarbonEntryResponse> createEntry(
             @Valid @RequestBody CreateCarbonEntryRequest request,
@@ -41,7 +41,7 @@ public class CarbonEntryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> updateEntry(
             @PathVariable Long id,
@@ -53,7 +53,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(
             @PathVariable Long id,
@@ -64,7 +64,7 @@ public class CarbonEntryController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> getEntryById(
             @PathVariable Long id,
@@ -74,7 +74,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
     public ResponseEntity<Page<CarbonEntryResponse>> getUserEntries(
             @RequestParam(value = "category", required = false) Long categoryId,
@@ -93,7 +93,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/summary")
     public ResponseEntity<CarbonSummaryResponse> getDashboardSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

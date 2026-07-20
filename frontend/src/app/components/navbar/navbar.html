@@ -43,17 +43,26 @@
       <!-- User Profile Dropdown -->
       <div class="position-relative">
         <button class="profile-btn d-flex align-items-center gap-2 border-0 bg-transparent p-0 ms-2" (click)="toggleMenu()">
-          <div class="avatar bg-emerald-light text-emerald fw-bold rounded-circle d-flex align-items-center justify-content-center">
-            {{ userProfile?.name?.charAt(0)?.toUpperCase() || 'U' }}
+          <div class="avatar bg-emerald-light text-emerald fw-bold rounded-circle d-flex align-items-center justify-content-center overflow-hidden position-relative">
+            <img *ngIf="userProfile?.profilePictureUrl" 
+                 [src]="resolveImageUrl(userProfile.profilePictureUrl)" 
+                 (error)="userProfile.profilePictureUrl = undefined"
+                 alt="" 
+                 class="w-100 h-100" style="object-fit: cover; display: block;">
+            <span *ngIf="!userProfile?.profilePictureUrl">
+              {{ userProfile?.name?.charAt(0)?.toUpperCase() || 'U' }}
+            </span>
           </div>
           <div class="d-none d-sm-flex flex-column align-items-start text-start">
-            <span class="fs-7 fw-bold text-dark lh-1 mb-1">{{ userProfile?.name || 'User' }}</span>
-            <span class="fs-xs text-muted lh-1">Personal Workspace <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ms-1"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            <div class="d-flex align-items-center gap-1">
+              <span class="fs-7 fw-bold text-dark lh-1">{{ userProfile?.name || 'User' }}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
           </div>
         </button>
 
         <!-- Dropdown Menu -->
-        <div class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3 position-absolute end-0 mt-2 py-2" style="min-width: 200px;" [class.show]="isMenuOpen">
+        <div class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3 position-absolute end-0 mt-2 py-2 bg-surface" style="min-width: 200px;" [class.show]="isMenuOpen">
           <div class="px-3 py-2 border-bottom mb-2">
             <span class="d-block fw-bold text-dark fs-7">{{ userProfile?.name || 'User' }}</span>
             <span class="d-block text-muted fs-xs">{{ userProfile?.email || 'user@ecotrack.com' }}</span>

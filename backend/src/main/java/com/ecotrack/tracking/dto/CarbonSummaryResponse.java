@@ -16,5 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class CarbonSummaryResponse {
     private BigDecimal totalEmission;
+    private long totalEntriesCount;
     private List<CategoryEmissionResponse> categorySummaries;
 }

@@ -51,7 +51,7 @@
                  </div>
                  <div>
                    <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Total Entries</div>
-                   <div class="fs-3 fw-bold lh-1 text-white">{{ entries.length || 0 }} <span class="fs-7 fw-normal text-muted d-block mt-1">This month</span></div>
+                   <div class="fs-3 fw-bold lh-1 text-white">{{ monthEntriesCount || 0 }} <span class="fs-7 fw-normal text-muted d-block mt-1">This month</span></div>
                  </div>
                </div>
                <div class="stat-pill d-flex align-items-center gap-3">
@@ -91,7 +91,7 @@
       <div class="row g-4 mb-4">
         <div class="col-md-4">
           <div class="card-premium p-4 h-100 d-flex flex-row align-items-center gap-3">
-            <div class="icon-circle" style="width: 48px; height: 48px; flex-shrink: 0; background-color: #d1fae5; color: #10b981;">
+            <div class="icon-circle bg-emerald-light text-emerald" style="width: 48px; height: 48px; flex-shrink: 0;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 22 12 12"></path></svg>
             </div>
             <div>
@@ -102,7 +102,7 @@
         </div>
         <div class="col-md-4">
           <div class="card-premium p-4 h-100 d-flex flex-row align-items-center gap-3">
-            <div class="icon-circle" style="width: 48px; height: 48px; flex-shrink: 0; background-color: #fef3c7; color: #d97706;">
+            <div class="icon-circle bg-warning-light text-amber" style="width: 48px; height: 48px; flex-shrink: 0;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
             </div>
             <div>
@@ -113,7 +113,7 @@
         </div>
         <div class="col-md-4">
           <div class="card-premium p-4 h-100 d-flex flex-row align-items-center gap-3">
-            <div class="icon-circle" style="width: 48px; height: 48px; flex-shrink: 0; background-color: #f3e8ff; color: #7e22ce;">
+            <div class="icon-circle bg-purple-light text-purple" style="width: 48px; height: 48px; flex-shrink: 0;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
             </div>
             <div class="min-w-0 flex-grow-1">
@@ -130,14 +130,14 @@
         <!-- Search -->
         <div class="col-12 col-xxl-3 col-xl-4 col-lg-12">
           <div class="position-relative w-100">
-            <input type="text" class="form-control form-control-lg bg-white border shadow-sm fs-7 pe-5 ps-5" placeholder="Search by notes, sub type..." [(ngModel)]="filterSearch" (keyup.enter)="applyFilters()" (change)="applyFilters()" style="height: 50px;">
+            <input type="text" class="form-control form-control-lg bg-surface border shadow-sm fs-7 pe-5 ps-5" placeholder="Search by notes, sub type..." [(ngModel)]="filterSearch" (keyup.enter)="applyFilters()" (change)="applyFilters()" style="height: 50px;">
             <svg width="18" height="18" class="text-muted position-absolute top-50 start-0 translate-middle-y ms-3 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
         </div>
         
         <!-- Date Range -->
         <div class="col-6 col-xxl-auto col-xl-2 col-lg-3">
-          <div class="border rounded-3 d-flex align-items-center bg-white px-3 position-relative" style="cursor: pointer; min-width: 180px; height: 50px;" (click)="showDateDropdown = !showDateDropdown">
+          <div class="border rounded-3 d-flex align-items-center bg-surface px-3 position-relative" style="cursor: pointer; min-width: 180px; height: 50px;" (click)="showDateDropdown = !showDateDropdown">
           <svg width="16" height="16" class="text-muted me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           <div class="d-flex flex-column flex-grow-1 justify-content-center">
             <span class="text-muted" style="font-size: 0.65rem; line-height: 1;">Date Range</span>
@@ -153,7 +153,7 @@
           <!-- Invisible backdrop for click-outside -->
           <div *ngIf="showDateDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showDateDropdown = false; $event.stopPropagation()"></div>
           
-          <div class="dropdown-menu dropdown-menu-premium p-3 shadow border-0 mt-2 bg-white" [class.show]="showDateDropdown" [class.d-block]="showDateDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 320px;">
+          <div class="dropdown-menu dropdown-menu-premium p-3 shadow border-0 mt-2 bg-surface" [class.show]="showDateDropdown" [class.d-block]="showDateDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 320px;">
             <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
               <span class="fw-bold fs-6 text-dark">Date Range</span>
             </div>
@@ -167,10 +167,10 @@
                   <!-- Invisible backdrop -->
                   <div *ngIf="activeDateField === 'start'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
                   
-                  <div *ngIf="activeDateField === 'start'" class="dropdown-menu-premium position-absolute bg-white shadow-lg p-3" style="top: 100%; left: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
+                  <div *ngIf="activeDateField === 'start'" class="dropdown-menu-premium position-absolute bg-surface shadow-lg p-3" style="top: 100%; left: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
                     <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
                       <button class="btn btn-sm btn-light p-1" (click)="prevMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                      <span class="fw-bold fs-7">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
+                      <span class="fw-bold fs-7 text-dark">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
                       <button class="btn btn-sm btn-light p-1" (click)="nextMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                     </div>
                     <div class="calendar-grid">
@@ -189,10 +189,10 @@
                   <!-- Invisible backdrop -->
                   <div *ngIf="activeDateField === 'end'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
                   
-                  <div *ngIf="activeDateField === 'end'" class="dropdown-menu-premium position-absolute bg-white shadow-lg p-3" style="top: 100%; right: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
+                  <div *ngIf="activeDateField === 'end'" class="dropdown-menu-premium position-absolute bg-surface shadow-lg p-3" style="top: 100%; right: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
                     <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
                       <button class="btn btn-sm btn-light p-1" (click)="prevMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                      <span class="fw-bold fs-7">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
+                      <span class="fw-bold fs-7 text-dark">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
                       <button class="btn btn-sm btn-light p-1" (click)="nextMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                     </div>
                     <div class="calendar-grid">
@@ -213,7 +213,7 @@
 
         <!-- Category -->
         <div class="col-6 col-xxl-auto col-xl-2 col-lg-3">
-          <div class="border rounded-3 d-flex align-items-center bg-white px-3 position-relative w-100" style="cursor: pointer; height: 50px;" (click)="showCategoryDropdown = true">
+          <div class="border rounded-3 d-flex align-items-center bg-surface px-3 position-relative w-100" style="cursor: pointer; height: 50px;" (click)="showCategoryDropdown = true">
           <svg width="16" height="16" class="text-muted me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 22 12 12"></path></svg>
           <div class="d-flex flex-column flex-grow-1 justify-content-center">
             <span class="text-muted" style="font-size: 0.65rem; line-height: 1; pointer-events: none;">Category</span>
@@ -224,7 +224,7 @@
           <!-- Invisible backdrop for click-outside -->
           <div *ngIf="showCategoryDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showCategoryDropdown = false; $event.stopPropagation()"></div>
           
-          <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-white py-2" [class.show]="showCategoryDropdown" [class.d-block]="showCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 200px; max-height: 350px; overflow-y: auto;">
+          <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-surface py-2" [class.show]="showCategoryDropdown" [class.d-block]="showCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 200px; max-height: 350px; overflow-y: auto;">
             <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="!filterCategory" (click)="filterCategory = undefined; onCategoryFilterChange(); showCategoryDropdown = false">Category (All)</button>
             <button class="dropdown-item dropdown-item-premium fs-7" *ngFor="let cat of categories" [class.active-item]="filterCategory == cat.id" (click)="filterCategory = cat.id; onCategoryFilterChange(); showCategoryDropdown = false">{{ cat.name }}</button>
           </div>
@@ -233,7 +233,7 @@
         
         <!-- Sub Category -->
         <div class="col-6 col-xxl-auto col-xl-2 col-lg-3">
-          <div class="border rounded-3 d-flex align-items-center bg-white px-3 position-relative w-100" style="cursor: pointer; height: 50px;" (click)="showSubCategoryDropdown = true">
+          <div class="border rounded-3 d-flex align-items-center bg-surface px-3 position-relative w-100" style="cursor: pointer; height: 50px;" (click)="showSubCategoryDropdown = true">
           <svg width="16" height="16" class="text-muted me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
           <div class="d-flex flex-column flex-grow-1 justify-content-center">
             <span class="text-muted" style="font-size: 0.65rem; line-height: 1; pointer-events: none;">Sub Category</span>
@@ -244,7 +244,7 @@
           <!-- Invisible backdrop for click-outside -->
           <div *ngIf="showSubCategoryDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showSubCategoryDropdown = false; $event.stopPropagation()"></div>
           
-          <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-white py-2" [class.show]="showSubCategoryDropdown" [class.d-block]="showSubCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 220px; max-height: 350px; overflow-y: auto;">
+          <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-surface py-2" [class.show]="showSubCategoryDropdown" [class.d-block]="showSubCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 220px; max-height: 350px; overflow-y: auto;">
             <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="!filterSubCategory" (click)="filterSubCategory = undefined; applyFilters(); showSubCategoryDropdown = false">Sub Category (All)</button>
             <ng-container *ngIf="availableSubCategories.length > 0">
               <button class="dropdown-item dropdown-item-premium fs-7" *ngFor="let sub of availableSubCategories" [class.active-item]="filterSubCategory == sub.id" (click)="filterSubCategory = sub.id; applyFilters(); showSubCategoryDropdown = false">{{ sub.name }}</button>
@@ -256,7 +256,7 @@
 
         <!-- Sort By -->
         <div class="col-6 col-xxl-auto col-xl-2 col-lg-3">
-          <div class="border rounded-3 d-flex align-items-center bg-white px-3 position-relative w-100" style="cursor: pointer; height: 50px;" (click)="showSortDropdown = true">
+          <div class="border rounded-3 d-flex align-items-center bg-surface px-3 position-relative w-100" style="cursor: pointer; height: 50px;" (click)="showSortDropdown = true">
           <svg width="16" height="16" class="text-muted me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16l-4 4-4-4"></path><path d="M17 20V4"></path><path d="M3 8l4-4 4 4"></path><path d="M7 4v16"></path></svg>
           <div class="d-flex flex-column flex-grow-1 justify-content-center">
             <span class="text-muted" style="font-size: 0.65rem; line-height: 1; pointer-events: none;">Sort By</span>
@@ -267,7 +267,7 @@
           <!-- Invisible backdrop for click-outside -->
           <div *ngIf="showSortDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showSortDropdown = false; $event.stopPropagation()"></div>
           
-          <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-white py-2" [class.show]="showSortDropdown" [class.d-block]="showSortDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 200px;">
+          <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-surface py-2" [class.show]="showSortDropdown" [class.d-block]="showSortDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 200px;">
             <button class="dropdown-item dropdown-item-premium fs-7" *ngFor="let option of sortOptions" [class.active-item]="filterSort === option.value" (click)="filterSort = option.value; applyFilters(); showSortDropdown = false">{{ option.label }}</button>
           </div>
         </div>
@@ -388,7 +388,7 @@
                     <!-- Invisible backdrop -->
                     <div *ngIf="showPageSizeDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showPageSizeDropdown = false; $event.stopPropagation()"></div>
                     
-                    <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-white py-2" [class.show]="showPageSizeDropdown" [class.d-block]="showPageSizeDropdown" (click)="$event.stopPropagation()" style="position: absolute; bottom: 100%; left: 0; z-index: 1050; min-width: 100px;">
+                    <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-surface py-2" [class.show]="showPageSizeDropdown" [class.d-block]="showPageSizeDropdown" (click)="$event.stopPropagation()" style="position: absolute; bottom: 100%; left: 0; z-index: 1050; min-width: 100px;">
                       <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="pageSize === 10" (click)="setPageSize(10); showPageSizeDropdown = false">10</button>
                       <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="pageSize === 25" (click)="setPageSize(25); showPageSizeDropdown = false">25</button>
                       <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="pageSize === 50" (click)="setPageSize(50); showPageSizeDropdown = false">50</button>
@@ -442,7 +442,7 @@
                 <!-- Invisible backdrop -->
                 <div *ngIf="showDistributionDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showDistributionDropdown = false; $event.stopPropagation()"></div>
                 
-                <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-white py-2" [class.show]="showDistributionDropdown" [class.d-block]="showDistributionDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 140px;">
+                <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-surface py-2" [class.show]="showDistributionDropdown" [class.d-block]="showDistributionDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 140px;">
                   <button class="dropdown-item dropdown-item-premium fs-7" *ngFor="let m of availableMonths" [class.active-item]="distributionMonth === m.value" (click)="distributionMonth = m.value; onDistributionMonthChange()">{{ m.label }}</button>
                 </div>
               </div>
@@ -500,7 +500,7 @@
                   
                   <div *ngIf="showTrendDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showTrendDropdown = false; $event.stopPropagation()"></div>
                   
-                  <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-white py-2" [class.show]="showTrendDropdown" [class.d-block]="showTrendDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 140px;">
+                  <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-surface py-2" [class.show]="showTrendDropdown" [class.d-block]="showTrendDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 140px;">
                     <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="trendPeriod === '7days'" (click)="setTrendPeriod('7days')">Last 7 Days</button>
                     <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="trendPeriod === '14days'" (click)="setTrendPeriod('14days')">Last 14 Days</button>
                     <button class="dropdown-item dropdown-item-premium fs-7" [class.active-item]="trendPeriod === '1month'" (click)="setTrendPeriod('1month')">Last 1 Month</button>
@@ -519,7 +519,7 @@
                   
                   <div *ngIf="showTrendMonthDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showTrendMonthDropdown = false; $event.stopPropagation()"></div>
                   
-                  <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-white py-2" [class.show]="showTrendMonthDropdown" [class.d-block]="showTrendMonthDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 140px;">
+                  <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-1 bg-surface py-2" [class.show]="showTrendMonthDropdown" [class.d-block]="showTrendMonthDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; right: 0; z-index: 1050; min-width: 140px;">
                     <button class="dropdown-item dropdown-item-premium fs-7" *ngFor="let m of availableMonths" [class.active-item]="trendPeriod === 'custom-month' && trendMonth === m.value" (click)="setTrendMonth(m.value)">{{ m.label }}</button>
                   </div>
                 </div>
@@ -621,7 +621,7 @@
             <!-- Invisible backdrop -->
             <div *ngIf="showFormCategoryDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showFormCategoryDropdown = false; $event.stopPropagation()"></div>
             
-            <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-white py-2" [class.show]="showFormCategoryDropdown" [class.d-block]="showFormCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 100%; max-height: 250px; overflow-y: auto;">
+            <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-surface py-2" [class.show]="showFormCategoryDropdown" [class.d-block]="showFormCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 100%; max-height: 250px; overflow-y: auto;">
               <button type="button" class="dropdown-item dropdown-item-premium fs-7" *ngFor="let cat of categories" [class.active-item]="entryForm.get('categoryId')?.value == cat.id" (click)="entryForm.get('categoryId')?.setValue(cat.id); showFormCategoryDropdown = false">{{ cat.name }}</button>
             </div>
           </div>
@@ -638,7 +638,7 @@
             <!-- Invisible backdrop -->
             <div *ngIf="showFormSubCategoryDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="showFormSubCategoryDropdown = false; $event.stopPropagation()"></div>
             
-            <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-white py-2" [class.show]="showFormSubCategoryDropdown" [class.d-block]="showFormSubCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 100%; max-height: 250px; overflow-y: auto;">
+            <div class="dropdown-menu dropdown-menu-premium shadow border-0 mt-2 bg-surface py-2" [class.show]="showFormSubCategoryDropdown" [class.d-block]="showFormSubCategoryDropdown" (click)="$event.stopPropagation()" style="position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 100%; max-height: 250px; overflow-y: auto;">
               <button type="button" class="dropdown-item dropdown-item-premium fs-7" *ngFor="let type of availableSubTypes" [class.active-item]="entryForm.get('subCategoryId')?.value == type.id" (click)="entryForm.get('subCategoryId')?.setValue(type.id); showFormSubCategoryDropdown = false">{{ type.name }}</button>
               <div *ngIf="availableSubTypes.length === 0" class="px-3 py-2 text-muted fs-7">Select a category first</div>
             </div>
@@ -669,10 +669,10 @@
               <!-- Invisible backdrop -->
               <div *ngIf="activeDateField === 'formDate'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
               
-              <div *ngIf="activeDateField === 'formDate'" class="dropdown-menu-premium position-absolute bg-white shadow-lg p-3" style="bottom: 100%; left: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
+              <div *ngIf="activeDateField === 'formDate'" class="dropdown-menu-premium position-absolute bg-surface shadow-lg p-3" style="bottom: 100%; left: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
                 <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
                   <button type="button" class="btn btn-sm btn-light p-1" (click)="prevMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                  <span class="fw-bold fs-7">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
+                  <span class="fw-bold fs-7 text-dark">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
                   <button type="button" class="btn btn-sm btn-light p-1" (click)="nextMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                 </div>
                 <div class="calendar-grid">
@@ -683,22 +683,53 @@
             </div>
             
             <div class="border rounded-3 d-flex align-items-center bg-body px-3 position-relative" style="cursor: pointer; height: 46px; min-width: 140px;" (click)="openCustomTimePicker('formTime', $event)" [class.border-danger]="entryForm.get('entryDateTime')?.touched && entryForm.get('entryDateTime')?.invalid">
-              <span class="fs-7 flex-grow-1 text-center" [class.text-dark]="entryForm.get('entryDateTime')?.value" [class.text-muted]="!entryForm.get('entryDateTime')?.value">{{ entryForm.get('entryDateTime')?.value || 'Time' }}</span>
+              <span class="fs-7 flex-grow-1 text-center" [class.text-dark]="entryForm.get('entryDateTime')?.value" [class.text-muted]="!entryForm.get('entryDateTime')?.value">{{ displayTime }}</span>
               <svg width="14" height="14" class="text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
               
               <!-- Invisible backdrop -->
               <div *ngIf="activeTimeField === 'formTime'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
               
-              <div *ngIf="activeTimeField === 'formTime'" class="dropdown-menu-premium position-absolute bg-white shadow-lg p-3" style="bottom: 100%; right: 0; z-index: 1100; min-width: 160px;" (click)="$event.stopPropagation()">
+              <div *ngIf="activeTimeField === 'formTime'" class="dropdown-menu-premium position-absolute bg-surface shadow-lg p-3" style="bottom: 100%; right: 0; z-index: 1100; min-width: 240px;" (click)="$event.stopPropagation()">
                 <div class="fw-bold fs-6 text-center text-dark mb-3 border-bottom pb-2">Set Time</div>
-                <div class="d-flex justify-content-center align-items-center gap-2">
-                  <select class="form-select form-select-sm border-light-subtle bg-light text-center fw-bold text-dark rounded-3" style="width: 60px;" [(ngModel)]="customTimeHour" [ngModelOptions]="{standalone: true}" (change)="updateCustomTime()">
-                    <option *ngFor="let h of hours" [value]="h">{{ h }}</option>
-                  </select>
-                  <span class="fw-bold text-muted">:</span>
-                  <select class="form-select form-select-sm border-light-subtle bg-light text-center fw-bold text-dark rounded-3" style="width: 60px;" [(ngModel)]="customTimeMinute" [ngModelOptions]="{standalone: true}" (change)="updateCustomTime()">
-                    <option *ngFor="let m of minutes" [value]="m">{{ m }}</option>
-                  </select>
+                <div class="d-flex justify-content-center align-items-center gap-3">
+                  <!-- Hours -->
+                  <div class="d-flex flex-column time-scroll-col" style="height: 160px; overflow-y: auto; width: 45px; scrollbar-width: none;">
+                    <div *ngFor="let h of hours" 
+                         class="text-center py-2 rounded-3 fw-bold fs-6 mb-1"
+                         [class.bg-primary]="customTimeHour === h"
+                         [class.text-white]="customTimeHour === h"
+                         [class.text-muted]="customTimeHour !== h"
+                         (click)="customTimeHour = h; updateCustomTime()" style="transition: all 0.2s; cursor: pointer;">
+                      {{ h }}
+                    </div>
+                  </div>
+                  <div class="fw-bold text-muted fs-5 pb-1">:</div>
+                  <!-- Minutes -->
+                  <div class="d-flex flex-column time-scroll-col" style="height: 160px; overflow-y: auto; width: 45px; scrollbar-width: none;">
+                    <div *ngFor="let m of minutes" 
+                         class="text-center py-2 rounded-3 fw-bold fs-6 mb-1"
+                         [class.bg-primary]="customTimeMinute === m"
+                         [class.text-white]="customTimeMinute === m"
+                         [class.text-muted]="customTimeMinute !== m"
+                         (click)="customTimeMinute = m; updateCustomTime()" style="transition: all 0.2s; cursor: pointer;">
+                      {{ m }}
+                    </div>
+                  </div>
+                  <!-- AM/PM -->
+                  <div class="d-flex flex-column justify-content-center gap-2 h-100 ps-3 border-start">
+                    <div class="text-center py-2 rounded-3 fw-bold fs-7 px-3 shadow-sm"
+                         [class.bg-primary]="customTimeAmPm === 'AM'"
+                         [class.text-white]="customTimeAmPm === 'AM'"
+                         [class.text-muted]="customTimeAmPm !== 'AM'"
+                         [class.bg-light]="customTimeAmPm !== 'AM'"
+                         (click)="customTimeAmPm = 'AM'; updateCustomTime()" style="transition: all 0.2s; cursor: pointer;">AM</div>
+                    <div class="text-center py-2 rounded-3 fw-bold fs-7 px-3 shadow-sm"
+                         [class.bg-primary]="customTimeAmPm === 'PM'"
+                         [class.text-white]="customTimeAmPm === 'PM'"
+                         [class.text-muted]="customTimeAmPm !== 'PM'"
+                         [class.bg-light]="customTimeAmPm !== 'PM'"
+                         (click)="customTimeAmPm = 'PM'; updateCustomTime()" style="transition: all 0.2s; cursor: pointer;">PM</div>
+                  </div>
                 </div>
               </div>
             </div>

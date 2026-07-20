@@ -80,6 +80,16 @@
 }
 
 /* Promo Banner */
+.disabled-link {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.disabled-link .nav-icon {
+  color: var(--text-muted);
+}
+
 .promo-banner {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
 }

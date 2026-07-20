@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -58,6 +59,15 @@ export class NavbarComponent implements OnInit {
         }
       });
     }
+  }
+
+  resolveImageUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (url.startsWith('blob:')) return url;
+    if (url.startsWith('http')) return url;
+    const backendUrl = environment.apiUrl || 'http://localhost:8080';
+    const basePath = url.startsWith('/') ? url : '/' + url;
+    return backendUrl + basePath;
   }
 
   @HostListener('document:click', ['$event'])

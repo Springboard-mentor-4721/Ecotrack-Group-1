@@ -60,10 +60,22 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   
   // Custom Time state
   activeTimeField: 'formTime' | null = null;
-  hours = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
+  hours = Array.from({length: 12}, (_, i) => String(i + 1).padStart(2, '0'));
   minutes = Array.from({length: 60}, (_, i) => String(i).padStart(2, '0'));
-  customTimeHour = '12';
-  customTimeMinute = '00';
+  customTimeHour: string = '12';
+  customTimeMinute: string = '00';
+  customTimeAmPm: string = 'AM';
+
+  get displayTime(): string {
+    const val = this.entryForm.get('entryDateTime')?.value;
+    if (!val) return 'Time';
+    const [h, m] = val.split(':');
+    let hour = parseInt(h, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${String(hour).padStart(2, '0')}:${m} ${ampm}`;
+  }
 
   sortOptions = [
     { value: 'entryDate,desc', label: 'Newest' },
@@ -388,12 +400,19 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     this.activeDateField = null;
     const currentVal = this.entryForm.get('entryDateTime')?.value || '12:00';
     const parts = currentVal.split(':');
-    this.customTimeHour = parts[0] || '12';
+    let h = parseInt(parts[0] || '12', 10);
+    this.customTimeAmPm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if (h === 0) h = 12;
+    this.customTimeHour = String(h).padStart(2, '0');
     this.customTimeMinute = parts[1] || '00';
   }
 
   updateCustomTime() {
-    const timeStr = `${this.customTimeHour}:${this.customTimeMinute}`;
+    let h = parseInt(this.customTimeHour, 10);
+    if (this.customTimeAmPm === 'PM' && h < 12) h += 12;
+    if (this.customTimeAmPm === 'AM' && h === 12) h = 0;
+    const timeStr = `${String(h).padStart(2, '0')}:${this.customTimeMinute}`;
     this.entryForm.patchValue({ entryDateTime: timeStr });
   }
 
@@ -406,20 +425,25 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   todayEmission = 0;
   todayEntriesCount = 0;
   todayHighestCategory = 'N/A';
+  monthEntriesCount = 0;
 
   loadSummary(): void {
     const end = new Date();
     const start = new Date();
     start.setDate(end.getDate() - 30); // Last 30 days
     
-    const startDate = start.toISOString().split('T')[0];
-    const endDate = end.toISOString().split('T')[0];
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const getLocalISODate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    
+    const startDate = getLocalISODate(start);
+    const endDate = getLocalISODate(end);
 
     this.carbonEntryService.getDashboardSummary(startDate, endDate)
       .pipe(finalize(() => this.cdr.detectChanges()))
       .subscribe({
       next: (summary) => {
         this.summary = summary;
+        this.monthEntriesCount = summary.totalEntriesCount || 0;
         this.avgDailyEmission = summary.totalEmission / 30;
         if (summary.categorySummaries && summary.categorySummaries.length > 0) {
           const sorted = [...summary.categorySummaries].sort((a,b) => b.percentage - a.percentage);
@@ -432,11 +456,14 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Failed to load summary', err)
     });
 
-    const todayStr = end.toISOString().split('T')[0];
+    // Removed extra getEntries call
+
+    const todayStr = endDate;
     this.carbonEntryService.getDashboardSummary(todayStr, todayStr)
       .subscribe({
       next: (summary) => {
         this.todayEmission = summary.totalEmission || 0;
+        this.todayEntriesCount = summary.totalEntriesCount || 0;
         if (summary.categorySummaries && summary.categorySummaries.length > 0) {
           const sorted = [...summary.categorySummaries].sort((a,b) => b.percentage - a.percentage);
           this.todayHighestCategory = sorted[0].categoryName;
@@ -448,14 +475,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Failed to load today summary', err)
     });
     
-    this.carbonEntryService.getEntries(0, 1, undefined, undefined, undefined, todayStr, todayStr)
-      .subscribe({
-      next: (res) => {
-        this.todayEntriesCount = res.totalElements;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Failed to load today entries count', err)
-    });
+    // Removed extra getEntries call for today
   }
 
   onDistributionMonthChange(): void {
@@ -689,6 +709,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
           this.showToast('Entry Updated Successfully', 'success');
           this.loadEntries();
           this.loadSummary();
+          this.loadCategoryDistribution();
           this.resetForm();
         },
         error: (err) => {
@@ -707,6 +728,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
           this.showToast('Entry Added Successfully', 'success');
           this.loadEntries();
           this.loadSummary();
+          this.loadCategoryDistribution();
           this.resetForm();
         },
         error: (err) => {

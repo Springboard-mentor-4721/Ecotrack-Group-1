@@ -16,7 +16,9 @@ import { userGuard } from './guards/user.guard';
 import { AdminUsersListComponent } from './components/admin/users-list/users-list';
 import { AdminUserDetailsComponent } from './components/admin/user-details/user-details';
 import { ForbiddenComponent } from './components/forbidden/forbidden';
+import { SuspendedComponent } from './components/suspended/suspended';
 import { MainLayoutComponent } from './shared/ui/main-layout/main-layout.component';
+import { suspendedGuard } from './guards/suspended.guard';
 
 export const routes: Routes = [
   {
@@ -43,22 +45,22 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
-        canActivate: [userGuard]
+        canActivate: [userGuard, suspendedGuard]
       },
       {
         path: 'carbon-tracker',
         component: CarbonTrackerComponent,
-        canActivate: [userGuard]
+        canActivate: [userGuard, suspendedGuard]
       },
       {
         path: 'goals',
         component: GoalsComponent,
-        canActivate: [userGuard]
+        canActivate: [userGuard, suspendedGuard]
       },
       {
         path: 'reports',
         component: ReportsComponent,
-        canActivate: [userGuard]
+        canActivate: [userGuard, suspendedGuard]
       },
       {
         path: 'profile',
@@ -71,17 +73,21 @@ export const routes: Routes = [
       {
         path: 'admin/users',
         component: AdminUsersListComponent,
-        canActivate: [adminGuard]
+        canActivate: [adminGuard, suspendedGuard]
       },
       {
         path: 'admin/users/:id',
         component: AdminUserDetailsComponent,
-        canActivate: [adminGuard]
+        canActivate: [adminGuard, suspendedGuard]
       }
     ]
   },
   {
     path: '403',
     component: ForbiddenComponent
+  },
+  {
+    path: 'suspended',
+    component: SuspendedComponent
   }
 ];

@@ -70,7 +70,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/error", "/oauth2/**").permitAll()
+                .requestMatchers("/api/auth/**", "/error", "/oauth2/**", "/uploads/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/carbon/**").hasRole("USER")

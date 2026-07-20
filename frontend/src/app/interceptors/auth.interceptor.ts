@@ -35,6 +35,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         // Re-throw the error so component subscribers can reset their loading state
         return throwError(() => error);
       }
+      
+      if (error.status === 403 && error.error?.error === 'ACCOUNT_SUSPENDED') {
+        router.navigate(['/suspended']);
+        return EMPTY; // Stop propagation to avoid toast errors
+      }
+      
       return throwError(() => error);
     })
   );

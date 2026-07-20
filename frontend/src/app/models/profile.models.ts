@@ -8,11 +8,12 @@ export interface UserProfileResponse {
   lifestylePreferences?: string;
   fcmToken?: string;
   role?: string;
+  status?: string;
+  profileCreatedAt?: string;
 }
 
 export interface UpdateUserProfileRequest {
   bio?: string;
-  profilePictureUrl?: string;
   location?: string;
   lifestylePreferences?: string;
   fcmToken?: string;

@@ -21,6 +21,7 @@ public class UserProfileMapper {
                 .profilePictureUrl(userProfile.getProfilePictureUrl())
                 .location(userProfile.getLocation())
                 .lifestylePreferences(userProfile.getLifestylePreferences())
+                .status(user.getStatus())
                 .profileCreatedAt(userProfile.getCreatedAt())
                 .profileUpdatedAt(userProfile.getUpdatedAt())
                 .build();

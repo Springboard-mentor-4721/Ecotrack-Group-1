@@ -22,6 +22,7 @@ public class UserProfileResponse {
     private String profilePictureUrl;
     private String location;
     private String lifestylePreferences;
+    private com.ecotrack.common.enums.Status status;
     private LocalDateTime profileCreatedAt;
     private LocalDateTime profileUpdatedAt;
 }

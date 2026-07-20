@@ -50,9 +50,6 @@ public class UserProfileService {
         if (request.getBio() != null) {
             userProfile.setBio(request.getBio());
         }
-        if (request.getProfilePictureUrl() != null) {
-            userProfile.setProfilePictureUrl(request.getProfilePictureUrl());
-        }
         if (request.getLocation() != null) {
             userProfile.setLocation(request.getLocation());
         }

@@ -1,5 +1,59 @@
-<div class="page-container profile-page animate-page">
+<!-- ===============================
+     MODALS & OVERLAYS
+     =============================== -->
+     
+<!-- Cropper Modal -->
+<div class="modal-backdrop fade show" *ngIf="showCropper" style="z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showCropper" style="z-index: 1051;" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content premium-card border-0">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title text-dark fw-bold">Crop Photo</h5>
+        <button type="button" class="btn-close" (click)="cancelCrop()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <image-cropper
+          [imageChangedEvent]="imageChangedEvent"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="1 / 1"
+          [resizeToWidth]="512"
+          format="webp"
+          (imageCropped)="imageCropped($event)"
+          (imageLoaded)="imageLoaded()"
+          (cropperReady)="cropperReady()"
+          (loadImageFailed)="loadImageFailed()"
+          style="max-height: 400px;"
+        ></image-cropper>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light" (click)="cancelCrop()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="confirmCrop()">Upload Photo</button>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- Delete Confirm Modal -->
+<div class="modal-backdrop fade show" *ngIf="showDeleteConfirm" style="z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showDeleteConfirm" style="z-index: 1051;" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content premium-card border-0 text-center">
+      <div class="modal-body p-4">
+        <div class="text-danger mb-3">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <h5 class="text-dark fw-bold mb-2">Are you sure?</h5>
+        <p class="text-muted fs-7 mb-4">This will permanently remove your profile photo.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-light w-50" (click)="cancelRemove()">Cancel</button>
+          <button type="button" class="btn btn-danger w-50" (click)="removeImage(); cancelRemove()">Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-container profile-page animate-page">
   <!-- ===============================
        LOADING STATE
        =============================== -->
@@ -21,25 +75,27 @@
 
   <ng-container *ngIf="profile">
 
-    <!-- SUCCESS ALERT -->
-    <div *ngIf="successMessage" class="premium-alert success-alert animate-stagger-item mb-4">
-      <div class="alert-icon text-emerald">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <div class="toast-container">
+      <!-- SUCCESS ALERT -->
+      <div *ngIf="successMessage" class="premium-alert success-alert">
+        <div class="alert-icon text-emerald">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="alert-content">
+          <h5 class="alert-title m-0 fs-6 fw-bold text-dark">Success</h5>
+          <p class="alert-desc m-0 fs-7 text-muted">{{ successMessage }}</p>
+        </div>
       </div>
-      <div class="alert-content">
-        <h5 class="alert-title">Profile Updated</h5>
-        <p class="alert-desc">{{ successMessage }}</p>
-      </div>
-    </div>
 
-    <!-- ERROR ALERT -->
-    <div *ngIf="errorMessage" class="premium-alert error-alert animate-stagger-item mb-4">
-      <div class="alert-icon text-danger">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-      </div>
-      <div class="alert-content">
-        <h5 class="alert-title">Update Failed</h5>
-        <p class="alert-desc">{{ errorMessage }}</p>
+      <!-- ERROR ALERT -->
+      <div *ngIf="errorMessage" class="premium-alert error-alert">
+        <div class="alert-icon text-danger">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <div class="alert-content">
+          <h5 class="alert-title m-0 fs-6 fw-bold text-dark">Error</h5>
+          <p class="alert-desc m-0 fs-7 text-muted">{{ errorMessage }}</p>
+        </div>
       </div>
     </div>
 
@@ -48,16 +104,33 @@
          =============================== -->
     <div class="profile-hero premium-card animate-stagger-item mb-4">
       <div class="hero-content">
-        <div class="avatar-container">
-          <img 
-            *ngIf="profile.profilePictureUrl" 
-            [src]="profile.profilePictureUrl" 
-            alt="Profile Avatar" 
-            class="profile-avatar">
-          <div *ngIf="!profile.profilePictureUrl" class="profile-avatar-placeholder bg-emerald-light text-emerald fw-bold">
-            {{ profile.name.charAt(0).toUpperCase() }}
+        <div class="avatar-wrapper position-relative" style="width: 128px; height: 128px; flex-shrink: 0;">
+          <div class="avatar-container w-100 h-100 m-0" 
+             tabindex="0" 
+             (click)="fileInput.click()" 
+             (keydown.enter)="fileInput.click()" 
+             (keydown.space)="fileInput.click()"
+             (dragover)="onDragOver($event)" 
+             (dragleave)="onDragLeave($event)" 
+             (drop)="onDrop($event)"
+             [class.dragging]="isDragging">
+            <img 
+              *ngIf="imagePreviewUrl || profile.profilePictureUrl" 
+              [src]="resolveImageUrl(imagePreviewUrl || profile.profilePictureUrl)" 
+              (error)="profile.profilePictureUrl = undefined"
+              alt="" 
+              class="profile-avatar"
+              [class.loading]="isUploading">
+            <div *ngIf="!imagePreviewUrl && !profile.profilePictureUrl" class="profile-avatar-placeholder bg-emerald-light text-emerald fw-bold" [class.loading]="isUploading">
+              {{ profile.name.substring(0, 2).toUpperCase() }}
+            </div>
+            <div class="avatar-upload-overlay rounded-circle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span class="fs-xs fw-bold">Change</span>
+            </div>
+            <input type="file" #fileInput class="d-none" accept="image/jpeg,image/png,image/webp" (change)="onImageSelected($event)">
           </div>
-          <div class="avatar-badge" [ngClass]="profile.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-emerald text-white'">
+          <div class="avatar-badge" [ngClass]="profile.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-emerald text-white'" style="z-index: 3;">
             <svg *ngIf="profile.role === 'ADMIN'" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <svg *ngIf="profile.role !== 'ADMIN'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
@@ -69,14 +142,39 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
             {{ profile.email }}
           </p>
-          <div class="d-flex gap-2 mt-2">
-            <span class="status-pill status-info text-xs fw-bold">{{ profile.role }}</span>
-            <span class="status-pill status-success text-xs fw-bold d-flex align-items-center gap-1">
+          <div class="d-flex gap-2 mt-3 align-items-center flex-wrap">
+            <span *ngIf="profile.role" class="status-pill status-info text-xs fw-bold">{{ profile.role }}</span>
+            <span class="status-pill status-success text-xs fw-bold d-flex align-items-center gap-1" [title]="profile.profileCreatedAt ? 'Joined on ' + (profile.profileCreatedAt | date:'longDate') : 'Member'">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              Member
+              {{ profile.profileCreatedAt ? ('Member since ' + (profile.profileCreatedAt | date:'MMM yyyy')) : 'Member' }}
             </span>
+            <div class="vr mx-1"></div>
+            
+            <button type="button" class="btn btn-sm btn-outline-primary avatar-btn d-flex align-items-center gap-2" (click)="fileInput.click()" [disabled]="isUploading">
+              <span *ngIf="isUploading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <svg *ngIf="!isUploading" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span class="fs-xs fw-bold">{{ isUploading ? 'Uploading...' : 'Upload Image' }}</span>
+            </button>
+
+            <button type="button" class="btn btn-sm btn-outline-danger avatar-btn d-flex align-items-center gap-2" *ngIf="profile.profilePictureUrl && !selectedImageFile" (click)="confirmRemove()" [disabled]="isUploading">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              <span class="fs-xs fw-bold">Delete</span>
+            </button>
           </div>
-        </div>
+          
+          <div class="upload-helper">JPG • PNG • WEBP. Maximum 5 MB</div>
+
+          <!-- Upload Progress -->
+          <div *ngIf="isUploading" class="mt-3 w-100" style="max-width: 300px;">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="fs-xs fw-bold text-dark">Uploading profile picture...</span>
+              <span class="fs-xs fw-bold text-emerald">{{ uploadProgress }}%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-emerald" role="progressbar" [style.width.%]="uploadProgress" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+      </div>
       </div>
       
       <!-- SECTION 2: PROFILE COMPLETION -->
@@ -161,18 +259,6 @@
               </div>
             </div>
 
-            <div class="form-group mb-5">
-              <label class="form-label text-dark fw-bold fs-7" for="avatarUrl">Profile Picture URL</label>
-              <div class="input-wrapper position-relative">
-                <svg class="input-icon position-absolute text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                <input 
-                  type="url" 
-                  id="avatarUrl" 
-                  class="premium-input form-control" 
-                  formControlName="profilePictureUrl"
-                  placeholder="https://example.com/avatar.jpg">
-              </div>
-            </div>
 
             <div class="form-actions border-top pt-4 d-flex justify-content-end gap-3">
               <button 
@@ -222,22 +308,15 @@
               <span class="ro-value text-dark fw-bold">{{ profile.email }}</span>
             </div>
             
-            <div class="ro-field">
-              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                Account Role
-              </span>
-              <span class="ro-value fw-bold" [ngClass]="profile.role === 'ADMIN' ? 'text-danger' : 'text-blue'">
-                {{ profile.role }}
-              </span>
-            </div>
-            
+
             <div class="ro-field">
               <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 Status
               </span>
-              <span class="ro-value text-emerald fw-bold">Active</span>
+              <span class="ro-value fw-bold" [ngClass]="profile.status === 'SUSPENDED' ? 'text-danger' : 'text-emerald'">
+                {{ profile.status || 'ACTIVE' }}
+              </span>
             </div>
           </div>
           

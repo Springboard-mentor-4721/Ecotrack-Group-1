@@ -6,6 +6,7 @@ export interface UserSummaryResponse {
   email: string;
   role: string;
   status: string;
+  profilePictureUrl?: string;
   createdAt: string;
 }
 

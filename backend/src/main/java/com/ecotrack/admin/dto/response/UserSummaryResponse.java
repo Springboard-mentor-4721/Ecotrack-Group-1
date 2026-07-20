@@ -22,6 +22,7 @@ public class UserSummaryResponse {
     private String email;
     private Role role;
     private Status status;
+    private String profilePictureUrl;
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 }

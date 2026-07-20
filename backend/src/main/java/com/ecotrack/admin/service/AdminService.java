@@ -31,7 +31,10 @@ public class AdminService {
         } else {
             users = userRepository.findAll(pageable);
         }
-        return users.map(adminUserMapper::toSummaryResponse);
+        return users.map(user -> {
+            UserProfile profile = userProfileRepository.findByUser_Id(user.getId()).orElse(null);
+            return adminUserMapper.toSummaryResponse(user, profile);
+        });
     }
 
     @Transactional(readOnly = true)

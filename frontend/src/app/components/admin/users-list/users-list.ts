@@ -7,6 +7,7 @@ import { UserSummaryResponse } from '../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { ChangeDetectorRef } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-users-list',
@@ -16,13 +17,16 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./users-list.css']
 })
 export class AdminUsersListComponent implements OnInit {
-  users: UserSummaryResponse[] = [];
+  users: (UserSummaryResponse & { _imgFailed?: boolean })[] = [];
   searchQuery = '';
   
   currentPage = 0;
   pageSize = 10;
   totalPages = 0;
   totalElements = 0;
+  
+  showStatusConfirm = false;
+  userToUpdate: (UserSummaryResponse & { _imgFailed?: boolean }) | null = null;
   
   isLoading = false;
   errorMessage = '';
@@ -67,15 +71,40 @@ export class AdminUsersListComponent implements OnInit {
     }
   }
 
-  toggleStatus(user: any): void {
-    const newStatus = user.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-    this.adminService.updateUserStatus(user.id, newStatus).subscribe({
-      next: () => this.loadUsers(),
+  initiateToggleStatus(user: any): void {
+    this.userToUpdate = user;
+    this.showStatusConfirm = true;
+  }
+
+  cancelStatusToggle(): void {
+    this.showStatusConfirm = false;
+    this.userToUpdate = null;
+  }
+
+  confirmToggleStatus(): void {
+    if (!this.userToUpdate) return;
+    
+    const newStatus = this.userToUpdate.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    this.adminService.updateUserStatus(this.userToUpdate.id, newStatus).subscribe({
+      next: () => {
+        this.showStatusConfirm = false;
+        this.userToUpdate = null;
+        this.loadUsers();
+      },
       error: (err) => {
         console.error('Failed to update status', err);
         this.errorMessage = err.error?.message || 'Failed to update user status';
+        this.showStatusConfirm = false;
+        this.userToUpdate = null;
         setTimeout(() => this.errorMessage = '', 5000);
       }
     });
+  }
+
+  resolveImageUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    const base = environment.apiUrl || 'http://localhost:8080';
+    return `${base}/${url.replace(/^\//, '')}`;
   }
 }

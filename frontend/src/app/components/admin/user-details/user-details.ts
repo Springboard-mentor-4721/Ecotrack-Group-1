@@ -6,6 +6,7 @@ import { UserDetailResponse } from '../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { ChangeDetectorRef } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-user-details',
@@ -18,6 +19,8 @@ export class AdminUserDetailsComponent implements OnInit {
   user: UserDetailResponse | null = null;
   isLoading = true;
   errorMessage = '';
+  imgFailed = false;
+  showStatusConfirm = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -53,7 +56,15 @@ export class AdminUserDetailsComponent implements OnInit {
       });
   }
 
-  toggleStatus(): void {
+  initiateToggleStatus(): void {
+    this.showStatusConfirm = true;
+  }
+
+  cancelStatusToggle(): void {
+    this.showStatusConfirm = false;
+  }
+
+  confirmToggleStatus(): void {
     if (!this.user) return;
     
     const newStatus = this.user.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
@@ -65,11 +76,20 @@ export class AdminUserDetailsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.errorMessage = '';
+          this.showStatusConfirm = false;
           this.loadUserDetails(this.user!.id);
         },
         error: (err) => {
+          this.showStatusConfirm = false;
           this.errorMessage = err.error?.message || 'Failed to update user status.';
         }
       });
+  }
+
+  resolveImageUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    const base = environment.apiUrl || 'http://localhost:8080';
+    return `${base}/${url.replace(/^\//, '')}`;
   }
 }

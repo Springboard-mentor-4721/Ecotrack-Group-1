@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AdminUserMapper {
 
-    public UserSummaryResponse toSummaryResponse(User user) {
+    public UserSummaryResponse toSummaryResponse(User user, UserProfile profile) {
         if (user == null) return null;
 
         return UserSummaryResponse.builder()
@@ -18,6 +18,7 @@ public class AdminUserMapper {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .status(user.getStatus())
+                .profilePictureUrl(profile != null ? profile.getProfilePictureUrl() : null)
                 .createdAt(user.getCreatedAt())
                 .lastLoginAt(user.getLastLoginAt())
                 .build();

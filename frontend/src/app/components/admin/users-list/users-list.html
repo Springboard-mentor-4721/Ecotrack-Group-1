@@ -1,5 +1,32 @@
 <div class="page-container admin-page animate-page">
 
+  <!-- Status Confirm Modal -->
+  <div class="modal-backdrop fade show" *ngIf="showStatusConfirm" style="z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
+  <div class="modal fade show d-block" tabindex="-1" *ngIf="showStatusConfirm" style="z-index: 1051;" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content bg-surface border-0 text-center shadow-lg">
+        <div class="modal-body p-4">
+          <div class="mb-3" [ngClass]="userToUpdate?.status === 'ACTIVE' ? 'text-danger' : 'text-success'">
+            <svg *ngIf="userToUpdate?.status === 'ACTIVE'" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <svg *ngIf="userToUpdate?.status === 'SUSPENDED'" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+          </div>
+          <h5 class="text-dark fw-bold mb-2">Are you sure?</h5>
+          <p class="text-muted fs-7 mb-4">
+            You are about to {{ userToUpdate?.status === 'ACTIVE' ? 'suspend' : 'activate' }} the account for <strong>{{ userToUpdate?.name }}</strong>.
+          </p>
+          <div class="d-flex justify-content-center gap-3">
+            <button type="button" class="btn btn-light w-50" (click)="cancelStatusToggle()">Cancel</button>
+            <button type="button" class="btn w-50" 
+              [ngClass]="userToUpdate?.status === 'ACTIVE' ? 'btn-danger' : 'btn-success'" 
+              (click)="confirmToggleStatus()">
+              {{ userToUpdate?.status === 'ACTIVE' ? 'Suspend' : 'Activate' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===============================
        SECTION 1: ADMIN HERO
        =============================== -->
@@ -59,7 +86,20 @@
         <div class="user-card border-bottom px-4 py-3 d-grid align-items-center transition-all bg-surface hover-bg-surface-light" *ngFor="let user of users; let last = last" [class.border-bottom-0]="last" style="grid-template-columns: 3fr 2fr 2fr; gap: 1rem;">
           
           <div class="d-flex align-items-center gap-3">
-            <div class="user-avatar flex-shrink-0 d-flex align-items-center justify-content-center fw-bold rounded-circle fs-5" [ngClass]="user.role === 'ADMIN' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-blue bg-opacity-10 text-blue'" style="width: 44px; height: 44px;">
+            <!-- Profile Image Avatar -->
+            <img *ngIf="user.profilePictureUrl" 
+              [src]="resolveImageUrl(user.profilePictureUrl)"
+              [alt]="user.name"
+              class="user-avatar flex-shrink-0 rounded-circle"
+              style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--border-color);"
+              (error)="user._imgFailed = true">
+
+            <!-- Initials Fallback -->
+            <div *ngIf="!user.profilePictureUrl || user._imgFailed" 
+              class="user-avatar flex-shrink-0 d-flex align-items-center justify-content-center fw-bold rounded-circle fs-5" 
+              [style.width.px]="44" [style.height.px]="44"
+              [style.background]="user.role === 'ADMIN' ? 'rgba(239,68,68,0.12)' : 'rgba(59,130,246,0.12)'"
+              [style.color]="user.role === 'ADMIN' ? '#dc2626' : '#2563eb'">
               {{ user.name.charAt(0).toUpperCase() }}
             </div>
             <div class="overflow-hidden">
@@ -72,8 +112,13 @@
             <span class="badge rounded-pill fw-bold fs-xs px-3 py-1" [ngClass]="user.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-surface-hover text-primary border'">
               {{ user.role }}
             </span>
-            <span class="badge rounded-pill fw-bold fs-xs px-3 py-1 d-flex align-items-center gap-1" [ngClass]="user.status === 'ACTIVE' ? 'bg-emerald bg-opacity-10 text-emerald' : 'bg-surface-hover text-muted border'">
-              <span class="rounded-circle d-inline-block" [ngClass]="user.status === 'ACTIVE' ? 'bg-emerald' : 'bg-muted'" style="width: 6px; height: 6px;"></span>
+            <span class="badge rounded-pill fw-bold fs-xs px-3 py-1 d-flex align-items-center gap-1" 
+              [style.background]="user.status === 'ACTIVE' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'"
+              [style.color]="user.status === 'ACTIVE' ? '#047857' : '#dc2626'"
+              [style.border]="'none'">
+              <span class="rounded-circle d-inline-block" 
+                [style.background]="user.status === 'ACTIVE' ? '#10b981' : '#ef4444'" 
+                style="width: 6px; height: 6px;"></span>
               {{ user.status }}
             </span>
           </div>
@@ -87,7 +132,7 @@
             <button 
               class="btn btn-sm fw-bold fs-7 px-3 transition-all" 
               [ngClass]="user.status === 'ACTIVE' ? 'btn-outline-danger' : 'btn-outline-success'"
-              (click)="toggleStatus(user)">
+              (click)="initiateToggleStatus(user)">
               {{ user.status === 'ACTIVE' ? 'Suspend' : 'Activate' }}
             </button>
           </div>

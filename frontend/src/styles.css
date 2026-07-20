@@ -21,6 +21,9 @@
   /* Brand Colors */
   --color-emerald: #10B981;
   --color-emerald-light: rgba(16, 185, 129, 0.1);
+  --color-warning-light: rgba(245, 158, 11, 0.1);
+  --color-purple-light: rgba(139, 92, 246, 0.1);
+  --color-leaf: #15803d;
   --color-teal: #14B8A6;
   --color-amber: #F59E0B;
   --color-purple: #8B5CF6;
@@ -46,6 +49,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   /* DARK MODE */
   --bg-body: #0F172A;
   --bg-surface: #172033;
@@ -62,6 +66,9 @@
   /* Accent */
   --color-emerald: #10B981;
   --color-emerald-light: rgba(16, 185, 129, 0.15);
+  --color-warning-light: rgba(245, 158, 11, 0.15);
+  --color-purple-light: rgba(167, 139, 250, 0.15);
+  --color-leaf: #4ade80;
   --color-teal: #14B8A6;
   --color-amber: #F59E0B;
   --color-purple: #A78BFA;
@@ -73,10 +80,14 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
   
   --shadow-hover: 0 12px 24px -8px rgba(0, 0, 0, 0.6);
+  
+  --hero-gradient: linear-gradient(135deg, rgba(6, 78, 59, 0.8) 0%, rgba(2, 44, 34, 0.9) 100%);
 }
 
 * {
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
 }
 
 body {
@@ -88,6 +99,22 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -145,9 +172,14 @@ a:hover {
 
 /* Variant C: Dark Highlight Card */
 .card-variant-c {
-  background-color: var(--bg-sidebar);
+  background-color: var(--bg-surface);
   color: var(--text-primary);
   border-color: transparent;
+}
+
+::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
 }
 .card-variant-c .text-muted {
   color: var(--text-secondary) !important;
@@ -242,11 +274,55 @@ a:hover {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
+/* Force light theme for auth forms */
+.auth-form-container .premium-input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.auth-form-container .premium-input:focus {
+  border-color: var(--color-primary) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+}
+
+.auth-form-container .premium-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Fix browser autofill styling overriding the background */
+.auth-form-container .premium-input:-webkit-autofill,
+.auth-form-container .premium-input:-webkit-autofill:hover, 
+.auth-form-container .premium-input:-webkit-autofill:focus, 
+.auth-form-container .premium-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+    -webkit-text-fill-color: #0f172a !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+}
+
 /* ==========================================================================
    BASE OVERRIDES
    ========================================================================== */
 .bg-surface {
   background-color: var(--bg-surface) !important;
+}
+
+.bg-body {
+  background-color: var(--bg-body) !important;
+}
+
+.bg-light {
+  background-color: var(--bg-surface-hover) !important;
+}
+
+.btn-light {
+  background-color: var(--bg-surface-hover) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+.btn-light:hover {
+  background-color: var(--border-color) !important;
 }
 
 .bg-surface-hover:hover {

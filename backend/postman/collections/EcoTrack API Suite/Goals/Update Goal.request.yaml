@@ -1,0 +1,27 @@
+$kind: http-request
+method: PUT
+url: '{{baseUrl}}/api/goals/{{goalId}}'
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: 'Bearer {{jwtToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "goalType": "REDUCE_PLASTIC_USAGE",
+      "title": "Zero Plastic Month (Updated)",
+      "description": "Avoid all single-use plastics completely",
+      "targetValue": 31.0,
+      "unit": "Days",
+      "targetDate": "2027-12-31"
+    }
+order: 1300
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });

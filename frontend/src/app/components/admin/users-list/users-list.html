@@ -87,9 +87,10 @@
           
           <div class="d-flex align-items-center gap-3">
             <!-- Profile Image Avatar -->
-            <img *ngIf="user.profilePictureUrl" 
+            <img *ngIf="user.profilePictureUrl && !user._imgFailed" 
               [src]="resolveImageUrl(user.profilePictureUrl)"
               [alt]="user.name"
+              referrerpolicy="no-referrer"
               class="user-avatar flex-shrink-0 rounded-circle"
               style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--border-color);"
               (error)="user._imgFailed = true">

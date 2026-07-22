@@ -2,6 +2,7 @@ package com.ecotrack.tracking.repository;
 
 import com.ecotrack.tracking.entity.CarbonEntry;
 import com.ecotrack.tracking.repository.projection.CategoryEmissionProjection;
+import com.ecotrack.tracking.repository.projection.DailyEmissionProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,5 +34,23 @@ public interface CarbonEntryRepository extends JpaRepository<CarbonEntry, Long> 
     List<CategoryEmissionProjection> getEmissionSummaryByUserAndDateRange(
             @Param("userId") Long userId,
             @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT DATE(c.entryDate) AS date, SUM(c.emissionKgco2e) AS totalEmission " +
+           "FROM CarbonEntry c " +
+           "WHERE c.user.id = :userId " +
+           "AND c.entryDate BETWEEN :startDate AND :endDate " +
+           "GROUP BY DATE(c.entryDate) " +
+           "ORDER BY DATE(c.entryDate) ASC")
+    List<DailyEmissionProjection> getDailyEmissionSummary(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT c FROM CarbonEntry c JOIN FETCH c.subCategory sc JOIN FETCH sc.category cat " +
+           "WHERE c.user.id = :userId AND c.entryDate BETWEEN :startDate AND :endDate")
+    List<CarbonEntry> findAllWithCategoriesByUserIdAndDateRange(
+            @Param("userId") Long userId, 
+            @Param("startDate") LocalDateTime startDate, 
             @Param("endDate") LocalDateTime endDate);
 }

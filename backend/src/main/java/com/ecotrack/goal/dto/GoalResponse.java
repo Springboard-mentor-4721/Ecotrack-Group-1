@@ -22,9 +22,12 @@ public class GoalResponse {
     private String title;
     private String description;
     private BigDecimal targetValue;
+    private BigDecimal currentValue;
     private String unit;
     private LocalDate targetDate;
     private GoalStatus status;
+    @com.fasterxml.jackson.annotation.JsonProperty("isAutomatic")
+    private boolean isAutomatic;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

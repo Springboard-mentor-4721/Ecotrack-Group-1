@@ -18,4 +18,5 @@ public class CarbonSummaryResponse {
     private BigDecimal totalEmission;
     private long totalEntriesCount;
     private List<CategoryEmissionResponse> categorySummaries;
+    private List<DailyEmissionResponse> weeklyTrend;
 }

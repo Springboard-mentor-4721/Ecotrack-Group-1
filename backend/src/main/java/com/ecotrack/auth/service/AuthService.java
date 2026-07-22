@@ -91,9 +91,6 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        if (user.getStatus() == Status.SUSPENDED) {
-            throw new DisabledException("Account suspended");
-        }
 
         // Update login history
         user.setLastLoginAt(LocalDateTime.now());

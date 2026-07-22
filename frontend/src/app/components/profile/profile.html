@@ -197,6 +197,12 @@
             <strong class="text-dark">Next steps:</strong> Add your {{ missingFields.join(', ') }}
           </p>
         </div>
+        <div class="missing-hints mt-3" *ngIf="missingFields.length === 0">
+          <p class="hint-text mb-1 text-muted fs-7 d-flex align-items-center gap-2">
+            <svg class="text-emerald" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <strong class="text-dark">All set!</strong> Your profile is 100% complete.
+          </p>
+        </div>
       </div>
     </div>
 

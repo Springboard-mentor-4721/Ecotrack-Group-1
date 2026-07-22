@@ -268,10 +268,20 @@ public class CarbonEntryService {
 
         long totalEntries = carbonEntryRepository.countByUserIdAndEntryDateBetween(userId, startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
 
+        List<com.ecotrack.tracking.repository.projection.DailyEmissionProjection> dailyProjections = carbonEntryRepository.getDailyEmissionSummary(userId, startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+        
+        List<com.ecotrack.tracking.dto.DailyEmissionResponse> weeklyTrend = dailyProjections.stream()
+                .map(proj -> com.ecotrack.tracking.dto.DailyEmissionResponse.builder()
+                        .date(proj.getDate())
+                        .totalEmission(proj.getTotalEmission())
+                        .build())
+                .collect(Collectors.toList());
+
         return CarbonSummaryResponse.builder()
                 .totalEmission(grandTotal)
                 .totalEntriesCount(totalEntries)
                 .categorySummaries(categorySummaries)
+                .weeklyTrend(weeklyTrend)
                 .build();
     }
 

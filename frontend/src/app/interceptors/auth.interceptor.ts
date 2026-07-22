@@ -36,8 +36,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
       
-      if (error.status === 403 && error.error?.error === 'ACCOUNT_SUSPENDED') {
-        router.navigate(['/suspended']);
+      if (error.status === 403 && (error.error?.error === 'ACCOUNT_SUSPENDED' || error.error?.message?.includes('suspended'))) {
+        router.navigate(['/profile']);
         return EMPTY; // Stop propagation to avoid toast errors
       }
       

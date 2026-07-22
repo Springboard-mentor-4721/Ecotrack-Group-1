@@ -16,7 +16,7 @@ export const suspendedGuard: CanActivateFn = (route, state) => {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (payload.status === 'SUSPENDED') {
-        router.navigate(['/suspended']);
+        router.navigate(['/profile']);
         return false;
       }
       return true;

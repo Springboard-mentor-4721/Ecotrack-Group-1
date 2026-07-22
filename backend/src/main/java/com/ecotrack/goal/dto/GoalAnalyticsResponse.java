@@ -16,5 +16,5 @@ public class GoalAnalyticsResponse {
     
     private double progressPercentage; // Capped at 100%
     private LocalDate projectedCompletionDate;
-    private List<GoalProgressResponse> progressHistory;
+    private List<GoalHistoryItem> history;
 }

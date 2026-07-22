@@ -233,6 +233,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       this.availableMonths.push({ label, value: val });
     }
     this.distributionMonth = this.availableMonths[0].value;
+    this.trendMonth = this.availableMonths[0].value;
   }
 
   ngOnDestroy(): void {
@@ -429,8 +430,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
 
   loadSummary(): void {
     const end = new Date();
-    const start = new Date();
-    start.setDate(end.getDate() - 30); // Last 30 days
+    const start = new Date(end.getFullYear(), end.getMonth(), 1); // Current Month
     
     const pad = (n: number) => String(n).padStart(2, '0');
     const getLocalISODate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -554,7 +554,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     }
   }
 
-  trendPeriod: '7days' | '14days' | '1month' | '3months' | 'custom-month' = '7days';
+  trendPeriod: '7days' | '14days' | '1month' | '3months' | 'custom-month' = 'custom-month';
   showTrendDropdown = false;
   showTrendMonthDropdown = false;
   trendMonth = '';
@@ -690,11 +690,22 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     if (this.entryForm.invalid) return;
 
     this.errorMessage = '';
-    this.isSubmitting = true;
 
     // Get raw value to include disabled 'unit' field
     const formData = this.entryForm.getRawValue();
-    formData.entryDate = `${formData.entryDateDate}T${formData.entryDateTime}`;
+    const entryDateStr = `${formData.entryDateDate}T${formData.entryDateTime}`;
+    
+    // Prevent future dates
+    const selectedDate = new Date(entryDateStr);
+    if (selectedDate > new Date()) {
+      this.entryForm.get('entryDateDate')?.setErrors({ serverError: 'Entry date cannot be in the future' });
+      this.entryForm.get('entryDateTime')?.setErrors({ serverError: 'Entry date cannot be in the future' });
+      this.errorMessage = 'Please correct the highlighted fields.';
+      return;
+    }
+
+    this.isSubmitting = true;
+    formData.entryDate = entryDateStr;
     delete formData.entryDateDate;
     delete formData.entryDateTime;
 
@@ -743,7 +754,10 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     if (err.status === 400 && err.error?.errors) {
       let hasFieldErrors = false;
       Object.keys(err.error.errors).forEach(key => {
-        const control = this.entryForm.get(key);
+        let formKey = key;
+        if (key === 'entryDate') formKey = 'entryDateDate'; // Map backend field to frontend control
+        
+        const control = this.entryForm.get(formKey);
         if (control) {
           control.setErrors({ serverError: err.error.errors[key] });
           control.markAsTouched();

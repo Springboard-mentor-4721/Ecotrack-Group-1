@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../components/navbar/navbar';
 import { SidebarComponent } from '../../../components/sidebar/sidebar';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -10,6 +11,9 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar';
   imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent],
   template: `
     <div class="layout-wrapper">
+      <div *ngIf="isSuspended" class="bg-danger text-white text-center py-2 fw-bold" style="position: sticky; top: 0; z-index: 1050; width: 100%;">
+        Your account is suspended. Please contact the administrator.
+      </div>
       <app-navbar class="layout-navbar" (toggleSidebar)="toggleSidebar()"></app-navbar>
       
       <div class="layout-body">
@@ -74,6 +78,19 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar';
 })
 export class MainLayoutComponent {
   isSidebarVisible = false;
+  isSuspended = false;
+
+  constructor(private authService: AuthService) {
+    const token = this.authService.getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.isSuspended = payload.status === 'SUSPENDED';
+      } catch (e) {
+        // ignore
+      }
+    }
+  }
 
   toggleSidebar() {
     this.isSidebarVisible = !this.isSidebarVisible;

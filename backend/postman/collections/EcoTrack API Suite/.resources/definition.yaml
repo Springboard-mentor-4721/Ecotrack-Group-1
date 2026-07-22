@@ -4,3 +4,4 @@ variables:
   baseUrl: http://localhost:8080
   jwtToken: YOUR_TOKEN_HERE
   carbonEntryId: ""
+  goalId: ""

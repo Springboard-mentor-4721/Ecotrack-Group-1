@@ -27,7 +27,7 @@ public class SuspendedUserInterceptor implements HandlerInterceptor {
             if (user != null && user.getStatus() == Status.SUSPENDED) {
                 response.setStatus(403);
                 response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"ACCOUNT_SUSPENDED\", \"message\": \"Your account has been suspended. Please contact your administrator.\"}");
+                response.getWriter().write("{\"message\":\"Your account is suspended. Please contact the administrator.\"}");
                 return false;
             }
         }

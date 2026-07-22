@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
@@ -22,6 +22,8 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './dashboard.css',
 })
 export class DashboardComponent implements OnInit {
+  @ViewChildren(BaseChartDirective) charts!: QueryList<BaseChartDirective>;
+
   // Core State
   isLoading = true;
   isAdmin = false;
@@ -153,21 +155,27 @@ export class DashboardComponent implements OnInit {
 
   private loadDashboardData(): void {
     const end = new Date();
-    const start = new Date();
-    start.setDate(end.getDate() - 30);
+    const start = new Date(end.getFullYear(), end.getMonth(), 1);
     
-    const startDateStr = start.toISOString().split('T')[0];
-    const endDateStr = end.toISOString().split('T')[0];
+    // Format to YYYY-MM-DD using local time to prevent timezone bugs
+    const startDateStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
+    const endDateStr = end.getFullYear() + '-' + String(end.getMonth() + 1).padStart(2, '0') + '-' + String(end.getDate()).padStart(2, '0');
 
     // Load Profile, Summary, and Recent Entries concurrently
     forkJoin({
       profile: this.profileService.getMyProfile().pipe(catchError(() => of(null))),
       summary: this.carbonEntryService.getDashboardSummary(startDateStr, endDateStr).pipe(catchError(() => of(null))),
-      entries: this.carbonEntryService.getEntries(0, 50).pipe(catchError(() => of(null)))
+      entries: this.carbonEntryService.getEntries(0, 50, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'entryDate,desc').pipe(catchError(() => of(null)))
     }).pipe(
       finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
+        // Force chart update after change detection
+        setTimeout(() => {
+          if (this.charts) {
+            this.charts.forEach(c => c.chart?.update());
+          }
+        });
       })
     ).subscribe({
       next: (results) => {
@@ -179,6 +187,7 @@ export class DashboardComponent implements OnInit {
         if (results.summary) {
           this.totalEmissions = results.summary.totalEmission || 0;
           this.processCarbonSources(results.summary.categorySummaries);
+          this.updateCharts(results.summary);
         }
         
         if (results.entries) {
@@ -186,7 +195,6 @@ export class DashboardComponent implements OnInit {
           this.totalEntries = results.entries.totalElements || 0;
           this.processTimeline();
           this.processWeeklyJourney();
-          this.updateCharts(results.entries.content || []);
         }
 
         this.calculateEcoScore();
@@ -281,12 +289,31 @@ export class DashboardComponent implements OnInit {
     return null;
   }
 
-  private updateCharts(entries: CarbonEntryResponse[]): void {
-    // Backend does not provide a time-series daily emission endpoint.
-    // Frontend aggregation is strictly prohibited by project requirements.
+  private updateCharts(summary: any): void {
+    if (!summary || !summary.weeklyTrend || summary.weeklyTrend.length === 0) {
+      this.lineChartData = { labels: [], datasets: [] };
+      return;
+    }
+    
+    const trend = summary.weeklyTrend;
+    const labels = trend.map((d: any) => {
+      const date = new Date(d.date);
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    });
+    const data = trend.map((d: any) => d.totalEmission);
+
     this.lineChartData = {
-      labels: [],
-      datasets: []
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          label: 'Emissions (kg)',
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          fill: true,
+          tension: 0.4
+        }
+      ]
     };
   }
 

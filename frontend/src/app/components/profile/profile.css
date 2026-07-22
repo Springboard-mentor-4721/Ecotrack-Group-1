@@ -94,13 +94,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 2rem;
 }
 .hero-content {
   display: flex;
   align-items: center;
   gap: 32px;
+  flex: 1;
+  min-width: 0;
 }
 .avatar-container {
   position: relative;

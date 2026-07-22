@@ -63,12 +63,13 @@
         
         <div class="avatar-wrapper">
           <img 
-            *ngIf="user.profilePictureUrl" 
+            *ngIf="user.profilePictureUrl && !imgFailed" 
             [src]="resolveImageUrl(user.profilePictureUrl)" 
             alt="User Avatar" 
+            referrerpolicy="no-referrer"
             class="admin-avatar"
             (error)="imgFailed = true">
-          <div class="admin-avatar-placeholder" *ngIf="!user.profilePictureUrl" [ngClass]="user.role === 'ADMIN' ? 'bg-indigo' : 'bg-surface-hover border'">
+          <div class="admin-avatar-placeholder" *ngIf="!user.profilePictureUrl || imgFailed" [ngClass]="user.role === 'ADMIN' ? 'bg-indigo' : 'bg-surface-hover border'">
             {{ user.name.charAt(0).toUpperCase() }}
           </div>
           <div class="avatar-status-badge" [ngClass]="user.status === 'ACTIVE' ? 'bg-success' : 'bg-danger'"></div>

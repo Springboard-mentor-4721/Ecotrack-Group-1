@@ -53,4 +53,16 @@ public interface CarbonEntryRepository extends JpaRepository<CarbonEntry, Long> 
             @Param("userId") Long userId, 
             @Param("startDate") LocalDateTime startDate, 
             @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT YEAR(c.entryDate) AS year, MONTH(c.entryDate) AS month, SUM(c.emissionKgco2e) AS totalEmission " +
+           "FROM CarbonEntry c " +
+           "WHERE c.user.id = :userId " +
+           "AND c.entryDate BETWEEN :startDate AND :endDate " +
+           "GROUP BY YEAR(c.entryDate), MONTH(c.entryDate) " +
+           "ORDER BY YEAR(c.entryDate) ASC, MONTH(c.entryDate) ASC")
+    List<com.ecotrack.tracking.repository.projection.MonthlyEmissionProjection> getMonthlyEmissionSummary(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    List<CarbonEntry> findTop5ByUserIdOrderByEntryDateDesc(Long userId);
 }

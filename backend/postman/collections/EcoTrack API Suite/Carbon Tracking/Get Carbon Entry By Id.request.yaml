@@ -1,0 +1,49 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/carbon/:id'
+headers:
+  - key: Authorization
+    value: 'Bearer {{jwtToken}}'
+pathVariables:
+  - key: id
+    value: '{{carbonEntryId}}'
+order: 4000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.expect(pm.response.code).to.eql(200);
+      });
+
+      pm.test('Response time is under 2000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();
+      pm.test('Response content type is JSON', function () {
+        pm.expect(contentType).to.include('application/json');
+      });
+
+      const json = pm.response.json();
+      const entity = json.data || json.entry || json.carbonEntry || json;
+
+      pm.test('Response contains carbon entry id', function () {
+        pm.expect(entity.id).to.exist;
+      });
+
+      if (entity.id !== undefined) {
+        pm.collectionVariables.set('carbonEntryId', String(entity.id));
+      }
+
+      if (entity.categoryId !== undefined) {
+        pm.test('Response contains categoryId', function () {
+          pm.expect(entity.categoryId).to.exist;
+        });
+      }
+
+      if (entity.quantity !== undefined) {
+        pm.test('Response contains numeric quantity', function () {
+          pm.expect(Number(entity.quantity)).to.be.a('number');
+        });
+      }

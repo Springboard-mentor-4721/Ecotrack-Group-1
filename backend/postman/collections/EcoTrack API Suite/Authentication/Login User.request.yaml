@@ -1,0 +1,55 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/auth/login'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "test@example.com",
+      "password": "password123"
+    }
+order: 2000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.expect(pm.response.code).to.eql(200);
+      });
+
+      pm.test('Response time is under 2000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();
+      pm.test('Response content type is JSON', function () {
+        pm.expect(contentType).to.include('application/json');
+      });
+
+      const json = pm.response.json();
+      const token = json.accessToken || (json.data && json.data.accessToken) || json.token;
+      const user = json.user || (json.data && json.data.user) || json.data || null;
+
+      pm.test('Login response contains an access token', function () {
+        pm.expect(token).to.be.a('string').and.not.empty;
+      });
+
+      if (token) {
+        pm.environment.set('jwtToken', token);
+      }
+
+      pm.test('Login response includes user details or token payload only', function () {
+        pm.expect(user || token).to.exist;
+      });
+
+      if (user && typeof user === 'object') {
+        const requestBody = JSON.parse(pm.request.body.raw || '{}');
+        if (user.email !== undefined) {
+          pm.test('Returned user email matches login payload', function () {
+            pm.expect(String(user.email).toLowerCase()).to.eql(String(requestBody.email).toLowerCase());
+          });
+        }
+      }

@@ -1,0 +1,108 @@
+/* SIDEBAR CSS - PREMIUM SAAS */
+
+.app-sidebar {
+  width: 260px;
+  height: 100%;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-sidebar);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  z-index: 50;
+}
+
+.fw-500 {
+  font-weight: 500;
+}
+
+.fw-600 {
+  font-weight: 600;
+}
+
+.tracking-tight {
+  letter-spacing: -0.03em;
+}
+
+/* Nav Sections */
+.nav-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  padding-left: 0.5rem;
+}
+
+/* Nav Links */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 150ms ease-in-out;
+  text-decoration: none;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+
+.nav-link:hover {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+/* Active State */
+.nav-link.active {
+  background-color: var(--color-emerald-light);
+  color: var(--color-emerald);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--color-emerald);
+}
+
+.nav-link.active .nav-icon {
+  color: var(--color-emerald);
+}
+
+.nav-icon {
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-link:hover .nav-icon {
+  color: var(--text-primary);
+}
+
+.nav-link.active:hover .nav-icon {
+  color: var(--color-emerald);
+}
+
+/* Promo Banner */
+.disabled-link {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.disabled-link .nav-icon {
+  color: var(--text-muted);
+}
+
+.promo-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .app-sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .app-sidebar.show {
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,118 @@
+<div class="app-sidebar bg-surface border-end d-flex flex-column">
+  
+
+  <!-- NAVIGATION -->
+  <div class="sidebar-nav px-3 flex-grow-1 overflow-y-auto mt-2">
+    
+    <!-- WORKSPACE -->
+    <div class="nav-section mb-4" *ngIf="!isAdmin">
+      <span class="nav-section-title px-3 mb-2 d-block">WORKSPACE</span>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="isSuspended ? null : '/dashboard'" [class.disabled-link]="isSuspended" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+            </svg>
+            <span class="flex-grow-1">Dashboard</span>
+            <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="isSuspended ? null : '/carbon-tracker'" [class.disabled-link]="isSuspended" routerLinkActive="active">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+              <path d="M2 22 12 12"></path>
+            </svg>
+            <span class="flex-grow-1">Carbon Journal</span>
+            <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="isSuspended ? null : '/goals'" [class.disabled-link]="isSuspended" routerLinkActive="active">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+            <span class="flex-grow-1">Goals</span>
+            <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="isSuspended ? null : '/reports'" [class.disabled-link]="isSuspended" routerLinkActive="active">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"></path>
+              <path d="M18 9l-5 5-3-3-4 4"></path>
+            </svg>
+            <span class="flex-grow-1">Reports</span>
+            <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ACCOUNT -->
+    <div class="nav-section mb-4">
+      <span class="nav-section-title px-3 mb-2 d-block">ACCOUNT</span>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/profile" routerLinkActive="active">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/settings" routerLinkActive="active">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Settings
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- ADMINISTRATION -->
+    <div class="nav-section mb-4" *ngIf="isAdmin">
+      <span class="nav-section-title px-3 mb-2 d-block">ADMINISTRATION</span>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="isSuspended ? null : '/admin/users'" [class.disabled-link]="isSuspended" routerLinkActive="active">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span class="flex-grow-1">Command Center</span>
+            <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="sidebar-footer px-3 pb-4">
+    <!-- Promo Banner -->
+    <div class="promo-banner bg-emerald-light rounded-4 p-3 mb-3 position-relative overflow-hidden">
+      <div class="position-relative z-1">
+        <span class="fw-bold fs-7 text-emerald d-block mb-1">Building a</span>
+        <span class="fw-bold fs-6 text-emerald d-block mb-3">greener future</span>
+      </div>
+      <svg class="position-absolute end-0 bottom-0 text-emerald opacity-25" style="transform: translate(20%, 20%);" width="80" height="80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C12 22 20 18 20 12C20 6 12 2 12 2C12 2 4 6 4 12C4 18 12 22 12 22Z"/></svg>
+    </div>
+
+    <button class="nav-link w-100 d-flex align-items-center gap-3 px-3 py-2 border-0 bg-transparent text-danger" (click)="logout()">
+      <svg class="nav-icon text-danger" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <span class="fw-600 text-danger">Log Out</span>
+    </button>
+  </div>
+</div>

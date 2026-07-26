@@ -1,0 +1,14 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/admin/users'
+headers:
+  - key: Authorization
+    value: 'Bearer {{userToken}}'
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 403 Forbidden', function () {
+        pm.expect(pm.response.code).to.eql(403);
+      });

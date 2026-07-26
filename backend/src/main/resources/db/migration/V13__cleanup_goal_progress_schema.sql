@@ -1,0 +1,1 @@
+ALTER TABLE goal_progress DROP COLUMN created_at;

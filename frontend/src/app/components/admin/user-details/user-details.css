@@ -1,0 +1,154 @@
+/* ADMIN USER DETAILS STYLES - DARK SLATE/INDIGO THEME */
+
+.admin-page {
+  /* Inherits layout spacing */
+}
+
+/* Colors & Accents */
+.text-slate-dark { color: #0f172a; }
+.text-slate-muted { color: #64748b; }
+.text-indigo { color: #6366f1; }
+.text-purple { color: #8b5cf6; }
+.text-blue { color: #3b82f6; }
+.text-success { color: #10b981; }
+.bg-slate { background-color: #334155; }
+.bg-slate-lightest { background-color: #f8fafc; }
+.bg-indigo { background-color: #4f46e5; }
+.bg-success { background-color: #10b981; }
+.bg-secondary { background-color: #94a3b8; }
+
+.hover-indigo:hover { color: #4f46e5 !important; }
+
+/* Admin Hero Profile */
+.admin-profile-hero {
+  padding: 0;
+  overflow: hidden;
+}
+
+.hero-top-bg {
+  height: 120px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  width: 100%;
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-top: -60px;
+}
+
+.admin-avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 6px solid white;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+
+.admin-avatar-placeholder {
+  width: 130px;
+  height: 130px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  border: 6px solid white;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-status-badge {
+  position: absolute;
+  bottom: 10px;
+  right: -5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-hero-details {
+  padding-top: 1rem;
+}
+
+/* Glass Status Pills (Reused from users-list) */
+.glass-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+.glass-green { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+.glass-gray { background: rgba(100, 116, 139, 0.1); color: #475569; border: 1px solid rgba(100, 116, 139, 0.2); }
+.glass-purple { background: rgba(139, 92, 246, 0.1); color: #7c3aed; border: 1px solid rgba(139, 92, 246, 0.2); }
+.glass-blue { background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
+
+/* Dangerous Actions */
+.btn-danger-outline {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+.btn-danger-outline:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-success-outline {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+.btn-success-outline:hover {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #86efac;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Read Only Grid */
+.ro-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ro-item {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ro-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ro-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 0.4rem;
+}
+
+.ro-value {
+  font-size: 1.05rem;
+  color: #0f172a;
+}

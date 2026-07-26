@@ -1,0 +1,340 @@
+<!-- ===============================
+     MODALS & OVERLAYS
+     =============================== -->
+     
+<!-- Cropper Modal -->
+<div class="modal-backdrop fade show" *ngIf="showCropper" style="z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showCropper" style="z-index: 1051;" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content premium-card border-0">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title text-dark fw-bold">Crop Photo</h5>
+        <button type="button" class="btn-close" (click)="cancelCrop()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <image-cropper
+          [imageChangedEvent]="imageChangedEvent"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="1 / 1"
+          [resizeToWidth]="512"
+          format="webp"
+          (imageCropped)="imageCropped($event)"
+          (imageLoaded)="imageLoaded()"
+          (cropperReady)="cropperReady()"
+          (loadImageFailed)="loadImageFailed()"
+          style="max-height: 400px;"
+        ></image-cropper>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light" (click)="cancelCrop()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="confirmCrop()">Upload Photo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-backdrop fade show" *ngIf="showDeleteConfirm" style="z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showDeleteConfirm" style="z-index: 1051;" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content premium-card border-0 text-center">
+      <div class="modal-body p-4">
+        <div class="text-danger mb-3">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <h5 class="text-dark fw-bold mb-2">Are you sure?</h5>
+        <p class="text-muted fs-7 mb-4">This will permanently remove your profile photo.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-light w-50" (click)="cancelRemove()">Cancel</button>
+          <button type="button" class="btn btn-danger w-50" (click)="removeImage(); cancelRemove()">Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-container profile-page animate-page">
+  <!-- ===============================
+       LOADING STATE
+       =============================== -->
+  <div *ngIf="isLoading && !profile" class="animate-page">
+    <div class="row">
+      <div class="col-12 mb-4">
+        <app-loading-skeleton type="card"></app-loading-skeleton>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <app-loading-skeleton type="card"></app-loading-skeleton>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <app-loading-skeleton type="card"></app-loading-skeleton>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="profile">
+
+    <div class="toast-container">
+      <!-- SUCCESS ALERT -->
+      <div *ngIf="successMessage" class="premium-alert success-alert">
+        <div class="alert-icon text-emerald">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="alert-content">
+          <h5 class="alert-title m-0 fs-6 fw-bold text-dark">Success</h5>
+          <p class="alert-desc m-0 fs-7 text-muted">{{ successMessage }}</p>
+        </div>
+      </div>
+
+      <!-- ERROR ALERT -->
+      <div *ngIf="errorMessage" class="premium-alert error-alert">
+        <div class="alert-icon text-danger">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <div class="alert-content">
+          <h5 class="alert-title m-0 fs-6 fw-bold text-dark">Error</h5>
+          <p class="alert-desc m-0 fs-7 text-muted">{{ errorMessage }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===============================
+         SECTION 1: PROFILE HERO
+         =============================== -->
+    <div class="profile-hero premium-card animate-stagger-item mb-4">
+      <div class="hero-content">
+        <div class="avatar-wrapper position-relative" style="width: 128px; height: 128px; flex-shrink: 0;">
+          <div class="avatar-container w-100 h-100 m-0" 
+             tabindex="0" 
+             (click)="fileInput.click()" 
+             (keydown.enter)="fileInput.click()" 
+             (keydown.space)="fileInput.click()"
+             (dragover)="onDragOver($event)" 
+             (dragleave)="onDragLeave($event)" 
+             (drop)="onDrop($event)"
+             [class.dragging]="isDragging">
+            <img 
+              *ngIf="imagePreviewUrl || profile.profilePictureUrl" 
+              [src]="resolveImageUrl(imagePreviewUrl || profile.profilePictureUrl)" 
+              (error)="profile.profilePictureUrl = undefined"
+              alt="" 
+              class="profile-avatar"
+              [class.loading]="isUploading">
+            <div *ngIf="!imagePreviewUrl && !profile.profilePictureUrl" class="profile-avatar-placeholder bg-emerald-light text-emerald fw-bold" [class.loading]="isUploading">
+              {{ profile.name.substring(0, 2).toUpperCase() }}
+            </div>
+            <div class="avatar-upload-overlay rounded-circle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span class="fs-xs fw-bold">Change</span>
+            </div>
+            <input type="file" #fileInput class="d-none" accept="image/jpeg,image/png,image/webp" (change)="onImageSelected($event)">
+          </div>
+          <div class="avatar-badge" [ngClass]="profile.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-emerald text-white'" style="z-index: 3;">
+            <svg *ngIf="profile.role === 'ADMIN'" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg *ngIf="profile.role !== 'ADMIN'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+        </div>
+        
+        <div class="hero-details">
+          <h2 class="profile-name text-dark tracking-tight">{{ profile.name }}</h2>
+          <p class="profile-email text-muted d-flex align-items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            {{ profile.email }}
+          </p>
+          <div class="d-flex gap-2 mt-3 align-items-center flex-wrap">
+            <span *ngIf="profile.role" class="status-pill status-info text-xs fw-bold">{{ profile.role }}</span>
+            <span class="status-pill status-success text-xs fw-bold d-flex align-items-center gap-1" [title]="profile.profileCreatedAt ? 'Joined on ' + (profile.profileCreatedAt | date:'longDate') : 'Member'">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              {{ profile.profileCreatedAt ? ('Member since ' + (profile.profileCreatedAt | date:'MMM yyyy')) : 'Member' }}
+            </span>
+            <div class="vr mx-1"></div>
+            
+            <button type="button" class="btn btn-sm btn-outline-primary avatar-btn d-flex align-items-center gap-2" (click)="fileInput.click()" [disabled]="isUploading">
+              <span *ngIf="isUploading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <svg *ngIf="!isUploading" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span class="fs-xs fw-bold">{{ isUploading ? 'Uploading...' : 'Upload Image' }}</span>
+            </button>
+
+            <button type="button" class="btn btn-sm btn-outline-danger avatar-btn d-flex align-items-center gap-2" *ngIf="profile.profilePictureUrl && !selectedImageFile" (click)="confirmRemove()" [disabled]="isUploading">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              <span class="fs-xs fw-bold">Delete</span>
+            </button>
+          </div>
+          
+          <div class="upload-helper">JPG • PNG • WEBP. Maximum 5 MB</div>
+
+          <!-- Upload Progress -->
+          <div *ngIf="isUploading" class="mt-3 w-100" style="max-width: 300px;">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="fs-xs fw-bold text-dark">Uploading profile picture...</span>
+              <span class="fs-xs fw-bold text-emerald">{{ uploadProgress }}%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-emerald" role="progressbar" [style.width.%]="uploadProgress" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+      </div>
+      </div>
+      
+      <!-- SECTION 2: PROFILE COMPLETION -->
+      <div class="completion-section">
+        <div class="d-flex justify-content-between align-items-end mb-2">
+          <div>
+            <h5 class="completion-title text-dark">Profile Completion</h5>
+            <p class="completion-desc text-muted">Complete your profile to unlock all features.</p>
+          </div>
+          <span class="completion-value text-emerald fw-bold fs-4">{{ profileCompletion }}%</span>
+        </div>
+        
+        <div class="progress-track bg-slate-light">
+          <div class="progress-fill bg-emerald" [style.width.%]="profileCompletion"></div>
+        </div>
+        
+        <div class="missing-hints mt-3" *ngIf="missingFields.length > 0">
+          <p class="hint-text mb-1 text-muted fs-7 d-flex align-items-center gap-2">
+            <svg class="text-amber" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            <strong class="text-dark">Next steps:</strong> Add your {{ missingFields.join(', ') }}
+          </p>
+        </div>
+        <div class="missing-hints mt-3" *ngIf="missingFields.length === 0">
+          <p class="hint-text mb-1 text-muted fs-7 d-flex align-items-center gap-2">
+            <svg class="text-emerald" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <strong class="text-dark">All set!</strong> Your profile is 100% complete.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- ===============================
+           SECTION 3: PERSONAL INFORMATION
+           =============================== -->
+      <div class="col-lg-8 animate-stagger-item">
+        <div class="premium-card h-100">
+          <div class="section-header mb-4">
+            <h4 class="section-title text-dark">Personal Information</h4>
+            <p class="section-subtitle text-muted">Update your bio, location, and preferences.</p>
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+            
+            <div class="form-group mb-4">
+              <label class="form-label text-dark fw-bold fs-7" for="bio">Bio</label>
+              <div class="input-wrapper position-relative">
+                <svg class="input-icon position-absolute text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <textarea 
+                  id="bio" 
+                  class="premium-input premium-textarea form-control" 
+                  formControlName="bio"
+                  placeholder="Tell us a little about your sustainability journey..."></textarea>
+              </div>
+              <div class="d-flex justify-content-between mt-1">
+                <span class="helper-text text-muted fs-xs">Max 500 characters</span>
+                <span class="char-counter fs-xs fw-bold" [class.text-danger]="bioLength >= 500" [class.text-muted]="bioLength < 500">{{ bioLength }} / 500</span>
+              </div>
+            </div>
+
+            <div class="form-group mb-4">
+              <label class="form-label text-dark fw-bold fs-7" for="location">Location</label>
+              <div class="input-wrapper position-relative">
+                <svg class="input-icon position-absolute text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <input 
+                  type="text" 
+                  id="location" 
+                  class="premium-input form-control" 
+                  formControlName="location"
+                  placeholder="e.g. San Francisco, CA">
+              </div>
+              <div class="d-flex justify-content-between mt-1">
+                <span class="helper-text text-muted fs-xs">City or Country</span>
+                <span class="char-counter fs-xs fw-bold" [class.text-danger]="locationLength >= 150" [class.text-muted]="locationLength < 150">{{ locationLength }} / 150</span>
+              </div>
+            </div>
+
+            <div class="form-group mb-4">
+              <label class="form-label text-dark fw-bold fs-7" for="lifestyle">Lifestyle Preferences</label>
+              <div class="input-wrapper position-relative">
+                <svg class="input-icon position-absolute text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <input 
+                  type="text" 
+                  id="lifestyle" 
+                  class="premium-input form-control" 
+                  formControlName="lifestylePreferences"
+                  placeholder="e.g. Vegan, Zero-Waste, EV Owner">
+              </div>
+            </div>
+
+
+            <div class="form-actions border-top pt-4 d-flex justify-content-end gap-3">
+              <button 
+                type="button" 
+                class="btn-profile-cancel" 
+                [disabled]="profileForm.pristine || isLoading"
+                (click)="cancelChanges()">
+                Cancel
+              </button>
+              
+              <button 
+                type="submit" 
+                class="btn-profile-submit" 
+                [disabled]="profileForm.invalid || profileForm.pristine || isLoading">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ isLoading ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===============================
+           SECTION 4: ACCOUNT INFORMATION
+           =============================== -->
+      <div class="col-lg-4 animate-stagger-item">
+        <div class="premium-card account-card h-100 bg-surface-hover">
+          <div class="section-header mb-4">
+            <h4 class="section-title text-dark">Account Details</h4>
+            <p class="section-subtitle text-muted">System managed information.</p>
+          </div>
+
+          <div class="read-only-fields d-flex flex-column gap-4">
+            <div class="ro-field">
+              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Full Name
+              </span>
+              <span class="ro-value text-dark fw-bold">{{ profile.name }}</span>
+            </div>
+            
+            <div class="ro-field">
+              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Email Address
+              </span>
+              <span class="ro-value text-dark fw-bold">{{ profile.email }}</span>
+            </div>
+            
+
+            <div class="ro-field">
+              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Status
+              </span>
+              <span class="ro-value fw-bold" [ngClass]="profile.status === 'SUSPENDED' ? 'text-danger' : 'text-emerald'">
+                {{ profile.status || 'ACTIVE' }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="security-notice mt-auto pt-5">
+            <div class="d-flex gap-3 align-items-start text-muted fs-xs bg-surface p-3 rounded-3 border">
+              <svg class="flex-shrink-0 mt-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <p class="mb-0">Your account is secured by EcoTrack identity protection. To change your password or delete your account, visit Security Settings.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

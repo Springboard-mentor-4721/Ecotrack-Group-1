@@ -1,0 +1,31 @@
+$kind: http-request
+method: PUT
+url: '{{baseUrl}}/api/users/me'
+headers:
+  - key: Content-Type
+    value: 'application/json'
+  - key: Authorization
+    value: 'Bearer {{jwtToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "bio": "I am an environmentalist.",
+      "profilePictureUrl": "https://example.com/avatar.png",
+      "location": "New York",
+      "lifestylePreferences": "{\"diet\": \"Vegan\", \"commute\": \"Bicycle\"}",
+      "fcmToken": "test-token-12345"
+    }
+order: 2000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.expect(pm.response.code).to.eql(200);
+      });
+
+      const res = pm.response.json();
+      pm.test('Response contains updated bio', function () {
+        pm.expect(res.bio).to.eql("I am an environmentalist.");
+      });

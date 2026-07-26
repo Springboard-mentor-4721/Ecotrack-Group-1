@@ -1,0 +1,55 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/auth/register'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Test User",
+      "email": "test@example.com",
+      "password": "password123"
+    }
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 201 or 200', function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+
+      pm.test('Response time is under 2000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();
+      pm.test('Response content type is JSON', function () {
+        pm.expect(contentType).to.include('application/json');
+      });
+
+      const json = pm.response.json();
+      const body = json.data || json.user || json;
+
+      pm.test('Response body is an object', function () {
+        pm.expect(json).to.be.an('object');
+      });
+
+      pm.test('Response includes created user details or success message', function () {
+        pm.expect(body || json.message).to.exist;
+      });
+
+      if (body && typeof body === 'object') {
+        pm.test('Created user has identifying fields when returned', function () {
+          pm.expect(body.id || body.email || body.name).to.exist;
+        });
+
+        if (body.email !== undefined) {
+          pm.test('Returned email matches register payload', function () {
+            const requestBody = JSON.parse(pm.request.body.raw || '{}');
+            pm.expect(String(body.email).toLowerCase()).to.eql(String(requestBody.email).toLowerCase());
+          });
+        }
+      }

@@ -1,0 +1,5 @@
+name: Globals
+values:
+  - key: jwtToken
+    value: ''
+    enabled: true

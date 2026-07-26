@@ -48,7 +48,7 @@ import { AuthService } from '../../../services/auth.service';
     }
     
     .layout-sidebar {
-      width: 280px;
+      width: 260px;
       flex-shrink: 0;
       z-index: 40;
       background-color: var(--color-bg-card);

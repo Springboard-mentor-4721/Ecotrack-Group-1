@@ -1,1 +1,96 @@
 /* Placeholder for goals-specific styles, currently leveraging global styles.css */
+
+/* Enhanced Stat Cards (Goals) */
+.goal-stat-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+.goal-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+}
+.goal-stat-card .stat-number {
+  font-size: 48px !important;
+  font-weight: 800 !important;
+  line-height: 1;
+}
+.goal-stat-card .stat-label {
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--bs-gray-600) !important;
+}
+[data-bs-theme="dark"] .goal-stat-card .stat-label {
+  color: var(--bs-gray-400) !important;
+}
+.goal-stat-card .stat-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+.goal-stat-primary { border-top: 3px solid var(--bs-primary) !important; }
+.goal-stat-primary .stat-number { color: var(--bs-dark) !important; }
+[data-bs-theme="dark"] .goal-stat-primary .stat-number { color: var(--bs-white) !important; }
+.goal-stat-info { border-top: 3px solid var(--bs-info) !important; }
+.goal-stat-secondary { border-top: 3px solid var(--bs-secondary) !important; }
+.goal-stat-success { border-top: 3px solid var(--bs-success) !important; }
+.goal-stat-danger { border-top: 3px solid var(--bs-danger) !important; }
+
+.goals-hero {
+  background: var(--hero-gradient, linear-gradient(135deg, #86efac 0%, #ecfdf5 100%));
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.08);
+}
+
+.health-badge.text-success { color: var(--bs-success) !important; }
+.health-badge.text-primary { color: var(--bs-primary) !important; }
+.health-badge.text-warning { color: var(--bs-warning) !important; }
+.health-badge.text-danger { color: var(--bs-danger) !important; }
+
+/* Custom Calendar Grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.calendar-day-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+.calendar-day {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-primary);
+}
+.calendar-day:hover {
+  background-color: rgba(20, 184, 166, 0.1);
+  color: var(--color-teal);
+}
+.calendar-day.text-muted-light {
+  color: var(--text-muted);
+}
+.calendar-day.selected {
+  background-color: var(--color-teal);
+  color: white;
+  font-weight: bold;
+}
+.dropdown-menu-premium {
+  border: 1px solid var(--border-color-light) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+  border-radius: 12px !important;
+  padding: 0.5rem !important;
+}
+

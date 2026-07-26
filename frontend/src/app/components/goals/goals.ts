@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { GoalService } from '../../services/goal.service';
@@ -40,7 +40,8 @@ export class GoalsComponent implements OnInit {
     manualGoals: 0,
     nearLimitGoals: 0,
     exceededGoals: 0,
-    expiringSoonGoals: 0
+    expiringSoonGoals: 0,
+    completedBudgets: 0
   };
   overallHealth: string = 'Good';
   
@@ -67,6 +68,21 @@ export class GoalsComponent implements OnInit {
   achievements: GoalResponse[] = [];
   achievementAnalyticsMap: { [id: number]: GoalAnalyticsResponse } = {};
   isAchievementsLoading = false;
+  expandedAchievementId: number | null = null;
+  achievementsPage = 0;
+  achievementsPageSize = 5;
+
+  get achievementsPageStart(): number {
+    return this.achievementsPage * this.achievementsPageSize;
+  }
+
+  get achievementsPageEnd(): number {
+    return Math.min(this.achievementsPageStart + this.achievementsPageSize, this.achievements.length);
+  }
+
+  get paginatedAchievements(): GoalResponse[] {
+    return this.achievements.slice(this.achievementsPageStart, this.achievementsPageEnd);
+  }
   
   get hasAutomaticGoals(): boolean {
     return this.filteredGoals.some(g => g.isAutomatic);
@@ -100,7 +116,8 @@ export class GoalsComponent implements OnInit {
   constructor(
     private goalService: GoalService, 
     private fb: FormBuilder, 
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
   ) {
     this.createForm = this.fb.group({
       goalType: ['', [Validators.required]],
@@ -138,6 +155,27 @@ export class GoalsComponent implements OnInit {
     if (!target.closest('.dropdown-toggle') && !target.closest('.dropdown-menu')) {
       this.activeDropdownId = null;
     }
+    if (!target.closest('.custom-select-wrapper')) {
+      this.isGoalTypeDropdownOpen = false;
+    }
+  }
+
+  isGoalTypeDropdownOpen = false;
+
+  toggleGoalTypeDropdown(event: Event) {
+    event.stopPropagation();
+    this.isGoalTypeDropdownOpen = !this.isGoalTypeDropdownOpen;
+  }
+
+  selectGoalType(typeValue: string) {
+    this.createForm.patchValue({ goalType: typeValue });
+    this.createForm.get('goalType')?.markAsTouched();
+    this.isGoalTypeDropdownOpen = false;
+  }
+
+  getSelectedGoalType(): any {
+    const val = this.createForm.get('goalType')?.value;
+    return this.GoalTypes.find(g => g.value === val) || null;
   }
 
   toggleDropdown(event: Event, goalId: number) {
@@ -149,6 +187,14 @@ export class GoalsComponent implements OnInit {
     }
   }
 
+  searchQuery = '';
+
+  onSearchChange(event: any) {
+    this.searchQuery = event.target.value.toLowerCase();
+    this.currentPage = 0; // reset to first page on search
+    this.applyFilter();
+  }
+
   setFilter(filter: string) {
     this.activeFilter = filter;
     this.applyFilter();
@@ -156,6 +202,14 @@ export class GoalsComponent implements OnInit {
 
   applyFilter() {
     let filtered = [...this.goals];
+    
+    // Search logic (by title or goalType)
+    if (this.searchQuery) {
+      filtered = filtered.filter(g => 
+        g.title.toLowerCase().includes(this.searchQuery) ||
+        g.goalType.toLowerCase().replace(/_/g, ' ').includes(this.searchQuery)
+      );
+    }
     
     // Sort logic
     if (this.activeSort === 'NEWEST') {
@@ -190,7 +244,10 @@ export class GoalsComponent implements OnInit {
     } else if (this.activeFilter === 'EXCEEDED') {
       this.filteredGoals = filtered.filter(g => this.getComputedStatus(g) === 'EXCEEDED');
     } else if (this.activeFilter === 'COMPLETED') {
-      this.filteredGoals = filtered.filter(g => !g.isAutomatic && ((g.status as string) === 'ACHIEVED' || (g.status as string) === 'COMPLETED'));
+      this.filteredGoals = filtered.filter(g => 
+        (!g.isAutomatic && ((g.status as string) === 'ACHIEVED' || (g.status as string) === 'COMPLETED')) || 
+        (g.isAutomatic && this.getComputedStatus(g) === 'BUDGET_COMPLETED')
+      );
     } else if (this.activeFilter === 'ARCHIVED') {
       this.filteredGoals = filtered.filter(g => (g.status as string) === 'ABANDONED' || (g.status as string) === 'ARCHIVED');
     } else {
@@ -211,13 +268,28 @@ export class GoalsComponent implements OnInit {
   }
 
   activeSort = 'NEWEST';
+  isSortDropdownOpen = false;
+
+  toggleSortDropdown() {
+    this.isSortDropdownOpen = !this.isSortDropdownOpen;
+  }
+
   setSort(sort: string) {
     this.activeSort = sort;
+    this.isSortDropdownOpen = false;
     this.applyFilter();
   }
   
-  onSortChange(event: any) {
-    this.setSort(event.target.value);
+  getSortLabel(sort: string): string {
+    const labels: Record<string, string> = {
+      'NEWEST': 'Newest',
+      'OLDEST': 'Oldest',
+      'HIGHEST_PROGRESS': 'Highest Progress',
+      'LEAST_PROGRESS': 'Least Progress',
+      'CLOSEST_LIMIT': 'Closest to Limit',
+      'ALPHABETICAL': 'Alphabetical'
+    };
+    return labels[sort] || 'Newest';
   }
 
   futureDateValidator(control: AbstractControl): ValidationErrors | null {
@@ -274,7 +346,10 @@ export class GoalsComponent implements OnInit {
         })
       )
     }).pipe(
-      finalize(() => this.isLoading = false)
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
     ).subscribe({
       next: (results) => {
         this.analytics = results.analytics;
@@ -292,6 +367,7 @@ export class GoalsComponent implements OnInit {
             manualGoals: this.goals.filter(g => !g.isAutomatic).length,
             nearLimitGoals: this.goals.filter(g => this.getComputedStatus(g) === 'NEAR_LIMIT').length,
             exceededGoals: this.goals.filter(g => this.getComputedStatus(g) === 'EXCEEDED').length,
+            completedBudgets: this.goals.filter(g => g.isAutomatic && this.getComputedStatus(g) === 'BUDGET_COMPLETED').length,
             expiringSoonGoals: this.goals.filter(g => {
                const diffTime = Math.abs(new Date(g.targetDate).getTime() - new Date().getTime());
                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
@@ -312,9 +388,11 @@ export class GoalsComponent implements OnInit {
             });
           });
         }
+        this.cdr.detectChanges();
       },
       error: () => {
         this.errorMessage = 'Failed to load goals data. Please try again later.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -343,7 +421,16 @@ export class GoalsComponent implements OnInit {
     if (!goal.isAutomatic) return goal.status;
     const limit = goal.targetValue;
     const current = goal.currentValue;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(goal.targetDate);
+    targetDate.setHours(23, 59, 59, 999);
+    
+    const isPastEnd = targetDate < today;
+
     if (current >= limit) return 'EXCEEDED';
+    if (isPastEnd && current <= limit) return 'BUDGET_COMPLETED';
     if (current >= limit * 0.75) return 'NEAR_LIMIT';
     return 'WITHIN_BUDGET';
   }
@@ -401,8 +488,9 @@ export class GoalsComponent implements OnInit {
       case 'EXCEEDED': return 'text-danger border-danger-subtle bg-danger-subtle';
       case 'NEAR_LIMIT': return 'text-warning border-warning-subtle bg-warning-subtle';
       case 'WITHIN_BUDGET': return 'text-success border-success-subtle bg-success-subtle';
+      case 'BUDGET_COMPLETED':
       case 'COMPLETED':
-      case 'ACHIEVED': return 'text-success border-success-subtle bg-success-subtle';
+      case 'ACHIEVED': return 'text-primary border-primary-subtle bg-primary-subtle';
       case 'ACTIVE': return 'text-primary border-primary-subtle bg-primary-subtle';
       default: return 'text-secondary border-secondary-subtle bg-secondary-subtle';
     }
@@ -575,6 +663,11 @@ export class GoalsComponent implements OnInit {
   submitCreateGoal(): void {
     if (this.createForm.invalid) {
       this.createForm.markAllAsTouched();
+      if (this.createForm.get('targetDate')?.errors?.['futureDate']) {
+        this.modalErrorMessage = 'Please select a future target date to effectively track your goal progression.';
+      } else {
+        this.modalErrorMessage = 'Please review the form and fill in all required fields correctly.';
+      }
       return;
     }
     
@@ -588,6 +681,7 @@ export class GoalsComponent implements OnInit {
     request$
       .pipe(finalize(() => {
         this.isSubmitting = false;
+        this.cdr.detectChanges();
       }))
       .subscribe({
         next: () => {
@@ -598,6 +692,7 @@ export class GoalsComponent implements OnInit {
         },
         error: (err) => {
           this.modalErrorMessage = err.error?.message || `Failed to ${this.isEditMode ? 'update' : 'create'} goal. Please verify your inputs.`;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -620,12 +715,16 @@ export class GoalsComponent implements OnInit {
   submitProgress(): void {
     if (this.progressForm.invalid || !this.selectedGoalId) {
       this.progressForm.markAllAsTouched();
+      this.modalErrorMessage = 'Please enter a valid progress amount to continue.';
       return;
     }
     this.isSubmitting = true;
     this.modalErrorMessage = '';
     this.goalService.addProgress(this.selectedGoalId, this.progressForm.value)
-      .pipe(finalize(() => this.isSubmitting = false))
+      .pipe(finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: () => {
           this.closeProgressModal();
@@ -635,6 +734,7 @@ export class GoalsComponent implements OnInit {
         },
         error: (err) => {
           this.modalErrorMessage = err.error?.message || 'Failed to update progress.';
+          this.cdr.detectChanges();
         }
       });
   }
@@ -659,7 +759,10 @@ export class GoalsComponent implements OnInit {
     this.modalErrorMessage = '';
     
     this.goalService.deleteGoal(this.goalToDelete.id)
-      .pipe(finalize(() => this.isSubmitting = false))
+      .pipe(finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: () => {
           this.cancelDelete();
@@ -669,6 +772,7 @@ export class GoalsComponent implements OnInit {
         },
         error: (err) => {
           this.modalErrorMessage = err.error?.message || 'Failed to delete goal.';
+          this.cdr.detectChanges();
         }
       });
   }
@@ -682,7 +786,10 @@ export class GoalsComponent implements OnInit {
     this.isTimelineLoading = true;
     
     this.goalService.getAnalytics(goal.id).pipe(
-      finalize(() => this.isTimelineLoading = false)
+      finalize(() => {
+        this.isTimelineLoading = false;
+        this.cdr.detectChanges();
+      })
     ).subscribe({
       next: (data) => {
         this.analytics = data;
@@ -692,6 +799,7 @@ export class GoalsComponent implements OnInit {
         console.error('Failed to fetch analytics', err);
         this.analytics = null;
         this.groupedTimeline = [];
+        this.cdr.detectChanges();
       }
     });
     
@@ -737,20 +845,27 @@ export class GoalsComponent implements OnInit {
     this.showAchievementsModal = true;
     this.isAchievementsLoading = true;
     this.achievementAnalyticsMap = {};
+    this.achievementsPage = 0;
+    this.expandedAchievementId = null;
     document.body.style.overflow = 'hidden';
 
-    // Achievements = completed manual goals + within-budget automatic goals
+    // Achievements = completed manual goals + within-budget automatic goals (only after target date fully passed)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     this.achievements = this.goals.filter(g => {
       if (!g.isAutomatic) {
         return (g.status as string) === 'ACHIEVED' || (g.status as string) === 'COMPLETED';
       } else {
-        return g.currentValue <= g.targetValue;
+        const targetDate = new Date(g.targetDate);
+        targetDate.setHours(23, 59, 59, 999);
+        return targetDate < today && g.currentValue <= g.targetValue;
       }
     });
 
     // Fetch analytics/history for each achievement
     if (this.achievements.length === 0) {
       this.isAchievementsLoading = false;
+      this.cdr.detectChanges();
       return;
     }
 
@@ -762,12 +877,14 @@ export class GoalsComponent implements OnInit {
           loaded++;
           if (loaded >= this.achievements.length) {
             this.isAchievementsLoading = false;
+            this.cdr.detectChanges();
           }
         },
         error: () => {
           loaded++;
           if (loaded >= this.achievements.length) {
             this.isAchievementsLoading = false;
+            this.cdr.detectChanges();
           }
         }
       });
@@ -778,17 +895,20 @@ export class GoalsComponent implements OnInit {
     this.showAchievementsModal = false;
     this.achievements = [];
     this.achievementAnalyticsMap = {};
+    this.expandedAchievementId = null;
+    this.achievementsPage = 0;
     document.body.style.overflow = '';
+  }
+
+  toggleAchievementHistory(goalId: number): void {
+    this.expandedAchievementId = this.expandedAchievementId === goalId ? null : goalId;
   }
 
   getAchievementLabel(goal: GoalResponse): string {
     if (!goal.isAutomatic) {
-      return 'Goal Completed';
+      return 'Completed';
     }
-    const pct = this.getProgressPercentage(goal.currentValue, goal.targetValue);
-    if (pct <= 50) return 'Well Under Budget';
-    if (pct <= 75) return 'Within Budget';
-    return 'Budget Maintained';
+    return 'Budget Completed';
   }
 
   getAchievementBadgeClass(goal: GoalResponse): string {
@@ -807,6 +927,75 @@ export class GoalsComponent implements OnInit {
 
   getAutoAchievementsCount(): number {
     return this.achievements.filter(g => g.isAutomatic).length;
+  }
+
+  // --- CUSTOM CALENDAR LOGIC ---
+  activeDateField: 'targetDate' | null = null;
+  currentMonthDate: Date = new Date();
+  calendarDays: { date: Date, day: number, isCurrentMonth: boolean }[] = [];
+  weekDays: string[] = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+  openCustomDatePicker(event: Event) {
+    event.stopPropagation();
+    if (this.activeDateField === 'targetDate') {
+      this.activeDateField = null;
+      return;
+    }
+    this.activeDateField = 'targetDate';
+    const currentVal = this.createForm.get('targetDate')?.value || '';
+    this.currentMonthDate = currentVal ? new Date(currentVal) : new Date();
+    this.generateCalendar(this.currentMonthDate);
+  }
+
+  generateCalendar(date: Date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    this.calendarDays = [];
+    for (let i = firstDay - 1; i >= 0; i--) {
+      this.calendarDays.push({ date: new Date(year, month - 1, daysInPrevMonth - i), day: daysInPrevMonth - i, isCurrentMonth: false });
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      this.calendarDays.push({ date: new Date(year, month, i), day: i, isCurrentMonth: true });
+    }
+    const remainingDays = 42 - this.calendarDays.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      this.calendarDays.push({ date: new Date(year, month + 1, i), day: i, isCurrentMonth: false });
+    }
+  }
+
+  prevMonth(event: Event) {
+    event.stopPropagation();
+    this.currentMonthDate = new Date(this.currentMonthDate.getFullYear(), this.currentMonthDate.getMonth() - 1, 1);
+    this.generateCalendar(this.currentMonthDate);
+  }
+
+  nextMonth(event: Event) {
+    event.stopPropagation();
+    this.currentMonthDate = new Date(this.currentMonthDate.getFullYear(), this.currentMonthDate.getMonth() + 1, 1);
+    this.generateCalendar(this.currentMonthDate);
+  }
+
+  selectDate(d: Date, event?: Event) {
+    if (event) event.stopPropagation();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    this.createForm.patchValue({ targetDate: dateStr });
+    this.activeDateField = null;
+  }
+
+  closeCustomPickers() {
+    this.activeDateField = null;
+  }
+  
+  setToday() {
+    this.selectDate(new Date());
   }
 
   // Pagination methods
@@ -829,9 +1018,16 @@ export class GoalsComponent implements OnInit {
     }
   }
 
-  onPageSizeChange(event: any): void {
-    this.pageSize = parseInt(event.target.value, 10);
+  isPageSizeDropdownOpen = false;
+  
+  togglePageSizeDropdown(): void {
+    this.isPageSizeDropdownOpen = !this.isPageSizeDropdownOpen;
+  }
+
+  setPageSize(size: number): void {
+    this.pageSize = size;
     this.currentPage = 0;
+    this.isPageSizeDropdownOpen = false;
     this.loadData();
   }
 }

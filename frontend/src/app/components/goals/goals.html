@@ -1,31 +1,107 @@
-<div class="dashboard-wrapper animate-page p-4">
+<div class="dashboard-wrapper animate-page p-3">
 
-  <!-- LOADING STATE -->
-  <div *ngIf="isLoading" class="animate-page">
-    <div class="row g-4 mb-4">
-      <div class="col-md-3"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
-      <div class="col-md-3"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
-      <div class="col-md-3"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
-      <div class="col-md-3"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
+  <!-- Section 1: Page Header & Stats Container -->
+  <div class="goals-hero p-3 p-xl-4 mb-4 animate-stagger-item">
+    <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center position-relative z-1 mb-4 gap-3">
+      <div>
+        <h1 class="hero-title mb-1 fs-3 text-dark">Goals</h1>
+        <p class="desc-light mb-0 text-muted">Set, track, and achieve your sustainability goals.</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2 gap-md-3">
+        <button class="premium-btn btn-light shadow-sm" (click)="openAchievementsModal()">View Achievements</button>
+        <button class="premium-btn premium-btn-primary shadow-sm" (click)="openCreateModal()">Create Goal</button>
+      </div>
     </div>
+    <!-- LOADING STATE for Stats -->
+    <div *ngIf="isLoading" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-6 g-3 position-relative z-1">
+      <div class="col"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
+      <div class="col"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
+      <div class="col"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
+      <div class="col"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
+      <div class="col"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
+      <div class="col"><app-loading-skeleton type="stat"></app-loading-skeleton></div>
+    </div>
+
+    <!-- LOADED STATE for Stats -->
+    <div *ngIf="!isLoading" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-6 g-3 position-relative z-1">
+      <div class="col animate-stagger-item">
+        <div class="card-premium goal-stat-card goal-stat-primary h-100 p-3 d-flex flex-column align-items-center justify-content-center text-center gap-3">
+          <div class="stat-icon-wrapper text-primary d-flex align-items-center justify-content-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <span class="number-hero stat-number">{{ globalStats.totalGoals > 0 ? globalStats.totalGoals : '&mdash;' }}</span>
+            <span class="label-muted stat-label text-wrap">Total Goals</span>
+          </div>
+        </div>
+      </div>
+      <div class="col animate-stagger-item">
+        <div class="card-premium goal-stat-card goal-stat-info h-100 p-3 d-flex flex-column align-items-center justify-content-center text-center gap-3">
+          <div class="stat-icon-wrapper text-info d-flex align-items-center justify-content-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <span class="number-hero stat-number text-info">{{ globalStats.totalGoals > 0 ? globalStats.automaticGoals : '&mdash;' }}</span>
+            <span class="label-muted stat-label text-wrap">Automatic Budgets</span>
+          </div>
+        </div>
+      </div>
+      <div class="col animate-stagger-item">
+        <div class="card-premium goal-stat-card goal-stat-success h-100 p-3 d-flex flex-column align-items-center justify-content-center text-center gap-3">
+          <div class="stat-icon-wrapper text-success d-flex align-items-center justify-content-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <span class="number-hero stat-number text-success">{{ globalStats.totalGoals > 0 ? globalStats.completedBudgets : '&mdash;' }}</span>
+            <span class="label-muted stat-label text-wrap">Budgets Completed</span>
+          </div>
+        </div>
+      </div>
+      <div class="col animate-stagger-item">
+        <div class="card-premium goal-stat-card goal-stat-danger h-100 p-3 d-flex flex-column align-items-center justify-content-center text-center gap-3">
+          <div class="stat-icon-wrapper text-danger d-flex align-items-center justify-content-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <span class="number-hero stat-number text-danger">{{ globalStats.totalGoals > 0 ? (globalStats.nearLimitGoals + globalStats.exceededGoals) : '&mdash;' }}</span>
+            <span class="label-muted stat-label text-wrap">Needs Attention</span>
+          </div>
+        </div>
+      </div>
+      <div class="col animate-stagger-item">
+        <div class="card-premium goal-stat-card goal-stat-secondary h-100 p-3 d-flex flex-column align-items-center justify-content-center text-center gap-3">
+          <div class="stat-icon-wrapper text-secondary d-flex align-items-center justify-content-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <span class="number-hero stat-number text-secondary">{{ globalStats.totalGoals > 0 ? globalStats.manualGoals : '&mdash;' }}</span>
+            <span class="label-muted stat-label text-wrap">Manual Goals</span>
+          </div>
+        </div>
+      </div>
+      <div class="col animate-stagger-item">
+        <div class="card-premium goal-stat-card goal-stat-success h-100 p-3 d-flex flex-column align-items-center justify-content-center text-center gap-3">
+          <div class="stat-icon-wrapper text-success d-flex align-items-center justify-content-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <span class="number-hero stat-number text-success">{{ globalStats.totalGoals > 0 ? globalStats.completedGoals : '&mdash;' }}</span>
+            <span class="label-muted stat-label text-wrap">Completed Goals</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING STATE for Page Body -->
+  <div *ngIf="isLoading" class="animate-page">
     <div class="row g-4">
       <div class="col-12"><app-loading-skeleton type="card"></app-loading-skeleton></div>
+      <div class="col-12 mt-3"><app-loading-skeleton type="card"></app-loading-skeleton></div>
     </div>
   </div>
 
   <ng-container *ngIf="!isLoading">
-
-    <!-- Section 1: Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 animate-stagger-item">
-      <div>
-        <h1 class="hero-title mb-1 fs-3">Goals</h1>
-        <p class="desc-light mb-0">Set, track, and achieve your sustainability goals.</p>
-      </div>
-      <div class="d-flex gap-3">
-        <button class="premium-btn btn-light" (click)="openAchievementsModal()">View Achievements</button>
-        <button class="premium-btn premium-btn-primary" (click)="openCreateModal()">Create Goal</button>
-      </div>
-    </div>
 
     <!-- Success State -->
     <div *ngIf="successMessage" class="alert alert-success animate-stagger-item border-0 card-premium mb-4">
@@ -37,73 +113,92 @@
       {{ errorMessage }}
     </div>
 
-    <!-- Section 2: Analytics Container -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4 mb-5">
-      <div class="col animate-stagger-item">
-        <div class="card-premium h-100 p-4 d-flex align-items-center gap-3">
-          <div class="bg-surface-hover rounded-circle p-3 text-primary border d-flex align-items-center justify-content-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+    <!-- Section 2: Analytics Container (Moved to Hero) -->
+
+    <!-- Section 3: Insights Container -->
+    <div class="row g-3 mb-4 animate-stagger-item">
+      <!-- Goal Health Summary -->
+      <div class="col-12">
+        <div class="card-premium p-3 h-100 d-flex flex-column">
+          <h3 class="fw-bold text-dark mb-4 fs-5 d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            Goal Health
+          </h3>
+          
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="rounded-pill border fs-7 py-1 px-3 fw-bold d-inline-block health-badge"
+                  [ngClass]="{
+                    'text-success border-success bg-transparent': overallHealth === 'Excellent',
+                    'text-primary border-primary bg-transparent': overallHealth === 'Good',
+                    'text-warning border-warning bg-transparent': overallHealth === 'Needs Attention',
+                    'text-danger border-danger bg-transparent': overallHealth === 'Critical'
+                  }">
+              {{ overallHealth }}
+            </span>
+            <span class="fs-7 text-muted ms-auto">{{ globalStats.totalGoals > 0 ? (globalStats.activeGoals / globalStats.totalGoals * 100 | number:'1.0-0') : 0 }}% Active</span>
           </div>
-          <div>
-            <span class="label-muted d-block mb-1 fs-8">Total Goals</span>
-            <span class="number-hero fs-4">{{ globalStats.totalGoals > 0 ? globalStats.totalGoals : '&mdash;' }}</span>
+
+          <!-- Segmented Progress Bar -->
+          <div class="progress mb-4" style="height: 8px; border-radius: 4px; overflow: hidden;">
+            <div class="progress-bar bg-success" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? ((globalStats.activeGoals - globalStats.nearLimitGoals - globalStats.exceededGoals) / globalStats.totalGoals * 100) + '%' : '0%'"></div>
+            <div class="progress-bar bg-warning" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? (globalStats.nearLimitGoals / globalStats.totalGoals * 100) + '%' : '0%'"></div>
+            <div class="progress-bar bg-danger" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? (globalStats.exceededGoals / globalStats.totalGoals * 100) + '%' : '0%'"></div>
+            <div class="progress-bar bg-primary" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? ((globalStats.totalGoals - globalStats.activeGoals) / globalStats.totalGoals * 100) + '%' : '0%'"></div>
           </div>
-        </div>
-      </div>
-      <div class="col animate-stagger-item">
-        <div class="card-premium card-variant-a h-100 p-4 d-flex align-items-center gap-3">
-          <div class="bg-surface-hover rounded-circle p-3 text-info border d-flex align-items-center justify-content-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          
+          <!-- Legend -->
+          <div class="d-flex flex-column flex-md-row gap-3 gap-md-0 align-items-stretch align-items-md-center flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center gap-2 flex-grow-1 pe-md-4">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-success" style="width: 8px; height: 8px;"></div>
+                <span class="fs-7 text-muted">On Track</span>
+              </div>
+              <span class="fs-7 fw-bold text-dark">{{ globalStats.activeGoals - globalStats.nearLimitGoals - globalStats.exceededGoals }}</span>
+            </div>
+            
+            <div class="d-none d-md-block border-end border-secondary-subtle" style="height: 24px;"></div>
+            
+            <div class="d-flex justify-content-between align-items-center gap-2 flex-grow-1 px-md-4">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-warning" style="width: 8px; height: 8px;"></div>
+                <span class="fs-7 text-muted">Near Limit</span>
+              </div>
+              <span class="fs-7 fw-bold text-dark">{{ globalStats.nearLimitGoals }}</span>
+            </div>
+            
+            <div class="d-none d-md-block border-end border-secondary-subtle" style="height: 24px;"></div>
+            
+            <div class="d-flex justify-content-between align-items-center gap-2 flex-grow-1 px-md-4">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-danger" style="width: 8px; height: 8px;"></div>
+                <span class="fs-7 text-muted">Exceeded</span>
+              </div>
+              <span class="fs-7 fw-bold text-dark">{{ globalStats.exceededGoals }}</span>
+            </div>
+            
+            <div class="d-none d-md-block border-end border-secondary-subtle" style="height: 24px;"></div>
+            
+            <div class="d-flex justify-content-between align-items-center gap-2 flex-grow-1 ps-md-4">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-primary" style="width: 8px; height: 8px;"></div>
+                <span class="fs-7 text-muted text-truncate">Archived/Completed</span>
+              </div>
+              <span class="fs-7 fw-bold text-dark">{{ globalStats.totalGoals - globalStats.activeGoals }}</span>
+            </div>
           </div>
-          <div>
-            <span class="label-muted d-block mb-1 fs-8">Automatic Budgets</span>
-            <span class="number-hero fs-4 text-info">{{ globalStats.totalGoals > 0 ? globalStats.automaticGoals : '&mdash;' }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="col animate-stagger-item">
-        <div class="card-premium h-100 p-4 d-flex align-items-center gap-3">
-          <div class="bg-surface-hover rounded-circle p-3 text-secondary border d-flex align-items-center justify-content-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
-          </div>
-          <div>
-            <span class="label-muted d-block mb-1 fs-8">Manual Goals</span>
-            <span class="number-hero fs-4 text-secondary">{{ globalStats.totalGoals > 0 ? globalStats.manualGoals : '&mdash;' }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="col animate-stagger-item">
-        <div class="card-premium h-100 p-4 d-flex align-items-center gap-3">
-          <div class="bg-surface-hover rounded-circle p-3 text-success border d-flex align-items-center justify-content-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
-          </div>
-          <div>
-            <span class="label-muted d-block mb-1 fs-8">Completed Goals</span>
-            <span class="number-hero fs-4 text-success">{{ globalStats.totalGoals > 0 ? globalStats.completedGoals : '&mdash;' }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="col animate-stagger-item">
-        <div class="card-premium h-100 p-4 d-flex align-items-center gap-3">
-          <div class="bg-surface-hover rounded-circle p-3 text-danger border d-flex align-items-center justify-content-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
-          </div>
-          <div>
-            <span class="label-muted d-block mb-1 fs-8 text-danger">Needs Attention</span>
-            <span class="number-hero fs-4 text-danger">{{ globalStats.totalGoals > 0 ? (globalStats.nearLimitGoals + globalStats.exceededGoals) : '&mdash;' }}</span>
-          </div>
+          <p class="desc-light text-start mt-4 mb-0 fs-8">Status of your automatic sustainability budgets.</p>
         </div>
       </div>
     </div>
 
-    <!-- Section 3: Main Content Layout -->
-    <div class="row g-4">
+    <!-- Section 4: Main Content Layout -->
+    <div class="row g-3">
       
-      <!-- Left section: Goal List Container -->
-      <div class="col-lg-8 animate-stagger-item">
+      <!-- Goal List Container -->
+      <div class="col-12 animate-stagger-item">
         
         <!-- Filters and Sorting -->
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <div class="d-flex gap-2 flex-wrap filter-chips">
             <button class="btn btn-sm rounded-pill py-2 px-3 fs-7 fw-bold border d-flex align-items-center gap-2" style="transition: all 0.3s ease;" [ngClass]="activeFilter === 'ALL' ? 'btn-primary text-white' : 'btn-light text-dark'" (click)="setFilter('ALL')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg> All
@@ -127,16 +222,30 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> Completed
             </button>
           </div>
-          <div>
-            <select class="form-select form-select-sm border-secondary-subtle bg-surface shadow-sm fw-600" [value]="activeSort" (change)="onSortChange($event)">
-              <option value="NEWEST">Sort: Newest</option>
-              <option value="OLDEST">Sort: Oldest</option>
-              <option value="HIGHEST_PROGRESS">Highest Progress</option>
-              <option value="LEAST_PROGRESS">Least Progress</option>
-              <option value="CLOSEST_LIMIT">Closest to Limit</option>
-              <option value="ALPHABETICAL">Alphabetical</option>
-            </select>
+          
+          <div class="d-flex align-items-center gap-3 ms-auto">
+            <!-- Search Bar -->
+            <div class="position-relative">
+              <svg class="position-absolute text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="left: 12px; top: 50%; transform: translateY(-50%); z-index: 2;"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+              <input type="text" class="form-control form-control-sm border-secondary-subtle bg-surface shadow-sm rounded-pill py-2" style="padding-left: 36px; padding-right: 16px; font-size: 0.875rem; min-width: 250px;" placeholder="Search by name or type..." [value]="searchQuery" (input)="onSearchChange($event)">
+            </div>
+            
+            <div class="dropdown" style="position: relative;">
+              <button class="btn btn-sm btn-light border-secondary-subtle bg-surface shadow-sm fw-bold d-flex align-items-center gap-2 px-3 py-2" style="border-radius: 12px; transition: all 0.3s ease; white-space: nowrap;" type="button" (click)="toggleSortDropdown()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><path d="M11 5h10"></path><path d="M11 9h7"></path><path d="M11 13h4"></path><path d="M3 17l3 3 3-3"></path><path d="M6 18V4"></path></svg>
+                Sort: {{ getSortLabel(activeSort) }}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ms-1 text-muted"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-2" [class.show]="isSortDropdownOpen" style="min-width: 180px; padding: 0.5rem; background: var(--bg-surface, #fff); position: absolute; right: 0; z-index: 1050;">
+              <li><a class="dropdown-item rounded-2 fs-7 mb-1" style="cursor: pointer;" [class.bg-primary-subtle]="activeSort === 'NEWEST'" [class.text-primary]="activeSort === 'NEWEST'" [class.fw-bold]="activeSort === 'NEWEST'" (click)="setSort('NEWEST')">Newest</a></li>
+              <li><a class="dropdown-item rounded-2 fs-7 mb-1" style="cursor: pointer;" [class.bg-primary-subtle]="activeSort === 'OLDEST'" [class.text-primary]="activeSort === 'OLDEST'" [class.fw-bold]="activeSort === 'OLDEST'" (click)="setSort('OLDEST')">Oldest</a></li>
+              <li><a class="dropdown-item rounded-2 fs-7 mb-1" style="cursor: pointer;" [class.bg-primary-subtle]="activeSort === 'HIGHEST_PROGRESS'" [class.text-primary]="activeSort === 'HIGHEST_PROGRESS'" [class.fw-bold]="activeSort === 'HIGHEST_PROGRESS'" (click)="setSort('HIGHEST_PROGRESS')">Highest Progress</a></li>
+              <li><a class="dropdown-item rounded-2 fs-7 mb-1" style="cursor: pointer;" [class.bg-primary-subtle]="activeSort === 'LEAST_PROGRESS'" [class.text-primary]="activeSort === 'LEAST_PROGRESS'" [class.fw-bold]="activeSort === 'LEAST_PROGRESS'" (click)="setSort('LEAST_PROGRESS')">Least Progress</a></li>
+              <li><a class="dropdown-item rounded-2 fs-7 mb-1" style="cursor: pointer;" [class.bg-primary-subtle]="activeSort === 'CLOSEST_LIMIT'" [class.text-primary]="activeSort === 'CLOSEST_LIMIT'" [class.fw-bold]="activeSort === 'CLOSEST_LIMIT'" (click)="setSort('CLOSEST_LIMIT')">Closest to Limit</a></li>
+              <li><a class="dropdown-item rounded-2 fs-7" style="cursor: pointer;" [class.bg-primary-subtle]="activeSort === 'ALPHABETICAL'" [class.text-primary]="activeSort === 'ALPHABETICAL'" [class.fw-bold]="activeSort === 'ALPHABETICAL'" (click)="setSort('ALPHABETICAL')">Alphabetical</a></li>
+            </ul>
           </div>
+        </div>
         </div>
 
         <ng-container *ngIf="filteredGoals.length > 0 && !errorMessage; else emptyGoals">
@@ -163,7 +272,7 @@
           </div>
 
           <ng-template #autoGoalCardTemplate let-goal="goal">
-            <div class="card-premium p-4 shadow-sm border-0 mb-3" style="transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)';">
+            <div class="card-premium p-3 shadow-sm border-0 mb-3" style="transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)';">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-surface-hover rounded-3 p-3 border text-primary fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;" [ngSwitch]="goal.goalType">
@@ -193,6 +302,7 @@
                       <svg *ngSwitchCase="'NEAR_LIMIT'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                       <svg *ngSwitchCase="'EXCEEDED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                       <svg *ngSwitchCase="'COMPLETED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      <svg *ngSwitchCase="'BUDGET_COMPLETED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     </span>
                     {{ getComputedStatus(goal).replace('_', ' ') | titlecase }}
                   </span>
@@ -302,7 +412,7 @@
           </ng-template>
 
           <ng-template #manualGoalCardTemplate let-goal="goal">
-            <div class="card-premium p-4 shadow-sm border-0 mb-3" style="transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)';">
+            <div class="card-premium p-3 shadow-sm border-0 mb-3" style="transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)';">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-surface-hover rounded-3 p-3 border text-secondary fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;" [ngSwitch]="goal.goalType">
@@ -332,6 +442,7 @@
                       <svg *ngSwitchCase="'NEAR_LIMIT'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                       <svg *ngSwitchCase="'EXCEEDED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                       <svg *ngSwitchCase="'COMPLETED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      <svg *ngSwitchCase="'BUDGET_COMPLETED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     </span>
                     {{ getComputedStatus(goal).replace('_', ' ') | titlecase }}
                   </span>
@@ -375,7 +486,8 @@
                 
                 <div class="position-relative mt-2">
                   <div class="progress bg-surface-hover overflow-hidden" style="height: 24px; border-radius: 12px;">
-                    <div class="progress-bar bg-primary" 
+                    <div class="progress-bar" 
+                         [ngClass]="getProgressPercentage(goal.currentValue, goal.targetValue) >= 100 ? 'bg-primary' : 'bg-success'"
                          role="progressbar" 
                          style="transition: width 1s ease-in-out;"
                          [style.width.%]="getProgressPercentage(goal.currentValue, goal.targetValue)">
@@ -445,17 +557,51 @@
             </span>
             <div class="d-flex align-items-center gap-3">
               <div class="d-flex align-items-center gap-2">
-                <span class="fs-8 text-muted">Page Size:</span>
-                <select class="form-select form-select-sm" style="width: auto;" (change)="onPageSizeChange($event)">
-                  <option [value]="5">5</option>
-                  <option [value]="10">10</option>
-                  <option [value]="20">20</option>
-                </select>
+                <span class="fs-8 text-muted fw-bold">Page Size:</span>
+                <div class="dropdown" style="position: relative;">
+                  <button class="btn btn-sm btn-light border-secondary-subtle bg-surface shadow-sm fw-bold d-flex align-items-center justify-content-between px-3" style="border-radius: 12px; width: 70px; transition: all 0.3s ease;" type="button" (click)="togglePageSizeDropdown()">
+                    {{ pageSize }}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><path d="m6 9 6 6 6-6"></path></svg>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-1" [class.show]="isPageSizeDropdownOpen" style="min-width: 70px; padding: 0.25rem; background: var(--bg-surface, #fff); position: absolute; right: 0; bottom: 100%; margin-bottom: 0.5rem; z-index: 1050;">
+                    <li><a class="dropdown-item rounded-2 fs-7 text-center mb-1 py-1" style="cursor: pointer;" [class.bg-primary-subtle]="pageSize === 5" [class.text-primary]="pageSize === 5" [class.fw-bold]="pageSize === 5" (click)="setPageSize(5)">5</a></li>
+                    <li><a class="dropdown-item rounded-2 fs-7 text-center mb-1 py-1" style="cursor: pointer;" [class.bg-primary-subtle]="pageSize === 10" [class.text-primary]="pageSize === 10" [class.fw-bold]="pageSize === 10" (click)="setPageSize(10)">10</a></li>
+                    <li><a class="dropdown-item rounded-2 fs-7 text-center py-1" style="cursor: pointer;" [class.bg-primary-subtle]="pageSize === 20" [class.text-primary]="pageSize === 20" [class.fw-bold]="pageSize === 20" (click)="setPageSize(20)">20</a></li>
+                  </ul>
+                </div>
               </div>
-              <div class="btn-group">
-                <button class="btn btn-outline-secondary btn-sm" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">Previous</button>
-                <button class="btn btn-outline-secondary btn-sm" *ngFor="let p of pages" [class.active]="currentPage === p" (click)="onPageChange(p)">{{ p + 1 }}</button>
-                <button class="btn btn-outline-secondary btn-sm" [disabled]="currentPage >= totalPages - 1" (click)="onPageChange(currentPage + 1)">Next</button>
+              <div class="d-flex gap-1 bg-light rounded-pill p-1 border">
+                <button class="btn btn-sm rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1 border-0" 
+                        [class.btn-light]="currentPage > 0" 
+                        [class.text-muted]="currentPage === 0"
+                        style="background: transparent;"
+                        [disabled]="currentPage === 0" 
+                        (click)="onPageChange(currentPage - 1)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+                  Prev
+                </button>
+                <div class="d-flex align-items-center px-1">
+                  <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center p-0 border-0 fw-bold" 
+                          style="width: 28px; height: 28px; transition: all 0.2s;"
+                          *ngFor="let p of pages" 
+                          [class.bg-primary]="currentPage === p" 
+                          [class.text-white]="currentPage === p"
+                          [class.bg-transparent]="currentPage !== p"
+                          [class.text-dark]="currentPage !== p"
+                          [class.hover-bg-light]="currentPage !== p"
+                          (click)="onPageChange(p)">
+                    {{ p + 1 }}
+                  </button>
+                </div>
+                <button class="btn btn-sm rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1 border-0" 
+                        [class.btn-light]="currentPage < totalPages - 1" 
+                        [class.text-muted]="currentPage >= totalPages - 1"
+                        style="background: transparent;"
+                        [disabled]="currentPage >= totalPages - 1" 
+                        (click)="onPageChange(currentPage + 1)">
+                  Next
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+                </button>
               </div>
             </div>
           </div>
@@ -474,92 +620,6 @@
           </div>
         </ng-template>
       </div>
-      
-      <!-- Right section: Sidebar Container -->
-      <div class="col-lg-4 animate-stagger-item">
-        <div class="d-flex flex-column gap-4">
-          
-          <!-- Goal Health Summary -->
-          <div class="card-premium p-4">
-            <h3 class="fw-bold text-dark mb-4 fs-5 d-flex align-items-center gap-2">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-              Goal Health
-            </h3>
-            
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <div class="rounded-circle" style="width: 8px; height: 8px;" [ngClass]="overallHealth === 'Excellent' ? 'bg-success' : (overallHealth === 'Good' ? 'bg-info' : (overallHealth === 'Needs Attention' ? 'bg-warning' : 'bg-danger'))"></div>
-              <span class="fs-6 fw-bold text-dark">{{ overallHealth }}</span>
-              <span class="fs-7 text-muted ms-auto">{{ globalStats.totalGoals > 0 ? (globalStats.activeGoals / globalStats.totalGoals * 100 | number:'1.0-0') : 0 }}% Active</span>
-            </div>
-
-            <!-- Segmented Progress Bar -->
-            <div class="progress mb-4" style="height: 8px; border-radius: 4px; overflow: hidden;">
-              <div class="progress-bar bg-success" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? ((globalStats.activeGoals - globalStats.nearLimitGoals - globalStats.exceededGoals) / globalStats.totalGoals * 100) + '%' : '0%'"></div>
-              <div class="progress-bar bg-warning" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? (globalStats.nearLimitGoals / globalStats.totalGoals * 100) + '%' : '0%'"></div>
-              <div class="progress-bar bg-danger" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? (globalStats.exceededGoals / globalStats.totalGoals * 100) + '%' : '0%'"></div>
-              <div class="progress-bar bg-secondary opacity-25" role="progressbar" [style.width]="globalStats.totalGoals > 0 ? ((globalStats.totalGoals - globalStats.activeGoals) / globalStats.totalGoals * 100) + '%' : '0%'"></div>
-            </div>
-            
-            <!-- Legend -->
-            <div class="d-flex flex-column gap-2">
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="rounded-circle bg-success" style="width: 8px; height: 8px;"></div>
-                  <span class="fs-7 text-muted">On Track</span>
-                </div>
-                <span class="fs-7 fw-bold text-dark">{{ globalStats.activeGoals - globalStats.nearLimitGoals - globalStats.exceededGoals }}</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="rounded-circle bg-warning" style="width: 8px; height: 8px;"></div>
-                  <span class="fs-7 text-muted">Near Limit</span>
-                </div>
-                <span class="fs-7 fw-bold text-dark">{{ globalStats.nearLimitGoals }}</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="rounded-circle bg-danger" style="width: 8px; height: 8px;"></div>
-                  <span class="fs-7 text-muted">Exceeded</span>
-                </div>
-                <span class="fs-7 fw-bold text-dark">{{ globalStats.exceededGoals }}</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="rounded-circle bg-secondary opacity-50" style="width: 8px; height: 8px;"></div>
-                  <span class="fs-7 text-muted">Archived/Completed</span>
-                </div>
-                <span class="fs-7 fw-bold text-dark">{{ globalStats.totalGoals - globalStats.activeGoals }}</span>
-              </div>
-              
-            </div>
-            <p class="desc-light text-start mt-4 mb-0 fs-8">Status of your automatic sustainability budgets.</p>
-          </div>
-
-          <!-- Tips for Success -->
-          <div class="card-premium p-4">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
-              <h3 class="fw-bold text-dark mb-0 fs-5">Smart Tips</h3>
-            </div>
-            <ul class="list-unstyled mb-0 d-flex flex-column gap-3 desc-light fs-7">
-              <li class="d-flex align-items-start gap-2" *ngFor="let tip of activeTips">
-                <span class="text-primary mt-1">•</span>
-                <span>{{ tip }}</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Green Motivation Card -->
-          <div class="card-premium card-variant-d p-4 position-relative overflow-hidden">
-            <svg class="position-absolute end-0 bottom-0 text-emerald opacity-20 mb-n3 me-n3" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
-            <div class="position-relative z-1">
-              <h3 class="fw-bold text-dark mb-2 fs-5">Keep it up!</h3>
-              <p class="desc-light mb-0 fs-7 text-dark opacity-75">Every goal achieved helps reduce your carbon footprint and builds a sustainable future.</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
 
     </div>
 
@@ -569,7 +629,7 @@
 <!-- Create Goal Modal -->
 <div class="modal-backdrop fade show" *ngIf="showCreateModal" style="z-index: 1040; background-color: rgba(0,0,0,0.5);"></div>
 <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showCreateModal" style="z-index: 1050; overflow-y: auto;" (click)="closeCreateModal()">
-  <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document" (click)="$event.stopPropagation()">
     <div class="modal-content card-premium border-0 p-0">
       <div class="modal-header border-bottom border-color p-4">
         <h5 class="modal-title fw-bold text-dark fs-5 mb-0">{{ isEditMode ? 'Edit Goal' : 'Create New Goal' }}</h5>
@@ -585,12 +645,51 @@
           
           <div class="mb-3">
             <label class="form-label fw-600 text-dark fs-7">Goal Type <span class="text-danger">*</span></label>
-            <select class="premium-input form-select" formControlName="goalType">
-              <option value="" disabled selected>Select a goal type</option>
-              <option *ngFor="let type of GoalTypes" [value]="type.value">{{ type.icon }} {{ type.label }}</option>
-            </select>
-            <div class="mt-2 text-muted fs-8 p-2 bg-surface rounded" *ngIf="createForm.get('goalType')?.value">
-              {{ getGoalDesc(createForm.get('goalType')?.value) }}
+            <div class="custom-select-wrapper position-relative">
+              <div class="premium-input form-control d-flex align-items-center justify-content-between" 
+                   [class.border-emerald]="isGoalTypeDropdownOpen"
+                   style="cursor: pointer;"
+                   (click)="toggleGoalTypeDropdown($event)">
+                <div class="d-flex align-items-center gap-2" *ngIf="getSelectedGoalType() as selected; else placeholderTpl">
+                  <span class="text-emerald d-flex align-items-center">
+                    <svg *ngIf="selected.icon === 'activity'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <svg *ngIf="selected.icon === 'droplets'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c0 2.59 2.15 4.7 4.8 4.7s4.8-2.11 4.8-4.7c0-2.07-1.1-3.88-2.73-4.52L11.8 2 9.73 11.78C8.1 12.42 7 14.23 7 16.3z"></path></svg>
+                    <svg *ngIf="selected.icon === 'zap'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    <svg *ngIf="selected.icon === 'car'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+                    <svg *ngIf="selected.icon === 'trash-2'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <svg *ngIf="selected.icon === 'sprout'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"></path><path d="M10 20c5.5-1.2 5.5-5.8 5.5-5.8s1.5-1.2 1.5-3.2-1.5-3.5-3-3.5c-.3 0-.5 0-.8.1C13.5 4.6 11.7 3 9.5 3 6.5 3 4 5.5 4 8.5c0 2 1.5 3.2 1.5 3.2S5.5 16.3 11 20z"></path></svg>
+                  </span>
+                  <span class="text-dark fw-500">{{ selected.label }}</span>
+                </div>
+                <ng-template #placeholderTpl>
+                  <span class="text-muted">Select a goal type...</span>
+                </ng-template>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted" [style.transform]="isGoalTypeDropdownOpen ? 'rotate(180deg)' : 'none'" style="transition: transform 0.2s ease;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+
+              <!-- Custom Dropdown Menu -->
+              <div class="dropdown-menu w-100 border-0 shadow-lg rounded-3 mt-1 p-2" 
+                   [class.show]="isGoalTypeDropdownOpen" 
+                   style="position: absolute; top: 100%; left: 0; z-index: 1060; max-height: 280px; overflow-y: auto;">
+                <div class="dropdown-item rounded-2 py-2 px-3 mb-1 text-wrap d-flex flex-column gap-1"
+                     style="cursor: pointer;"
+                     *ngFor="let type of GoalTypes"
+                     [class.bg-emerald-light]="createForm.get('goalType')?.value === type.value"
+                     (click)="selectGoalType(type.value)">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="text-emerald d-flex align-items-center">
+                      <svg *ngIf="type.icon === 'activity'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                      <svg *ngIf="type.icon === 'droplets'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c0 2.59 2.15 4.7 4.8 4.7s4.8-2.11 4.8-4.7c0-2.07-1.1-3.88-2.73-4.52L11.8 2 9.73 11.78C8.1 12.42 7 14.23 7 16.3z"></path></svg>
+                      <svg *ngIf="type.icon === 'zap'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                      <svg *ngIf="type.icon === 'car'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+                      <svg *ngIf="type.icon === 'trash-2'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                      <svg *ngIf="type.icon === 'sprout'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"></path><path d="M10 20c5.5-1.2 5.5-5.8 5.5-5.8s1.5-1.2 1.5-3.2-1.5-3.5-3-3.5c-.3 0-.5 0-.8.1C13.5 4.6 11.7 3 9.5 3 6.5 3 4 5.5 4 8.5c0 2 1.5 3.2 1.5 3.2S5.5 16.3 11 20z"></path></svg>
+                    </span>
+                    <span class="fw-bold text-dark fs-7">{{ type.label }}</span>
+                  </div>
+                  <span class="text-muted fs-8 ps-4 ms-1">{{ type.desc }}</span>
+                </div>
+              </div>
             </div>
             <div *ngIf="createForm.get('goalType')?.touched && createForm.get('goalType')?.errors?.['required']" class="text-danger fs-8 mt-1">Goal Type is required.</div>
           </div>
@@ -622,14 +721,36 @@
 
           <div class="mb-4">
             <label class="form-label fw-600 text-dark fs-7">Target Date <span class="text-danger">*</span></label>
-            <input type="date" class="premium-input form-control" formControlName="targetDate">
+            <div class="border rounded-3 d-flex align-items-center bg-body px-3 position-relative flex-grow-1" style="cursor: pointer; height: 46px;" (click)="openCustomDatePicker($event)" [class.border-danger]="createForm.get('targetDate')?.touched && createForm.get('targetDate')?.invalid">
+              <span class="fs-7 flex-grow-1" [class.text-dark]="createForm.get('targetDate')?.value" [class.text-muted]="!createForm.get('targetDate')?.value">{{ createForm.get('targetDate')?.value ? (createForm.get('targetDate')?.value | date:'mediumDate') : 'mm/dd/yyyy' }}</span>
+              <svg width="14" height="14" class="text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              
+              <!-- Invisible backdrop -->
+              <div *ngIf="activeDateField === 'targetDate'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
+              
+              <div *ngIf="activeDateField === 'targetDate'" class="dropdown-menu-premium position-absolute bg-surface shadow-lg p-3" style="top: -290px; left: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
+                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
+                  <button class="btn btn-sm btn-light p-1" type="button" (click)="prevMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                  <span class="fw-bold fs-7 text-dark">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
+                  <button class="btn btn-sm btn-light p-1" type="button" (click)="nextMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+                </div>
+                <div class="calendar-grid">
+                  <div class="calendar-day-header" *ngFor="let day of weekDays">{{ day }}</div>
+                  <div *ngFor="let d of calendarDays" class="calendar-day" [class.text-muted-light]="!d.isCurrentMonth" [class.selected]="(createForm.get('targetDate')?.value | date:'yyyy-MM-dd') === (d.date | date:'yyyy-MM-dd')" (click)="selectDate(d.date, $event)">{{ d.day }}</div>
+                </div>
+                <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                  <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none p-0 fs-8 fw-bold" (click)="createForm.get('targetDate')?.setValue(''); closeCustomPickers(); $event.stopPropagation()">Clear</button>
+                  <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none p-0 fs-8 fw-bold" (click)="setToday(); $event.stopPropagation()">Today</button>
+                </div>
+              </div>
+            </div>
             <div *ngIf="createForm.get('targetDate')?.touched && createForm.get('targetDate')?.errors?.['required']" class="text-danger fs-8 mt-1">Date is required.</div>
             <div *ngIf="createForm.get('targetDate')?.touched && createForm.get('targetDate')?.errors?.['futureDate']" class="text-danger fs-8 mt-1">Date must be in the future.</div>
           </div>
           
           <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top border-color">
             <button type="button" class="premium-btn btn-light" (click)="closeCreateModal()">Cancel</button>
-            <button type="submit" class="premium-btn premium-btn-primary" [disabled]="createForm.invalid || isSubmitting">
+            <button type="submit" class="premium-btn premium-btn-primary" [disabled]="isSubmitting">
               <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
               {{ isEditMode ? 'Update Goal' : 'Create Goal' }}
             </button>
@@ -669,7 +790,7 @@
           </div>
           <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top border-color">
             <button type="button" class="premium-btn btn-light" (click)="closeProgressModal()">Cancel</button>
-            <button type="submit" class="premium-btn premium-btn-primary" [disabled]="progressForm.invalid || isSubmitting">
+            <button type="submit" class="premium-btn premium-btn-primary" [disabled]="isSubmitting">
               <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
               Save Progress
             </button>
@@ -860,17 +981,17 @@
 <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showAchievementsModal" style="z-index: 1050; overflow-y: auto;" (click)="closeAchievementsModal()">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document" (click)="$event.stopPropagation()">
     <div class="modal-content card-premium border-0 p-0">
-      <div class="modal-header border-bottom border-color p-4" style="background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 50%, #fde68a 100%);">
+      <div class="modal-header border-bottom border-color p-4 position-relative" style="background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 50%, #fde68a 100%); color: #111827;">
         <div class="d-flex align-items-center gap-3">
-          <div class="bg-white rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+          <div class="rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #ffffff;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
           </div>
           <div>
-            <h5 class="modal-title fw-bold text-dark fs-5 mb-0">Your Achievements</h5>
-            <p class="mb-0 fs-8 text-muted">Goals completed &amp; budgets maintained</p>
+            <h5 class="modal-title fw-bold fs-5 mb-0" style="color: #111827;">Your Achievements</h5>
+            <p class="mb-0 fs-8" style="color: #4b5563;">Celebrate your completed goals and successful budgets.</p>
           </div>
         </div>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeAchievementsModal()"></button>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeAchievementsModal()" style="filter: none !important;"></button>
       </div>
       <div class="modal-body p-4 bg-light" style="max-height: 70vh; overflow-y: auto;">
 
@@ -893,31 +1014,31 @@
           <div class="col-4">
             <div class="card-premium p-3 text-center h-100">
               <div class="fs-3 fw-bold text-success">{{ achievements.length }}</div>
-              <div class="fs-8 text-muted fw-bold text-uppercase">Total</div>
+              <div class="fs-8 text-muted fw-bold text-uppercase">Achievements</div>
             </div>
           </div>
           <div class="col-4">
             <div class="card-premium p-3 text-center h-100">
               <div class="fs-3 fw-bold text-primary">{{ getManualAchievementsCount() }}</div>
-              <div class="fs-8 text-muted fw-bold text-uppercase">Goals Done</div>
+              <div class="fs-8 text-muted fw-bold text-uppercase">Goals Completed</div>
             </div>
           </div>
           <div class="col-4">
             <div class="card-premium p-3 text-center h-100">
               <div class="fs-3 fw-bold text-info">{{ getAutoAchievementsCount() }}</div>
-              <div class="fs-8 text-muted fw-bold text-uppercase">Budgets Kept</div>
+              <div class="fs-8 text-muted fw-bold text-uppercase">Budgets Completed</div>
             </div>
           </div>
         </div>
 
         <!-- Achievement Cards -->
         <div *ngIf="!isAchievementsLoading && achievements.length > 0">
-          <div *ngFor="let goal of achievements; let i = index" class="card-premium p-0 mb-3 border-0 shadow-sm overflow-hidden">
+          <div *ngFor="let goal of paginatedAchievements; let i = index" class="card-premium p-0 mb-3 border-0 shadow-sm overflow-hidden">
             <!-- Achievement Header -->
             <div class="d-flex align-items-center gap-3 p-3 border-bottom border-color">
               <div class="bg-warning bg-opacity-10 rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; min-width: 40px;">
-                <svg *ngIf="!goal.isAutomatic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
-                <svg *ngIf="goal.isAutomatic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>
+                <svg *ngIf="!goal.isAutomatic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                <svg *ngIf="goal.isAutomatic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
               </div>
               <div class="flex-grow-1">
                 <div class="d-flex align-items-center gap-2 mb-1">
@@ -930,12 +1051,12 @@
               </div>
               <div class="text-end">
                 <span *ngIf="!goal.isAutomatic" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 fs-8 d-flex align-items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
-                  Manual
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                  Goal
                 </span>
                 <span *ngIf="goal.isAutomatic" class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 fs-8 d-flex align-items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  Auto
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                  Budget
                 </span>
               </div>
             </div>
@@ -967,15 +1088,21 @@
                 </span>
               </div>
 
-              <!-- History Preview -->
+              <!-- Show History Toggle Button -->
               <div *ngIf="achievementAnalyticsMap[goal.id]?.history?.length" class="mt-3 pt-3 border-top border-color">
-                <div class="d-flex align-items-center gap-2 mb-2">
+                <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 fs-8 fw-bold d-flex align-items-center gap-2 w-100 justify-content-center" 
+                        style="transition: all 0.3s ease;"
+                        (click)="toggleAchievementHistory(goal.id)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
-                  <span class="fs-8 fw-bold text-muted text-uppercase">Recent History</span>
-                  <span class="badge bg-light text-muted border fs-8 ms-auto">{{ achievementAnalyticsMap[goal.id].history.length }} entries</span>
-                </div>
-                <div class="d-flex flex-column gap-2">
-                  <div *ngFor="let item of achievementAnalyticsMap[goal.id].history.slice(-3).reverse()" class="d-flex align-items-center gap-2 bg-light rounded-3 px-3 py-2">
+                  {{ expandedAchievementId === goal.id ? 'Hide History' : 'Show History' }}
+                  <span class="badge bg-light text-muted border fs-8">{{ achievementAnalyticsMap[goal.id].history.length }}</span>
+                  <svg *ngIf="expandedAchievementId !== goal.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                  <svg *ngIf="expandedAchievementId === goal.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                </button>
+
+                <!-- Expandable History -->
+                <div *ngIf="expandedAchievementId === goal.id" class="d-flex flex-column gap-2 mt-3" style="animation: fadeIn 0.3s ease;">
+                  <div *ngFor="let item of achievementAnalyticsMap[goal.id].history.slice().reverse()" class="d-flex align-items-center gap-2 bg-light rounded-3 px-3 py-2">
                     <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; min-width: 24px;"
                          [ngClass]="item.type === 'AUTOMATIC' ? 'bg-primary-subtle text-primary' : 'bg-secondary-subtle text-secondary'">
                       <svg *ngIf="item.type === 'AUTOMATIC'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -989,15 +1116,26 @@
                   </div>
                 </div>
               </div>
-
-              <!-- No history -->
-              <div *ngIf="!achievementAnalyticsMap[goal.id]?.history?.length && !isAchievementsLoading" class="mt-3 pt-3 border-top border-color">
-                <p class="fs-8 text-muted mb-0 fst-italic d-flex align-items-center gap-1">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
-                  No history entries recorded yet.
-                </p>
-              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Achievements Pagination -->
+        <div *ngIf="!isAchievementsLoading && achievements.length > achievementsPageSize" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-color">
+          <span class="fs-8 text-muted">Showing {{ achievementsPageStart + 1 }}–{{ achievementsPageEnd }} of {{ achievements.length }}</span>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1" 
+                    [disabled]="achievementsPage === 0"
+                    (click)="achievementsPage = achievementsPage - 1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+              Previous
+            </button>
+            <button class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1" 
+                    [disabled]="achievementsPageEnd >= achievements.length"
+                    (click)="achievementsPage = achievementsPage + 1">
+              Next
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
           </div>
         </div>
 

@@ -34,27 +34,28 @@ import { CommonModule } from '@angular/common';
       100% { background-position: 468px 0; }
     }
     
-    .skeleton-wrapper * {
-      background: #f1f5f9;
-      background-image: linear-gradient(to right, #f1f5f9 0%, #e2e8f0 20%, #f1f5f9 40%, #f1f5f9 100%);
+    .skeleton-header, .skeleton-line, .skeleton-circle, .skeleton-row:not(.header) {
+      background: var(--bg-surface-hover, #f1f5f9);
+      background-image: linear-gradient(to right, 
+        var(--bg-surface-hover, #f1f5f9) 0%, 
+        var(--border-color, #e2e8f0) 20%, 
+        var(--bg-surface-hover, #f1f5f9) 40%, 
+        var(--bg-surface-hover, #f1f5f9) 100%);
       background-repeat: no-repeat;
       background-size: 800px 100%;
-      animation-duration: 1.5s;
-      animation-fill-mode: forwards;
-      animation-iteration-count: infinite;
-      animation-name: shimmer;
-      animation-timing-function: linear;
-      border-radius: 4px;
+      animation: shimmer 1.5s infinite linear forwards;
+      border-radius: 6px;
     }
     
     .skeleton-card {
       padding: 1.5rem;
-      border-radius: var(--radius-lg);
-      background: white !important;
-      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      background: var(--bg-surface) !important;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     
-    .skeleton-header { height: 28px; width: 40%; margin-bottom: 1.5rem; border-radius: 6px; }
+    .skeleton-header { height: 28px; width: 40%; margin-bottom: 1.5rem; }
     .skeleton-line { height: 12px; margin-bottom: 0.8rem; }
     .w-50 { width: 50%; }
     .w-75 { width: 75%; }
@@ -62,25 +63,27 @@ import { CommonModule } from '@angular/common';
     .mt-3 { margin-top: 1rem; }
     
     .skeleton-table {
-      border-radius: var(--radius-lg);
+      border-radius: 16px;
       overflow: hidden;
-      background: white !important;
-      border: 1px solid var(--color-border);
+      background: var(--bg-surface) !important;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
-    .skeleton-row { height: 60px; border-bottom: 1px solid var(--color-border); border-radius: 0; }
-    .skeleton-row.header { height: 48px; }
+    .skeleton-row { height: 60px; border-bottom: 1px solid var(--border-color); border-radius: 0; }
+    .skeleton-row.header { height: 48px; background: var(--bg-surface) !important; animation: none; }
     
     .skeleton-stat {
       display: flex;
       align-items: center;
       gap: 1rem;
       padding: 1.5rem;
-      border-radius: var(--radius-lg);
-      background: white !important;
-      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      background: var(--bg-surface) !important;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     .skeleton-circle { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; }
-    .skeleton-col { flex-grow: 1; display: flex; flex-direction: column; background: transparent !important; }
+    .skeleton-col { flex-grow: 1; display: flex; flex-direction: column; }
   `]
 })
 export class LoadingSkeletonComponent {

@@ -12,6 +12,7 @@ import { CarbonEntryResponse } from '../../models/carbon.models';
 import { forkJoin, of } from 'rxjs';
 import { finalize, map, catchError } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
+import { GoalService } from '../../services/goal.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -44,6 +45,10 @@ export class DashboardComponent implements OnInit {
   
   // Custom Data Structures for UI
   ecoScore: number | null = null;
+  streak: number | null = null;
+  goalsHealth: string = 'Good';
+  achievements: number = 0;
+  weeklyGoal: number | null = null;
   weeklyJourney: { day: string, filled: boolean, today: boolean }[] = [];
   carbonSources: { name: string, percentage: number, value: number, color: string }[] = [];
   
@@ -106,6 +111,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private profileService: ProfileService,
     private carbonEntryService: CarbonEntryService,
+    private goalService: GoalService,
     private adminService: AdminService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
@@ -165,7 +171,8 @@ export class DashboardComponent implements OnInit {
     forkJoin({
       profile: this.profileService.getMyProfile().pipe(catchError(() => of(null))),
       summary: this.carbonEntryService.getDashboardSummary(startDateStr, endDateStr).pipe(catchError(() => of(null))),
-      entries: this.carbonEntryService.getEntries(0, 50, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'entryDate,desc').pipe(catchError(() => of(null)))
+      entries: this.carbonEntryService.getEntries(0, 50, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'entryDate,desc').pipe(catchError(() => of(null))),
+      goals: this.goalService.getGoals(0, 100).pipe(catchError(() => of(null)))
     }).pipe(
       finalize(() => {
         this.isLoading = false;
@@ -196,8 +203,13 @@ export class DashboardComponent implements OnInit {
           this.processTimeline();
           this.processWeeklyJourney();
         }
+        
+        if (results.goals && results.goals.content) {
+          this.processGoals(results.goals.content);
+        }
 
         this.calculateEcoScore();
+        this.calculateStreakAndGoal();
 
         if (this.isAdmin) {
           this.loadAdminStats();
@@ -280,13 +292,109 @@ export class DashboardComponent implements OnInit {
   }
 
   private calculateEcoScore(): void {
-    // Backend does not provide Eco Score
-    this.ecoScore = null;
+    if (this.totalEntries === 0) {
+      this.ecoScore = 0;
+      return;
+    }
+    const penalty = Math.min(this.totalEmissions / 20, 40);
+    const bonus = Math.min(this.totalEntries * 2, 30);
+    this.ecoScore = Math.max(10, Math.min(100, Math.round(70 - penalty + bonus)));
+  }
+
+  private getComputedStatus(goal: any): string {
+    const s = goal.status as string;
+    if (s === 'ABANDONED' || s === 'ARCHIVED') return 'ARCHIVED';
+    if (s === 'PAUSED') return 'PAUSED';
+    if (s === 'ACHIEVED' || s === 'COMPLETED') return 'COMPLETED';
+    if (!goal.isAutomatic) return goal.status;
+    const limit = goal.targetValue;
+    const current = goal.currentValue;
+    if (current >= limit) return 'EXCEEDED';
+    if (current >= limit * 0.75) return 'NEAR_LIMIT';
+    return 'WITHIN_BUDGET';
+  }
+
+  private processGoals(goals: any[]): void {
+    if (!goals || goals.length === 0) {
+      this.achievements = 0;
+      this.goalsHealth = '0';
+      return;
+    }
+    
+    // Achievements: non-automatic completed goals
+    this.achievements = goals.filter(g => !g.isAutomatic && ((g.status as string) === 'ACHIEVED' || (g.status as string) === 'COMPLETED')).length;
+    
+    // Goals Health: based on automatic budgets
+    const autoGoals = goals.filter(g => g.isAutomatic).length;
+    if (autoGoals === 0) {
+       this.goalsHealth = 'Good';
+       return;
+    }
+    
+    const nearLimitGoals = goals.filter(g => g.isAutomatic && this.getComputedStatus(g) === 'NEAR_LIMIT').length;
+    const exceededGoals = goals.filter(g => g.isAutomatic && this.getComputedStatus(g) === 'EXCEEDED').length;
+    
+    const healthy = autoGoals - (nearLimitGoals + exceededGoals);
+    const healthRatio = healthy / autoGoals;
+    
+    if (healthRatio >= 0.8) this.goalsHealth = 'Excellent';
+    else if (healthRatio >= 0.5) this.goalsHealth = 'Good';
+    else if (healthRatio >= 0.2) this.goalsHealth = 'Needs Attention';
+    else this.goalsHealth = 'Critical';
   }
 
   private calculateProfileCompletion(profile: any): number | null {
-    // Backend does not provide profile completion percentage natively
-    return null;
+    if (!profile) return 0;
+    const fields = ['name', 'email', 'bio', 'profilePictureUrl', 'location', 'lifestylePreferences'];
+    let filled = 0;
+    fields.forEach(f => {
+      if (profile[f] !== null && profile[f] !== undefined && String(profile[f]).trim() !== '') {
+        filled++;
+      }
+    });
+    return Math.round((filled / fields.length) * 100);
+  }
+
+  private calculateStreakAndGoal(): void {
+    if (!this.recentEntries || this.recentEntries.length === 0) {
+      this.streak = 0;
+      this.weeklyGoal = 0;
+      return;
+    }
+    
+    // Calculate Streak
+    const activeDates = new Set(this.recentEntries.map(e => {
+      const d = new Date(e.entryDate);
+      d.setHours(0,0,0,0);
+      return d.getTime();
+    }));
+
+    let currentStreak = 0;
+    let checkDate = new Date();
+    checkDate.setHours(0,0,0,0);
+    
+    // If no entry today, check if there was an entry yesterday
+    if (!activeDates.has(checkDate.getTime())) {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+    
+    while(activeDates.has(checkDate.getTime())) {
+      currentStreak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+    this.streak = currentStreak;
+
+    // Calculate Weekly Goal (days active this week out of 7)
+    let thisWeekActive = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      d.setHours(0,0,0,0);
+      if (activeDates.has(d.getTime())) {
+        thisWeekActive++;
+      }
+    }
+    this.weeklyGoal = thisWeekActive;
   }
 
   private updateCharts(summary: any): void {

@@ -23,25 +23,34 @@
         <div class="col-6">
           <div class="analytic-item">
             <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Eco Score</span>
-            <span class="fs-3 fw-bold text-dark d-block">{{ ecoScore !== null ? ecoScore : '&mdash;' }}</span>
+            <span class="fs-3 fw-bold text-dark d-block">{{ ecoScore !== null ? ecoScore : '0' }}</span>
           </div>
         </div>
         <div class="col-6">
           <div class="analytic-item">
-            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Profile</span>
-            <span class="fs-3 fw-bold text-dark d-block">{{ profileCompletion !== null ? profileCompletion + '%' : '&mdash;' }}</span>
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Entry Streak</span>
+            <div class="d-flex align-items-baseline gap-1">
+              <span class="fs-3 fw-bold text-dark d-block">{{ streak !== null ? streak : '0' }}</span>
+              <span class="fs-7 text-muted fw-bold" *ngIf="streak !== null">Days</span>
+            </div>
           </div>
         </div>
         <div class="col-6">
           <div class="analytic-item">
-            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Weekly Goal</span>
-            <span class="fs-3 fw-bold text-dark d-block">&mdash;</span>
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Goals Health</span>
+            <span *ngIf="goalsHealth !== '0'" class="badge border px-3 py-1 rounded-pill" [ngClass]="{
+              'text-success border-success bg-transparent': goalsHealth === 'Excellent',
+              'text-primary border-primary bg-transparent': goalsHealth === 'Good',
+              'text-warning border-warning bg-transparent': goalsHealth === 'Needs Attention',
+              'text-danger border-danger bg-transparent': goalsHealth === 'Critical'
+            }">{{ goalsHealth }}</span>
+            <span *ngIf="goalsHealth === '0'" class="fs-4 fw-bold text-dark d-block">0</span>
           </div>
         </div>
         <div class="col-6">
           <div class="analytic-item">
-            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Streak</span>
-            <span class="fs-3 fw-bold text-dark d-block">&mdash;</span>
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Achievements</span>
+            <span class="fs-3 fw-bold text-dark d-block">{{ achievements }}</span>
           </div>
         </div>
       </div>

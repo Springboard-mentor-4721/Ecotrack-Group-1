@@ -13,6 +13,7 @@
   
   --border-color: rgba(15, 23, 42, 0.08);
   --border-color-light: rgba(15, 23, 42, 0.04);
+  --btn-close-filter: none;
   
   --text-primary: #111827;
   --text-secondary: #6B7280;
@@ -58,10 +59,11 @@
   
   --border-color: rgba(255, 255, 255, 0.08);
   --border-color-light: rgba(255, 255, 255, 0.04);
+  --btn-close-filter: invert(1) grayscale(100%) brightness(200%);
   
   --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
   
   /* Accent */
   --color-emerald: #10B981;
@@ -304,7 +306,7 @@ a:hover {
 /* ==========================================================================
    BASE OVERRIDES
    ========================================================================== */
-.bg-surface {
+.bg-surface, .bg-white {
   background-color: var(--bg-surface) !important;
 }
 
@@ -364,6 +366,17 @@ a:hover {
   color: inherit !important;
 }
 
+/* Fix Bootstrap subtle backgrounds for dark mode */
+.bg-primary-subtle, .bg-emerald-light {
+  background-color: var(--color-emerald-light) !important;
+}
+.bg-secondary-subtle, .bg-light-subtle {
+  background-color: var(--bg-surface-hover) !important;
+}
+.border-secondary-subtle, .border-light-subtle {
+  border-color: var(--border-color) !important;
+}
+
 .text-secondary, .text-muted, .panel-subtitle, .stat-unit {
   color: var(--text-muted) !important;
 }
@@ -372,34 +385,126 @@ a:hover {
   color: var(--text-secondary) !important;
 }
 
+.text-emerald {
+  color: var(--color-emerald) !important;
+}
+
 .border-color, .border-bottom {
   border-color: var(--border-color) !important;
 }
 
+/* Fix Bootstrap Form Controls */
+.form-control, .form-select {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+.form-control:focus, .form-select:focus {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--color-emerald) !important;
+  box-shadow: 0 0 0 3px var(--color-emerald-light) !important;
+}
+.form-control:disabled, .form-control[readonly], .form-select:disabled {
+  background-color: var(--bg-surface-hover) !important;
+  opacity: 1;
+}
+.form-control::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+/* Fix Bootstrap Pagination */
+.page-link {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+.page-link:hover, .page-link:focus {
+  background-color: var(--bg-surface-hover) !important;
+  color: var(--text-primary) !important;
+}
+.page-item.disabled .page-link {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Fix Bootstrap Dropdowns & Select Options */
+select option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+.dropdown-menu {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+}
+.dropdown-item {
+  color: var(--text-primary) !important;
+}
+.dropdown-item:hover, .dropdown-item:focus {
+  background-color: var(--bg-surface-hover) !important;
+  color: var(--text-primary) !important;
+}
+.dropdown-item.active, .dropdown-item:active {
+  background-color: var(--color-emerald) !important;
+  color: #fff !important;
+}
+
+/* Fix Modals & Offcanvas for Dark Mode */
+.modal-content, .offcanvas {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+.modal-header, .modal-footer, .offcanvas-header {
+  border-color: var(--border-color) !important;
+}
+.btn-close {
+  filter: var(--btn-close-filter);
+}
+::-webkit-calendar-picker-indicator {
+  filter: var(--btn-close-filter);
+}
+::-webkit-datetime-edit-fields-wrapper {
+  color: var(--text-primary);
+}
+::-webkit-datetime-edit-text {
+  color: var(--text-muted);
+}
+::-webkit-datetime-edit-month-field,
+::-webkit-datetime-edit-day-field,
+::-webkit-datetime-edit-year-field {
+  color: var(--text-primary);
+}
+
 /* Animations */
 .animate-page {
-  animation: pageFadeIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: pageFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-stagger-item {
   opacity: 0;
-  animation: staggerFadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: staggerFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-stagger-item:nth-child(1) { animation-delay: 0.05s; }
-.animate-stagger-item:nth-child(2) { animation-delay: 0.1s; }
-.animate-stagger-item:nth-child(3) { animation-delay: 0.15s; }
-.animate-stagger-item:nth-child(4) { animation-delay: 0.2s; }
-.animate-stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.animate-stagger-item:nth-child(2) { animation-delay: 0.12s; }
+.animate-stagger-item:nth-child(3) { animation-delay: 0.19s; }
+.animate-stagger-item:nth-child(4) { animation-delay: 0.26s; }
+.animate-stagger-item:nth-child(5) { animation-delay: 0.33s; }
+.animate-stagger-item:nth-child(6) { animation-delay: 0.40s; }
+.animate-stagger-item:nth-child(7) { animation-delay: 0.47s; }
+.animate-stagger-item:nth-child(8) { animation-delay: 0.54s; }
 
 @keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(12px) scale(0.99); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 @keyframes staggerFadeIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 /* Respect Reduced Motion */

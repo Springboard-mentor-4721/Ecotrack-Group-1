@@ -5,8 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
+import org.springframework.cache.annotation.EnableCaching;
+
+@SpringBootApplication(exclude = {org.springframework.cloud.function.context.config.ContextFunctionCatalogAutoConfiguration.class})
 @EnableScheduling
+@EnableCaching
 public class EcotrackBackendApplication {
 
 	public static void main(String[] args) {

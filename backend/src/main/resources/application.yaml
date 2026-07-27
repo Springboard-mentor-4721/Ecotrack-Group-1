@@ -1,4 +1,7 @@
 spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
   servlet:
     multipart:
       max-file-size: 5MB

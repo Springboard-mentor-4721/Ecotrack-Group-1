@@ -39,10 +39,10 @@ Each module contains its own dedicated documentation covering project structure,
 
 ## Development Team
 
+- Jeevan Marshal P
+- Gokul S
 - Anushka Kumari
 - Bhavana Chappa
-- Gokul S
-- Jeevan Marshal P
 
 ---
 

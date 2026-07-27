@@ -44,6 +44,9 @@ class AuthControllerTest {
     private UserDetailsService userDetailsService;
 
     @MockBean
+    private com.ecotrack.user.repository.UserRepository userRepository;
+
+    @MockBean
     private com.ecotrack.security.oauth2.CustomOAuth2UserService customOAuth2UserService;
 
     @MockBean

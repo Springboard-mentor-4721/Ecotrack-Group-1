@@ -23,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
+import com.ecotrack.event.GoalCompletedEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,6 +43,7 @@ public class GoalServiceImpl implements GoalService {
     private final UserRepository userRepository;
     private final GoalMapper goalMapper;
     private final CarbonProgressService carbonProgressService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private GoalResponse enrichDto(Goal goal) {
         GoalResponse dto = goalMapper.toDto(goal);
@@ -216,6 +219,7 @@ public class GoalServiceImpl implements GoalService {
             log.info("Goal {} target reached! Transitioning to ACHIEVED.", goalId);
             goal.setStatus(GoalStatus.ACHIEVED);
             goalRepository.save(goal);
+            eventPublisher.publishEvent(new GoalCompletedEvent(userId, goalId));
         }
 
         return goalMapper.toDto(savedProgress);

@@ -1,0 +1,42 @@
+package com.ecotrack.leaderboard;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/leaderboards")
+@RequiredArgsConstructor
+public class LeaderboardController {
+
+    private final LeaderboardService leaderboardService;
+    private final com.ecotrack.user.repository.UserRepository userRepository;
+
+    @GetMapping("/all-time")
+    public ResponseEntity<List<LeaderboardEntryDTO>> getAllTimeLeaderboard() {
+        return ResponseEntity.ok(leaderboardService.getAllTimeLeaderboard());
+    }
+
+    @GetMapping("/monthly")
+    public ResponseEntity<List<LeaderboardEntryDTO>> getMonthlyLeaderboard() {
+        return ResponseEntity.ok(leaderboardService.getMonthlyLeaderboard());
+    }
+
+    @GetMapping("/weekly")
+    public ResponseEntity<List<LeaderboardEntryDTO>> getWeeklyLeaderboard() {
+        return ResponseEntity.ok(leaderboardService.getWeeklyLeaderboard());
+    }
+
+    @GetMapping("/my-rank")
+    public ResponseEntity<LeaderboardEntryDTO> getMyRank(org.springframework.security.core.Authentication authentication) {
+        String email = authentication.getName();
+        Long userId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found"))
+                .getId();
+        return ResponseEntity.ok(leaderboardService.getMyRank(userId));
+    }
+}

@@ -22,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
+import com.ecotrack.event.CarbonEntryCreatedEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -49,6 +51,7 @@ public class CarbonEntryService {
     private final EmissionCalculationService emissionCalculationService;
     private final CarbonEntryMapper carbonEntryMapper;
     private final EntityManager entityManager;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CarbonEntryResponse createEntry(Long userId, CreateCarbonEntryRequest request) {
@@ -72,6 +75,7 @@ public class CarbonEntryService {
         entity.setNotes(normalizeNotes(request.getNotes()));
 
         CarbonEntry savedEntity = carbonEntryRepository.save(entity);
+        eventPublisher.publishEvent(new CarbonEntryCreatedEvent(user.getId(), savedEntity.getId(), subCategory.getId()));
         return carbonEntryMapper.toResponse(savedEntity);
     }
 

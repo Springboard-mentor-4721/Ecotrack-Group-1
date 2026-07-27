@@ -25,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
+import com.ecotrack.event.DailyLoginEvent;
+import com.ecotrack.gamification.service.GamificationProfileService;
 
 @Service
 public class AuthService {
@@ -35,18 +38,22 @@ public class AuthService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final UserProfileRepository userProfileRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final GamificationProfileService gamificationProfileService;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
     // Constructor injection
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, PasswordResetTokenRepository passwordResetTokenRepository, EmailService emailService, UserProfileRepository userProfileRepository) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, PasswordResetTokenRepository passwordResetTokenRepository, EmailService emailService, UserProfileRepository userProfileRepository, ApplicationEventPublisher eventPublisher, GamificationProfileService gamificationProfileService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.userProfileRepository = userProfileRepository;
+        this.eventPublisher = eventPublisher;
+        this.gamificationProfileService = gamificationProfileService;
     }
 
     // Register a new user
@@ -80,6 +87,9 @@ public class AuthService {
         UserProfile userProfile = new UserProfile();
         userProfile.setUser(user);
         userProfileRepository.save(userProfile);
+        
+        // Create gamification profile
+        gamificationProfileService.createProfileForNewUser(user.getId());
     }
 
     // Authenticate a user and generate JWT
@@ -95,6 +105,9 @@ public class AuthService {
         // Update login history
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
+
+        // Publish event
+        eventPublisher.publishEvent(new DailyLoginEvent(user.getId()));
 
         // Generate JWT token
         String jwtToken = jwtService.generateToken(user);

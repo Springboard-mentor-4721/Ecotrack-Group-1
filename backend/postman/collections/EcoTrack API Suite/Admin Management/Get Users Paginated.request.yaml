@@ -1,9 +1,9 @@
 $kind: http-request
 method: GET
-url: '{{baseUrl}}/api/admin/users?page=0&size=10'
+url: "{{baseUrl}}/api/admin/users?page=0&size=10"
 headers:
   - key: Authorization
-    value: 'Bearer {{jwtToken}}'
+    value: Bearer {{jwtToken}}
 order: 1000
 scripts:
   - type: afterResponse

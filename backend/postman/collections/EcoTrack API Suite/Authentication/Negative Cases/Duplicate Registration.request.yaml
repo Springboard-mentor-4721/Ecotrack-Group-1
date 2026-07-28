@@ -1,6 +1,6 @@
 $kind: http-request
 method: POST
-url: '{{baseUrl}}/api/auth/register'
+url: "{{baseUrl}}/api/auth/register"
 headers:
   - key: Content-Type
     value: application/json

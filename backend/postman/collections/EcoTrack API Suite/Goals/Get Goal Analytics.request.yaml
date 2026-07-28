@@ -1,9 +1,9 @@
 $kind: http-request
 method: GET
-url: '{{baseUrl}}/api/goals/{{goalId}}/analytics'
+url: "{{baseUrl}}/api/goals/{{goalId}}/analytics"
 headers:
   - key: Authorization
-    value: 'Bearer {{jwtToken}}'
+    value: Bearer {{jwtToken}}
 order: 1500
 scripts:
   - type: afterResponse

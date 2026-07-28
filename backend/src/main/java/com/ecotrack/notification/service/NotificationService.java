@@ -75,4 +75,14 @@ public class NotificationService {
         createNotification(event.getUserId(), type, title, message, "GOAL", event.getGoalId());
         emailNotificationService.sendEmailIfEnabled(event.getUserId(), type, title, message);
     }
+
+    @Transactional(readOnly = true)
+    public long getUnreadCount(Long userId) {
+        return notificationRepository.countByUserIdAndIsReadFalse(userId);
+    }
+
+    @Transactional
+    public int markAllAsRead(Long userId) {
+        return notificationRepository.markAllAsRead(userId);
+    }
 }

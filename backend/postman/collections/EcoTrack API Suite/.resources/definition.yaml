@@ -5,3 +5,4 @@ variables:
   jwtToken: YOUR_TOKEN_HERE
   carbonEntryId: ""
   goalId: ""
+  challengeId: "1"

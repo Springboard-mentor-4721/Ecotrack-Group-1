@@ -3,6 +3,7 @@ package com.ecotrack.notification.controller;
 import com.ecotrack.notification.dto.NotificationDTO;
 import com.ecotrack.notification.entity.Notification;
 import com.ecotrack.notification.repository.NotificationRepository;
+import com.ecotrack.notification.service.NotificationService;
 import com.ecotrack.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ public class NotificationController {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
@@ -40,6 +42,22 @@ public class NotificationController {
         }
         notif.setIsRead(true);
         notificationRepository.save(notif);
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/unread-count")
+    public ResponseEntity<Long> getUnreadCount(Authentication authentication) {
+        Long userId = getUserId(authentication);
+        long count = notificationService.getUnreadCount(userId);
+        return ResponseEntity.ok(count);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PutMapping("/read-all")
+    public ResponseEntity<Void> markAllAsRead(Authentication authentication) {
+        Long userId = getUserId(authentication);
+        notificationService.markAllAsRead(userId);
         return ResponseEntity.ok().build();
     }
 

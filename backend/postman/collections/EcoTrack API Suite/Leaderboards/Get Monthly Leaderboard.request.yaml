@@ -1,0 +1,10 @@
+$kind: http-request
+method: GET
+url: "{{baseUrl}}/api/leaderboards/monthly"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });

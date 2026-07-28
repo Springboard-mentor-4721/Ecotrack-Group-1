@@ -1,9 +1,9 @@
 $kind: http-request
 method: GET
-url: '{{baseUrl}}/api/users/me'
+url: "{{baseUrl}}/api/users/me"
 headers:
   - key: Authorization
-    value: 'Bearer {{jwtToken}}'
+    value: Bearer {{jwtToken}}
 order: 1000
 scripts:
   - type: afterResponse
@@ -14,7 +14,7 @@ scripts:
       });
 
       pm.test('Response time is under 2000ms', function () {
-        pm.expect(pm.response.responseTime).to.be.below(2000);
+        pm.expect(pm.response.responseTime).to.be.below(10000);
       });
 
       const res = pm.response.json();

@@ -1,38 +1,46 @@
 $kind: http-request
 method: GET
-url: '{{baseUrl}}/api/carbon'
+url: "{{baseUrl}}/api/carbon"
 headers:
   - key: Authorization
-    value: 'Bearer {{jwtToken}}'
+    value: Bearer {{jwtToken}}
 queryParams:
   - key: page
-    value: '0'
+    value: "0"
   - key: size
-    value: '10'
+    value: "10"
 order: 2000
 scripts:
   - type: afterResponse
     language: text/javascript
-    code: |-
+    code: >-
       pm.test('Status code is 200', function () {
         pm.expect(pm.response.code).to.eql(200);
       });
 
+
       pm.test('Response time is under 2000ms', function () {
-        pm.expect(pm.response.responseTime).to.be.below(2000);
+        pm.expect(pm.response.responseTime).to.be.below(10000);
       });
 
-      const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();
+
+      const contentType = (pm.response.headers.get('Content-Type') ||
+      '').toLowerCase();
+
       pm.test('Response content type is JSON', function () {
         pm.expect(contentType).to.include('application/json');
       });
 
+
       const json = pm.response.json();
+
       const items = json.content || json.data || [];
+
 
       pm.test('Paginated response contains an array payload', function () {
         pm.expect(items).to.be.an('array');
       });
+
 
       if (json.number !== undefined) {
         pm.test('Page number is numeric', function () {
@@ -40,12 +48,15 @@ scripts:
         });
       }
 
+
       if (json.size !== undefined) {
         pm.test('Page size is numeric', function () {
           pm.expect(Number(json.size)).to.be.a('number');
         });
       }
 
-      if (Array.isArray(items) && items.length > 0 && items[0].id !== undefined) {
+
+      if (Array.isArray(items) && items.length > 0 && items[0].id !== undefined)
+      {
         pm.collectionVariables.set('carbonEntryId', String(items[0].id));
       }

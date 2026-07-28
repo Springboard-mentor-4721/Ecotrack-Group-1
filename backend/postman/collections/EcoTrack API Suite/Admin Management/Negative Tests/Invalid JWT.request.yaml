@@ -1,9 +1,9 @@
 $kind: http-request
 method: GET
-url: '{{baseUrl}}/api/admin/users'
+url: "{{baseUrl}}/api/admin/users"
 headers:
   - key: Authorization
-    value: 'Bearer invalid.token.here'
+    value: ""
 order: 3000
 scripts:
   - type: afterResponse

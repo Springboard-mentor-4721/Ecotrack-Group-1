@@ -1,0 +1,25 @@
+$kind: http-request
+method: PUT
+url: '{{baseUrl}}/api/admin/challenges/1'
+headers:
+  - key: Authorization
+    value: 'Bearer {{jwtToken}}'
+  - key: Content-Type
+    value: 'application/json'
+body:
+  type: raw
+  raw: '{
+  "title": "Plant a Tree Updated",
+  "description": "Plant at least one tree this week.",
+  "targetValue": 2,
+  "badgeId": 1,
+  "startDate": "2026-07-27",
+  "endDate": "2026-08-15"
+}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);
+      });

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .header { background-color: #FF9800; color: white; padding: 10px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { padding: 20px; }
+        .footer { font-size: 12px; color: #777; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Challenge Completed!</h2>
+        </div>
+        <div class="content">
+            <p>Hi <span th:text="${userName}">EcoTracker</span>,</p>
+            <p th:text="${message}">You have completed the challenge!</p>
+            <p>Every step counts in our community effort to build a more sustainable world. Check the app for your next big challenge!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; EcoTrack Team. This is an automated email, please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>

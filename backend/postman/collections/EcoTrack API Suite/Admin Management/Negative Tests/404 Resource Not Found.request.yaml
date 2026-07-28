@@ -1,9 +1,9 @@
 $kind: http-request
 method: GET
-url: '{{baseUrl}}/api/unknown-endpoint'
+url: "{{baseUrl}}/api/unknown-endpoint"
 headers:
   - key: Authorization
-    value: 'Bearer {{jwtToken}}'
+    value: Bearer {{jwtToken}}
 order: 5000
 scripts:
   - type: afterResponse

@@ -1,6 +1,6 @@
 $kind: http-request
 method: GET
-url: '{{baseUrl}}/api/users/me'
+url: "{{baseUrl}}/api/users/me"
 order: 3000
 scripts:
   - type: afterResponse

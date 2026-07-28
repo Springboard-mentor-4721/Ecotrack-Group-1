@@ -1,13 +1,11 @@
-# Use this workspace to collaborate
 workspace:
   id: 521f851f-40c9-4b6e-88bd-5dd1e58b2b27
-
 localResources:
   specs:
     - ../postman/specs/EcoTrack/EcoTrack.yaml
-
-# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
-
 cloudResources:
   collections:
-    ../postman/collections/EcoTrack API Suite: 12451bd4-d201-40e6-9499-5d3eea794801
+    ../postman/collections/EcoTrack API Suite: 54558586-103ae917-6ff3-48c7-8a21-2091f832b49c
+    ../postman/collections/API_EcoTrack: 54558586-7d962222-d456-4b09-985c-920d714d28b9
+  specs:
+    ../postman/specs/EcoTrack/EcoTrack.yaml: 94919009-9d70-48e4-a8b1-2fd2bc44a5c4

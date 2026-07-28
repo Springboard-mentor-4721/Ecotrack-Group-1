@@ -1,11 +1,11 @@
 $kind: http-request
 method: PUT
-url: '{{baseUrl}}/api/admin/users/{{userId}}/status'
+url: "{{baseUrl}}/api/admin/users/{{userId}}/status"
 headers:
   - key: Content-Type
     value: application/json
   - key: Authorization
-    value: 'Bearer {{jwtToken}}'
+    value: Bearer {{jwtToken}}
 body:
   type: json
   content: |-

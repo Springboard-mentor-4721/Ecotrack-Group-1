@@ -1,12 +1,8 @@
 workspace:
-  id: 68b534b2-41c9-46b5-8423-d9e6781017e3
-
+  id: 521f851f-40c9-4b6e-88bd-5dd1e58b2b27
 localResources:
   specs:
     - ../postman/specs/EcoTrack/EcoTrack.yaml
-
-# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
-
 cloudResources:
   collections:
     ../postman/collections/EcoTrack API Suite: 54558586-103ae917-6ff3-48c7-8a21-2091f832b49c

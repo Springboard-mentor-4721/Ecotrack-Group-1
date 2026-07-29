@@ -39,7 +39,8 @@ public class EmailNotificationService {
 
                         Context context = new Context();
                         context.setVariable("message", text);
-                        context.setVariable("userName", user.getName() != null ? user.getName() : "EcoTracker");
+                        String name = user.getName() != null ? user.getName() : "User";
+                        context.setVariable("userName", name);
                         
                         String templateName = getTemplateName(eventType);
                         String htmlContent = templateEngine.process(templateName, context);

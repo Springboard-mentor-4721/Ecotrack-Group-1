@@ -1,0 +1,116 @@
+<div class="challenge-detail-wrapper animate-page px-4 py-4 max-w-4xl mx-auto">
+  
+  <!-- Back Button -->
+  <a routerLink="/challenges" class="d-inline-flex align-items-center gap-2 text-decoration-none text-muted mb-4 fs-7 fw-bold transition-all btn-link-hover">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Back to Challenges
+  </a>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="d-flex flex-column gap-4">
+    <app-loading-skeleton type="card"></app-loading-skeleton>
+    <app-loading-skeleton type="card"></app-loading-skeleton>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && error" class="text-center py-5 my-5">
+    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex p-4 mb-3 shadow-sm">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    </div>
+    <h4 class="fw-bold text-dark">Challenge Not Found</h4>
+    <p class="desc-light">We couldn't load the details for this challenge.</p>
+  </div>
+
+  <!-- Detail Content -->
+  <div *ngIf="!isLoading && challenge" class="animate-stagger-item">
+    
+    <!-- Hero Card -->
+    <div class="card-premium p-4 p-md-5 mb-4 position-relative overflow-hidden">
+      <!-- Status Badge -->
+      <div class="position-absolute top-0 end-0 m-4 badge px-3 py-2 fs-xs fw-bold rounded-pill text-uppercase"
+           [ngClass]="getStatusClass(challenge.status)">
+        {{ challenge.status }}
+      </div>
+
+      <div class="badge border bg-surface text-muted text-uppercase fs-xs tracking-wide mb-3">
+        {{ challenge.typeCode }}
+      </div>
+
+      <h1 class="fw-bold text-dark fs-2 mb-3 pe-md-5">{{ challenge.title }}</h1>
+      <p class="desc-light fs-6 mb-4 max-w-xl lh-lg">{{ challenge.description }}</p>
+
+      <div class="d-flex flex-wrap gap-4 pt-4 border-top">
+        <div>
+          <span class="fs-xs fw-600 text-muted d-block text-uppercase tracking-wide mb-1">Target</span>
+          <span class="fw-bold text-dark fs-5">{{ challenge.targetValue }}</span>
+        </div>
+        <div>
+          <span class="fs-xs fw-600 text-muted d-block text-uppercase tracking-wide mb-1">Participants</span>
+          <span class="fw-bold text-dark fs-5">{{ challenge.participantCount }}</span>
+        </div>
+        <div>
+          <span class="fs-xs fw-600 text-muted d-block text-uppercase tracking-wide mb-1">Duration</span>
+          <span class="fw-bold text-dark fs-6 d-flex align-items-center h-100 pb-1">
+            {{ challenge.startDate | date:'MMM d, y' }} - {{ challenge.endDate | date:'MMM d, y' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress & Action Card -->
+    <div class="card-premium p-4 mb-5">
+      
+      <!-- Not Joined -->
+      <div *ngIf="!challenge.userProgress" class="text-center py-4">
+        <h4 class="fw-bold text-dark mb-3">Ready to make an impact?</h4>
+        <p class="desc-light mb-4">Join this challenge to track your progress and compete with others.</p>
+        <button class="btn btn-emerald rounded-pill px-5 py-2 fw-bold"
+                (click)="joinChallenge()"
+                [disabled]="isActionLoading || challenge.status !== 'ACTIVE'">
+          <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ challenge.status === 'ACTIVE' ? 'Join Challenge' : 'Cannot Join' }}
+        </button>
+      </div>
+
+      <!-- Joined -->
+      <div *ngIf="challenge.userProgress">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="fw-bold text-dark mb-0">Your Progress</h4>
+          <span class="badge px-3 py-1 rounded-pill bg-blue-light text-blue fw-bold text-uppercase fs-xs" *ngIf="challenge.userProgress.status === 'COMPLETED'">
+            Completed
+          </span>
+          <span class="badge px-3 py-1 rounded-pill bg-emerald-light text-emerald fw-bold text-uppercase fs-xs" *ngIf="challenge.userProgress.status === 'ACTIVE'">
+            Participating
+          </span>
+        </div>
+
+        <div class="mb-2 d-flex justify-content-between align-items-end">
+          <span class="fs-3 fw-bold text-dark lh-1">{{ challenge.userProgress.progress }} <span class="fs-6 text-muted">/ {{ challenge.targetValue }}</span></span>
+          <span class="fs-7 fw-bold text-emerald">{{ Math.round(progressPercentage) }}%</span>
+        </div>
+        
+        <div class="progress mb-4 bg-surface border shadow-sm" style="height: 12px; border-radius: 6px;">
+          <div class="progress-bar bg-emerald rounded-pill transition-all" 
+               [style.width.%]="progressPercentage" 
+               role="progressbar"></div>
+        </div>
+
+        <div class="text-center mt-4 pt-4 border-top">
+          <button class="btn btn-outline-emerald rounded-pill px-5 fw-bold d-inline-flex align-items-center gap-2"
+                  (click)="updateProgress()"
+                  [disabled]="isActionLoading || challenge.userProgress.status !== 'ACTIVE'">
+            <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm"></span>
+            <svg *ngIf="!isActionLoading" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Progress
+          </button>
+          <p class="fs-xs text-muted mt-2 mb-0" *ngIf="challenge.userProgress.status === 'COMPLETED'">
+            You have already completed this challenge!
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

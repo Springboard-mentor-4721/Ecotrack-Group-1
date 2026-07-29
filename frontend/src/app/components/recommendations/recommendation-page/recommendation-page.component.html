@@ -1,0 +1,82 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-0">Personalized Recommendations</h2>
+      <p class="text-muted mb-0">Tailored suggestions to reduce your carbon footprint</p>
+    </div>
+    <button class="btn btn-outline-primary d-flex align-items-center gap-2" 
+            (click)="generateRecommendations()" [disabled]="isGenerating">
+      <lucide-angular [img]="RefreshCwIcon" size="18" [class.spin]="isGenerating"></lucide-angular>
+      {{ isGenerating ? 'Generating...' : 'Refresh Suggestions' }}
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && recommendations.length === 0" class="text-center py-5">
+    <lucide-angular [img]="LightbulbIcon" class="text-muted mb-3" style="width: 64px; height: 64px;"></lucide-angular>
+    <h4>No Recommendations Yet</h4>
+    <p class="text-muted">Log more activities to get personalized suggestions.</p>
+    <button class="btn btn-primary mt-2" (click)="generateRecommendations()" [disabled]="isGenerating">
+      Generate Now
+    </button>
+  </div>
+
+  <div class="row g-4" *ngIf="!isLoading && !errorMessage && recommendations.length > 0">
+    <div class="col-md-6" *ngFor="let rec of recommendations">
+      <div class="card h-100 shadow-sm border-0 position-relative transition-all"
+           [class.bg-light]="rec.isRead"
+           (mouseenter)="markAsRead(rec)">
+        
+        <!-- Unread indicator -->
+        <span *ngIf="!rec.isRead" class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+          <span class="visually-hidden">New recommendation</span>
+        </span>
+
+        <div class="card-body">
+          <div class="d-flex align-items-start mb-3">
+            <div class="p-3 bg-light rounded-circle me-3">
+              <lucide-angular [img]="LightbulbIcon" [class]="getCategoryColor(rec.category)" size="24"></lucide-angular>
+            </div>
+            <div>
+              <span class="badge bg-secondary mb-2">{{ rec.category }}</span>
+              <h5 class="card-title">{{ rec.recommendation }}</h5>
+            </div>
+          </div>
+          
+          <div class="d-flex align-items-center text-success fw-bold">
+            <lucide-angular [img]="LeafIcon" size="18" class="me-1"></lucide-angular>
+            Estimated impact: -{{ rec.estimatedReductionKgco2e }} kg CO₂e
+          </div>
+          
+          <p class="text-muted small mt-3 mb-0 text-end">
+            Generated {{ rec.createdAt | date:'mediumDate' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav *ngIf="totalPages > 1 && !isLoading && !errorMessage" class="mt-4" aria-label="Recommendations pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 0">
+        <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+        <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">Next</button>
+      </li>
+    </ul>
+  </nav>
+</div>

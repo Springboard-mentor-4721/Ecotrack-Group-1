@@ -1,0 +1,79 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">My Challenges</h2>
+    <button class="btn btn-primary" routerLink="/challenges">Browse More Challenges</button>
+  </div>
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && myChallenges.length === 0" class="text-center py-5">
+    <lucide-angular [img]="TargetIcon" class="text-muted mb-3" style="width: 64px; height: 64px;"></lucide-angular>
+    <h4>No Challenges Joined Yet</h4>
+    <p class="text-muted">Start participating in challenges to track your progress.</p>
+    <button class="btn btn-primary mt-2" routerLink="/challenges">Find Challenges</button>
+  </div>
+
+  <div class="row g-4" *ngIf="!isLoading && !errorMessage && myChallenges.length > 0">
+    <div class="col-md-6 col-lg-4" *ngFor="let item of myChallenges">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="card-title mb-0 text-truncate" [title]="item.challenge.title">
+              {{ item.challenge.title }}
+            </h5>
+            <span [class]="getStatusBadgeClass(item.participant.status)">
+              {{ item.participant.status }}
+            </span>
+          </div>
+
+          <p class="text-muted small mb-3">
+            <lucide-angular [img]="ClockIcon" size="14" class="me-1"></lucide-angular>
+            {{ item.challenge.startDate | date:'MMM d' }} - {{ item.challenge.endDate | date:'MMM d, yyyy' }}
+          </p>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small mb-1">
+              <span>Progress</span>
+              <span class="fw-bold">{{ item.participant.progress }} / {{ item.challenge.targetValue }}</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+              <div class="progress-bar bg-success" role="progressbar" 
+                   [style.width.%]="getProgressPercentage(item.participant, item.challenge)"
+                   [attr.aria-valuenow]="getProgressPercentage(item.participant, item.challenge)" 
+                   aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+
+          <div class="d-grid mt-auto">
+            <button class="btn btn-outline-primary" [routerLink]="['/challenges', item.challenge.id]">
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav *ngIf="totalPages > 1 && !isLoading && !errorMessage" class="mt-4" aria-label="Challenges pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 0">
+        <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+        <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">Next</button>
+      </li>
+    </ul>
+  </nav>
+</div>

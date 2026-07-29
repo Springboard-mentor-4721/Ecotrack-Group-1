@@ -7,17 +7,32 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { AdminService } from '../../services/admin.service';
 import { AdminDashboardResponse } from '../../models/admin.models';
-import { CarbonEntryService } from '../../services/carbon-entry.service';
-import { CarbonEntryResponse } from '../../models/carbon.models';
+import { DashboardService } from '../../services/dashboard.service';
+import { GamificationService } from '../../services/gamification.service';
+import { DashboardResponse, RecentActivityDTO } from '../../models/dashboard.models';
+import { GamificationProfile, Badge } from '../../models/gamification.models';
 import { forkJoin, of } from 'rxjs';
-import { finalize, map, catchError } from 'rxjs/operators';
+import { finalize, catchError } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
-import { GoalService } from '../../services/goal.service';
+
+import { EcoScoreCardComponent } from './widgets/eco-score-card/eco-score-card.component';
+import { XpLevelBarComponent } from './widgets/xp-level-bar/xp-level-bar.component';
+import { StreakTrackerComponent } from './widgets/streak-tracker/streak-tracker.component';
+import { RecentAchievementsComponent } from './widgets/recent-achievements/recent-achievements.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LoadingSkeletonComponent, BaseChartDirective],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    LoadingSkeletonComponent, 
+    BaseChartDirective,
+    EcoScoreCardComponent,
+    XpLevelBarComponent,
+    StreakTrackerComponent,
+    RecentAchievementsComponent
+  ],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
@@ -28,15 +43,24 @@ export class DashboardComponent implements OnInit {
   // Core State
   isLoading = true;
   isAdmin = false;
+  isLeaderboardLoading = false;
+  leaderboardError = '';
+
+  weeklyJourney: any[] = []; // Used for placeholder empty state logic
   adminStatsLoading = false;
+  gamificationLoading = true;
   
   // Data
   user: any = null;
   profileCompletion: number | null = null;
   totalEmissions = 0; // Current 30 days
   totalEntries = 0;
-  recentEntries: CarbonEntryResponse[] = [];
+  recentEntries: RecentActivityDTO[] = [];
   adminStats: AdminDashboardResponse | null = null;
+  
+  // Gamification Data
+  gamificationProfile: GamificationProfile | null = null;
+  recentBadges: Badge[] = [];
   
   // Storytelling Elements
   greeting = 'Good Day';
@@ -44,16 +68,12 @@ export class DashboardComponent implements OnInit {
   today = new Date();
   
   // Custom Data Structures for UI
-  ecoScore: number | null = null;
-  streak: number | null = null;
+  ecoScore: number = 0;
+  ecoGrade: string = 'N/A';
+  streak: number = 0;
   goalsHealth: string = 'Good';
   achievements: number = 0;
-  weeklyGoal: number | null = null;
-  weeklyJourney: { day: string, filled: boolean, today: boolean }[] = [];
   carbonSources: { name: string, percentage: number, value: number, color: string }[] = [];
-  
-  // Grouped Timeline
-  timelineGroups: { name: string, entries: CarbonEntryResponse[] }[] = [];
 
   // Charts
   public lineChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
@@ -110,8 +130,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private profileService: ProfileService,
-    private carbonEntryService: CarbonEntryService,
-    private goalService: GoalService,
+    private dashboardService: DashboardService,
+    private gamificationService: GamificationService,
     private adminService: AdminService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
@@ -160,19 +180,9 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadDashboardData(): void {
-    const end = new Date();
-    const start = new Date(end.getFullYear(), end.getMonth(), 1);
-    
-    // Format to YYYY-MM-DD using local time to prevent timezone bugs
-    const startDateStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
-    const endDateStr = end.getFullYear() + '-' + String(end.getMonth() + 1).padStart(2, '0') + '-' + String(end.getDate()).padStart(2, '0');
-
-    // Load Profile, Summary, and Recent Entries concurrently
     forkJoin({
       profile: this.profileService.getMyProfile().pipe(catchError(() => of(null))),
-      summary: this.carbonEntryService.getDashboardSummary(startDateStr, endDateStr).pipe(catchError(() => of(null))),
-      entries: this.carbonEntryService.getEntries(0, 50, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'entryDate,desc').pipe(catchError(() => of(null))),
-      goals: this.goalService.getGoals(0, 100).pipe(catchError(() => of(null)))
+      dashboard: this.dashboardService.getUserDashboard().pipe(catchError(() => of(null)))
     }).pipe(
       finalize(() => {
         this.isLoading = false;
@@ -191,31 +201,45 @@ export class DashboardComponent implements OnInit {
           this.profileCompletion = this.calculateProfileCompletion(results.profile);
         }
         
-        if (results.summary) {
-          this.totalEmissions = results.summary.totalEmission || 0;
-          this.processCarbonSources(results.summary.categorySummaries);
-          this.updateCharts(results.summary);
+        if (results.dashboard) {
+          const dash = results.dashboard;
+          this.totalEmissions = dash.userSummary?.monthlyEmission || 0;
+          this.totalEntries = dash.userSummary?.totalEntries || 0;
+          this.recentEntries = dash.recentActivities || [];
+          this.ecoScore = dash.ecoScore?.score || 0;
+          this.ecoGrade = dash.ecoScore?.grade || 'N/A';
+          this.processCarbonSources(dash.categoryBreakdown);
+          this.updateCharts(dash.monthlyTrend);
+          this.processGoals(dash.goalSummary);
         }
-        
-        if (results.entries) {
-          this.recentEntries = results.entries.content || [];
-          this.totalEntries = results.entries.totalElements || 0;
-          this.processTimeline();
-          this.processWeeklyJourney();
-        }
-        
-        if (results.goals && results.goals.content) {
-          this.processGoals(results.goals.content);
-        }
-
-        this.calculateEcoScore();
-        this.calculateStreakAndGoal();
 
         if (this.isAdmin) {
           this.loadAdminStats();
         }
       },
       error: (err) => console.error('Failed to load dashboard data', err)
+    });
+
+    // Load Gamification separately
+    this.gamificationLoading = true;
+    forkJoin({
+      profile: this.gamificationService.getProfile().pipe(catchError(() => of(null))),
+      badges: this.gamificationService.getBadges().pipe(catchError(() => of(null)))
+    }).pipe(
+      finalize(() => {
+        this.gamificationLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (res) => {
+        if (res.profile) {
+          this.gamificationProfile = res.profile;
+          this.streak = res.profile.currentStreak || 0;
+        }
+        if (res.badges) {
+          this.recentBadges = res.badges.filter(b => b.isEarned).slice(0, 5);
+        }
+      }
     });
   }
 
@@ -227,7 +251,7 @@ export class DashboardComponent implements OnInit {
     this.carbonSources = categorySummaries
       .map((s, i) => ({
         name: s.categoryName,
-        value: s.totalEmission,
+        value: s.emission,
         percentage: s.percentage,
         color: colors[i % colors.length]
       }))
@@ -245,101 +269,20 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  private processTimeline(): void {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const groups: Record<string, CarbonEntryResponse[]> = {
-      'TODAY': [],
-      'YESTERDAY': [],
-      'THIS WEEK': []
-    };
-
-    // Take top 10 for journal
-    this.recentEntries.slice(0, 10).forEach(entry => {
-      const eDate = new Date(entry.entryDate);
-      eDate.setHours(0,0,0,0);
-      if (eDate.getTime() === today.getTime()) groups['TODAY'].push(entry);
-      else if (eDate.getTime() === yesterday.getTime()) groups['YESTERDAY'].push(entry);
-      else groups['THIS WEEK'].push(entry);
-    });
-
-    this.timelineGroups = [];
-    if (groups['TODAY'].length) this.timelineGroups.push({ name: 'TODAY', entries: groups['TODAY'] });
-    if (groups['YESTERDAY'].length) this.timelineGroups.push({ name: 'YESTERDAY', entries: groups['YESTERDAY'] });
-    if (groups['THIS WEEK'].length) this.timelineGroups.push({ name: 'THIS WEEK', entries: groups['THIS WEEK'] });
-  }
-
-  private processWeeklyJourney(): void {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    
-    // Map entries to days
-    const activeDates = new Set(this.recentEntries.map(e => {
-      const d = new Date(e.entryDate);
-      d.setHours(0,0,0,0);
-      return d.getTime();
-    }));
-
-    this.weeklyJourney = this.weeklyJourney.map((wj, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      d.setHours(0,0,0,0);
-      return { ...wj, filled: activeDates.has(d.getTime()) };
-    });
-  }
-
-  private calculateEcoScore(): void {
-    if (this.totalEntries === 0) {
-      this.ecoScore = 0;
-      return;
-    }
-    const penalty = Math.min(this.totalEmissions / 20, 40);
-    const bonus = Math.min(this.totalEntries * 2, 30);
-    this.ecoScore = Math.max(10, Math.min(100, Math.round(70 - penalty + bonus)));
-  }
-
-  private getComputedStatus(goal: any): string {
-    const s = goal.status as string;
-    if (s === 'ABANDONED' || s === 'ARCHIVED') return 'ARCHIVED';
-    if (s === 'PAUSED') return 'PAUSED';
-    if (s === 'ACHIEVED' || s === 'COMPLETED') return 'COMPLETED';
-    if (!goal.isAutomatic) return goal.status;
-    const limit = goal.targetValue;
-    const current = goal.currentValue;
-    if (current >= limit) return 'EXCEEDED';
-    if (current >= limit * 0.75) return 'NEAR_LIMIT';
-    return 'WITHIN_BUDGET';
-  }
-
-  private processGoals(goals: any[]): void {
-    if (!goals || goals.length === 0) {
+  private processGoals(goalSummary: any): void {
+    if (!goalSummary) {
       this.achievements = 0;
       this.goalsHealth = '0';
       return;
     }
     
-    // Achievements: non-automatic completed goals
-    this.achievements = goals.filter(g => !g.isAutomatic && ((g.status as string) === 'ACHIEVED' || (g.status as string) === 'COMPLETED')).length;
+    this.achievements = goalSummary.completedGoals || 0;
     
-    // Goals Health: based on automatic budgets
-    const autoGoals = goals.filter(g => g.isAutomatic).length;
-    if (autoGoals === 0) {
-       this.goalsHealth = 'Good';
-       return;
-    }
+    const percentage = goalSummary.completionPercentage || 0;
     
-    const nearLimitGoals = goals.filter(g => g.isAutomatic && this.getComputedStatus(g) === 'NEAR_LIMIT').length;
-    const exceededGoals = goals.filter(g => g.isAutomatic && this.getComputedStatus(g) === 'EXCEEDED').length;
-    
-    const healthy = autoGoals - (nearLimitGoals + exceededGoals);
-    const healthRatio = healthy / autoGoals;
-    
-    if (healthRatio >= 0.8) this.goalsHealth = 'Excellent';
-    else if (healthRatio >= 0.5) this.goalsHealth = 'Good';
-    else if (healthRatio >= 0.2) this.goalsHealth = 'Needs Attention';
+    if (percentage >= 80) this.goalsHealth = 'Excellent';
+    else if (percentage >= 50) this.goalsHealth = 'Good';
+    else if (percentage >= 20) this.goalsHealth = 'Needs Attention';
     else this.goalsHealth = 'Critical';
   }
 
@@ -355,60 +298,14 @@ export class DashboardComponent implements OnInit {
     return Math.round((filled / fields.length) * 100);
   }
 
-  private calculateStreakAndGoal(): void {
-    if (!this.recentEntries || this.recentEntries.length === 0) {
-      this.streak = 0;
-      this.weeklyGoal = 0;
-      return;
-    }
-    
-    // Calculate Streak
-    const activeDates = new Set(this.recentEntries.map(e => {
-      const d = new Date(e.entryDate);
-      d.setHours(0,0,0,0);
-      return d.getTime();
-    }));
-
-    let currentStreak = 0;
-    let checkDate = new Date();
-    checkDate.setHours(0,0,0,0);
-    
-    // If no entry today, check if there was an entry yesterday
-    if (!activeDates.has(checkDate.getTime())) {
-      checkDate.setDate(checkDate.getDate() - 1);
-    }
-    
-    while(activeDates.has(checkDate.getTime())) {
-      currentStreak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-    }
-    this.streak = currentStreak;
-
-    // Calculate Weekly Goal (days active this week out of 7)
-    let thisWeekActive = 0;
-    for (let i = 0; i < 7; i++) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      d.setHours(0,0,0,0);
-      if (activeDates.has(d.getTime())) {
-        thisWeekActive++;
-      }
-    }
-    this.weeklyGoal = thisWeekActive;
-  }
-
-  private updateCharts(summary: any): void {
-    if (!summary || !summary.weeklyTrend || summary.weeklyTrend.length === 0) {
+  private updateCharts(monthlyTrend: any): void {
+    if (!monthlyTrend || monthlyTrend.length === 0) {
       this.lineChartData = { labels: [], datasets: [] };
       return;
     }
     
-    const trend = summary.weeklyTrend;
-    const labels = trend.map((d: any) => {
-      const date = new Date(d.date);
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
-    });
-    const data = trend.map((d: any) => d.totalEmission);
+    const labels = monthlyTrend.map((d: any) => d.month);
+    const data = monthlyTrend.map((d: any) => d.emission);
 
     this.lineChartData = {
       labels: labels,

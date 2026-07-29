@@ -11,7 +11,7 @@ The backend for the EcoTrack platform, providing secure user authentication, sta
 - **Account Recovery:** Forgot password and Reset password workflows.
 
 ## Tech Stack
-- Java 21
+- Java 25
 - Spring Boot 3.5.x
 - Spring Security 6
 - Hibernate ORM
@@ -40,7 +40,7 @@ src/main/java/com/ecotrack/
 ```
 
 ## Requirements
-- Java Development Kit (JDK) 21
+- Java Development Kit (JDK) 25
 - MySQL Server 8.x running on port 3306
 - Maven (or use the provided `./mvnw` wrapper)
 

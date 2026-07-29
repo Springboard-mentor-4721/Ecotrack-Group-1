@@ -1,0 +1,88 @@
+<div class="leaderboard-wrapper animate-page px-4 py-4 max-w-4xl mx-auto">
+  
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h1 class="fw-bold text-dark mb-1 fs-3">Leaderboard</h1>
+      <p class="desc-light mb-0">See how you stack up against the community.</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="d-flex justify-content-center mb-5">
+    <div class="bg-surface p-1 rounded-pill d-inline-flex border shadow-sm">
+      <button class="btn rounded-pill px-4 fw-600 transition-all" 
+              [class.btn-emerald]="filterType === 'ALL_TIME'" 
+              [class.text-muted]="filterType !== 'ALL_TIME'"
+              (click)="setFilter('ALL_TIME')">
+        All Time
+      </button>
+      <button class="btn rounded-pill px-4 fw-600 transition-all" 
+              [class.btn-emerald]="filterType === 'MONTHLY'" 
+              [class.text-muted]="filterType !== 'MONTHLY'"
+              (click)="setFilter('MONTHLY')">
+        Monthly
+      </button>
+      <button class="btn rounded-pill px-4 fw-600 transition-all" 
+              [class.btn-emerald]="filterType === 'WEEKLY'" 
+              [class.text-muted]="filterType !== 'WEEKLY'"
+              (click)="setFilter('WEEKLY')">
+        Weekly
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="d-flex flex-column gap-3">
+    <app-loading-skeleton type="card" *ngFor="let i of [1,2,3,4,5]"></app-loading-skeleton>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && entries.length === 0" class="text-center py-5 my-5">
+    <div class="bg-surface rounded-circle d-inline-flex p-4 mb-3 shadow-sm">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+    </div>
+    <h4 class="fw-bold text-dark">No data available</h4>
+    <p class="desc-light">The leaderboard for this period is currently empty.</p>
+  </div>
+
+  <!-- List -->
+  <div *ngIf="!isLoading && entries.length > 0" class="d-flex flex-column gap-3">
+    
+    <!-- Leaderboard Rows -->
+    <div *ngFor="let entry of entries; let i = index" 
+         class="card-premium p-3 d-flex align-items-center gap-3 transition-all animate-stagger-item"
+         [class.border-emerald]="myRank?.userId === entry.userId"
+         [class.shadow-sm]="myRank?.userId === entry.userId"
+         [style.animation-delay]="(i * 50) + 'ms'">
+      
+      <!-- Rank Badge -->
+      <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 fw-bold fs-5 border"
+           [ngClass]="getRankClass(entry.rank)"
+           style="width: 48px; height: 48px; border-width: 2px !important;">
+        {{ entry.rank }}
+      </div>
+
+      <!-- User Info -->
+      <div class="d-flex align-items-center gap-3 flex-grow-1">
+        <div class="bg-surface rounded-circle d-flex align-items-center justify-content-center text-muted fw-bold flex-shrink-0 shadow-sm border" style="width: 48px; height: 48px;">
+          {{ entry.username.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+            {{ entry.username }}
+            <span *ngIf="myRank?.userId === entry.userId" class="badge bg-emerald-light text-emerald fs-xs rounded-pill">You</span>
+          </h6>
+          <span class="fs-xs text-muted fw-600">Level {{ Math.floor(entry.scoreValue / 1000) + 1 || 1 }}</span>
+        </div>
+      </div>
+
+      <!-- Score -->
+      <div class="text-end">
+        <div class="fw-bold text-dark fs-5">{{ entry.scoreValue | number }}</div>
+        <div class="fs-xs text-muted text-uppercase tracking-wide">Score</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

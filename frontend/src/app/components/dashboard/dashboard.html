@@ -22,21 +22,6 @@
       <div class="row g-4 mb-4">
         <div class="col-6">
           <div class="analytic-item">
-            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Eco Score</span>
-            <span class="fs-3 fw-bold text-dark d-block">{{ ecoScore !== null ? ecoScore : '0' }}</span>
-          </div>
-        </div>
-        <div class="col-6">
-          <div class="analytic-item">
-            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Entry Streak</span>
-            <div class="d-flex align-items-baseline gap-1">
-              <span class="fs-3 fw-bold text-dark d-block">{{ streak !== null ? streak : '0' }}</span>
-              <span class="fs-7 text-muted fw-bold" *ngIf="streak !== null">Days</span>
-            </div>
-          </div>
-        </div>
-        <div class="col-6">
-          <div class="analytic-item">
             <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Goals Health</span>
             <span *ngIf="goalsHealth !== '0'" class="badge border px-3 py-1 rounded-pill" [ngClass]="{
               'text-success border-success bg-transparent': goalsHealth === 'Excellent',
@@ -49,10 +34,23 @@
         </div>
         <div class="col-6">
           <div class="analytic-item">
-            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Achievements</span>
+            <span class="fs-xs fw-bold text-uppercase tracking-wide text-muted mb-1 d-block">Completed Goals</span>
             <span class="fs-3 fw-bold text-dark d-block">{{ achievements }}</span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- GAMIFICATION WIDGETS -->
+    <div class="row g-4 mb-4" *ngIf="gamificationProfile && !gamificationLoading">
+      <div class="col-md-4 animate-stagger-item">
+        <app-eco-score-card [score]="ecoScore" [grade]="ecoGrade"></app-eco-score-card>
+      </div>
+      <div class="col-md-4 animate-stagger-item">
+        <app-xp-level-bar [level]="gamificationProfile.currentLevel" [xp]="gamificationProfile.lifetimeEcoXp"></app-xp-level-bar>
+      </div>
+      <div class="col-md-4 animate-stagger-item">
+        <app-streak-tracker [streak]="streak"></app-streak-tracker>
       </div>
     </div>
 
@@ -168,17 +166,17 @@
           </div>
           
           <div class="d-flex flex-column gap-4 mt-2">
-            <div class="d-flex align-items-center justify-content-between" *ngFor="let entry of recentEntries.slice(0,3)">
+              <div class="d-flex align-items-center justify-content-between" *ngFor="let entry of recentEntries.slice(0,3)">
               <div class="d-flex align-items-center gap-3">
                 <div class="bg-surface-hover rounded-3 p-2 text-muted border">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 </div>
                 <div>
-                  <span class="fw-bold text-dark d-block fs-7">{{ entry.subType }}</span>
+                  <span class="fw-bold text-dark d-block fs-7">{{ entry.category }} - {{ entry.subType }}</span>
                   <span class="desc-light">{{ entry.entryDate | date:'MMM d, h:mm a' }}</span>
                 </div>
               </div>
-              <span class="fw-bold text-dark fs-7">{{ entry.emissionKgco2e | number:'1.1-1' }} <span class="text-muted fw-normal">kg</span></span>
+              <span class="fw-bold text-dark fs-7">{{ entry.emission | number:'1.1-1' }} <span class="text-muted fw-normal">kg</span></span>
             </div>
             
             <div class="text-center py-3" *ngIf="recentEntries.length === 0">
@@ -219,20 +217,7 @@
       
       <!-- Achievements -->
       <div class="col-lg-4 animate-stagger-item">
-        <div class="card-premium h-100 p-4">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-dark mb-0 fs-5">Achievements</h3>
-            <span class="label-muted">View All</span>
-          </div>
-          
-          <div class="d-flex flex-column gap-3 align-items-center justify-content-center text-center py-4">
-            <svg class="text-muted mb-2 opacity-50" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15l-2 5l9-5l-2-5l2-5l-9 5l2-5l-9 5l2 5l-2 5l9-5z"></path></svg>
-            <div>
-              <span class="fw-bold text-dark d-block fs-7">Achievements Pending</span>
-              <span class="desc-light">Coming in future update</span>
-            </div>
-          </div>
-        </div>
+        <app-recent-achievements [badges]="recentBadges"></app-recent-achievements>
       </div>
       
     </div>

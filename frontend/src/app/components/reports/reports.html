@@ -1,1 +1,118 @@
-<p>reports works!</p>
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Analytics & Reports</h2>
+    <button class="btn btn-outline-primary d-flex align-items-center gap-2" 
+            (click)="exportReport()" 
+            [disabled]="isLoading || !summary || summary.categorySummaries.length === 0">
+      <lucide-angular [img]="DownloadIcon" size="18"></lucide-angular>
+      Export CSV
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Date Range</label>
+          <select class="form-select" [(ngModel)]="dateRange" (change)="onDateRangeChange()">
+            <option value="LAST_7_DAYS">Last 7 Days</option>
+            <option value="LAST_30_DAYS">Last 30 Days</option>
+            <option value="THIS_MONTH">This Month</option>
+            <option value="THIS_YEAR">This Year</option>
+            <option value="CUSTOM">Custom Range</option>
+          </select>
+        </div>
+        
+        <div class="col-md-3" *ngIf="dateRange === 'CUSTOM'">
+          <label class="form-label fw-bold">Start Date</label>
+          <input type="date" class="form-control" [(ngModel)]="startDate" (change)="loadReport()">
+        </div>
+        
+        <div class="col-md-3" *ngIf="dateRange === 'CUSTOM'">
+          <label class="form-label fw-bold">End Date</label>
+          <input type="date" class="form-control" [(ngModel)]="endDate" (change)="loadReport()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && summary">
+    
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm bg-primary text-white h-100">
+          <div class="card-body">
+            <h6 class="text-uppercase text-white-50 mb-2">Total Carbon Emission</h6>
+            <h2 class="display-5 fw-bold mb-0">{{ summary.totalEmission | number:'1.0-2' }} <span class="fs-4">kg CO2e</span></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm bg-success text-white h-100">
+          <div class="card-body">
+            <h6 class="text-uppercase text-white-50 mb-2">Total Activities Logged</h6>
+            <h2 class="display-5 fw-bold mb-0">{{ summary.totalEntriesCount }} <span class="fs-4">entries</span></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4 mb-4" *ngIf="summary.categorySummaries.length > 0">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white pt-4 pb-2 border-0">
+            <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+              <lucide-angular [img]="PieChartIcon" size="20" class="text-primary"></lucide-angular>
+              Emissions Breakdown
+            </h5>
+          </div>
+          <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
+            <canvas baseChart
+              [data]="pieChartData"
+              [type]="pieChartType"
+              [options]="pieChartOptions">
+            </canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white pt-4 pb-2 border-0">
+            <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+              <lucide-angular [img]="BarChartIcon" size="20" class="text-primary"></lucide-angular>
+              Emissions by Category
+            </h5>
+          </div>
+          <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
+            <canvas baseChart
+              [data]="barChartData"
+              [type]="barChartType"
+              [options]="barChartOptions">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="summary.categorySummaries.length === 0" class="text-center py-5 bg-light rounded shadow-sm">
+      <lucide-angular [img]="PieChartIcon" class="text-muted mb-3" style="width: 64px; height: 64px;"></lucide-angular>
+      <h4>No Data Available</h4>
+      <p class="text-muted">There are no carbon entries logged for the selected date range.</p>
+    </div>
+
+  </div>
+</div>

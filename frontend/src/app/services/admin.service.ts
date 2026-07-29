@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { UserSummaryResponse, UserDetailResponse, UpdateUserStatusRequest, AdminDashboardResponse } from '../models/admin.models';
 import { PageableResponse } from '../models/carbon.models';
+import { Challenge, ChallengeRequest } from '../models/challenge.models';
+import { AdminBadge, BadgeDefinitionRequest, GamificationConfig, ConfigUpdateRequest } from '../models/gamification.models';
 
 @Injectable({
   providedIn: 'root'
@@ -36,5 +38,53 @@ export class AdminService {
 
   getDashboardSummary(): Observable<AdminDashboardResponse> {
     return this.http.get<AdminDashboardResponse>(`${this.apiUrl}/api/admin/dashboard`);
+  }
+  // Challenge Admin
+  getAdminChallenges(page: number = 0, size: number = 10): Observable<PageableResponse<Challenge>> {
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    return this.http.get<PageableResponse<Challenge>>(`${this.apiUrl}/api/admin/challenges`, { params });
+  }
+
+  createChallenge(request: ChallengeRequest): Observable<Challenge> {
+    return this.http.post<Challenge>(`${this.apiUrl}/api/admin/challenges`, request);
+  }
+
+  updateChallenge(id: number, request: ChallengeRequest): Observable<Challenge> {
+    return this.http.put<Challenge>(`${this.apiUrl}/api/admin/challenges/${id}`, request);
+  }
+
+  moderateChallenge(id: number, action: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/api/admin/challenges/${id}/moderate`, { action });
+  }
+
+  archiveChallenge(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/api/admin/challenges/${id}/archive`, {});
+  }
+
+  // Badge Admin
+  getAdminBadges(page: number = 0, size: number = 10): Observable<PageableResponse<AdminBadge>> {
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    return this.http.get<PageableResponse<AdminBadge>>(`${this.apiUrl}/api/admin/badges`, { params });
+  }
+
+  createBadge(request: BadgeDefinitionRequest): Observable<AdminBadge> {
+    return this.http.post<AdminBadge>(`${this.apiUrl}/api/admin/badges`, request);
+  }
+
+  updateBadge(id: number, request: BadgeDefinitionRequest): Observable<AdminBadge> {
+    return this.http.put<AdminBadge>(`${this.apiUrl}/api/admin/badges/${id}`, request);
+  }
+
+  disableBadge(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/api/admin/badges/${id}/disable`, {});
+  }
+
+  // Config Admin
+  getAdminConfig(): Observable<GamificationConfig[]> {
+    return this.http.get<GamificationConfig[]>(`${this.apiUrl}/api/admin/config`);
+  }
+
+  updateAdminConfig(key: string, request: ConfigUpdateRequest): Observable<GamificationConfig> {
+    return this.http.put<GamificationConfig>(`${this.apiUrl}/api/admin/config/${key}`, request);
   }
 }

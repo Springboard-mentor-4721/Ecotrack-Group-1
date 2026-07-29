@@ -5,10 +5,12 @@ import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { environment } from '../../../environments/environment';
 
+import { NotificationBellComponent } from './notification-bell/notification-bell.component';
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NotificationBellComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })

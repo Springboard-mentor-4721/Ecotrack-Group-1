@@ -1,0 +1,194 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Badge Management</h2>
+    <button class="btn btn-primary d-flex align-items-center gap-2" (click)="openCreateModal()">
+      <lucide-angular [img]="PlusIcon" size="18"></lucide-angular>
+      Create Badge
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0" *ngIf="!isLoading">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="border-0 px-4 py-3">Badge Info</th>
+              <th class="border-0 py-3">Category</th>
+              <th class="border-0 py-3">Rarity</th>
+              <th class="border-0 py-3">Criteria</th>
+              <th class="border-0 py-3">Status</th>
+              <th class="border-0 py-3 text-end px-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="badges.length === 0">
+              <td colspan="6" class="text-center py-4 text-muted">No badges found.</td>
+            </tr>
+            <tr *ngFor="let badge of badges">
+              <td class="px-4">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <lucide-angular [img]="AwardIcon" size="20" class="text-primary"></lucide-angular>
+                  </div>
+                  <div>
+                    <div class="fw-bold">{{ badge.name }}</div>
+                    <div class="small text-muted text-truncate" style="max-width: 250px;" title="{{ badge.description }}">
+                      {{ badge.description }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ badge.category }}</td>
+              <td>
+                <span [class]="getRarityClass(badge.rarity)">{{ badge.rarity }}</span>
+              </td>
+              <td>
+                <div class="small">
+                  <div class="fw-bold">{{ badge.criteriaType }}</div>
+                  <div class="text-muted">Threshold: {{ badge.criteriaThreshold }}</div>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="badge.isHidden ? 'bg-secondary' : 'bg-success'">
+                  {{ badge.isHidden ? 'Hidden' : 'Visible' }}
+                </span>
+                <span class="badge bg-info ms-1" *ngIf="badge.isRepeatable">Repeatable</span>
+              </td>
+              <td class="text-end px-4">
+                <div class="btn-group shadow-sm">
+                  <button class="btn btn-sm btn-light border" title="Edit" (click)="openEditModal(badge)">
+                    <lucide-angular [img]="EditIcon" size="16"></lucide-angular>
+                  </button>
+                  <button class="btn btn-sm btn-light border text-warning" title="Disable (Hide)" 
+                          *ngIf="!badge.isHidden" 
+                          (click)="disableBadge(badge.id)">
+                    <lucide-angular [img]="DisableIcon" size="16"></lucide-angular>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav *ngIf="totalPages > 1 && !isLoading" class="mt-4" aria-label="Badges pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 0">
+        <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+        <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">Next</button>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- Badge Modal -->
+<div class="modal fade" id="badgeModal" tabindex="-1" aria-labelledby="badgeModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title fw-bold" id="badgeModalLabel">
+          {{ isEditing ? 'Edit Badge' : 'Create New Badge' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+      
+      <form [formGroup]="badgeForm" (ngSubmit)="saveBadge()">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Name</label>
+              <input type="text" class="form-control" formControlName="name" placeholder="e.g. Tree Hugger"
+                     [ngClass]="{'is-invalid': badgeForm.get('name')?.invalid && badgeForm.get('name')?.touched}">
+              <div class="invalid-feedback">A valid name is required (max 100 chars).</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Category</label>
+              <input type="text" class="form-control" formControlName="category" placeholder="e.g. MILESTONE"
+                     [ngClass]="{'is-invalid': badgeForm.get('category')?.invalid && badgeForm.get('category')?.touched}">
+              <div class="invalid-feedback">Category is required.</div>
+            </div>
+            
+            <div class="col-12">
+              <label class="form-label fw-bold">Description</label>
+              <textarea class="form-control" formControlName="description" rows="2" placeholder="Describe the badge..."
+                        [ngClass]="{'is-invalid': badgeForm.get('description')?.invalid && badgeForm.get('description')?.touched}"></textarea>
+              <div class="invalid-feedback">Description is required.</div>
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Rarity</label>
+              <select class="form-select" formControlName="rarity"
+                      [ngClass]="{'is-invalid': badgeForm.get('rarity')?.invalid && badgeForm.get('rarity')?.touched}">
+                <option value="" disabled>Select Rarity</option>
+                <option value="BRONZE">Bronze</option>
+                <option value="SILVER">Silver</option>
+                <option value="GOLD">Gold</option>
+                <option value="PLATINUM">Platinum</option>
+              </select>
+              <div class="invalid-feedback">Please select a rarity.</div>
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Criteria Type</label>
+              <input type="text" class="form-control" formControlName="criteriaType" placeholder="e.g. CHALLENGE_COUNT"
+                     [ngClass]="{'is-invalid': badgeForm.get('criteriaType')?.invalid && badgeForm.get('criteriaType')?.touched}">
+              <div class="invalid-feedback">Criteria Type is required.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Criteria Threshold</label>
+              <input type="number" class="form-control" formControlName="criteriaThreshold" min="1"
+                     [ngClass]="{'is-invalid': badgeForm.get('criteriaThreshold')?.invalid && badgeForm.get('criteriaThreshold')?.touched}">
+              <div class="invalid-feedback">Target value must be at least 1.</div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="isHiddenSwitch" formControlName="isHidden">
+                <label class="form-check-label" for="isHiddenSwitch">Hide this badge from users (Disable)</label>
+              </div>
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="isRepeatableSwitch" formControlName="isRepeatable">
+                <label class="form-check-label" for="isRepeatableSwitch">Users can earn this badge multiple times</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="isSaving">Cancel</button>
+          <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" [disabled]="isSaving">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{ isEditing ? 'Save Changes' : 'Create Badge' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -21,4 +21,12 @@ public class ChallengeDTO {
     private Integer targetValue;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    private Long linkedCategoryId;
+
+    private Integer rewardXp;
+
+    private com.ecotrack.challenge.enums.ProgressType progressType;
+
+    private java.math.BigDecimal communityProgress;
 }

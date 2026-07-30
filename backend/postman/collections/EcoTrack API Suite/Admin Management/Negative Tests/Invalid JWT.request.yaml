@@ -1,14 +1,13 @@
 $kind: http-request
-method: GET
 url: "{{baseUrl}}/api/admin/users"
+method: GET
 headers:
-  - key: Authorization
-    value: ""
-order: 3000
+  Authorization: ""
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 401 Unauthorized', function () {
         pm.expect(pm.response.code).to.eql(401);
       });
+    language: text/javascript
+order: 3000

@@ -2,8 +2,7 @@ import { Routes } from '@angular/router';
 
 import { AchievementsPageComponent } from './components/achievements/achievements-page/achievements-page.component';
 import { LeaderboardPageComponent } from './components/leaderboard/leaderboard-page/leaderboard-page.component';
-import { ChallengeListPageComponent } from './components/challenges/challenge-list-page/challenge-list-page.component';
-import { MyChallengesPageComponent } from './components/challenges/my-challenges-page/my-challenges-page.component';
+import { ChallengesDashboardPageComponent } from './components/challenges/challenges-dashboard-page/challenges-dashboard-page.component';
 import { ChallengeDetailPageComponent } from './components/challenges/challenge-detail-page/challenge-detail-page.component';
 import { RecommendationPageComponent } from './components/recommendations/recommendation-page/recommendation-page.component';
 import { NotificationListPageComponent } from './components/notifications/notification-list-page/notification-list-page.component';
@@ -103,12 +102,7 @@ export const routes: Routes = [
       },
       {
         path: 'challenges',
-        component: ChallengeListPageComponent,
-        canActivate: [userGuard, suspendedGuard]
-      },
-      {
-        path: 'challenges/my',
-        component: MyChallengesPageComponent,
+        component: ChallengesDashboardPageComponent,
         canActivate: [userGuard, suspendedGuard]
       },
       {

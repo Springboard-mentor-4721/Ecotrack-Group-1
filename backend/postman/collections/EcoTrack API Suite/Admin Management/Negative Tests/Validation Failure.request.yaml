@@ -1,22 +1,20 @@
 $kind: http-request
-method: PUT
 url: "{{baseUrl}}/api/admin/users/{{userId}}/status"
+method: PUT
 headers:
-  - key: Content-Type
-    value: application/json
-  - key: Authorization
-    value: Bearer {{jwtToken}}
+  Content-Type: application/json
+  Authorization: Bearer {{jwtToken}}
 body:
   type: json
   content: |-
     {
       "status": null
     }
-order: 4000
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 400 Bad Request', function () {
         pm.expect(pm.response.code).to.eql(400);
       });
+    language: text/javascript
+order: 4000

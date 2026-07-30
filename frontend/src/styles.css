@@ -237,6 +237,57 @@ a:hover {
   box-shadow: 0 0 0 3px var(--color-emerald-light);
 }
 
+/* Custom Tailwind-like Utilities */
+.group:hover .group-hover-opacity-50 {
+  opacity: 0.5 !important;
+}
+.group:hover .group-hover-opacity-75 {
+  opacity: 0.75 !important;
+}
+.group:hover .group-hover-opacity-100 {
+  opacity: 1 !important;
+}
+.group:hover .group-hover-emerald {
+  color: var(--color-emerald) !important;
+}
+.group:hover .group-hover-bg-emerald {
+  background-color: var(--color-emerald) !important;
+}
+.cursor-pointer {
+  cursor: pointer !important;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.whitespace-nowrap {
+  white-space: nowrap !important;
+}
+.tracking-tight {
+  letter-spacing: -0.025em !important;
+}
+.tracking-wide {
+  letter-spacing: 0.025em !important;
+}
+.fs-xs {
+  font-size: 0.75rem !important;
+}
+.fs-sm {
+  font-size: 0.875rem !important;
+}
+.fs-7 {
+  font-size: 0.8125rem !important;
+}
+.fw-600 {
+  font-weight: 600 !important;
+}
+.fw-bolder {
+  font-weight: 800 !important;
+}
+
 /* Original Auth Inputs and Buttons */
 .premium-btn {
   display: inline-flex;

@@ -1,1 +1,2 @@
-ALTER TABLE goal_progress DROP COLUMN created_at;
+-- Removed because created_at does not exist in V12
+SELECT 1;

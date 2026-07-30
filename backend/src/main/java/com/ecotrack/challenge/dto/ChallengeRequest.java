@@ -34,4 +34,10 @@ public class ChallengeRequest {
     
     @NotNull
     private LocalDateTime endDate;
+
+    private Long linkedCategoryId;
+
+    private Integer rewardXp;
+
+    private com.ecotrack.challenge.enums.ProgressType progressType;
 }

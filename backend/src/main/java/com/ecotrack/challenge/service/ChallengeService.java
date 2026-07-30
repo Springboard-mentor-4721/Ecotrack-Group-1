@@ -49,7 +49,10 @@ public class ChallengeService {
         detailDTO.setTargetValue(challenge.getTargetValue());
         detailDTO.setStartDate(challenge.getStartDate());
         detailDTO.setEndDate(challenge.getEndDate());
-        // participantCount omitted for simplicity
+        detailDTO.setLinkedCategoryId(challenge.getLinkedCategoryId());
+        detailDTO.setRewardXp(challenge.getRewardXp());
+        detailDTO.setProgressType(challenge.getProgressType());
+        detailDTO.setCommunityProgress(challenge.getCommunityProgress());
         
         participantRepository.findByChallengeIdAndUserId(id, userId)
                 .ifPresent(p -> detailDTO.setUserProgress(mapToDTO(p)));
@@ -110,9 +113,6 @@ public class ChallengeService {
         if (participant.getProgress() >= challenge.getTargetValue()) {
             participant.setStatus(ChallengeParticipantStatus.COMPLETED);
             participant.setCompletedAt(LocalDateTime.now());
-            // Normally we'd publish an event here, but the engine usually handles it for carbon entries.
-            // If manual progress is allowed, we publish it here too:
-            // eventPublisher.publishEvent(new com.ecotrack.event.ChallengeCompletedEvent(userId, challenge.getId(), challenge.getTitle()));
         }
         
         return mapToDTO(participantRepository.save(participant));
@@ -121,6 +121,13 @@ public class ChallengeService {
     // Admin Methods
     @Transactional
     public ChallengeDTO createChallenge(ChallengeRequest request) {
+        if ("PERSONAL".equalsIgnoreCase(request.getTypeCode()) || "RECURRING".equalsIgnoreCase(request.getTypeCode())) {
+            throw new IllegalArgumentException("Cannot create PERSONAL or RECURRING challenges.");
+        }
+        
+        Integer reward = request.getRewardXp() != null ? request.getRewardXp() : 500;
+        com.ecotrack.challenge.enums.ProgressType pType = request.getProgressType() != null ? request.getProgressType() : com.ecotrack.challenge.enums.ProgressType.COUNT;
+
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -128,6 +135,9 @@ public class ChallengeService {
                 .targetValue(request.getTargetValue())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
+                .linkedCategoryId(request.getLinkedCategoryId())
+                .rewardXp(reward)
+                .progressType(pType)
                 .status(ChallengeStatus.PENDING)
                 .build();
                 
@@ -136,6 +146,10 @@ public class ChallengeService {
 
     @Transactional
     public ChallengeDTO updateChallenge(Long id, ChallengeRequest request) {
+        if ("PERSONAL".equalsIgnoreCase(request.getTypeCode()) || "RECURRING".equalsIgnoreCase(request.getTypeCode())) {
+            throw new IllegalArgumentException("Cannot create PERSONAL or RECURRING challenges.");
+        }
+        
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
                 
@@ -145,6 +159,10 @@ public class ChallengeService {
         challenge.setTargetValue(request.getTargetValue());
         challenge.setStartDate(request.getStartDate());
         challenge.setEndDate(request.getEndDate());
+        challenge.setLinkedCategoryId(request.getLinkedCategoryId());
+        
+        if(request.getRewardXp() != null) challenge.setRewardXp(request.getRewardXp());
+        if(request.getProgressType() != null) challenge.setProgressType(request.getProgressType());
         
         return mapToDTO(challengeRepository.save(challenge));
     }
@@ -186,6 +204,10 @@ public class ChallengeService {
                 .targetValue(c.getTargetValue())
                 .startDate(c.getStartDate())
                 .endDate(c.getEndDate())
+                .linkedCategoryId(c.getLinkedCategoryId())
+                .rewardXp(c.getRewardXp())
+                .progressType(c.getProgressType())
+                .communityProgress(c.getCommunityProgress())
                 .build();
     }
     

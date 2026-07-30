@@ -1,14 +1,13 @@
 $kind: http-request
-method: GET
 url: "{{baseUrl}}/api/unknown-endpoint"
+method: GET
 headers:
-  - key: Authorization
-    value: Bearer {{jwtToken}}
-order: 5000
+  Authorization: Bearer {{jwtToken}}
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 404 Not Found', function () {
         pm.expect(pm.response.code).to.eql(404);
       });
+    language: text/javascript
+order: 5000

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ChallengeService } from '../../../services/challenge.service';
@@ -23,7 +23,10 @@ export class ChallengeListPageComponent implements OnInit {
   totalElements = 0;
   pageSize = 10;
 
-  constructor(private challengeService: ChallengeService) {}
+  constructor(
+    private challengeService: ChallengeService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadChallenges();
@@ -32,14 +35,21 @@ export class ChallengeListPageComponent implements OnInit {
   loadChallenges(): void {
     this.isLoading = true;
     this.challengeService.getChallenges(this.currentPage, this.pageSize)
-      .pipe(finalize(() => this.isLoading = false))
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (res) => {
           this.challenges = res.content || [];
           this.totalPages = res.totalPages || 0;
           this.totalElements = res.totalElements || 0;
+          this.cdr.detectChanges();
         },
-        error: (err) => console.error('Failed to load challenges', err)
+        error: (err) => {
+          console.error('Failed to load challenges', err);
+          this.cdr.detectChanges();
+        }
       });
   }
 
@@ -66,5 +76,13 @@ export class ChallengeListPageComponent implements OnInit {
       case 'ARCHIVED': return 'bg-slate-200 text-slate-700';
       default: return 'bg-surface text-secondary';
     }
+  }
+
+  getDaysRemaining(endDate: string): number {
+    if (!endDate) return 0;
+    const end = new Date(endDate).getTime();
+    const now = new Date().getTime();
+    const diff = end - now;
+    return Math.max(0, Math.ceil(diff / (1000 * 3600 * 24)));
   }
 }

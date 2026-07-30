@@ -64,12 +64,12 @@
                   </button>
                   <button class="btn btn-sm btn-light border text-success" title="Activate" 
                           *ngIf="challenge.status === 'PENDING' || challenge.status === 'CLOSED'" 
-                          (click)="moderateChallenge(challenge.id, 'ACTIVATE')">
+                          (click)="moderateChallenge(challenge.id, 'APPROVE')">
                     <lucide-angular [img]="PlayIcon" size="16"></lucide-angular>
                   </button>
                   <button class="btn btn-sm btn-light border text-warning" title="Deactivate/Close" 
                           *ngIf="challenge.status === 'ACTIVE'" 
-                          (click)="moderateChallenge(challenge.id, 'DEACTIVATE')">
+                          (click)="moderateChallenge(challenge.id, 'REJECT')">
                     <lucide-angular [img]="PauseIcon" size="16"></lucide-angular>
                   </button>
                   <button class="btn btn-sm btn-light border text-danger" title="Archive" 
@@ -116,6 +116,15 @@
       <form [formGroup]="challengeForm" (ngSubmit)="saveChallenge()">
         <div class="modal-body">
           <div class="row g-3">
+            <div class="col-12" *ngIf="!isEditing">
+              <label class="form-label fw-bold text-primary">Challenge Template</label>
+              <select class="form-select border-primary" (change)="onTemplateChange($event)">
+                <option value="">Custom Challenge</option>
+                <option *ngFor="let tmpl of templates" [value]="tmpl.id">{{ tmpl.title }}</option>
+              </select>
+              <div class="form-text">Select a template to auto-fill the details below, or create your own custom challenge.</div>
+            </div>
+
             <div class="col-12">
               <label class="form-label fw-bold">Title</label>
               <input type="text" class="form-control" formControlName="title" placeholder="e.g. 10 Days of Vegan Meals"
@@ -135,29 +144,53 @@
               <select class="form-select" formControlName="typeCode"
                       [ngClass]="{'is-invalid': challengeForm.get('typeCode')?.invalid && challengeForm.get('typeCode')?.touched}">
                 <option value="" disabled>Select Type</option>
-                <option value="DIET">Diet</option>
-                <option value="TRANSPORT">Transport</option>
-                <option value="ENERGY">Energy</option>
-                <option value="WASTE">Waste</option>
+                <option value="COMMUNITY">Community</option>
+                <option value="SEASONAL">Seasonal</option>
               </select>
               <div class="invalid-feedback">Please select a type code.</div>
             </div>
-            
+
             <div class="col-md-6">
-              <label class="form-label fw-bold">Target Value</label>
-              <input type="number" class="form-control" formControlName="targetValue" min="1"
-                     [ngClass]="{'is-invalid': challengeForm.get('targetValue')?.invalid && challengeForm.get('targetValue')?.touched}">
-              <div class="invalid-feedback">Target value must be at least 1.</div>
+              <label class="form-label fw-bold">Linked Category</label>
+              <select class="form-select" formControlName="linkedCategoryId">
+                <option [ngValue]="null">None (Any Category)</option>
+                <option *ngFor="let cat of categories" [ngValue]="cat.categoryId">{{cat.name}}</option>
+              </select>
             </div>
             
             <div class="col-md-6">
+              <label class="form-label fw-bold">Progress Type</label>
+              <select class="form-select" formControlName="progressType">
+                <option value="COUNT">Count (Number of entries)</option>
+                <option value="AMOUNT">Amount (kgCO2e reduced/logged)</option>
+              </select>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Reward XP</label>
+              <input type="number" class="form-control" formControlName="rewardXp" min="1"
+                     [ngClass]="{'is-invalid': challengeForm.get('rewardXp')?.invalid && challengeForm.get('rewardXp')?.touched}">
+              <div class="invalid-feedback">Reward XP must be at least 1.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Target Value</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="targetValue" min="1"
+                       [ngClass]="{'is-invalid': challengeForm.get('targetValue')?.invalid && challengeForm.get('targetValue')?.touched}">
+                <span class="input-group-text">{{ targetValueUnit }}</span>
+                <div class="invalid-feedback">Target value must be at least 1.</div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
               <label class="form-label fw-bold">Start Date & Time</label>
               <input type="datetime-local" class="form-control" formControlName="startDate"
                      [ngClass]="{'is-invalid': challengeForm.get('startDate')?.invalid && challengeForm.get('startDate')?.touched}">
               <div class="invalid-feedback">Start date is required.</div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label fw-bold">End Date & Time</label>
               <input type="datetime-local" class="form-control" formControlName="endDate"
                      [ngClass]="{'is-invalid': challengeForm.get('endDate')?.invalid && challengeForm.get('endDate')?.touched}">
@@ -174,6 +207,25 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-light border-0 pb-2">
+        <h5 class="modal-title fw-bold" id="confirmationModalLabel">Confirm Action</h5>
+        <button type="button" class="btn-close" (click)="closeConfirmationModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pt-3 pb-4 fs-5 text-center">
+        {{ confirmationMessage }}
+      </div>
+      <div class="modal-footer bg-light border-0">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeConfirmationModal()">Cancel</button>
+        <button type="button" class="btn btn-primary px-4" (click)="confirmAction()">Yes, Confirm</button>
+      </div>
     </div>
   </div>
 </div>

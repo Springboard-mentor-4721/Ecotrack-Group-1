@@ -1,13 +1,13 @@
 $kind: http-request
-method: GET
 url: "{{baseUrl}}/api/admin/users?page=0&size=10"
+method: GET
 headers:
-  - key: Authorization
-    value: Bearer {{jwtToken}}
-order: 1000
+  Authorization: Bearer {{jwtToken}}
+queryParams:
+  page: "0"
+  size: "10"
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 200', function () {
         pm.expect(pm.response.code).to.eql(200);
@@ -18,3 +18,5 @@ scripts:
         pm.expect(res).to.have.property('content');
         pm.expect(res).to.have.property('pageable');
       });
+    language: text/javascript
+order: 2000

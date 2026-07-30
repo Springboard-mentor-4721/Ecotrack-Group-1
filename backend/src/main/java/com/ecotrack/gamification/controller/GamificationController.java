@@ -47,7 +47,23 @@ public class GamificationController {
                         .currentStreak(p.getCurrentStreak())
                         .lastScoreUpdateAt(p.getLastScoreUpdateAt())
                         .build()))
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    UserGamificationProfile newProfile = UserGamificationProfile.builder()
+                            .userId(userId)
+                            .currentEcoScore(java.math.BigDecimal.ZERO)
+                            .lifetimeEcoXp(0L)
+                            .currentLevel(1)
+                            .currentStreak(0)
+                            .build();
+                    profileRepository.save(newProfile);
+                    return ResponseEntity.ok(GamificationProfileDTO.builder()
+                            .userId(userId)
+                            .currentEcoScore(java.math.BigDecimal.ZERO)
+                            .lifetimeEcoXp(0L)
+                            .currentLevel(1)
+                            .currentStreak(0)
+                            .build());
+                });
     }
 
     @GetMapping("/badges")

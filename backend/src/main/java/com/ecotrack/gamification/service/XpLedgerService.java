@@ -90,7 +90,7 @@ public class XpLedgerService {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleChallengeCompleted(com.ecotrack.event.ChallengeCompletedEvent event) {
-        int xp = configService.getInt("XP_CHALLENGE_COMPLETED", 500);
-        awardXp(event.getUserId(), xp, XpSourceType.CHALLENGE_COMPLETED, event.getChallengeId());
+        awardXp(event.getUserId(), event.getRewardXp(), XpSourceType.CHALLENGE_COMPLETED, event.getChallengeId());
     }
 }
+

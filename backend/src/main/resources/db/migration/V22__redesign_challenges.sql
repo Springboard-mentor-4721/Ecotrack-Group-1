@@ -1,0 +1,1 @@
+ALTER TABLE challenges ADD COLUMN linked_category_id BIGINT; ALTER TABLE challenges ADD COLUMN reward_xp INT NOT NULL DEFAULT 500; ALTER TABLE challenges ADD COLUMN progress_type VARCHAR(20) NOT NULL DEFAULT 'COUNT'; ALTER TABLE challenges ADD COLUMN community_progress DECIMAL(19,4) NOT NULL DEFAULT 0.0;

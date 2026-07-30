@@ -7,6 +7,7 @@ import { UserProfileResponse, UpdateUserProfileRequest } from '../../models/prof
 import { NotificationPreference } from '../../models/notification.models';
 import { finalize } from 'rxjs/operators';
 import { LucideAngularModule, User, Bell, Save, Shield } from 'lucide-angular';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-settings',
@@ -38,7 +39,8 @@ export class SettingsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {
     this.profileForm = this.fb.group({
       bio: ['', [Validators.maxLength(500)]],
@@ -63,7 +65,10 @@ export class SettingsComponent implements OnInit {
     this.profileError = '';
     
     this.profileService.getMyProfile()
-      .pipe(finalize(() => this.isProfileLoading = false))
+      .pipe(finalize(() => {
+        this.isProfileLoading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (profile: UserProfileResponse) => {
           this.profileForm.patchValue({
@@ -71,10 +76,12 @@ export class SettingsComponent implements OnInit {
             location: profile.location || '',
             lifestylePreferences: profile.lifestylePreferences || ''
           });
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to load profile', err);
           this.profileError = 'Failed to load profile settings.';
+          this.cdr.detectChanges();
         }
       });
   }
@@ -91,15 +98,23 @@ export class SettingsComponent implements OnInit {
     const request: UpdateUserProfileRequest = this.profileForm.value;
     
     this.profileService.updateMyProfile(request)
-      .pipe(finalize(() => this.isProfileSaving = false))
+      .pipe(finalize(() => {
+        this.isProfileSaving = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: () => {
           this.profileSuccess = 'Profile settings updated successfully.';
-          setTimeout(() => this.profileSuccess = '', 3000);
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.profileSuccess = '';
+            this.cdr.detectChanges();
+          }, 3000);
         },
         error: (err) => {
-          console.error('Failed to update profile', err);
-          this.profileError = 'Failed to update profile settings.';
+          console.error('Failed to save profile', err);
+          this.profileError = 'Failed to save profile settings. Please try again.';
+          this.cdr.detectChanges();
         }
       });
   }
@@ -108,21 +123,23 @@ export class SettingsComponent implements OnInit {
     this.isNotificationLoading = true;
     this.notificationError = '';
     
-    // We fetch a default preference like 'SYSTEM' since backend takes eventType
-    // Ideally we would fetch multiple, but the API takes a single eventType
     this.notificationService.getPreference('SYSTEM')
-      .pipe(finalize(() => this.isNotificationLoading = false))
+      .pipe(finalize(() => {
+        this.isNotificationLoading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (pref: NotificationPreference) => {
           this.notificationForm.patchValue({
-            eventType: pref.eventType,
             inAppEnabled: pref.inAppEnabled,
             emailEnabled: pref.emailEnabled
           });
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to load notification preferences', err);
           this.notificationError = 'Failed to load notification preferences.';
+          this.cdr.detectChanges();
         }
       });
   }
@@ -140,15 +157,23 @@ export class SettingsComponent implements OnInit {
     const request: NotificationPreference = this.notificationForm.getRawValue();
     
     this.notificationService.updatePreference(request)
-      .pipe(finalize(() => this.isNotificationSaving = false))
+      .pipe(finalize(() => {
+        this.isNotificationSaving = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: () => {
-          this.notificationSuccess = 'Notification preferences updated successfully.';
-          setTimeout(() => this.notificationSuccess = '', 3000);
+          this.notificationSuccess = 'Notification preferences updated.';
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.notificationSuccess = '';
+            this.cdr.detectChanges();
+          }, 3000);
         },
         error: (err) => {
-          console.error('Failed to update notification preferences', err);
-          this.notificationError = 'Failed to update notification preferences.';
+          console.error('Failed to save notification preferences', err);
+          this.notificationError = 'Failed to save notification preferences. Please try again.';
+          this.cdr.detectChanges();
         }
       });
   }

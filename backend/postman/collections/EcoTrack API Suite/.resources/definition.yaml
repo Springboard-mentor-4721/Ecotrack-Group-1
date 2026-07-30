@@ -1,5 +1,6 @@
 $kind: collection
 name: EcoTrack API Suite
+description: ""
 variables:
   baseUrl: http://localhost:8080
   jwtToken: YOUR_TOKEN_HERE

@@ -10,5 +10,11 @@ import lombok.NoArgsConstructor;
 public class ChallengeCompletedEvent {
     private Long userId;
     private Long challengeId;
-    private String challengeTitle;
+    private String title;
+    private Integer rewardXp;
+    
+    // Backward compatibility for NotificationService
+    public String getChallengeTitle() {
+        return title;
+    }
 }

@@ -48,4 +48,20 @@ public class Challenge {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Column(name = "linked_category_id")
+    private Long linkedCategoryId;
+
+    @Column(name = "reward_xp", nullable = false)
+    @Builder.Default
+    private Integer rewardXp = 500;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "progress_type", nullable = false, length = 20)
+    @Builder.Default
+    private com.ecotrack.challenge.enums.ProgressType progressType = com.ecotrack.challenge.enums.ProgressType.COUNT;
+
+    @Column(name = "community_progress", nullable = false)
+    @Builder.Default
+    private java.math.BigDecimal communityProgress = java.math.BigDecimal.ZERO;
 }

@@ -1,5 +1,6 @@
 $kind: collection
-name: Carbon Tracking
 auth:
-  type: apikey
-order: 2000
+  - id: e522b4af-61af-43bb-9e35-f7e332379919
+    type: apikey
+    name: apikey auth
+order: 4000

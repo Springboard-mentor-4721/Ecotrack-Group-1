@@ -1,2 +1,2 @@
-$kind: folder
-name: Admin Management
+$kind: collection
+order: 1000

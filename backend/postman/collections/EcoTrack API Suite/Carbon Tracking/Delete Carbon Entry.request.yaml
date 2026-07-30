@@ -1,16 +1,12 @@
 $kind: http-request
-method: DELETE
 url: "{{baseUrl}}/api/carbon/:id"
+method: DELETE
 headers:
-  - key: Authorization
-    value: Bearer {{jwtToken}}
+  Authorization: Bearer {{jwtToken}}
 pathVariables:
-  - key: id
-    value: "{{carbonEntryId}}"
-order: 6000
+  id: "{{carbonEntryId}}"
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 204', function () {
         pm.expect(pm.response.code).to.eql(204);
@@ -23,3 +19,5 @@ scripts:
       pm.test('Delete response body is empty', function () {
         pm.expect(pm.response.text()).to.eql('');
       });
+    language: text/javascript
+order: 7000

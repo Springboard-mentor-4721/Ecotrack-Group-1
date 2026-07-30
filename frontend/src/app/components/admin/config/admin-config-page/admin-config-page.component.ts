@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AdminService } from '../../../../services/admin.service';
 import { GamificationConfig, ConfigUpdateRequest } from '../../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
+import { ChangeDetectorRef } from '@angular/core';
 import { LucideAngularModule, Settings, Save, AlertCircle } from 'lucide-angular';
 
 @Component({
@@ -31,7 +32,8 @@ export class AdminConfigPageComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -43,16 +45,21 @@ export class AdminConfigPageComponent implements OnInit {
     this.errorMessage = '';
     
     this.adminService.getAdminConfig()
-      .pipe(finalize(() => this.isLoading = false))
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (configs) => {
           this.configs = configs;
           this.groupConfigs();
           this.initializeForms();
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.errorMessage = 'Failed to load configuration. Please try again.';
           console.error(err);
+          this.cdr.detectChanges();
         }
       });
   }
@@ -121,7 +128,10 @@ export class AdminConfigPageComponent implements OnInit {
     const request: ConfigUpdateRequest = { value: String(val) };
 
     this.adminService.updateAdminConfig(configKey, request)
-      .pipe(finalize(() => this.savingState[configKey] = false))
+      .pipe(finalize(() => {
+        this.savingState[configKey] = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (updatedConfig) => {
           this.successMessage = `Configuration '${configKey}' updated successfully.`;
@@ -131,13 +141,21 @@ export class AdminConfigPageComponent implements OnInit {
           if (idx !== -1) {
             this.configs[idx] = updatedConfig;
           }
+          this.cdr.detectChanges();
           
-          setTimeout(() => this.successMessage = '', 3000);
+          setTimeout(() => {
+            this.successMessage = '';
+            this.cdr.detectChanges();
+          }, 3000);
         },
         error: (err) => {
           console.error('Error updating config:', err);
           this.errorMessage = `Failed to update '${configKey}'.`;
-          setTimeout(() => this.errorMessage = '', 3000);
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.errorMessage = '';
+            this.cdr.detectChanges();
+          }, 3000);
         }
       });
   }

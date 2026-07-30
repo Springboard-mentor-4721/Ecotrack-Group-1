@@ -1,20 +1,14 @@
 $kind: http-request
+url: "{{baseUrl}}/api/admin/users?page=0&size=10&search=test"
 method: GET
-url: "{{baseUrl}}/api/admin/users"
 headers:
-  - key: Authorization
-    value: Bearer {{jwtToken}}
+  Authorization: Bearer {{jwtToken}}
 queryParams:
-  - key: page
-    value: "0"
-  - key: size
-    value: "10"
-  - key: search
-    value: test
-order: 1500
+  page: "0"
+  size: "10"
+  search: test
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 200', function () {
         pm.expect(pm.response.code).to.eql(200);
@@ -25,3 +19,5 @@ scripts:
         pm.expect(json).to.have.property('content');
         pm.expect(json.content).to.be.an('array');
       });
+    language: text/javascript
+order: 3000

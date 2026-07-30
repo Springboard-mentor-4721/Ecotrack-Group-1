@@ -1,14 +1,11 @@
 $kind: http-request
-method: PUT
 url: "{{baseUrl}}/api/carbon/:id"
+method: PUT
 headers:
-  - key: Content-Type
-    value: application/json
-  - key: Authorization
-    value: Bearer {{jwtToken}}
+  Content-Type: application/json
+  Authorization: Bearer {{jwtToken}}
 pathVariables:
-  - key: id
-    value: "{{carbonEntryId}}"
+  id: "{{carbonEntryId}}"
 body:
   type: json
   content: |-
@@ -20,45 +17,33 @@ body:
       "entryDate": "2026-07-14",
       "notes": "Updated commute"
     }
-order: 5000
 scripts:
   - type: afterResponse
-    language: text/javascript
-    code: >-
+    code: |-
       pm.test('Status code is 200', function () {
         pm.expect(pm.response.code).to.eql(200);
       });
-
 
       pm.test('Response time is under 2000ms', function () {
         pm.expect(pm.response.responseTime).to.be.below(10000);
       });
 
-
-      const contentType = (pm.response.headers.get('Content-Type') ||
-      '').toLowerCase();
-
+      const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();
       pm.test('Response content type is JSON', function () {
         pm.expect(contentType).to.include('application/json');
       });
 
-
       const json = pm.response.json();
-
       const entity = json.data || json.entry || json.carbonEntry || json;
-
       const payload = JSON.parse(pm.request.body.raw || '{}');
-
 
       pm.test('Updated entry id is present', function () {
         pm.expect(entity.id).to.exist;
       });
 
-
       if (entity.id !== undefined) {
         pm.collectionVariables.set('carbonEntryId', String(entity.id));
       }
-
 
       if (entity.notes !== undefined) {
         pm.test('Updated notes match request payload', function () {
@@ -66,9 +51,10 @@ scripts:
         });
       }
 
-
       if (entity.quantity !== undefined) {
         pm.test('Updated quantity matches request payload', function () {
           pm.expect(Number(entity.quantity)).to.eql(Number(payload.quantity));
         });
       }
+    language: text/javascript
+order: 6000

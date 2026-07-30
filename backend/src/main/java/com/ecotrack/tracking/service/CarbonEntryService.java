@@ -75,7 +75,7 @@ public class CarbonEntryService {
         entity.setNotes(normalizeNotes(request.getNotes()));
 
         CarbonEntry savedEntity = carbonEntryRepository.save(entity);
-        eventPublisher.publishEvent(new CarbonEntryCreatedEvent(user.getId(), savedEntity.getId(), subCategory.getId()));
+        eventPublisher.publishEvent(new CarbonEntryCreatedEvent(user.getId(), savedEntity.getId(), subCategory.getCategory().getCategoryId(), subCategory.getId(), request.getQuantity(), emissionKgco2e));
         return carbonEntryMapper.toResponse(savedEntity);
     }
 
@@ -305,3 +305,5 @@ public class CarbonEntryService {
         return trimmed.isEmpty() ? null : trimmed;
     }
 }
+
+

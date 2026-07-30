@@ -1,13 +1,13 @@
 $kind: http-request
-method: GET
 url: "{{baseUrl}}/api/challenges"
+method: GET
 headers:
-  - key: Authorization
-    value: Bearer {{jwtToken}}
+  Authorization: Bearer {{jwtToken}}
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 200', function () {
         pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);
       });
+    language: text/javascript
+order: 4000

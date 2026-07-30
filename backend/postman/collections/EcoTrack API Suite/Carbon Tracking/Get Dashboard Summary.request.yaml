@@ -1,46 +1,33 @@
 $kind: http-request
+url: "{{baseUrl}}/api/carbon/summary?startDate=2026-01-01&endDate=2026-12-31"
 method: GET
-url: "{{baseUrl}}/api/carbon/summary"
 headers:
-  - key: Authorization
-    value: Bearer {{jwtToken}}
+  Authorization: Bearer {{jwtToken}}
 queryParams:
-  - key: startDate
-    value: 2026-01-01
-  - key: endDate
-    value: 2026-12-31
-order: 3000
+  startDate: 2026-01-01
+  endDate: 2026-12-31
 scripts:
   - type: afterResponse
-    language: text/javascript
-    code: >-
+    code: |-
       pm.test('Status code is 200', function () {
         pm.expect(pm.response.code).to.eql(200);
       });
-
 
       pm.test('Response time is under 2000ms', function () {
         pm.expect(pm.response.responseTime).to.be.below(10000);
       });
 
-
-      const contentType = (pm.response.headers.get('Content-Type') ||
-      '').toLowerCase();
-
+      const contentType = (pm.response.headers.get('Content-Type') || '').toLowerCase();
       pm.test('Response content type is JSON', function () {
         pm.expect(contentType).to.include('application/json');
       });
 
-
       const json = pm.response.json();
-
       const summary = json.data || json.summary || json;
-
 
       pm.test('Summary response contains totalEmission', function () {
         pm.expect(summary.totalEmission).to.not.equal(undefined);
       });
-
 
       if (summary.totalEntries !== undefined) {
         pm.test('Summary response totalEntries is numeric', function () {
@@ -48,8 +35,8 @@ scripts:
         });
       }
 
-
-      pm.test('Summary response contains category summaries array', function ()
-      {
+      pm.test('Summary response contains category summaries array', function () {
         pm.expect(summary.categorySummaries || summary.categories || []).to.be.an('array');
       });
+    language: text/javascript
+order: 4000

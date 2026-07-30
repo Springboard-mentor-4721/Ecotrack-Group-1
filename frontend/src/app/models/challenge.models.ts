@@ -1,5 +1,6 @@
 export type ChallengeStatus = 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'CLOSED' | 'ARCHIVED';
 export type ChallengeParticipantStatus = 'ACTIVE' | 'COMPLETED' | 'DROPPED';
+export type ProgressType = 'COUNT' | 'AMOUNT';
 
 export interface Challenge {
   id: number;
@@ -10,6 +11,10 @@ export interface Challenge {
   targetValue: number;
   startDate: string;
   endDate: string;
+  linkedCategoryId?: number;
+  rewardXp: number;
+  progressType: ProgressType;
+  communityProgress: number;
 }
 
 export interface ChallengeDetail extends Challenge {
@@ -32,10 +37,13 @@ export interface ChallengeRequest {
   description: string;
   typeCode: string;
   targetValue: number;
-  startDate: string;               // ISO LocalDateTime
+  startDate: string;
   endDate: string;
+  linkedCategoryId?: number;
+  rewardXp: number;
+  progressType: ProgressType;
 }
 
 export interface ChallengeProgressUpdateRequest {
-  delta: number;                   // must be positive
+  delta: number;
 }

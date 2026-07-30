@@ -1,16 +1,14 @@
 $kind: http-request
+url: "{{baseUrl}}/api/carbon?page=0&size=10"
 method: GET
-url: "{{baseUrl}}/api/carbon"
 queryParams:
-  - key: page
-    value: "0"
-  - key: size
-    value: "10"
-order: 2000
+  page: "0"
+  size: "10"
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 401', function () {
         pm.expect(pm.response.code).to.eql(401);
       });
+    language: text/javascript
+order: 2000

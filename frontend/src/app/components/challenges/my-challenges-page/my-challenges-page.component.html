@@ -1,7 +1,10 @@
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">My Challenges</h2>
-    <button class="btn btn-primary" routerLink="/challenges">Browse More Challenges</button>
+<div class="challenges-wrapper animate-page px-4 py-4 max-w-7xl mx-auto">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h1 class="fw-bold text-dark mb-1 fs-3">My Challenges</h1>
+      <p class="desc-light mb-0">Track your ongoing commitments and past victories.</p>
+    </div>
+    <button class="btn btn-emerald rounded-pill px-4 fw-bold" routerLink="/challenges">Discover More</button>
   </div>
 
   <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
@@ -14,66 +17,62 @@
     {{ errorMessage }}
   </div>
 
-  <div *ngIf="!isLoading && !errorMessage && myChallenges.length === 0" class="text-center py-5">
-    <lucide-angular [img]="TargetIcon" class="text-muted mb-3" style="width: 64px; height: 64px;"></lucide-angular>
-    <h4>No Challenges Joined Yet</h4>
-    <p class="text-muted">Start participating in challenges to track your progress.</p>
-    <button class="btn btn-primary mt-2" routerLink="/challenges">Find Challenges</button>
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !errorMessage && myChallenges.length === 0" class="text-center py-5 my-5">
+    <div class="bg-surface rounded-circle d-inline-flex p-4 mb-3 shadow-sm">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+    </div>
+    <h4 class="fw-bold text-dark">No Challenges Joined Yet</h4>
+    <p class="desc-light">Start participating in challenges to track your progress and earn XP.</p>
+    <button class="btn btn-emerald rounded-pill px-5 py-2 fw-bold mt-2" routerLink="/challenges">Find Challenges</button>
   </div>
 
-  <div class="row g-4" *ngIf="!isLoading && !errorMessage && myChallenges.length > 0">
-    <div class="col-md-6 col-lg-4" *ngFor="let item of myChallenges">
-      <div class="card h-100 shadow-sm border-0">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="card-title mb-0 text-truncate" [title]="item.challenge.title">
-              {{ item.challenge.title }}
-            </h5>
-            <span [class]="getStatusBadgeClass(item.participant.status)">
-              {{ item.participant.status }}
-            </span>
-          </div>
+  <div class="row g-4 mb-5" *ngIf="!isLoading && !errorMessage && myChallenges.length > 0">
+    <div class="col-12 col-md-6 col-lg-4 animate-stagger-item" *ngFor="let item of myChallenges">
+      <div class="card-premium h-100 p-4 d-flex flex-column position-relative transition-all" 
+           style="cursor: pointer;"
+           [routerLink]="['/challenges', item.challenge.id]">
+        
+        <div class="position-absolute top-0 end-0 m-4 badge px-3 py-2 fs-xs fw-bold rounded-pill text-uppercase shadow-sm"
+             [ngClass]="getStatusBadgeClass(item.participant.status)">
+          {{ item.participant.status }}
+        </div>
 
-          <p class="text-muted small mb-3">
-            <lucide-angular [img]="ClockIcon" size="14" class="me-1"></lucide-angular>
-            {{ item.challenge.startDate | date:'MMM d' }} - {{ item.challenge.endDate | date:'MMM d, yyyy' }}
-          </p>
+        <h5 class="fw-bold text-dark mb-1 fs-5 pe-5">{{ item.challenge.title }}</h5>
+        
+        <p class="fs-xs fw-bold text-muted mb-4 d-flex align-items-center gap-1">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          {{ item.challenge.startDate | date:'MMM d' }} - {{ item.challenge.endDate | date:'MMM d' }}
+        </p>
 
-          <div class="mb-3">
-            <div class="d-flex justify-content-between small mb-1">
-              <span>Progress</span>
-              <span class="fw-bold">{{ item.participant.progress }} / {{ item.challenge.targetValue }}</span>
-            </div>
-            <div class="progress" style="height: 8px;">
-              <div class="progress-bar bg-success" role="progressbar" 
-                   [style.width.%]="getProgressPercentage(item.participant, item.challenge)"
-                   [attr.aria-valuenow]="getProgressPercentage(item.participant, item.challenge)" 
-                   aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
+        <div class="mt-auto">
+          <div class="d-flex justify-content-between align-items-end mb-2">
+            <span class="fs-6 fw-bold text-dark">{{ item.participant.progress }} <span class="fs-xs text-muted fw-normal">/ {{ item.challenge.targetValue }}</span></span>
+            <span class="fs-xs fw-bold text-emerald">{{ getProgressPercentage(item.participant, item.challenge) | number:'1.0-0' }}%</span>
           </div>
-
-          <div class="d-grid mt-auto">
-            <button class="btn btn-outline-primary" [routerLink]="['/challenges', item.challenge.id]">
-              View Details
-            </button>
+          <div class="progress bg-surface border shadow-sm mb-3" style="height: 8px; border-radius: 4px;">
+            <div class="progress-bar bg-emerald rounded-pill transition-all" 
+                 role="progressbar" 
+                 [style.width.%]="getProgressPercentage(item.participant, item.challenge)"></div>
           </div>
+          <button class="btn btn-outline-secondary w-100 rounded-pill fw-bold fs-7">
+            View Details
+          </button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Pagination -->
-  <nav *ngIf="totalPages > 1 && !isLoading && !errorMessage" class="mt-4" aria-label="Challenges pagination">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" [class.disabled]="currentPage === 0">
-        <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
-      </li>
-      <li class="page-item disabled">
-        <span class="page-link">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-      </li>
-      <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
-        <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">Next</button>
-      </li>
-    </ul>
-  </nav>
+  <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" *ngIf="totalPages > 1 && !isLoading && !errorMessage">
+    <span class="desc-light fs-7">Showing page {{ currentPage + 1 }} of {{ totalPages }}</span>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" 
+              [disabled]="currentPage === 0" 
+              (click)="onPageChange(currentPage - 1)">Previous</button>
+      <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" 
+              [disabled]="currentPage >= totalPages - 1" 
+              (click)="onPageChange(currentPage + 1)">Next</button>
+    </div>
+  </div>
 </div>

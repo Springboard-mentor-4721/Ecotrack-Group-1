@@ -1,14 +1,13 @@
 $kind: http-request
-method: GET
 url: "{{baseUrl}}/api/goals/{{goalId}}/analytics"
+method: GET
 headers:
-  - key: Authorization
-    value: Bearer {{jwtToken}}
-order: 1500
+  Authorization: Bearer {{jwtToken}}
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 200', function () {
         pm.response.to.have.status(200);
       });
+    language: text/javascript
+order: 6000

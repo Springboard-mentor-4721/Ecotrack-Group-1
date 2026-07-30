@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AdminService } from '../../../../services/admin.service';
 import { AdminBadge, BadgeDefinitionRequest } from '../../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
+import { ChangeDetectorRef } from '@angular/core';
 import { LucideAngularModule, Edit, EyeOff, Plus, Award, Target } from 'lucide-angular';
 
 declare var bootstrap: any;
@@ -43,7 +44,8 @@ export class AdminBadgeListComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.badgeForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -73,17 +75,22 @@ export class AdminBadgeListComponent implements OnInit {
     this.errorMessage = '';
     
     this.adminService.getAdminBadges(page, this.pageSize)
-      .pipe(finalize(() => this.isLoading = false))
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (response) => {
           this.badges = response.content;
           this.currentPage = response.number;
           this.totalPages = response.totalPages;
           this.totalElements = response.totalElements;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.errorMessage = 'Failed to load badges.';
           console.error(err);
+          this.cdr.detectChanges();
         }
       });
   }
@@ -120,6 +127,9 @@ export class AdminBadgeListComponent implements OnInit {
   }
 
   closeModal(): void {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     this.badgeModal.hide();
   }
 
@@ -143,30 +153,42 @@ export class AdminBadgeListComponent implements OnInit {
         this.successMessage = `Badge successfully ${this.isEditing ? 'updated' : 'created'}.`;
         this.closeModal();
         this.loadBadges(this.currentPage);
-        setTimeout(() => this.successMessage = '', 3000);
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
       },
       error: (err) => {
         console.error('Error saving badge:', err);
         this.errorMessage = 'Failed to save badge. Please check your inputs.';
+        this.cdr.detectChanges();
       }
     });
   }
 
   disableBadge(id: number): void {
-    if (!confirm('Are you sure you want to disable (hide) this badge?')) return;
-    
-    this.adminService.disableBadge(id).subscribe({
-      next: () => {
-        this.successMessage = 'Badge successfully disabled.';
-        this.loadBadges(this.currentPage);
-        setTimeout(() => this.successMessage = '', 3000);
-      },
-      error: (err) => {
-        console.error('Error disabling badge:', err);
-        this.errorMessage = 'Failed to disable badge.';
-        setTimeout(() => this.errorMessage = '', 3000);
-      }
-    });
+    if (confirm('Are you sure you want to disable this badge? Users will no longer be able to earn it.')) {
+      this.adminService.disableBadge(id).subscribe({
+        next: () => {
+          this.successMessage = 'Badge successfully disabled.';
+          this.cdr.detectChanges();
+          this.loadBadges(this.currentPage);
+          setTimeout(() => {
+            this.successMessage = '';
+            this.cdr.detectChanges();
+          }, 3000);
+        },
+        error: (err) => {
+          console.error('Error disabling badge:', err);
+          this.errorMessage = 'Failed to disable badge.';
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.errorMessage = '';
+            this.cdr.detectChanges();
+          }, 3000);
+        }
+      });
+    }
   }
 
   getRarityClass(rarity: string): string {

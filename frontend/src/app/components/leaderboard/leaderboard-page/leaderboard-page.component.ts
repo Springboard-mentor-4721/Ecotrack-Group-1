@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeaderboardService } from '../../../services/leaderboard.service';
@@ -25,7 +25,10 @@ export class LeaderboardPageComponent implements OnInit {
   // Math object for template
   Math = Math;
 
-  constructor(private leaderboardService: LeaderboardService) {}
+  constructor(
+    private leaderboardService: LeaderboardService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -50,12 +53,16 @@ export class LeaderboardPageComponent implements OnInit {
       entries: request$.pipe(catchError(() => of([]))),
       myRank: this.myRank ? of(this.myRank) : this.leaderboardService.getMyRank().pipe(catchError(() => of(null)))
     }).pipe(
-      finalize(() => this.isLoading = false)
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
     ).subscribe(result => {
       this.entries = result.entries;
       if (!this.myRank && result.myRank) {
         this.myRank = result.myRank;
       }
+      this.cdr.detectChanges();
     });
   }
 

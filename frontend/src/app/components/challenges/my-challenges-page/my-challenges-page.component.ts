@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ChallengeService } from '../../../services/challenge.service';
@@ -37,7 +37,10 @@ export class MyChallengesPageComponent implements OnInit {
   CheckCircleIcon = CheckCircle;
   ClockIcon = Clock;
 
-  constructor(private challengeService: ChallengeService) {}
+  constructor(
+    private challengeService: ChallengeService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadMyChallenges(this.currentPage);
@@ -74,15 +77,20 @@ export class MyChallengesPageComponent implements OnInit {
           return forkJoin(challengeRequests);
         }),
         map(results => results.filter(res => res !== null) as MyChallengeDisplay[]),
-        finalize(() => this.isLoading = false)
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
       )
       .subscribe({
         next: (displays) => {
           this.myChallenges = displays;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.errorMessage = 'Failed to load your challenges. Please try again later.';
           console.error('Error fetching my challenges', err);
+          this.cdr.detectChanges();
         }
       });
   }
@@ -100,11 +108,11 @@ export class MyChallengesPageComponent implements OnInit {
   }
 
   getStatusBadgeClass(status: string): string {
-    switch(status) {
-      case 'ACTIVE': return 'badge bg-primary';
-      case 'COMPLETED': return 'badge bg-success';
-      case 'DROPPED': return 'badge bg-danger';
-      default: return 'badge bg-secondary';
+    switch (status) {
+      case 'ACTIVE': return 'bg-emerald-light text-emerald';
+      case 'COMPLETED': return 'bg-blue-light text-blue';
+      case 'DROPPED': return 'bg-danger bg-opacity-10 text-danger';
+      default: return 'bg-surface text-secondary';
     }
   }
 }

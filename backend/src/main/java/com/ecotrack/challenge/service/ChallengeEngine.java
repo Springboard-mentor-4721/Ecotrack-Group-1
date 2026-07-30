@@ -2,7 +2,9 @@ package com.ecotrack.challenge.service;
 
 import com.ecotrack.challenge.entity.ChallengeParticipant;
 import com.ecotrack.challenge.enums.ChallengeParticipantStatus;
+import com.ecotrack.challenge.enums.ProgressType;
 import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
+import com.ecotrack.challenge.repository.ChallengeRepository;
 import com.ecotrack.event.CarbonEntryCreatedEvent;
 import com.ecotrack.event.ChallengeCompletedEvent;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.List;
 public class ChallengeEngine {
 
     private final ChallengeParticipantRepository participantRepository;
+    private final ChallengeRepository challengeRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -33,20 +36,35 @@ public class ChallengeEngine {
                 event.getUserId(), ChallengeParticipantStatus.ACTIVE);
                 
         for (ChallengeParticipant participant : activeParticipations) {
-            // Simplified progress: increment by 1 for each carbon entry
-            participant.setProgress(participant.getProgress() + 1);
+            var challenge = participant.getChallenge();
             
-            if (participant.getProgress() >= participant.getChallenge().getTargetValue()) {
+            if (challenge.getLinkedCategoryId() != null && !challenge.getLinkedCategoryId().equals(event.getCategoryId())) {
+                continue; 
+            }
+            
+            if (challenge.getProgressType() == ProgressType.COUNT) {
+                participant.setProgress(participant.getProgress() + 1);
+                challenge.setCommunityProgress(challenge.getCommunityProgress().add(java.math.BigDecimal.ONE));
+            } else if (challenge.getProgressType() == ProgressType.AMOUNT) {
+                if (event.getCarbonEmission() != null) {
+                    participant.setProgress(participant.getProgress() + event.getCarbonEmission().intValue());
+                    challenge.setCommunityProgress(challenge.getCommunityProgress().add(event.getCarbonEmission()));
+                }
+            }
+            
+            if (participant.getProgress() >= challenge.getTargetValue()) {
                 participant.setStatus(ChallengeParticipantStatus.COMPLETED);
                 participant.setCompletedAt(LocalDateTime.now());
                 eventPublisher.publishEvent(new ChallengeCompletedEvent(
                         participant.getUserId(),
-                        participant.getChallenge().getId(),
-                        participant.getChallenge().getTitle()
+                        challenge.getId(),
+                        challenge.getTitle(),
+                        challenge.getRewardXp()
                 ));
             }
             
             participantRepository.save(participant);
+            challengeRepository.save(challenge);
         }
     }
 }

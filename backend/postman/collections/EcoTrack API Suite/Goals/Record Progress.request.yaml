@@ -1,11 +1,9 @@
 $kind: http-request
-method: POST
 url: "{{baseUrl}}/api/goals/{{goalId}}/progress"
+method: POST
 headers:
-  - key: Content-Type
-    value: application/json
-  - key: Authorization
-    value: Bearer {{jwtToken}}
+  Content-Type: application/json
+  Authorization: Bearer {{jwtToken}}
 body:
   type: json
   content: |-
@@ -13,10 +11,8 @@ body:
       "progressValue": 10.0,
       "notes": "Completed first 10 days successfully."
     }
-order: 1400
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 201', function () {
         pm.response.to.have.status(201);
@@ -29,3 +25,5 @@ scripts:
         pm.expect(json).to.have.property('notes');
         pm.expect(json).to.have.property('recordedAt');
       });
+    language: text/javascript
+order: 5000

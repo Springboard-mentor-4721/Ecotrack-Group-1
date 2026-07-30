@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GamificationService } from '../../../services/gamification.service';
@@ -21,7 +21,10 @@ export class AchievementsPageComponent implements OnInit {
   searchTerm: string = '';
   filterType: 'ALL' | 'EARNED' | 'LOCKED' = 'ALL';
 
-  constructor(private gamificationService: GamificationService) {}
+  constructor(
+    private gamificationService: GamificationService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadBadges();
@@ -30,12 +33,19 @@ export class AchievementsPageComponent implements OnInit {
   loadBadges(): void {
     this.isLoading = true;
     this.gamificationService.getBadges()
-      .pipe(finalize(() => this.isLoading = false))
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (data) => {
           this.badges = data;
+          this.cdr.detectChanges();
         },
-        error: (err) => console.error('Error fetching badges', err)
+        error: (err) => {
+          console.error('Error fetching badges', err);
+          this.cdr.detectChanges();
+        }
       });
   }
 

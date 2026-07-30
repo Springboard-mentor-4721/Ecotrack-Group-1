@@ -1,10 +1,14 @@
 $kind: http-request
-method: GET
+name: Get All Time Leaderboard
 url: "{{baseUrl}}/api/leaderboards/all-time"
+method: GET
+headers:
+  Authorization: Bearer {{jwtToken}}}
 scripts:
   - type: afterResponse
-    language: text/javascript
     code: |-
       pm.test('Status code is 200', function () {
         pm.expect(pm.response.code).to.be.oneOf([200, 201]);
       });
+    language: text/javascript
+order: 1000

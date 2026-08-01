@@ -1,8 +1,10 @@
 package com.ecotrack.challenge.service;
 
+import com.ecotrack.challenge.entity.Challenge;
 import com.ecotrack.challenge.entity.ChallengeParticipant;
 import com.ecotrack.challenge.enums.ChallengeParticipantStatus;
 import com.ecotrack.challenge.enums.ProgressType;
+import com.ecotrack.challenge.enums.TrackingMethod;
 import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
 import com.ecotrack.challenge.repository.ChallengeRepository;
 import com.ecotrack.event.CarbonEntryCreatedEvent;
@@ -38,10 +40,10 @@ public class ChallengeEngine {
         for (ChallengeParticipant participant : activeParticipations) {
             var challenge = participant.getChallenge();
             
-            if (challenge.getLinkedCategoryId() != null && !challenge.getLinkedCategoryId().equals(event.getCategoryId())) {
-                continue; 
+            if (!isApplicable(challenge, event)) {
+                continue;
             }
-            
+
             if (challenge.getProgressType() == ProgressType.COUNT) {
                 participant.setProgress(participant.getProgress() + 1);
                 challenge.setCommunityProgress(challenge.getCommunityProgress().add(java.math.BigDecimal.ONE));
@@ -66,5 +68,29 @@ public class ChallengeEngine {
             participantRepository.save(participant);
             challengeRepository.save(challenge);
         }
+    }
+
+    private boolean isApplicable(Challenge challenge, CarbonEntryCreatedEvent event) {
+        if (challenge.getTrackingMethod() == TrackingMethod.MANUAL) {
+            return false;
+        }
+        
+        if (challenge.getLinkedCategoryId() != null && !challenge.getLinkedCategoryId().equals(event.getCategoryId())) {
+            return false;
+        }
+
+        var rules = challenge.getRulesConfig();
+        if (rules != null) {
+            if (rules.getBlockedSubcategories() != null && rules.getBlockedSubcategories().contains(event.getSubCategoryId())) {
+                return false;
+            }
+            if (rules.getAllowedSubcategories() != null && !rules.getAllowedSubcategories().isEmpty()) {
+                if (!rules.getAllowedSubcategories().contains(event.getSubCategoryId())) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
 }

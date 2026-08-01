@@ -1,6 +1,7 @@
 package com.ecotrack.challenge.entity;
 
 import com.ecotrack.challenge.enums.ChallengeStatus;
+import com.ecotrack.challenge.enums.TrackingMethod;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -64,4 +65,13 @@ public class Challenge {
     @Column(name = "community_progress", nullable = false)
     @Builder.Default
     private java.math.BigDecimal communityProgress = java.math.BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tracking_method", nullable = false, length = 20)
+    @Builder.Default
+    private TrackingMethod trackingMethod = TrackingMethod.HYBRID;
+
+    @Column(name = "rules_config", columnDefinition = "json")
+    @Convert(converter = ChallengeRulesConverter.class)
+    private ChallengeRules rulesConfig;
 }

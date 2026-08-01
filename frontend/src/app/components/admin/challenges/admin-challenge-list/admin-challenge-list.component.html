@@ -154,7 +154,7 @@
               <label class="form-label fw-bold">Linked Category</label>
               <select class="form-select" formControlName="linkedCategoryId">
                 <option [ngValue]="null">None (Any Category)</option>
-                <option *ngFor="let cat of categories" [ngValue]="cat.categoryId">{{cat.name}}</option>
+                <option *ngFor="let cat of categories" [ngValue]="cat.id">{{cat.name}}</option>
               </select>
             </div>
             

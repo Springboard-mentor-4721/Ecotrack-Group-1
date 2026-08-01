@@ -1,0 +1,259 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-title">
+      <h1>Challenges Dashboard</h1>
+      <p>Create and manage sustainability challenges that inspire real impact.</p>
+    </div>
+    
+    <div class="header-actions">
+      <div class="search-bar">
+        <lucide-icon [img]="icons.Search" class="search-icon" size="18"></lucide-icon>
+        <input type="text" placeholder="Search challenges, templates..." />
+      </div>
+      
+      <button class="icon-btn notification-btn">
+        <lucide-icon [img]="icons.Bell" size="20"></lucide-icon>
+        <span class="badge-num">3</span>
+      </button>
+      
+      <div class="user-profile">
+        <div class="avatar">A</div>
+        <span class="role">Admin <lucide-icon [img]="icons.TrendingUp" style="display:none"></lucide-icon></span>
+      </div>
+      
+      <button class="btn-primary create-btn" routerLink="/admin/challenges-new/create">
+        <lucide-icon [img]="icons.Plus" size="18"></lucide-icon>
+        Create Challenge
+      </button>
+    </div>
+  </header>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading dashboard...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- Top Analytics Row -->
+    <div class="analytics-row top-row">
+      <!-- Total Challenges -->
+      <div class="stat-card">
+        <div class="stat-icon bg-green-light text-green">
+          <lucide-icon [img]="icons.Flag"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Total Challenges</div>
+          <div class="stat-value">{{ totalChallenges }}</div>
+          <div class="stat-trend up">
+            <lucide-icon [img]="icons.TrendingUp" size="14"></lucide-icon>
+            12 this month
+          </div>
+        </div>
+      </div>
+      
+      <!-- Active Challenges -->
+      <div class="stat-card">
+        <div class="stat-icon bg-green-light text-green">
+          <lucide-icon [img]="icons.PlayCircle"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Active Challenges</div>
+          <div class="stat-value">{{ activeCount }}</div>
+          <div class="stat-trend up">
+            <lucide-icon [img]="icons.TrendingUp" size="14"></lucide-icon>
+            6 this week
+          </div>
+        </div>
+      </div>
+      
+      <!-- Scheduled -->
+      <div class="stat-card">
+        <div class="stat-icon bg-orange-light text-orange">
+          <lucide-icon [img]="icons.CalendarDays"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Scheduled</div>
+          <div class="stat-value">{{ scheduledCount }}</div>
+          <div class="stat-trend neutral">
+            Starts soon
+          </div>
+        </div>
+      </div>
+      
+      <!-- Completed -->
+      <div class="stat-card">
+        <div class="stat-icon bg-blue-light text-blue">
+          <lucide-icon [img]="icons.CheckCircle"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Completed</div>
+          <div class="stat-value">{{ completedCount }}</div>
+          <div class="stat-trend up">
+            <lucide-icon [img]="icons.TrendingUp" size="14"></lucide-icon>
+            8 this month
+          </div>
+        </div>
+      </div>
+      
+      <!-- Archived -->
+      <div class="stat-card">
+        <div class="stat-icon bg-gray-light text-gray">
+          <lucide-icon [img]="icons.Archive"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Archived</div>
+          <div class="stat-value">{{ archivedCount }}</div>
+          <div class="stat-trend neutral">
+            View history
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Analytics Row -->
+    <div class="analytics-row second-row">
+      <!-- Total Participants -->
+      <div class="stat-card impact-card">
+        <div class="stat-icon bg-blue-light text-blue">
+          <lucide-icon [img]="icons.Users"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Total Participants</div>
+          <div class="stat-value">{{ totalParticipants | number }}</div>
+          <div class="stat-trend up">
+            <lucide-icon [img]="icons.TrendingUp" size="14"></lucide-icon>
+            320 this week
+          </div>
+        </div>
+      </div>
+      
+      <!-- Completion Rate -->
+      <div class="stat-card impact-card">
+        <div class="stat-icon bg-blue-light text-blue">
+          <lucide-icon [img]="icons.Target"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Completion Rate</div>
+          <div class="stat-value">{{ avgCompletionRate }}%</div>
+          <div class="stat-trend up">
+            <lucide-icon [img]="icons.TrendingUp" size="14"></lucide-icon>
+            8% this month
+          </div>
+        </div>
+      </div>
+      
+      <!-- Community Impact -->
+      <div class="stat-card impact-card">
+        <div class="stat-icon bg-green-light text-green">
+          <lucide-icon [img]="icons.Leaf"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Community Impact</div>
+          <div class="stat-value">{{ communityImpact }} t <span>CO₂e</span></div>
+          <div class="stat-trend neutral">
+            CO₂e reduced
+          </div>
+        </div>
+      </div>
+      
+      <!-- XP Awarded -->
+      <div class="stat-card impact-card">
+        <div class="stat-icon bg-yellow-light text-yellow">
+          <lucide-icon [img]="icons.Star"></lucide-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">XP Awarded</div>
+          <div class="stat-value">{{ xpAwarded | number }}</div>
+          <div class="stat-trend up">
+            <lucide-icon [img]="icons.TrendingUp" size="14"></lucide-icon>
+            9,540 this month
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout for Lists -->
+    <div class="lists-container">
+      <!-- Recent Challenges -->
+      <div class="list-section">
+        <div class="section-header">
+          <h2>Recent Challenges</h2>
+          <a href="#" class="view-all">View All</a>
+        </div>
+        
+        <div class="challenge-list">
+          <div class="challenge-row" *ngFor="let c of recentChallenges" (click)="onEditChallenge(c)">
+            <div class="challenge-img">
+              <div class="placeholder-img bg-green-light">
+                <lucide-icon [img]="icons.Flag" class="text-green"></lucide-icon>
+              </div>
+            </div>
+            
+            <div class="challenge-info">
+              <div class="challenge-title-row">
+                <h3>{{ c.title }}</h3>
+                <span class="badge" [ngClass]="'badge-' + c.status.toLowerCase()">{{ c.status }}</span>
+              </div>
+              <div class="challenge-meta">
+                {{ c.typeCode || 'Community' }} &bull; {{ c.trackingMethod || 'Automatic' }}
+              </div>
+            </div>
+            
+            <div class="challenge-stats">
+              <div class="stat-block">
+                <strong>{{ ($any(c).participantCount || 1250) | number }}</strong>
+                <span>Participants</span>
+              </div>
+              <div class="stat-block">
+                <strong>78%</strong>
+                <span>Progress</span>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="recentChallenges.length === 0" class="empty-list">
+            No recent challenges found.
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Challenges -->
+      <div class="list-section">
+        <div class="section-header">
+          <h2>Upcoming Challenges</h2>
+          <a href="#" class="view-all">View All</a>
+        </div>
+        
+        <div class="challenge-list">
+          <div class="challenge-row" *ngFor="let c of upcomingChallenges" (click)="onEditChallenge(c)">
+            <div class="challenge-img">
+              <div class="placeholder-img bg-blue-light">
+                <lucide-icon [img]="icons.CalendarDays" class="text-blue"></lucide-icon>
+              </div>
+            </div>
+            
+            <div class="challenge-info">
+              <div class="challenge-title-row">
+                <h3>{{ c.title }}</h3>
+                <span class="badge badge-scheduled">SCHEDULED</span>
+              </div>
+              <div class="challenge-meta">
+                {{ c.typeCode || 'Community' }} &bull; {{ c.trackingMethod || 'Automatic' }}
+              </div>
+            </div>
+            
+            <div class="challenge-stats date-block">
+              <span>Starts on</span>
+              <strong>{{ c.startDate | date:'MMM dd, yyyy' }}</strong>
+            </div>
+          </div>
+          
+          <div *ngIf="upcomingChallenges.length === 0" class="empty-list">
+            No upcoming challenges found.
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

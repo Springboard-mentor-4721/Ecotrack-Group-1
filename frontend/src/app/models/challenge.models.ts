@@ -1,6 +1,12 @@
 export type ChallengeStatus = 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'CLOSED' | 'ARCHIVED';
 export type ChallengeParticipantStatus = 'ACTIVE' | 'COMPLETED' | 'DROPPED';
 export type ProgressType = 'COUNT' | 'AMOUNT';
+export type TrackingMethod = 'AUTOMATIC' | 'MANUAL' | 'HYBRID';
+
+export interface ChallengeRules {
+  allowedSubcategories?: number[];
+  blockedSubcategories?: number[];
+}
 
 export interface Challenge {
   id: number;
@@ -14,6 +20,8 @@ export interface Challenge {
   linkedCategoryId?: number;
   rewardXp: number;
   progressType: ProgressType;
+  trackingMethod: TrackingMethod;
+  rulesConfig?: ChallengeRules | null;
   communityProgress: number;
 }
 
@@ -42,6 +50,8 @@ export interface ChallengeRequest {
   linkedCategoryId?: number;
   rewardXp: number;
   progressType: ProgressType;
+  trackingMethod: TrackingMethod;
+  rulesConfig?: ChallengeRules | null;
 }
 
 export interface ChallengeProgressUpdateRequest {

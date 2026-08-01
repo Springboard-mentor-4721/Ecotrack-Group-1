@@ -8,6 +8,7 @@ import com.ecotrack.challenge.entity.Challenge;
 import com.ecotrack.challenge.entity.ChallengeParticipant;
 import com.ecotrack.challenge.enums.ChallengeParticipantStatus;
 import com.ecotrack.challenge.enums.ChallengeStatus;
+import com.ecotrack.challenge.enums.TrackingMethod;
 import com.ecotrack.challenge.exception.ChallengeAlreadyJoinedException;
 import com.ecotrack.challenge.exception.ChallengeClosedException;
 import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
@@ -52,6 +53,8 @@ public class ChallengeService {
         detailDTO.setLinkedCategoryId(challenge.getLinkedCategoryId());
         detailDTO.setRewardXp(challenge.getRewardXp());
         detailDTO.setProgressType(challenge.getProgressType());
+        detailDTO.setTrackingMethod(challenge.getTrackingMethod());
+        detailDTO.setRulesConfig(challenge.getRulesConfig());
         detailDTO.setCommunityProgress(challenge.getCommunityProgress());
         
         participantRepository.findByChallengeIdAndUserId(id, userId)
@@ -97,6 +100,10 @@ public class ChallengeService {
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
                 
+        if (challenge.getTrackingMethod() == TrackingMethod.AUTOMATIC) {
+            throw new IllegalArgumentException("This challenge only supports automatic tracking.");
+        }
+
         if (challenge.getStatus() != ChallengeStatus.ACTIVE) {
             throw new ChallengeClosedException("Challenge is not active");
         }
@@ -121,12 +128,12 @@ public class ChallengeService {
     // Admin Methods
     @Transactional
     public ChallengeDTO createChallenge(ChallengeRequest request) {
-        if ("PERSONAL".equalsIgnoreCase(request.getTypeCode()) || "RECURRING".equalsIgnoreCase(request.getTypeCode())) {
-            throw new IllegalArgumentException("Cannot create PERSONAL or RECURRING challenges.");
-        }
-        
+        validateChallengeType(request.getTypeCode());
+        validateTrackingConfiguration(request);
+
         Integer reward = request.getRewardXp() != null ? request.getRewardXp() : 500;
         com.ecotrack.challenge.enums.ProgressType pType = request.getProgressType() != null ? request.getProgressType() : com.ecotrack.challenge.enums.ProgressType.COUNT;
+        TrackingMethod tMethod = request.getTrackingMethod() != null ? request.getTrackingMethod() : TrackingMethod.HYBRID;
 
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
@@ -138,6 +145,8 @@ public class ChallengeService {
                 .linkedCategoryId(request.getLinkedCategoryId())
                 .rewardXp(reward)
                 .progressType(pType)
+                .trackingMethod(tMethod)
+                .rulesConfig(request.getRulesConfig())
                 .status(ChallengeStatus.PENDING)
                 .build();
                 
@@ -146,13 +155,12 @@ public class ChallengeService {
 
     @Transactional
     public ChallengeDTO updateChallenge(Long id, ChallengeRequest request) {
-        if ("PERSONAL".equalsIgnoreCase(request.getTypeCode()) || "RECURRING".equalsIgnoreCase(request.getTypeCode())) {
-            throw new IllegalArgumentException("Cannot create PERSONAL or RECURRING challenges.");
-        }
+        validateChallengeType(request.getTypeCode());
+        validateTrackingConfiguration(request);
         
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
-                
+
         challenge.setTitle(request.getTitle());
         challenge.setDescription(request.getDescription());
         challenge.setTypeCode(request.getTypeCode());
@@ -160,9 +168,10 @@ public class ChallengeService {
         challenge.setStartDate(request.getStartDate());
         challenge.setEndDate(request.getEndDate());
         challenge.setLinkedCategoryId(request.getLinkedCategoryId());
-        
-        if(request.getRewardXp() != null) challenge.setRewardXp(request.getRewardXp());
-        if(request.getProgressType() != null) challenge.setProgressType(request.getProgressType());
+        if (request.getRewardXp() != null) challenge.setRewardXp(request.getRewardXp());
+        if (request.getProgressType() != null) challenge.setProgressType(request.getProgressType());
+        if (request.getTrackingMethod() != null) challenge.setTrackingMethod(request.getTrackingMethod());
+        challenge.setRulesConfig(request.getRulesConfig());
         
         return mapToDTO(challengeRepository.save(challenge));
     }
@@ -207,6 +216,8 @@ public class ChallengeService {
                 .linkedCategoryId(c.getLinkedCategoryId())
                 .rewardXp(c.getRewardXp())
                 .progressType(c.getProgressType())
+                .trackingMethod(c.getTrackingMethod())
+                .rulesConfig(c.getRulesConfig())
                 .communityProgress(c.getCommunityProgress())
                 .build();
     }
@@ -221,5 +232,24 @@ public class ChallengeService {
                 .joinedAt(p.getJoinedAt())
                 .completedAt(p.getCompletedAt())
                 .build();
+    }
+
+    private void validateChallengeType(String typeCode) {
+        if ("PERSONAL".equalsIgnoreCase(typeCode) || "RECURRING".equalsIgnoreCase(typeCode)) {
+            throw new IllegalArgumentException("Cannot create PERSONAL or RECURRING challenges.");
+        }
+    }
+
+    private void validateTrackingConfiguration(ChallengeRequest request) {
+        TrackingMethod method = request.getTrackingMethod() != null ? request.getTrackingMethod() : TrackingMethod.HYBRID;
+        if (method == TrackingMethod.AUTOMATIC || method == TrackingMethod.HYBRID) {
+            if (request.getLinkedCategoryId() == null) {
+                throw new IllegalArgumentException("Linked category is required for AUTOMATIC and HYBRID tracking methods.");
+            }
+        }
+        if (method == TrackingMethod.MANUAL) {
+            request.setLinkedCategoryId(null);
+            request.setRulesConfig(null);
+        }
     }
 }

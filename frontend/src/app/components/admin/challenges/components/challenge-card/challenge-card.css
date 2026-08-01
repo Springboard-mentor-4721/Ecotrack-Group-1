@@ -1,0 +1,75 @@
+
+.card {
+  background: var(--ch-color-bg-card);
+  border-radius: var(--ch-radius-lg);
+  box-shadow: var(--ch-shadow-card);
+  padding: var(--ch-spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ch-spacing-sm);
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  box-shadow: var(--ch-shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ch-color-text-main);
+  margin: 0;
+}
+
+.card-type {
+  font-size: 12px;
+  background: var(--ch-color-primary-light);
+  color: var(--ch-color-primary-hover);
+  padding: 4px 8px;
+  border-radius: var(--ch-radius-full);
+  font-weight: 500;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--ch-color-text-muted);
+  line-height: 1.4;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.card-meta {
+  display: flex;
+  gap: var(--ch-spacing-md);
+  margin-top: var(--ch-spacing-sm);
+  padding-top: var(--ch-spacing-md);
+  border-top: 1px solid var(--ch-color-border);
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--ch-color-text-muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  font-size: 14px;
+  color: var(--ch-color-text-main);
+  font-weight: 500;
+}

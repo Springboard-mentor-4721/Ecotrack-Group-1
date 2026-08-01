@@ -1,0 +1,44 @@
+/* EcoTrack Challenge Module Design System */
+
+:root {
+  /* Colors */
+  --ch-color-primary: #10b981;
+  --ch-color-primary-hover: #059669;
+  --ch-color-primary-light: #ecfdf5;
+  --ch-color-text-main: #1f2937;
+  --ch-color-text-muted: #6b7280;
+  --ch-color-bg-main: #f9fafb;
+  --ch-color-bg-card: #ffffff;
+  --ch-color-border: #e5e7eb;
+  
+  /* Status Colors */
+  --ch-color-success: #10b981;
+  --ch-color-success-bg: #ecfdf5;
+  --ch-color-error: #ef4444;
+  --ch-color-error-bg: #fef2f2;
+  --ch-color-warning: #f59e0b;
+  --ch-color-warning-bg: #fffbeb;
+  
+  /* Spacing */
+  --ch-spacing-xs: 4px;
+  --ch-spacing-sm: 8px;
+  --ch-spacing-md: 16px;
+  --ch-spacing-lg: 24px;
+  --ch-spacing-xl: 32px;
+  --ch-spacing-2xl: 48px;
+
+  /* Radius */
+  --ch-radius-sm: 6px;
+  --ch-radius-md: 10px;
+  --ch-radius-lg: 16px;
+  --ch-radius-full: 9999px;
+
+  /* Elevation */
+  --ch-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ch-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --ch-shadow-card: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04);
+  --ch-shadow-card-hover: 0 0 0 1px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.08);
+
+  /* Typography */
+  --ch-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}

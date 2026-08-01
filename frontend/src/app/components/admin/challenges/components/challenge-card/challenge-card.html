@@ -1,0 +1,21 @@
+<div class="card" (click)="onEdit($event)">
+  <div class="card-header">
+    <h3 class="card-title">{{ challenge.title }}</h3>
+    <span class="card-type" [ngClass]="challenge.status">{{ challenge.status }}</span>
+  </div>
+  <p class="card-description">{{ challenge.description }}</p>
+  <div class="card-meta">
+    <div class="meta-item">
+      <span class="meta-label">Reward</span>
+      <span class="meta-value">{{ challenge.rewardXp }} XP</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Target</span>
+      <span class="meta-value">{{ challenge.targetValue }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Tracking</span>
+      <span class="meta-value">{{ challenge.trackingMethod }}</span>
+    </div>
+  </div>
+</div>

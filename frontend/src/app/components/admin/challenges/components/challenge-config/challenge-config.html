@@ -1,0 +1,85 @@
+<form [formGroup]="challengeForm" *ngIf="challengeForm">
+  <!-- Basic Information -->
+  <div class="section">
+    <h2 class="section-title">Basic Information</h2>
+    <div class="form-group">
+      <label class="form-label">Campaign Title</label>
+      <input type="text" class="form-input" formControlName="title" placeholder="e.g. Transportation Week" [ngStyle]="{'border-color': challengeForm.get('title')?.invalid && challengeForm.get('title')?.touched ? 'var(--ch-color-error)' : ''}">
+      <div *ngIf="challengeForm.get('title')?.invalid && challengeForm.get('title')?.touched" style="color: var(--ch-color-error); font-size: 12px; margin-top: 4px;">
+        A valid title is required (max 100 chars).
+      </div>
+    </div>
+    <div class="form-group mt-3" style="margin-top: 16px;">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" formControlName="description" placeholder="Describe the campaign..." [ngStyle]="{'border-color': challengeForm.get('description')?.invalid && challengeForm.get('description')?.touched ? 'var(--ch-color-error)' : ''}"></textarea>
+      <div *ngIf="challengeForm.get('description')?.invalid && challengeForm.get('description')?.touched" style="color: var(--ch-color-error); font-size: 12px; margin-top: 4px;">
+        Description is required.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracking & Rules -->
+  <div class="section">
+    <h2 class="section-title">Tracking Settings</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Progress Type</label>
+        <select class="form-input" formControlName="progressType">
+          <option value="COUNT">Count (Entries)</option>
+          <option value="AMOUNT">Amount (kg CO₂e)</option>
+        </select>
+      </div>
+      <div class="form-group" *ngIf="supportsRules">
+        <label class="form-label">Category</label>
+        <select class="form-input" formControlName="linkedCategoryId" (change)="onCategorySelect($event)">
+          <option [value]="null">Select Category</option>
+          <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top: 16px;" *ngIf="supportsInstructions && challengeForm.contains('instructions')">
+      <label class="form-label">Manual Tracking Instructions</label>
+      <textarea class="form-input" formControlName="instructions" placeholder="Enter instructions for manual entry..." [ngStyle]="{'border-color': challengeForm.get('instructions')?.invalid && challengeForm.get('instructions')?.touched ? 'var(--ch-color-error)' : ''}"></textarea>
+      <div *ngIf="challengeForm.get('instructions')?.invalid && challengeForm.get('instructions')?.touched" style="color: var(--ch-color-error); font-size: 12px; margin-top: 4px;">
+        Instructions are required for manual tracking.
+      </div>
+    </div>
+  </div>
+
+  <!-- Goals & Duration -->
+  <div class="section">
+    <h2 class="section-title">Goals & Duration</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Target Value</label>
+        <input type="number" class="form-input" formControlName="targetValue" [ngStyle]="{'border-color': challengeForm.get('targetValue')?.invalid && challengeForm.get('targetValue')?.touched ? 'var(--ch-color-error)' : ''}">
+        <div *ngIf="challengeForm.get('targetValue')?.invalid && challengeForm.get('targetValue')?.touched" style="color: var(--ch-color-error); font-size: 12px; margin-top: 4px;">
+          Target value must be at least 1.
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reward XP</label>
+        <input type="number" class="form-input" formControlName="rewardXp" [ngStyle]="{'border-color': challengeForm.get('rewardXp')?.invalid && challengeForm.get('rewardXp')?.touched ? 'var(--ch-color-error)' : ''}">
+        <div *ngIf="challengeForm.get('rewardXp')?.invalid && challengeForm.get('rewardXp')?.touched" style="color: var(--ch-color-error); font-size: 12px; margin-top: 4px;">
+          Reward XP must be at least 1.
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input type="date" class="form-input" formControlName="startDate" [ngStyle]="{'border-color': challengeForm.get('startDate')?.invalid && challengeForm.get('startDate')?.touched ? 'var(--ch-color-error)' : ''}">
+        <div *ngIf="challengeForm.get('startDate')?.invalid && challengeForm.get('startDate')?.touched" style="color: var(--ch-color-error); font-size: 12px; margin-top: 4px;">
+          Start date is required.
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-input" formControlName="endDate" [ngStyle]="{'border-color': challengeForm.get('endDate')?.invalid && challengeForm.get('endDate')?.touched ? 'var(--ch-color-error)' : ''}">
+        <div *ngIf="challengeForm.get('endDate')?.invalid && challengeForm.get('endDate')?.touched" style="color: var(--ch-color-error); font-size: 12px; margin-top: 4px;">
+          End date is required.
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

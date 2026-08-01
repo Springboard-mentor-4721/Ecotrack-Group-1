@@ -1,6 +1,8 @@
 package com.ecotrack.challenge.dto;
 
 import com.ecotrack.challenge.enums.ChallengeStatus;
+import com.ecotrack.challenge.enums.TrackingMethod;
+import com.ecotrack.challenge.entity.ChallengeRules;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,5 +30,7 @@ public class ChallengeDTO {
 
     private com.ecotrack.challenge.enums.ProgressType progressType;
 
+    private TrackingMethod trackingMethod;
+    private ChallengeRules rulesConfig;
     private java.math.BigDecimal communityProgress;
 }

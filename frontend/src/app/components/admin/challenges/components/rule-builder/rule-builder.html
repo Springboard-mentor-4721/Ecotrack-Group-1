@@ -1,0 +1,52 @@
+<div class="rule-builder">
+  <div class="rule-columns">
+    
+    <div class="rule-col">
+      <h4 class="rule-title">Available Subcategories</h4>
+      <div class="chip-list">
+        <!-- Render only subcategories that are NOT in allowed or blocked -->
+        <ng-container *ngFor="let sub of availableSubcategories">
+          <div class="chip" 
+               *ngIf="!allowedSubcategories.includes(sub.name) && !blockedSubcategories.includes(sub.name)"
+               (click)="selectAllowed(sub.name)">
+            ○ {{ sub.name }}
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    
+    <div class="rule-col">
+      <h4 class="rule-title allowed">✓ Count Towards Progress</h4>
+      <div class="chip-list">
+        <div class="chip allowed" 
+             *ngFor="let name of allowedSubcategories"
+             (click)="removeAllowed(name)">
+          ✓ {{ name }}
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-col">
+      <h4 class="rule-title blocked">✕ Does Not Count</h4>
+      <div class="chip-list">
+        <div class="chip blocked" 
+             *ngFor="let name of blockedSubcategories"
+             (click)="removeBlocked(name)">
+          ✕ {{ name }}
+        </div>
+      </div>
+      
+      <!-- Quick toggle to block available subcategories by alt-clicking or something, but for simplicity: -->
+      <div class="chip-list mt-3" style="margin-top: 16px;">
+        <ng-container *ngFor="let sub of availableSubcategories">
+          <div class="chip" style="font-size: 11px; opacity: 0.7;"
+               *ngIf="!allowedSubcategories.includes(sub.name) && !blockedSubcategories.includes(sub.name)"
+               (click)="selectBlocked(sub.name)">
+            Block {{ sub.name }}
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    
+  </div>
+</div>

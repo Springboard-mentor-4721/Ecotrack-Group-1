@@ -5,8 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { ChallengeService } from '../../../services/challenge.service';
 import { Challenge, ChallengeDetail, ChallengeParticipant } from '../../../models/challenge.models';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, map, switchMap, finalize } from 'rxjs/operators';
+import { AdminChallengeService } from '../../admin/challenges-new/services/admin-challenge.service';
+import { CHALLENGE_TYPES } from '../../admin/challenges-new/shared/challenge-types.config';
+import { CarbonCategory } from '../../../models/carbon-category.models';
 
 export interface MyChallengeDisplay {
   participant: ChallengeParticipant;
@@ -37,12 +40,14 @@ export class ChallengesDashboardPageComponent implements OnInit {
   activeStatusFilter = 'All';
   statuses = ['Active', 'Upcoming', 'Completed', 'Archived'];
   activeCategoryFilter = 'All';
-  categories = ['Transport', 'Energy', 'Food', 'Waste', 'Water', 'Shopping', 'Lifestyle'];
+  carbonCategories: CarbonCategory[] = [];
+  challengeTypes = CHALLENGE_TYPES;
   
   Math = Math;
 
   constructor(
     private challengeService: ChallengeService,
+    private adminChallengeService: AdminChallengeService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -69,6 +74,9 @@ export class ChallengesDashboardPageComponent implements OnInit {
       ),
       explore: this.challengeService.getChallenges(0, 50).pipe(
         map(res => res.content)
+      ),
+      categories: this.adminChallengeService.getCarbonCategories().pipe(
+        catchError(() => of([]))
       )
     }).pipe(
       finalize(() => {
@@ -77,6 +85,10 @@ export class ChallengesDashboardPageComponent implements OnInit {
       })
     ).subscribe({
       next: (data) => {
+        if (data.categories) {
+          this.carbonCategories = data.categories;
+        }
+        
         const myChallenges = data.my;
         this.myActiveChallenges = myChallenges.filter(c => c.participant.status === 'ACTIVE');
         this.myCompletedChallenges = myChallenges.filter(c => c.participant.status === 'COMPLETED');
@@ -113,9 +125,30 @@ export class ChallengesDashboardPageComponent implements OnInit {
     }
     
     if (this.activeCategoryFilter !== 'All') {
-      filtered = filtered.filter(c => c.typeCode && c.typeCode.toLowerCase().includes(this.activeCategoryFilter.toLowerCase()));
+      filtered = filtered.filter(c => {
+        if (c.trackingMethod === 'AUTOMATIC') {
+          const catName = this.getCarbonCategoryName(c.linkedCategoryId);
+          return catName.toLowerCase().includes(this.activeCategoryFilter.toLowerCase());
+        } else {
+          return c.typeCode && c.typeCode.toLowerCase().includes(this.activeCategoryFilter.toLowerCase());
+        }
+      });
     }
     return filtered;
+  }
+
+  getCarbonCategoryName(id: number | null | undefined): string {
+    if (!id) return 'Unknown';
+    const cat = this.carbonCategories.find(c => c.id === id);
+    return cat ? cat.name : 'Unknown';
+  }
+
+  getChallengeTypeLabel(typeCode: string): string {
+    return CHALLENGE_TYPES[typeCode]?.label || typeCode;
+  }
+
+  getChallengeTypeConfig(typeCode: string): any {
+    return CHALLENGE_TYPES[typeCode] || CHALLENGE_TYPES['COMMUNITY'];
   }
 
   setStatusFilter(filter: string): void {

@@ -15,5 +15,7 @@ public interface ChallengeParticipantRepository extends JpaRepository<ChallengeP
     Optional<ChallengeParticipant> findByChallengeIdAndUserId(Long challengeId, Long userId);
     List<ChallengeParticipant> findByUserIdAndStatus(Long userId, ChallengeParticipantStatus status);
     Page<ChallengeParticipant> findByUserId(Long userId, Pageable pageable);
+    long countByChallengeId(Long challengeId);
     List<ChallengeParticipant> findByChallengeId(Long challengeId);
+    Page<ChallengeParticipant> findByChallengeId(Long challengeId, Pageable pageable);
 }

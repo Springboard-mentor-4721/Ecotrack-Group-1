@@ -6,9 +6,7 @@ import { ChallengesDashboardPageComponent } from './components/challenges/challe
 import { ChallengeDetailPageComponent } from './components/challenges/challenge-detail-page/challenge-detail-page.component';
 import { RecommendationPageComponent } from './components/recommendations/recommendation-page/recommendation-page.component';
 import { NotificationListPageComponent } from './components/notifications/notification-list-page/notification-list-page.component';
-import { ChallengeDashboard } from './components/admin/challenges/pages/challenge-dashboard/challenge-dashboard';
-import { ChallengeCreate } from './components/admin/challenges/pages/challenge-create/challenge-create';
-import { AdminChallengeListComponent } from './components/admin/challenges/admin-challenge-list/admin-challenge-list.component';
+
 import { AdminBadgeListComponent } from './components/admin/badges/admin-badge-list/admin-badge-list.component';
 import { AdminConfigPageComponent } from './components/admin/config/admin-config-page/admin-config-page.component';
 
@@ -124,17 +122,7 @@ export const routes: Routes = [
       },
       {
         path: 'admin/challenges',
-        component: AdminChallengeListComponent,
-        canActivate: [adminGuard, suspendedGuard]
-      },
-      {
-        path: 'admin/challenges-new',
-        component: ChallengeDashboard,
-        canActivate: [adminGuard, suspendedGuard]
-      },
-      {
-        path: 'admin/challenges-new/create',
-        component: ChallengeCreate,
+        loadChildren: () => import('./components/admin/challenges-new/admin-challenges.routes').then(m => m.routes),
         canActivate: [adminGuard, suspendedGuard]
       },
       {

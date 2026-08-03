@@ -69,7 +69,7 @@ public class Challenge {
     @Enumerated(EnumType.STRING)
     @Column(name = "tracking_method", nullable = false, length = 20)
     @Builder.Default
-    private TrackingMethod trackingMethod = TrackingMethod.HYBRID;
+    private TrackingMethod trackingMethod = TrackingMethod.MANUAL;
 
     @Column(name = "rules_config", columnDefinition = "json")
     @Convert(converter = ChallengeRulesConverter.class)

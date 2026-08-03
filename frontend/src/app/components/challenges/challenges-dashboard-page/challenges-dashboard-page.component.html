@@ -15,7 +15,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
       <div>
         <h1 class="fw-bold text-dark mb-1 fs-3">Challenges</h1>
-        <p class="desc-light mb-0">Join community sustainability campaigns and earn rewards.</p>
+        <p class="desc-light mb-0">Join community sustainability Challenges and earn rewards.</p>
       </div>
       <div class="d-flex align-items-center">
         <button class="btn btn-emerald rounded-pill px-4 py-2 shadow-sm fw-bold d-flex align-items-center gap-2 transition-all hover-shadow group" routerLink="/leaderboard">
@@ -81,7 +81,7 @@
       <!-- Empty state -->
       <div *ngIf="myActiveChallenges.length === 0" class="bg-white rounded-4 p-5 text-center border shadow-sm">
         <h5 class="fw-bold text-dark">No Active Challenges</h5>
-        <p class="desc-light mb-0 fs-sm">Join a campaign below to get started.</p>
+        <p class="desc-light mb-0 fs-sm">Join a Challenge below to get started.</p>
       </div>
 
       <!-- Horizontal Carousel -->
@@ -115,7 +115,12 @@
           <!-- Info -->
           <div class="p-4 pt-5 mt-3 d-flex flex-column flex-grow-1 text-center">
             <h5 class="fw-bolder text-dark mb-1 fs-5 text-truncate" title="{{ my.challenge.title }}">{{ my.challenge.title }}</h5>
-            <span class="fs-xs text-muted fw-bold text-uppercase tracking-wide mb-3">{{ my.challenge.typeCode }} Challenge</span>
+            <span class="fs-xs text-muted fw-bold text-uppercase tracking-wide mb-3">
+              {{ getChallengeTypeLabel(my.challenge.typeCode) }}
+              <ng-container *ngIf="my.challenge.trackingMethod === 'AUTOMATIC'">
+                • {{ getCarbonCategoryName(my.challenge.linkedCategoryId) }}
+              </ng-container>
+            </span>
             
             <div class="d-flex justify-content-between align-items-center mb-4 bg-surface rounded p-2 px-3 border">
               <div class="text-start">
@@ -166,7 +171,8 @@
                 <h5 class="fw-bolder text-white mb-1 fs-5 text-truncate">{{ rec.title }}</h5>
                 <div class="d-flex gap-2">
                   <span class="badge bg-white text-dark px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase">Medium Difficulty</span>
-                  <span class="badge bg-white text-dark px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase">{{ rec.typeCode }}</span>
+                  <span class="badge bg-white text-dark px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase">{{ getChallengeTypeLabel(rec.typeCode) }}</span>
+                  <span *ngIf="rec.trackingMethod === 'AUTOMATIC'" class="badge bg-emerald text-white px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase">{{ getCarbonCategoryName(rec.linkedCategoryId) }}</span>
                 </div>
               </div>
             </div>
@@ -207,7 +213,7 @@
           <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <h3 class="fw-bolder text-dark mb-0 fs-3 d-flex align-items-center gap-2">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-              Explore Campaigns
+              Explore Challenges
             </h3>
             
             <div class="position-relative" style="max-width: 350px; width: 100%;">
@@ -241,7 +247,7 @@
           <div class="bg-white rounded-circle d-inline-flex p-4 mb-4 shadow-sm border">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
-          <h4 class="fw-bolder text-dark mb-2">No campaigns found</h4>
+          <h4 class="fw-bolder text-dark mb-2">No Challenges found</h4>
           <p class="text-muted fs-6">Try adjusting your search terms or selecting a different category.</p>
         </div>
 
@@ -255,11 +261,11 @@
               
               <!-- Badges -->
               <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2">
-                <span class="badge bg-emerald text-white px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase tracking-wide">
-                  {{ $any(challenge).category?.name || 'Community' }}
-                </span>
                 <span class="badge bg-white text-dark px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase tracking-wide" style="width: fit-content;">
-                  {{ challenge.typeCode }}
+                  {{ getChallengeTypeLabel(challenge.typeCode) }}
+                </span>
+                <span *ngIf="challenge.trackingMethod === 'AUTOMATIC'" class="badge bg-emerald text-white px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase tracking-wide">
+                  {{ getCarbonCategoryName(challenge.linkedCategoryId) }}
                 </span>
               </div>
               

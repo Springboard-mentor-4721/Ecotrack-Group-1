@@ -27,7 +27,7 @@
   <div *ngIf="!isLoading && challenges.length > 0">
     <div class="row g-4 mb-5">
     <div class="row g-4 mb-5">
-      <!-- Hero Campaign (Index 0) -->
+      <!-- Hero Challenge (Index 0) -->
       <div class="col-12 animate-stagger-item" *ngIf="challenges.length > 0">
         <div class="card-premium position-relative overflow-hidden shadow-sm d-flex flex-column flex-md-row align-items-stretch"
              style="cursor: pointer; min-height: 320px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
@@ -40,7 +40,7 @@
             <div class="d-flex justify-content-between align-items-start mb-4">
               <div class="d-flex gap-2">
                 <div class="badge bg-white text-emerald text-uppercase fs-xs tracking-wide px-3 py-2 rounded-pill shadow-sm">
-                  Featured Campaign
+                  Featured Challenge
                 </div>
                 <div class="badge border border-white bg-transparent text-white text-uppercase fs-xs tracking-wide px-3 py-2 rounded-pill">
                   {{ challenges[0].typeCode }}

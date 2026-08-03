@@ -1,0 +1,14 @@
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.status-badge.active { background: #d1fae5; color: #065f46; }
+.status-badge.pending { background: #fef3c7; color: #92400e; }
+.status-badge.upcoming { background: #dbeafe; color: #1e40af; }
+.status-badge.completed { background: #ede9fe; color: #5b21b6; }
+.status-badge.closed { background: #fee2e2; color: #991b1b; }
+.status-badge.archived { background: #f1f5f9; color: #475569; }

@@ -2,6 +2,12 @@ package com.ecotrack.challenge.controller;
 
 import com.ecotrack.challenge.dto.ChallengeDTO;
 import com.ecotrack.challenge.dto.ChallengeRequest;
+import com.ecotrack.challenge.dto.ChallengeDetailDTO;
+import com.ecotrack.challenge.dto.ChallengeParticipantDTO;
+import com.ecotrack.challenge.dto.ChallengeStatsDTO;
+import com.ecotrack.challenge.dto.ChallengeAnalyticsDTO;
+import com.ecotrack.challenge.enums.ChallengeStatus;
+import com.ecotrack.challenge.enums.TrackingMethod;
 import com.ecotrack.challenge.service.ChallengeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +55,32 @@ public class AdminChallengeController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ChallengeDTO>> getAdminChallenges(Pageable pageable) {
-        return ResponseEntity.ok(challengeService.getAllChallenges(pageable));
+    public ResponseEntity<Page<ChallengeDTO>> getAdminChallenges(
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "status", required = false) ChallengeStatus status,
+            @RequestParam(name = "trackingMethod", required = false) TrackingMethod trackingMethod,
+            Pageable pageable) {
+        return ResponseEntity.ok(challengeService.getAllChallenges(search, status, trackingMethod, pageable));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ChallengeDetailDTO> getAdminChallengeDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(challengeService.getAdminChallengeDetail(id));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ChallengeStatsDTO> getChallengeStats() {
+        return ResponseEntity.ok(challengeService.getChallengeStats());
+    }
+
+    @GetMapping("/{id}/participants")
+    public ResponseEntity<Page<ChallengeParticipantDTO>> getChallengeParticipants(
+            @PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(challengeService.getChallengeParticipants(id, pageable));
+    }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<ChallengeAnalyticsDTO> getChallengeAnalytics() {
+        return ResponseEntity.ok(challengeService.getChallengeAnalytics());
     }
 }

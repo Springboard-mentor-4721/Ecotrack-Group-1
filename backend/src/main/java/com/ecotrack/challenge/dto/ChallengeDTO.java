@@ -33,4 +33,6 @@ public class ChallengeDTO {
     private TrackingMethod trackingMethod;
     private ChallengeRules rulesConfig;
     private java.math.BigDecimal communityProgress;
+    
+    private Long participantCount;
 }

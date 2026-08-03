@@ -10,9 +10,19 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 @Repository
-public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
+public interface ChallengeRepository extends JpaRepository<Challenge, Long>, JpaSpecificationExecutor<Challenge> {
     Page<Challenge> findByStatus(ChallengeStatus status, Pageable pageable);
+    
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT c.status, COUNT(c)
+        FROM Challenge c
+        GROUP BY c.status
+    """)
+    List<Object[]> countChallengesByStatus();
+    
     List<Challenge> findByStatusAndEndDateBefore(ChallengeStatus status, LocalDateTime dateTime);
     List<Challenge> findByStatusAndEndDateBetween(ChallengeStatus status, LocalDateTime start, LocalDateTime end);
 }

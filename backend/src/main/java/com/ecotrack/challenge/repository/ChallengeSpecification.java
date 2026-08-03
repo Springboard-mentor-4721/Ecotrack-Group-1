@@ -32,6 +32,9 @@ public class ChallengeSpecification {
             if (predicates.isEmpty()) {
                 return cb.conjunction();
             }
+            if (predicates.size() == 1) {
+                return predicates.get(0);
+            }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

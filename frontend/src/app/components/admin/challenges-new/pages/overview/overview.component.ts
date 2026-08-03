@@ -32,50 +32,42 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
         <div class="stat-card">
           <div class="stat-icon-wrapper text-green"><span class="material-icons">description</span></div>
           <div class="stat-label">Total Challenges</div>
-          <div class="stat-value">{{ s.totalChallenges || 24 }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 12% vs last month</div>
+          <div class="stat-value">{{ s.totalChallenges || 0 }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrapper text-green"><span class="material-icons">play_circle</span></div>
           <div class="stat-label">Active Challenges</div>
-          <div class="stat-value">{{ s.activeCount || 12 }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 8% vs last month</div>
+          <div class="stat-value">{{ s.activeCount || 0 }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrapper text-orange"><span class="material-icons">calendar_today</span></div>
           <div class="stat-label">Scheduled</div>
-          <div class="stat-value">{{ s.scheduledCount || 5 }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 25% vs last month</div>
+          <div class="stat-value">{{ s.scheduledCount || 0 }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrapper text-blue"><span class="material-icons">check_circle</span></div>
           <div class="stat-label">Completed</div>
-          <div class="stat-value">{{ s.completedCount || 7 }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 16% vs last month</div>
+          <div class="stat-value">{{ s.completedCount || 0 }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrapper text-indigo"><span class="material-icons">people</span></div>
           <div class="stat-label">Total Participants</div>
-          <div class="stat-value">{{ formatNumber(s.totalParticipants || 2400) }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 18% vs last month</div>
+          <div class="stat-value">{{ formatNumber(s.totalParticipants || 0) }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrapper text-red"><span class="material-icons">pie_chart</span></div>
           <div class="stat-label">Completion Rate</div>
-          <div class="stat-value">{{ s.completionRate || 68.5 }}%</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 6% vs last month</div>
+          <div class="stat-value">{{ s.completionRate || 0 }}%</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrapper text-purple"><span class="material-icons">star_outline</span></div>
           <div class="stat-label">XP Distributed</div>
-          <div class="stat-value">{{ formatNumber(s.xpDistributed || 8700000) }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 22% vs last month</div>
+          <div class="stat-value">{{ formatNumber(s.xpDistributed || 0) }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrapper text-green"><span class="material-icons">eco</span></div>
           <div class="stat-label">CO₂ Impact (kg)</div>
-          <div class="stat-value">{{ s.co2Impact || 245.6 }} Ton</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 20% vs last month</div>
+          <div class="stat-value">{{ s.co2Impact || 0 }} Ton</div>
         </div>
       </div>
 
@@ -85,7 +77,7 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
           <div class="card active-challenges-card">
             <div class="card-header">
               <div class="header-titles">
-                <h2>Active Challenges <span class="badge-count">12</span></h2>
+                <h2>Active Challenges <span class="badge-count">{{ stats()?.activeCount || 0 }}</span></h2>
                 <p class="subtitle">Challenges that are currently running</p>
               </div>
               <div class="header-filters">
@@ -116,7 +108,7 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
                   <span class="badge method-{{ c.trackingMethod | lowercase }}">{{ c.trackingMethod | lowercase }}</span>
                 </div>
                 <div class="c-participants">
-                  <strong>{{ mockParticipants(c.id) }}</strong>
+                  <strong>{{ c.participantCount || 0 }}</strong>
                   <span>Participants</span>
                 </div>
                 <div class="c-progress">
@@ -182,12 +174,15 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
               <a href="#" class="view-all">View all</a>
             </div>
             <div class="activity-list">
-              <div class="activity-item" *ngFor="let a of activityMocks">
+              <div class="activity-item" *ngFor="let a of activities()">
                 <div class="a-icon" [ngClass]="a.type"><span class="material-icons">{{ a.icon }}</span></div>
                 <div class="a-content">
                   <p [innerHTML]="a.text"></p>
                   <span class="a-time">{{ a.time }}</span>
                 </div>
+              </div>
+              <div class="empty-state" *ngIf="activities().length === 0" style="padding: 1rem; color: #64748b; font-size: 0.875rem;">
+                No recent activity found.
               </div>
             </div>
           </div>
@@ -486,13 +481,7 @@ export class OverviewComponent implements OnInit {
   upcomingChallenges = signal<Challenge[]>([]);
   carbonCategories = signal<CarbonCategory[]>([]);
 
-  activityMocks = [
-    { type: 'success', icon: 'check_circle', text: '<strong>"Cycle To Work Challenge"</strong> was published<br>by Admin User', time: '2h ago' },
-    { type: 'info', icon: 'people', text: '124 users joined <strong>"Energy Saver Challenge"</strong>', time: '5h ago' },
-    { type: 'warning', icon: 'star', text: '<strong>"Zero Waste Challenge"</strong> reached 50% completion', time: '6h ago' },
-    { type: 'success', icon: 'shield', text: 'New template <strong>"Water Conservation Week"</strong> created<br>by Admin User', time: '1d ago' },
-    { type: 'schedule', icon: 'event', text: '<strong>"Tree Plantation Drive"</strong> scheduled to start<br>May 12, 2024', time: '1d ago' }
-  ];
+  activities = signal<any[]>([]);
 
   ngOnInit() {
     this.loadDashboard();
@@ -519,8 +508,20 @@ export class OverviewComponent implements OnInit {
           this.toast.error('Failed to load dashboard data.');
         } else {
           if (data.stats) this.stats.set(data.stats);
-          if (data.recent) this.recentChallenges.set(data.recent.content);
-          if (data.upcoming) this.upcomingChallenges.set(data.upcoming.content);
+          if (data.recent) {
+            this.recentChallenges.set(data.recent.content);
+            const generatedActivities = data.recent.content.map((c: any) => ({
+              type: 'success', icon: 'check_circle', text: `<strong>"${c.title}"</strong> is actively running`, time: 'Recently'
+            }));
+            this.activities.set(generatedActivities);
+          }
+          if (data.upcoming) {
+            this.upcomingChallenges.set(data.upcoming.content);
+            const upcomingActivities = data.upcoming.content.map((c: any) => ({
+              type: 'schedule', icon: 'event', text: `<strong>"${c.title}"</strong> is scheduled`, time: 'Upcoming'
+            }));
+            this.activities.update(acts => [...acts, ...upcomingActivities]);
+          }
           if (data.categories) this.carbonCategories.set(data.categories);
         }
       }
@@ -545,13 +546,9 @@ export class OverviewComponent implements OnInit {
     return num.toString();
   }
 
-  mockParticipants(id: number): number {
-    return (id * 107) % 800 + 200; 
-  }
-  
   getCompletionPercent(c: Challenge): number {
     if (!c.targetValue || c.targetValue === 0) return 0;
-    const p = Math.round((c.communityProgress / c.targetValue) * 100);
+    const p = Math.round(((c.communityProgress || 0) / c.targetValue) * 100);
     return p > 100 ? 100 : p;
   }
   

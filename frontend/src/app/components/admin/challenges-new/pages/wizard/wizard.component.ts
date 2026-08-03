@@ -225,48 +225,56 @@ interface Template {
             </div>
           </div>
           
-          <!-- STUBS FOR STEPS 3, 4, 5 (Using the original component's fields) -->
+          <!-- STEP 3: TRACKING & GOAL -->
           <div class="step-content animate-fade-in" *ngIf="currentStep() === 3">
             <h2 class="step-title">Tracking & Goal</h2>
             <p class="step-subtitle">Set the progress metrics and target goals.</p>
-            <div class="form-group">
-              <label for="progressType">Progress Type <span class="required">*</span></label>
-              <select id="progressType" class="premium-input" formControlName="progressType">
-                <option value="COUNT">Count (e.g. 10 actions)</option>
-                <option value="AMOUNT">Amount (e.g. 50 kg CO2)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="trackingMethod">Tracking Method <span class="required">*</span></label>
-              <select id="trackingMethod" class="premium-input" formControlName="trackingMethod">
-                <option value="AUTOMATIC">Automatic</option>
-                <option value="MANUAL">Manual</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="targetValue">Target Value <span class="required">*</span></label>
-              <input id="targetValue" type="number" class="premium-input" formControlName="targetValue" />
+            <div class="form-section" style="max-width: 800px;">
+              <div class="form-group">
+                <label for="progressType">Progress Type <span class="required">*</span></label>
+                <select id="progressType" class="premium-input" formControlName="progressType" [attr.aria-invalid]="isInvalid('progressType')">
+                  <option value="COUNT">Count (e.g. 10 actions)</option>
+                  <option value="AMOUNT">Amount (e.g. 50 kg CO2)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="trackingMethod">Tracking Method <span class="required">*</span></label>
+                <select id="trackingMethod" class="premium-input" formControlName="trackingMethod" (change)="onTrackingMethodChange()" [attr.aria-invalid]="isInvalid('trackingMethod')">
+                  <option value="AUTOMATIC">Automatic</option>
+                  <option value="MANUAL">Manual</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="targetValue">Target Value <span class="required">*</span></label>
+                <input id="targetValue" type="number" class="premium-input" formControlName="targetValue" [attr.aria-invalid]="isInvalid('targetValue')" />
+              </div>
             </div>
           </div>
           
+          <!-- STEP 4: REWARDS -->
           <div class="step-content animate-fade-in" *ngIf="currentStep() === 4">
             <h2 class="step-title">Rewards</h2>
             <p class="step-subtitle">Configure XP and rewards for successful completion.</p>
-            <div class="form-group">
-              <label for="rewardXp">Reward XP <span class="required">*</span></label>
-              <input id="rewardXp" type="number" class="premium-input" formControlName="rewardXp" />
+            <div class="form-section" style="max-width: 800px;">
+              <div class="form-group">
+                <label for="rewardXp">Reward XP <span class="required">*</span></label>
+                <input id="rewardXp" type="number" class="premium-input" formControlName="rewardXp" [attr.aria-invalid]="isInvalid('rewardXp')" />
+              </div>
             </div>
           </div>
           
+          <!-- STEP 5: REVIEW -->
           <div class="step-content animate-fade-in" *ngIf="currentStep() === 5">
             <h2 class="step-title">Review</h2>
             <p class="step-subtitle">Review your challenge details before publishing.</p>
-            <div class="summary-box">
-              <h3>Challenge Summary</h3>
-              <p><strong>Title:</strong> {{ wizardForm.value.title || 'Not set' }}</p>
-              <p><strong>Type:</strong> {{ wizardForm.value.typeCode || 'Not set' }}</p>
-              <p><strong>Goal:</strong> {{ wizardForm.value.targetValue || 0 }} ({{ wizardForm.value.progressType }})</p>
-              <p><strong>Reward:</strong> {{ wizardForm.value.rewardXp || 0 }} XP</p>
+            <div class="summary-box" style="max-width: 800px;">
+              <h3 style="margin-bottom: 1.5rem; font-weight: 700; color: #0f172a; font-size: 1.125rem;">Challenge Summary</h3>
+              <div style="display: flex; flex-direction: column; gap: 1rem; color: #334155; font-size: 0.9375rem;">
+                <div style="display: flex; gap: 0.5rem;"><strong style="color: #0f172a; width: 60px;">Title:</strong> <span>{{ wizardForm.value.title || 'Not set' }}</span></div>
+                <div style="display: flex; gap: 0.5rem;"><strong style="color: #0f172a; width: 60px;">Type:</strong> <span>{{ wizardForm.value.typeCode || 'Not set' }}</span></div>
+                <div style="display: flex; gap: 0.5rem;"><strong style="color: #0f172a; width: 60px;">Goal:</strong> <span>{{ wizardForm.value.targetValue || 0 }} ({{ wizardForm.value.progressType }})</span></div>
+                <div style="display: flex; gap: 0.5rem;"><strong style="color: #0f172a; width: 60px;">Reward:</strong> <span>{{ wizardForm.value.rewardXp || 0 }} XP</span></div>
+              </div>
             </div>
           </div>
           

@@ -35,6 +35,10 @@ public class CarbonCategory {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    @Size(max = 50)
+    @Column(name = "code", unique = true)
+    private String code;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 

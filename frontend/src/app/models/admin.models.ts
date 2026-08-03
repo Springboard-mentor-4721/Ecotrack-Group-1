@@ -38,5 +38,5 @@ export interface AdminDashboardResponse {
   adminUsers: number;
 }
 
-export type { AdminBadge, BadgeDefinitionRequest, GamificationConfig, ConfigUpdateRequest } from './gamification.models';
+export type { AdminBadge, BadgeDefinitionRequest } from './gamification.models';
 export type { ChallengeRequest } from './challenge.models';

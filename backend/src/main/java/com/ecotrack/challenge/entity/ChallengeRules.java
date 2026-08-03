@@ -14,4 +14,9 @@ import java.util.List;
 public class ChallengeRules {
     private List<Long> allowedSubcategories;
     private List<Long> blockedSubcategories;
+    
+    private Boolean approvalRequired;
+    private String submissionType;
+    private Boolean evidenceRequired;
+    private String unit;
 }

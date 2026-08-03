@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChallengeService } from '../../../services/challenge.service';
+import { AuthService } from '../../../services/auth.service';
 import { ChallengeDetail } from '../../../models/challenge.models';
 import { finalize } from 'rxjs/operators';
 
@@ -23,14 +24,17 @@ export class ChallengeDetailPageComponent implements OnInit {
   // Custom Progress Input
   showProgressModal = false;
   customAmount: number | null = null;
+  isAdminUser = false;
 
   constructor(
     private route: ActivatedRoute,
     private challengeService: ChallengeService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.isAdminUser = this.authService.isAdmin();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadChallenge(Number(id));

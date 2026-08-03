@@ -21,8 +21,10 @@ public class ChallengeLifecycleScheduler {
 
     @Scheduled(cron = "0 0 * * * *") // Run hourly
     @Transactional
-    public void closeExpiredChallenges() {
-        log.info("Checking for expired challenges");
+    public void processChallengeLifecycle() {
+        log.info("Processing challenge lifecycle transitions");
+        
+        // 1. Close expired ACTIVE challenges
         List<Challenge> expiredChallenges = challengeRepository.findByStatusAndEndDateBefore(
                 ChallengeStatus.ACTIVE, LocalDateTime.now());
                 
@@ -31,6 +33,21 @@ public class ChallengeLifecycleScheduler {
             log.info("Closed expired challenge ID: {}", challenge.getId());
         }
         
-        challengeRepository.saveAll(expiredChallenges);
+        if (!expiredChallenges.isEmpty()) {
+            challengeRepository.saveAll(expiredChallenges);
+        }
+
+        // 2. Activate UPCOMING challenges
+        List<Challenge> upcomingChallenges = challengeRepository.findByStatusAndStartDateBefore(
+                ChallengeStatus.UPCOMING, LocalDateTime.now());
+                
+        for (Challenge challenge : upcomingChallenges) {
+            challenge.setStatus(ChallengeStatus.ACTIVE);
+            log.info("Activated upcoming challenge ID: {}", challenge.getId());
+        }
+        
+        if (!upcomingChallenges.isEmpty()) {
+            challengeRepository.saveAll(upcomingChallenges);
+        }
     }
 }

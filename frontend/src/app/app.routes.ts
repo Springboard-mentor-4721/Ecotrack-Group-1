@@ -8,7 +8,6 @@ import { RecommendationPageComponent } from './components/recommendations/recomm
 import { NotificationListPageComponent } from './components/notifications/notification-list-page/notification-list-page.component';
 
 import { AdminBadgeListComponent } from './components/admin/badges/admin-badge-list/admin-badge-list.component';
-import { AdminConfigPageComponent } from './components/admin/config/admin-config-page/admin-config-page.component';
 
 import { LoginComponent } from './components/login/login';
 import { RegisterComponent } from './components/register/register';
@@ -27,6 +26,7 @@ import { AdminUsersListComponent } from './components/admin/users-list/users-lis
 import { AdminUserDetailsComponent } from './components/admin/user-details/user-details';
 import { ForbiddenComponent } from './components/forbidden/forbidden';
 import { SuspendedComponent } from './components/suspended/suspended';
+import { AdminDashboardComponent } from './components/admin/dashboard/dashboard';
 import { MainLayoutComponent } from './shared/ui/main-layout/main-layout.component';
 import { suspendedGuard } from './guards/suspended.guard';
 
@@ -81,6 +81,11 @@ export const routes: Routes = [
         component: SettingsComponent
       },
       {
+        path: 'admin/dashboard',
+        component: AdminDashboardComponent,
+        canActivate: [adminGuard, suspendedGuard]
+      },
+      {
         path: 'admin/users',
         component: AdminUsersListComponent,
         canActivate: [adminGuard, suspendedGuard]
@@ -108,7 +113,7 @@ export const routes: Routes = [
       {
         path: 'challenges/:id',
         component: ChallengeDetailPageComponent,
-        canActivate: [userGuard, suspendedGuard]
+        canActivate: [authGuard, suspendedGuard]
       },
       {
         path: 'recommendations',
@@ -128,11 +133,6 @@ export const routes: Routes = [
       {
         path: 'admin/badges',
         component: AdminBadgeListComponent,
-        canActivate: [adminGuard, suspendedGuard]
-      },
-      {
-        path: 'admin/config',
-        component: AdminConfigPageComponent,
         canActivate: [adminGuard, suspendedGuard]
       }
     ]

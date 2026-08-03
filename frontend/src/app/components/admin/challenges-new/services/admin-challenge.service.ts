@@ -13,6 +13,20 @@ import {
 import { PageableResponse } from '../../../../models/carbon.models';
 import { CarbonCategory } from '../../../../models/carbon-category.models';
 
+export interface BulkActionResult {
+  succeeded: number[];
+  failed: number[];
+}
+
+export interface BulkModerateRequest {
+  ids: number[];
+  action: 'APPROVE' | 'REJECT';
+}
+
+export interface BulkArchiveRequest {
+  ids: number[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -46,6 +60,23 @@ export class AdminChallengeService {
     return this.http.get<ChallengeStats>(`${this.apiUrl}/stats`);
   }
 
+  buildDuplicatePayload(challenge: Challenge): Partial<Challenge> {
+    return {
+      title: `Copy of ${challenge.title}`,
+      description: challenge.description,
+      typeCode: challenge.typeCode,
+      targetValue: challenge.targetValue,
+      rewardXp: challenge.rewardXp,
+      progressType: challenge.progressType,
+      trackingMethod: challenge.trackingMethod,
+      rulesConfig: challenge.rulesConfig,
+      linkedCategoryId: challenge.linkedCategoryId,
+      startDate: null as any,
+      endDate: null as any,
+      status: 'PENDING'
+    };
+  }
+
   getChallengeAnalytics(): Observable<ChallengeAnalytics> {
     return this.http.get<ChallengeAnalytics>(`${this.apiUrl}/analytics`);
   }
@@ -71,6 +102,14 @@ export class AdminChallengeService {
 
   archiveChallenge(id: number): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}/archive`, {});
+  }
+
+  bulkModerate(request: BulkModerateRequest): Observable<BulkActionResult> {
+    return this.http.put<BulkActionResult>(`${this.apiUrl}/bulk/moderate`, request);
+  }
+
+  bulkArchive(request: BulkArchiveRequest): Observable<BulkActionResult> {
+    return this.http.put<BulkActionResult>(`${this.apiUrl}/bulk/archive`, request);
   }
 
   private categoriesCache$?: Observable<CarbonCategory[]>;

@@ -5,7 +5,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { catchError, finalize, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, of } from 'rxjs';
-import { AdminChallengeService } from '../../services/admin-challenge.service';
+import { AdminChallengeService, BulkActionResult } from '../../services/admin-challenge.service';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { ConfirmationDialogService } from '../../../../../shared/services/confirmation-dialog.service';
 import { Challenge, ChallengeStats } from '../../../../../models/challenge.models';
@@ -15,12 +15,13 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
 import { EmptyStateComponent } from '../../../../../shared/ui/empty-state/empty-state.component';
 import { LoadingSkeletonComponent } from '../../../../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { LibraryParticipantsComponent } from './components/library-participants.component';
+import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-action-bar.component';
 
 @Component({
   selector: 'app-admin-challenges-library',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, EmptyStateComponent, LoadingSkeletonComponent, LibraryParticipantsComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, EmptyStateComponent, LoadingSkeletonComponent, LibraryParticipantsComponent, BulkActionBarComponent],
   template: `
     <div class="library-container">
       <header class="header">
@@ -43,44 +44,36 @@ import { LibraryParticipantsComponent } from './components/library-participants.
 
       <div class="stats-grid" *ngIf="stats() as s">
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon icon-total"><span class="material-icons">dashboard</span></div>
-            <span class="stat-title">Total Challenges</span>
-          </div>
-          <div class="stat-value">{{ s.totalChallenges }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 18% vs last month</div>
+          <div class="stat-label">Total</div>
+          <div class="stat-value">{{ s.totalChallenges || 0 }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon icon-active"><span class="material-icons">check_circle_outline</span></div>
-            <span class="stat-title">Active Challenges</span>
-          </div>
-          <div class="stat-value">{{ s.activeCount }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 20% vs last month</div>
+          <div class="stat-label">Active</div>
+          <div class="stat-value">{{ s.activeCount || 0 }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon icon-scheduled"><span class="material-icons">event</span></div>
-            <span class="stat-title">Scheduled Challenges</span>
-          </div>
-          <div class="stat-value">{{ s.scheduledCount }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 5% vs last month</div>
+          <div class="stat-label">Upcoming</div>
+          <div class="stat-value">{{ s.scheduledCount || 0 }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon icon-completed"><span class="material-icons">emoji_events</span></div>
-            <span class="stat-title">Completed Challenges</span>
-          </div>
-          <div class="stat-value">{{ s.completedCount }}</div>
-          <div class="stat-trend trend-down"><span class="material-icons">arrow_downward</span> 17% vs last month</div>
+          <div class="stat-label">Completed</div>
+          <div class="stat-value">{{ s.completedCount || 0 }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon icon-archived"><span class="material-icons">inventory_2</span></div>
-            <span class="stat-title">Archived Challenges</span>
-          </div>
-          <div class="stat-value">{{ s.archivedCount }}</div>
-          <div class="stat-trend trend-up"><span class="material-icons">arrow_upward</span> 12% vs last month</div>
+          <div class="stat-label">Archived</div>
+          <div class="stat-value">{{ s.archivedCount || 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Participants</div>
+          <div class="stat-value">{{ s.totalParticipants || 0 | number }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">XP Distributed</div>
+          <div class="stat-value">{{ s.xpDistributed || 0 | number }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">CO₂ Impact</div>
+          <div class="stat-value">{{ s.co2Impact || 0 }} kg</div>
         </div>
       </div>
 
@@ -120,19 +113,7 @@ import { LibraryParticipantsComponent } from './components/library-participants.
         <button class="tab" [class.active]="currentTab() === 'ARCHIVED'" (click)="setTab('ARCHIVED')">Archived ({{ stats()?.archivedCount || 0 }})</button>
       </div>
 
-      <div class="bulk-bar" *ngIf="selectedIds().size > 0">
-        <div class="bulk-selected">
-          <span class="material-icons" style="color: #059669">check_circle</span>
-          {{ selectedIds().size }} selected
-        </div>
-        <button class="bulk-btn"><span class="material-icons">archive</span> Archive</button>
-        <button class="bulk-btn delete"><span class="material-icons">delete</span> Delete</button>
-        <button class="bulk-btn"><span class="material-icons">download</span> Export</button>
-        <button class="bulk-btn"><span class="material-icons">content_copy</span> Duplicate</button>
-        <button class="btn-icon bulk-close" (click)="clearSelection()"><span class="material-icons">close</span></button>
-      </div>
-
-      <div *ngIf="apiError()" class="error-banner" style="display: flex; gap: 1rem; align-items: center; background: #fef2f2; padding: 1rem; color: #dc2626; border-radius: 8px; margin-bottom: 2rem;">
+      <div class="error-banner" *ngIf="apiError()" style="display: flex; gap: 1rem; align-items: center; background: #fef2f2; padding: 1rem; color: #dc2626; border-radius: 8px; margin-bottom: 2rem;">
         <span class="material-icons">error_outline</span>
         <p style="margin: 0">Failed to load Challenges. Please try again later.</p>
         <button class="btn btn-outline" (click)="refresh()" style="margin-left: auto; border-color: #fca5a5; color: #dc2626">Retry</button>
@@ -166,9 +147,10 @@ import { LibraryParticipantsComponent } from './components/library-participants.
                     <th>Participants</th>
                     <th>XP Reward</th>
                     <th>Status</th>
-                    <th>Date Range</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
                     <th>Progress</th>
-                    <th class="actions-col"></th>
+                    <th class="actions-col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -177,7 +159,7 @@ import { LibraryParticipantsComponent } from './components/library-participants.
                       <td style="padding-right: 0">
                         <input type="checkbox" class="custom-checkbox" 
                           [checked]="selectedIds().has(c.id)" 
-                          (change)="toggleSelection(c.id, $event)" />
+                          (change)="toggleSelection(c.id)" />
                       </td>
                       <td>
                         <div class="campaign-cell">
@@ -212,9 +194,11 @@ import { LibraryParticipantsComponent } from './components/library-participants.
                           {{ c.status | titlecase }}
                         </span>
                       </td>
-                      <td style="white-space: nowrap">
-                        <div style="color: #0f172a; font-weight: 500; font-size: 0.85rem">{{ c.startDate | date:'dd MMM yyyy' }}</div>
-                        <div style="color: #64748b; font-size: 0.75rem">{{ c.endDate | date:'dd MMM yyyy' }}</div>
+                      <td style="color: #0f172a; font-weight: 500; font-size: 0.85rem; white-space: nowrap;">
+                        {{ c.startDate | date:'dd MMM yyyy' }}
+                      </td>
+                      <td style="color: #64748b; font-size: 0.85rem; white-space: nowrap;">
+                        {{ c.endDate | date:'dd MMM yyyy' }}
                       </td>
                       <td>
                         <div class="progress-cell">
@@ -225,13 +209,41 @@ import { LibraryParticipantsComponent } from './components/library-participants.
                         </div>
                       </td>
                       <td class="actions-cell">
-                        <button class="btn-icon" (click)="viewChallenge(c.id)" title="View Details">
-                          <span class="material-icons">more_vert</span>
-                        </button>
+                        <div class="action-dropdown-container">
+                          <button class="btn-icon" title="Actions" (click)="toggleActionMenu(c.id, $event)">
+                            <span class="material-icons">more_vert</span>
+                          </button>
+                          <div class="action-dropdown" *ngIf="activeActionMenuId() === c.id">
+                            <button class="dropdown-item" (click)="viewChallenge(c.id)">
+                              <span class="material-icons">visibility</span> View Details
+                            </button>
+                            <button class="dropdown-item" (click)="toggleParticipants(c.id)">
+                              <span class="material-icons">people</span> Participants
+                            </button>
+                            <button class="dropdown-item" [disabled]="c.status === 'PENDING' || c.status === 'UPCOMING'" (click)="viewAnalytics(c.id)">
+                              <span class="material-icons" [style.color]="c.status !== 'PENDING' && c.status !== 'UPCOMING' ? '#8b5cf6' : '#94a3b8'">analytics</span> Analytics
+                            </button>
+                            <button class="dropdown-item" [disabled]="c.status !== 'PENDING' && c.status !== 'UPCOMING'" (click)="editChallenge(c.id)">
+                              <span class="material-icons" [style.color]="c.status === 'PENDING' || c.status === 'UPCOMING' ? '#3b82f6' : '#94a3b8'">edit</span> Edit
+                            </button>
+                            <button class="dropdown-item" (click)="duplicateChallenge(c.id)">
+                              <span class="material-icons" style="color: #6366f1">content_copy</span> Duplicate
+                            </button>
+                            <button class="dropdown-item" [disabled]="c.status !== 'PENDING'" (click)="approveChallenge(c)">
+                              <span class="material-icons" [style.color]="c.status === 'PENDING' ? '#059669' : '#94a3b8'">check_circle</span> Approve
+                            </button>
+                            <button class="dropdown-item" [disabled]="c.status !== 'PENDING'" (click)="rejectChallenge(c)">
+                              <span class="material-icons" [style.color]="c.status === 'PENDING' ? '#dc2626' : '#94a3b8'">cancel</span> Reject
+                            </button>
+                            <button class="dropdown-item" [disabled]="c.status === 'ARCHIVED'" (click)="archiveChallenge(c)">
+                              <span class="material-icons" [style.color]="c.status !== 'ARCHIVED' ? '#64748b' : '#94a3b8'">archive</span> Archive
+                            </button>
+                          </div>
+                        </div>
                       </td>
                     </tr>
                     <tr *ngIf="expandedRowId() === c.id" class="detail-row">
-                      <td colspan="10" style="padding: 0; background: #f8fafc">
+                      <td colspan="11" style="padding: 0; background: #f8fafc">
                         <app-library-participants [challengeId]="c.id"></app-library-participants>
                       </td>
                     </tr>
@@ -260,6 +272,14 @@ import { LibraryParticipantsComponent } from './components/library-participants.
             </div>
           </div>
         </ng-container>
+
+        <app-bulk-action-bar 
+          *ngIf="selectedIds().size > 0"
+          [selectedCount]="selectedIds().size"
+          [showApprove]="showBulkApprove()"
+          (action)="handleBulkAction($event)"
+          (clearSelection)="clearSelection()">
+        </app-bulk-action-bar>
       </div>
     </div>
   `,
@@ -296,26 +316,23 @@ import { LibraryParticipantsComponent } from './components/library-participants.
     .btn-icon:hover:not(:disabled) { background: #f1f5f9; color: #0f172a; }
     .btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* Stats Grid */
     .stats-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
     }
+    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    
     .stat-card {
-      background: white; border-radius: 12px; padding: 1.25rem;
-      border: 1px solid #e2e8f0; display: flex; flex-direction: column;
+      background: white; border-radius: 12px; padding: 1rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
+      display: flex; flex-direction: column; justify-content: center;
     }
-    .stat-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-    .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
-    .icon-total { background: #ecfdf5; color: #059669; }
-    .icon-active { background: #eff6ff; color: #2563eb; }
-    .icon-scheduled { background: #eff6ff; color: #3b82f6; }
-    .icon-completed { background: #fff7ed; color: #ea580c; }
-    .icon-archived { background: #f1f5f9; color: #475569; }
-
-    .stat-title { color: #475569; font-size: 0.875rem; font-weight: 500; }
-    .stat-value { font-size: 1.875rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; line-height: 1; }
-    .stat-trend { font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 500; }
-    .trend-up { color: #059669; }
-    .trend-down { color: #dc2626; }
+    .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 500; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
 
     .filter-bar {
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem;
@@ -380,15 +397,6 @@ import { LibraryParticipantsComponent } from './components/library-participants.
     .progress-bar-bg { width: 100%; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
     .progress-bar-fill { height: 100%; background: #059669; border-radius: 999px; transition: width 0.3s ease; }
 
-    .bulk-bar { display: flex; align-items: center; gap: 1.5rem; padding: 0.75rem 1.5rem; background: white; border: 1px solid #059669; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); animation: slideDown 0.2s ease-out; }
-    @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .bulk-selected { font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
-    .bulk-btn { background: none; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #334155; cursor: pointer; padding: 0.4rem 1rem; border-radius: 6px; transition: background 0.2s; }
-    .bulk-btn:hover { background: #f1f5f9; }
-    .bulk-btn.delete { color: #dc2626; border-color: #fca5a5; }
-    .bulk-btn.delete:hover { background: #fef2f2; }
-    .bulk-close { margin-left: auto; border: none; }
-
     .custom-checkbox { width: 1.125rem; height: 1.125rem; border-radius: 4px; border: 1px solid #cbd5e1; appearance: none; cursor: pointer; background: white; position: relative; transition: all 0.2s; }
     .custom-checkbox:checked { background: #059669; border-color: #059669; }
     .custom-checkbox:checked::after { content: ''; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
@@ -404,6 +412,26 @@ import { LibraryParticipantsComponent } from './components/library-participants.
     .page-info { color: #64748b; font-size: 0.875rem; }
     .page-buttons { display: flex; gap: 0.5rem; align-items: center; }
     .rows-per-page { display: flex; align-items: center; }
+
+    .action-dropdown-container { position: relative; }
+    .action-dropdown {
+      position: absolute; right: 0; top: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); padding: 0.5rem 0;
+      min-width: 160px; z-index: 50;
+    }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.5rem 1rem; border: none;
+      background: none; text-align: left; font-size: 0.875rem; color: #334155; cursor: pointer;
+    }
+    .dropdown-item:hover:not([disabled]) {
+      background: #f1f5f9;
+    }
+    .dropdown-item[disabled] {
+      color: #94a3b8;
+      cursor: not-allowed;
+      background: transparent;
+    }
+    .dropdown-item .material-icons { font-size: 1.25rem; color: #64748b; }
   `]
 })
 export class LibraryComponent implements OnInit {
@@ -418,6 +446,7 @@ export class LibraryComponent implements OnInit {
   loading = signal<boolean>(true);
   apiError = signal<boolean>(false);
   expandedRowId = signal<number | null>(null);
+  activeActionMenuId = signal<number | null>(null);
   
   currentPage = signal<number>(0);
   totalPages = signal<number>(0);
@@ -432,6 +461,18 @@ export class LibraryComponent implements OnInit {
   selectedIds = signal<Set<number>>(new Set());
   currentTab = signal<string>('');
 
+  isAllSelected = computed(() => {
+    const ids = this.selectedIds();
+    const ch = this.challenges();
+    return ch.length > 0 && ch.every(c => ids.has(c.id));
+  });
+
+  showBulkApprove = computed(() => {
+    const ids = this.selectedIds();
+    const ch = this.challenges();
+    return ids.size > 0 && Array.from(ids).every(id => ch.find(c => c.id === id)?.status === 'PENDING');
+  });
+
   private triggerSubject = new BehaviorSubject<void>(undefined);
 
   ngOnInit() {
@@ -441,6 +482,19 @@ export class LibraryComponent implements OnInit {
     this.loadStats();
     this.setupFilters();
     this.setupReactiveStream();
+
+    document.addEventListener('click', this.onClickOutside.bind(this));
+  }
+
+  ngOnDestroy() {
+    document.removeEventListener('click', this.onClickOutside.bind(this));
+  }
+
+  onClickOutside(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.action-dropdown-container')) {
+      this.activeActionMenuId.set(null);
+    }
   }
 
   private loadStats() {
@@ -498,10 +552,14 @@ export class LibraryComponent implements OnInit {
     this.triggerSubject.next();
   }
 
+  loadChallenges() {
+    this.triggerSubject.next();
+  }
+
   refresh() {
     this.toast.info('Refreshing library...');
     this.loadStats();
-    this.triggerSubject.next();
+    this.loadChallenges();
   }
 
   goToPage(page: number) {
@@ -512,33 +570,72 @@ export class LibraryComponent implements OnInit {
   }
 
   setTab(tab: string) {
-    this.statusControl.setValue(tab); // This will trigger resetAndLoad because of valueChanges subscription
+    this.statusControl.setValue(tab);
   }
 
-  toggleSelection(id: number, event: Event) {
-    const isChecked = (event.target as HTMLInputElement).checked;
-    const newSet = new Set(this.selectedIds());
-    if (isChecked) newSet.add(id);
-    else newSet.delete(id);
-    this.selectedIds.set(newSet);
+  toggleSelection(id: number) {
+    this.selectedIds.update(set => {
+      const newSet = new Set(set);
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      return newSet;
+    });
   }
 
   toggleAll(event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
-      const allIds = this.challenges().map(c => c.id);
-      this.selectedIds.set(new Set(allIds));
+      this.selectedIds.set(new Set(this.challenges().map(c => c.id)));
     } else {
       this.selectedIds.set(new Set());
     }
   }
 
-  isAllSelected(): boolean {
-    return this.challenges().length > 0 && this.selectedIds().size === this.challenges().length;
-  }
-
   clearSelection() {
     this.selectedIds.set(new Set());
+  }
+
+  handleBulkAction(action: string) {
+    const ids = Array.from(this.selectedIds());
+    if (action === 'APPROVE') {
+      this.dialog.confirm(`Approve ${ids.length} challenges?`).then(confirmed => {
+        if (confirmed) this.executeBulkModerate('APPROVE', ids);
+      });
+    } else if (action === 'ARCHIVE') {
+      this.dialog.confirm(`Archive ${ids.length} challenges?`).then(confirmed => {
+        if (confirmed) this.executeBulkArchive(ids);
+      });
+    }
+  }
+
+  private executeBulkModerate(action: 'APPROVE' | 'REJECT', ids: number[]) {
+    this.challengeService.bulkModerate({ ids, action }).subscribe({
+      next: (res: BulkActionResult) => {
+        if (res.failed.length === 0) {
+          this.toast.success(`${res.succeeded.length} challenges updated successfully.`);
+        } else {
+          this.toast.info(`${res.succeeded.length} succeeded, ${res.failed.length} failed.`);
+        }
+        this.clearSelection();
+        this.loadChallenges();
+      },
+      error: () => this.toast.error('Bulk action failed.')
+    });
+  }
+
+  private executeBulkArchive(ids: number[]) {
+    this.challengeService.bulkArchive({ ids }).subscribe({
+      next: (res: BulkActionResult) => {
+        if (res.failed.length === 0) {
+          this.toast.success(`${res.succeeded.length} challenges archived successfully.`);
+        } else {
+          this.toast.info(`${res.succeeded.length} succeeded, ${res.failed.length} failed.`);
+        }
+        this.clearSelection();
+        this.loadChallenges();
+      },
+      error: () => this.toast.error('Bulk archive failed.')
+    });
   }
 
   toastInfo(msg: string) {
@@ -546,11 +643,87 @@ export class LibraryComponent implements OnInit {
   }
 
   createChallenge() {
-    this.router.navigate(['/admin/challenges/wizard']);
+    this.router.navigate(['/admin/challenges/create']);
+  }
+
+  toggleActionMenu(id: number, event: Event) {
+    event.stopPropagation();
+    this.activeActionMenuId.update(current => current === id ? null : id);
+  }
+
+  toggleParticipants(id: number) {
+    this.activeActionMenuId.set(null);
+    this.expandedRowId.update(current => current === id ? null : id);
   }
 
   viewChallenge(id: number) {
-    this.expandedRowId.update(current => current === id ? null : id);
+    this.activeActionMenuId.set(null);
+    this.router.navigate(['/admin/challenges', id]);
+  }
+
+  editChallenge(id: number) {
+    this.activeActionMenuId.set(null);
+    this.router.navigate(['/admin/challenges', id, 'edit']);
+  }
+
+  duplicateChallenge(id: number) {
+    this.activeActionMenuId.set(null);
+    this.toast.info('Preparing duplicate...');
+    this.challengeService.getChallengeDetail(id).subscribe({
+      next: (challenge) => {
+        const duplicateData = this.challengeService.buildDuplicatePayload(challenge);
+        this.router.navigate(['/admin/challenges/create/wizard'], { 
+          state: { duplicateData, originalName: challenge.title }
+        });
+      },
+      error: () => this.toast.error('Failed to prepare duplicate.')
+    });
+  }
+
+  viewAnalytics(id: number) {
+    this.activeActionMenuId.set(null);
+    this.router.navigate(['/admin/challenges/analytics'], { queryParams: { challengeId: id } });
+  }
+
+  approveChallenge(c: Challenge) {
+    this.activeActionMenuId.set(null);
+    this.challengeService.moderateChallenge(c.id, 'APPROVE').subscribe({
+      next: () => {
+        this.toast.success(`Challenge "${c.title}" approved.`);
+        this.refresh();
+      },
+      error: () => this.toast.error('Failed to approve challenge.')
+    });
+  }
+
+  rejectChallenge(c: Challenge) {
+    this.activeActionMenuId.set(null);
+    this.dialog.confirm(`Are you sure you want to reject "${c.title}"?`).then(res => {
+      if (res) {
+        this.challengeService.moderateChallenge(c.id, 'REJECT').subscribe({
+          next: () => {
+            this.toast.success(`Challenge "${c.title}" rejected.`);
+            this.refresh();
+          },
+          error: () => this.toast.error('Failed to reject challenge.')
+        });
+      }
+    });
+  }
+
+  archiveChallenge(c: Challenge) {
+    this.activeActionMenuId.set(null);
+    this.dialog.confirm(`Are you sure you want to archive "${c.title}"?`).then(res => {
+      if (res) {
+        this.challengeService.archiveChallenge(c.id).subscribe({
+          next: () => {
+            this.toast.success(`Challenge "${c.title}" archived.`);
+            this.refresh();
+          },
+          error: () => this.toast.error('Failed to archive challenge.')
+        });
+      }
+    });
   }
 
   trackById(index: number, challenge: Challenge): number {

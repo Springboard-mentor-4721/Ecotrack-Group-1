@@ -38,6 +38,7 @@ public class ChallengeRequest {
     private LocalDateTime endDate;
 
     private Long linkedCategoryId;
+    private String carbonCategoryCode;
 
     private Integer rewardXp;
 

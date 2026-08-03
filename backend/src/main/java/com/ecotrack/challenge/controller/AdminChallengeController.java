@@ -6,6 +6,9 @@ import com.ecotrack.challenge.dto.ChallengeDetailDTO;
 import com.ecotrack.challenge.dto.ChallengeParticipantDTO;
 import com.ecotrack.challenge.dto.ChallengeStatsDTO;
 import com.ecotrack.challenge.dto.ChallengeAnalyticsDTO;
+import com.ecotrack.challenge.dto.BulkModerateRequest;
+import com.ecotrack.challenge.dto.BulkArchiveRequest;
+import com.ecotrack.challenge.dto.BulkActionResult;
 import com.ecotrack.challenge.enums.ChallengeStatus;
 import com.ecotrack.challenge.enums.TrackingMethod;
 import com.ecotrack.challenge.service.ChallengeService;
@@ -52,6 +55,16 @@ public class AdminChallengeController {
     public ResponseEntity<Void> archiveChallenge(@PathVariable Long id) {
         challengeService.archiveChallenge(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/bulk/moderate")
+    public ResponseEntity<BulkActionResult> bulkModerate(@Valid @RequestBody BulkModerateRequest request) {
+        return ResponseEntity.ok(challengeService.bulkModerate(request));
+    }
+
+    @PutMapping("/bulk/archive")
+    public ResponseEntity<BulkActionResult> bulkArchive(@Valid @RequestBody BulkArchiveRequest request) {
+        return ResponseEntity.ok(challengeService.bulkArchive(request));
     }
 
     @GetMapping

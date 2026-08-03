@@ -6,6 +6,10 @@ export type TrackingMethod = 'AUTOMATIC' | 'MANUAL' | 'HYBRID';
 export interface ChallengeRules {
   allowedSubcategories?: number[];
   blockedSubcategories?: number[];
+  approvalRequired?: boolean;
+  submissionType?: string;
+  evidenceRequired?: boolean;
+  unit?: string;
 }
 
 export interface Challenge {
@@ -18,6 +22,7 @@ export interface Challenge {
   startDate: string;
   endDate: string;
   linkedCategoryId?: number;
+  carbonCategoryCode?: string;
   rewardXp: number;
   progressType: ProgressType;
   trackingMethod: 'AUTOMATIC' | 'MANUAL';
@@ -49,6 +54,7 @@ export interface ChallengeRequest {
   startDate: string;
   endDate: string;
   linkedCategoryId?: number;
+  carbonCategoryCode?: string;
   rewardXp: number;
   progressType: ProgressType;
   trackingMethod: TrackingMethod;

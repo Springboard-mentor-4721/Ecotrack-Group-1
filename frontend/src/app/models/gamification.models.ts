@@ -52,15 +52,3 @@ export interface BadgeDefinitionRequest {
   criteriaType: string;            // max 50 chars
   criteriaThreshold: number;       // min 1
 }
-
-export interface GamificationConfig {
-  configKey: string;
-  configValue: string;
-  valueType: string;
-  description: string;
-  updatedAt: string;
-}
-
-export interface ConfigUpdateRequest {
-  value: string;
-}

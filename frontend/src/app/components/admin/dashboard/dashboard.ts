@@ -3,30 +3,20 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin, catchError, of, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AdminChallengeService } from '../../services/admin-challenge.service';
-import { ToastService } from '../../../../../shared/services/toast.service';
-import { Challenge, ChallengeStats } from '../../../../../models/challenge.models';
-import { CHALLENGE_TYPES } from '../../shared/challenge-types.config';
-import { CarbonCategory } from '../../../../../models/carbon-category.models';
+import { AdminChallengeService } from '../challenges-new/services/admin-challenge.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { Challenge, ChallengeStats } from '../../../models/challenge.models';
+import { CHALLENGE_TYPES } from '../challenges-new/shared/challenge-types.config';
+import { CarbonCategory } from '../../../models/carbon-category.models';
 
 @Component({
-  selector: 'app-admin-challenges-overview',
+  selector: 'app-admin-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterModule],
   template: `
     <div class="dashboard-container">
       
-      <!-- Top Actions -->
-      <div class="header-actions">
-        <button class="btn btn-outline" (click)="importTemplate()">
-          <span class="material-icons">upload</span> Import Template
-        </button>
-        <button class="btn btn-success" (click)="createChallenge()">
-          <span class="material-icons">add</span> Create Challenge <span class="material-icons" style="font-size: 16px; margin-left:4px;">expand_more</span>
-        </button>
-      </div>
-
       <!-- Stats Grid -->
       <div class="stats-grid" *ngIf="stats() as s">
         <div class="stat-card">
@@ -467,7 +457,7 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
     .arrow { margin-left: auto; color: #94a3b8; font-size: 1.25rem; }
   `]
 })
-export class OverviewComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit {
   private challengeService = inject(AdminChallengeService);
   private toast = inject(ToastService);
   private router = inject(Router);
@@ -529,11 +519,11 @@ export class OverviewComponent implements OnInit {
   }
 
   createChallenge() {
-    this.router.navigate(['/admin/challenges/wizard']);
+    this.router.navigate(['/admin/challenges/create']);
   }
 
   goToLibrary() {
-    this.router.navigate(['/admin/challenges/library']);
+    this.router.navigate(['/admin/challenges']);
   }
   
   importTemplate() {

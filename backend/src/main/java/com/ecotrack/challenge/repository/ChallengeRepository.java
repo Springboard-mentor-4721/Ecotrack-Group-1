@@ -24,5 +24,6 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long>, Jpa
     List<Object[]> countChallengesByStatus();
     
     List<Challenge> findByStatusAndEndDateBefore(ChallengeStatus status, LocalDateTime dateTime);
+    List<Challenge> findByStatusAndStartDateBefore(ChallengeStatus status, LocalDateTime dateTime);
     List<Challenge> findByStatusAndEndDateBetween(ChallengeStatus status, LocalDateTime start, LocalDateTime end);
 }

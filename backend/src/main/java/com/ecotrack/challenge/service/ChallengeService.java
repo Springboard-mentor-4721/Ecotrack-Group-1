@@ -6,6 +6,9 @@ import com.ecotrack.challenge.dto.ChallengeParticipantDTO;
 import com.ecotrack.challenge.dto.ChallengeRequest;
 import com.ecotrack.challenge.dto.ChallengeStatsDTO;
 import com.ecotrack.challenge.dto.ChallengeAnalyticsDTO;
+import com.ecotrack.challenge.dto.BulkModerateRequest;
+import com.ecotrack.challenge.dto.BulkArchiveRequest;
+import com.ecotrack.challenge.dto.BulkActionResult;
 import com.ecotrack.challenge.entity.Challenge;
 import com.ecotrack.challenge.entity.ChallengeParticipant;
 import com.ecotrack.challenge.enums.ChallengeParticipantStatus;
@@ -16,6 +19,8 @@ import com.ecotrack.challenge.exception.ChallengeClosedException;
 import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
 import com.ecotrack.challenge.repository.ChallengeRepository;
 import com.ecotrack.challenge.repository.ChallengeSpecification;
+import com.ecotrack.tracking.repository.CarbonCategoryRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +37,7 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipantRepository participantRepository;
+    private final CarbonCategoryRepository carbonCategoryRepository;
 
     @Transactional(readOnly = true)
     public Page<ChallengeDTO> getActiveChallenges(Pageable pageable) {
@@ -138,6 +144,13 @@ public class ChallengeService {
         com.ecotrack.challenge.enums.ProgressType pType = request.getProgressType() != null ? request.getProgressType() : com.ecotrack.challenge.enums.ProgressType.COUNT;
         TrackingMethod tMethod = request.getTrackingMethod() != null ? request.getTrackingMethod() : TrackingMethod.MANUAL;
         
+        Long finalLinkedCategoryId = request.getLinkedCategoryId();
+        if (request.getCarbonCategoryCode() != null && !request.getCarbonCategoryCode().isBlank()) {
+            finalLinkedCategoryId = carbonCategoryRepository.findByCode(request.getCarbonCategoryCode())
+                    .map(com.ecotrack.tracking.entity.CarbonCategory::getCategoryId)
+                    .orElse(finalLinkedCategoryId);
+        }
+        
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -145,7 +158,7 @@ public class ChallengeService {
                 .targetValue(request.getTargetValue())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .linkedCategoryId(request.getLinkedCategoryId())
+                .linkedCategoryId(finalLinkedCategoryId)
                 .rewardXp(reward)
                 .progressType(pType)
                 .trackingMethod(tMethod)
@@ -163,6 +176,10 @@ public class ChallengeService {
         
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
+                
+        if (challenge.getStatus() != ChallengeStatus.PENDING && challenge.getStatus() != ChallengeStatus.UPCOMING) {
+            throw new IllegalStateException("Only PENDING or UPCOMING challenges can be edited.");
+        }
 
         challenge.setTitle(request.getTitle());
         challenge.setDescription(request.getDescription());
@@ -170,7 +187,13 @@ public class ChallengeService {
         challenge.setTargetValue(request.getTargetValue());
         challenge.setStartDate(request.getStartDate());
         challenge.setEndDate(request.getEndDate());
-        challenge.setLinkedCategoryId(request.getLinkedCategoryId());
+        
+        if (request.getCarbonCategoryCode() != null && !request.getCarbonCategoryCode().isBlank()) {
+            carbonCategoryRepository.findByCode(request.getCarbonCategoryCode())
+                    .ifPresent(cat -> challenge.setLinkedCategoryId(cat.getCategoryId()));
+        } else if (request.getLinkedCategoryId() != null) {
+            challenge.setLinkedCategoryId(request.getLinkedCategoryId());
+        }
         if (request.getRewardXp() != null) challenge.setRewardXp(request.getRewardXp());
         if (request.getProgressType() != null) challenge.setProgressType(request.getProgressType());
         if (request.getTrackingMethod() != null) challenge.setTrackingMethod(request.getTrackingMethod());
@@ -183,6 +206,10 @@ public class ChallengeService {
     public ChallengeDTO moderateChallenge(Long id, String action) {
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
+                
+        if (challenge.getStatus() != ChallengeStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING challenges can be moderated.");
+        }
                 
         if ("APPROVE".equalsIgnoreCase(action)) {
             challenge.setStatus(ChallengeStatus.ACTIVE);
@@ -197,8 +224,47 @@ public class ChallengeService {
     public void archiveChallenge(Long id) {
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
+                
+        if (challenge.getStatus() == ChallengeStatus.ARCHIVED) {
+            throw new IllegalStateException("Challenge is already archived.");
+        }
+        
         challenge.setStatus(ChallengeStatus.ARCHIVED);
         challengeRepository.save(challenge);
+    }
+    
+    @Transactional
+    public BulkActionResult bulkModerate(BulkModerateRequest request) {
+        List<Long> succeeded = new java.util.ArrayList<>();
+        List<Long> failed = new java.util.ArrayList<>();
+        
+        for (Long id : request.getIds()) {
+            try {
+                moderateChallenge(id, request.getAction());
+                succeeded.add(id);
+            } catch (Exception e) {
+                log.error("Failed to moderate challenge {}: {}", id, e.getMessage());
+                failed.add(id);
+            }
+        }
+        return new BulkActionResult(succeeded, failed);
+    }
+
+    @Transactional
+    public BulkActionResult bulkArchive(BulkArchiveRequest request) {
+        List<Long> succeeded = new java.util.ArrayList<>();
+        List<Long> failed = new java.util.ArrayList<>();
+        
+        for (Long id : request.getIds()) {
+            try {
+                archiveChallenge(id);
+                succeeded.add(id);
+            } catch (Exception e) {
+                log.error("Failed to archive challenge {}: {}", id, e.getMessage());
+                failed.add(id);
+            }
+        }
+        return new BulkActionResult(succeeded, failed);
     }
     
     @Transactional(readOnly = true)

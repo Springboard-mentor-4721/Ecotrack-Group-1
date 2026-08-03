@@ -56,6 +56,17 @@ export class AuthService {
     }
   }
 
+  isAdmin(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role === 'ADMIN';
+    } catch (e) {
+      return false;
+    }
+  }
+
   logout(): void {
     localStorage.removeItem('auth_token');
   }

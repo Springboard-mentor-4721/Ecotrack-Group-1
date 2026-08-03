@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import { UserSummaryResponse, UserDetailResponse, UpdateUserStatusRequest, AdminDashboardResponse } from '../models/admin.models';
 import { PageableResponse } from '../models/carbon.models';
 import { Challenge, ChallengeRequest } from '../models/challenge.models';
-import { AdminBadge, BadgeDefinitionRequest, GamificationConfig, ConfigUpdateRequest } from '../models/gamification.models';
+import { AdminBadge, BadgeDefinitionRequest } from '../models/gamification.models';
 
 @Injectable({
   providedIn: 'root'
@@ -77,14 +77,5 @@ export class AdminService {
 
   disableBadge(id: number): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/api/admin/badges/${id}/disable`, {});
-  }
-
-  // Config Admin
-  getAdminConfig(): Observable<GamificationConfig[]> {
-    return this.http.get<GamificationConfig[]>(`${this.apiUrl}/api/admin/config`);
-  }
-
-  updateAdminConfig(key: string, request: ConfigUpdateRequest): Observable<GamificationConfig> {
-    return this.http.put<GamificationConfig>(`${this.apiUrl}/api/admin/config/${key}`, request);
   }
 }

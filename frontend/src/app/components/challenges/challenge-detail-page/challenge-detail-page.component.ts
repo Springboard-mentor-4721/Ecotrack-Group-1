@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';  
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,16 +6,18 @@ import { ChallengeService } from '../../../services/challenge.service';
 import { AuthService } from '../../../services/auth.service';
 import { ChallengeDetail } from '../../../models/challenge.models';
 import { finalize } from 'rxjs/operators';
-import { environment } from '../../../../environments/environment';
 import { ChallengeImagePipe } from '../shared/pipes/challenge-image.pipe';
-import { ProgressColorPipe } from '../shared/pipes/progress-color.pipe';
-import { ChallengeStatusBadgeComponent } from '../shared/components/status-badge/challenge-status-badge.component';
 import { getDaysRemaining } from '../shared/utils/date.utils';
+import { ChallengeHeroComponent } from './components/hero/challenge-hero.component';
+import { ChallengeActionsPanelComponent } from './components/actions/challenge-actions-panel.component';
+import { ManualProgressModalComponent } from './components/progress-modal/manual-progress-modal.component';
+import { ChallengeCardComponent } from '../shared/components/challenge-card/challenge-card.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-challenge-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ChallengeImagePipe, ProgressColorPipe, ChallengeStatusBadgeComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ChallengeImagePipe, ChallengeHeroComponent, ChallengeActionsPanelComponent, ManualProgressModalComponent, ChallengeCardComponent],
   templateUrl: './challenge-detail-page.component.html',
   styleUrl: './challenge-detail-page.component.css'
 })
@@ -35,7 +37,8 @@ export class ChallengeDetailPageComponent implements OnInit {
     private route: ActivatedRoute,
     private challengeService: ChallengeService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +49,14 @@ export class ChallengeDetailPageComponent implements OnInit {
     } else {
       this.error = true;
       this.isLoading = false;
+    }
+  }
+
+  navigateBack(): void {
+    if (this.isAdminUser) {
+      this.router.navigate(['/admin/challenges']);
+    } else {
+      this.router.navigate(['/challenges']);
     }
   }
 
@@ -102,26 +113,19 @@ export class ChallengeDetailPageComponent implements OnInit {
 
   openProgressModal(): void {
     if (!this.challenge || !this.challenge.userProgress) return;
-    this.customAmount = null;
     this.showProgressModal = true;
+    this.customAmount = null;
   }
 
-  submitQuickCount(amount: number): void {
-    this.submitProgress(amount);
+  get isModalAmountValid(): boolean {
+    return this.customAmount !== null && this.customAmount > 0;
   }
 
   closeProgressModal(): void {
     this.showProgressModal = false;
   }
 
-  submitCustomProgress(): void {
-    if (this.customAmount && this.customAmount > 0) {
-      this.submitProgress(this.customAmount);
-      this.closeProgressModal();
-    }
-  }
-
-  private submitProgress(amount: number): void {
+  submitProgress(amount: number): void {
     if (!this.challenge || !this.challenge.userProgress) return;
     this.isActionLoading = true;
     this.challengeService.updateProgress(this.challenge.id, amount)
@@ -147,12 +151,6 @@ export class ChallengeDetailPageComponent implements OnInit {
     if (!this.challenge) return 0;
     const totalTarget = this.challenge.targetValue * (this.challenge.participantCount && this.challenge.participantCount > 0 ? this.challenge.participantCount : 1);
     const p = ((this.challenge.communityProgress || 0) / totalTarget) * 100;
-    return Math.min(Math.max(p, 0), 100);
-  }
-
-  get progressPercentage(): number {
-    if (!this.challenge || !this.challenge.userProgress) return 0;
-    const p = (this.challenge.userProgress.progress / this.challenge.targetValue) * 100;
     return Math.min(Math.max(p, 0), 100);
   }
 

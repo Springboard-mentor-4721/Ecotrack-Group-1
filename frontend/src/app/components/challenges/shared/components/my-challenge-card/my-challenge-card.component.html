@@ -1,0 +1,73 @@
+<div class="my-challenge-card d-flex align-items-center p-3"
+     [class.compact]="compact"
+     [class.failed]="isFailed"
+     [class.completed]="isCompleted"
+     (click)="onCardClick()"
+     (keydown)="onKeydown($event)"
+     tabindex="0"
+     role="button"
+     [attr.aria-label]="'View details for ' + entry?.challenge?.title">
+     
+  <!-- Thumbnail Area -->
+  <div class="thumbnail-wrapper position-relative me-3 flex-shrink-0">
+    <img [src]="entry?.challenge?.imageUrl | challengeImage" 
+         alt="" 
+         class="thumbnail-img">
+    
+    <!-- Completed Overlay -->
+    <div *ngIf="isCompleted" class="completed-overlay d-flex justify-content-center align-items-center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 6L9 17l-5-5"></path></svg>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content-wrapper flex-grow-1 min-w-0 d-flex flex-column justify-content-between">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-1 gap-2">
+      <h3 class="card-title text-truncate mb-0 fs-6 fw-bold text-slate-800">
+        {{ entry?.challenge?.title }}
+      </h3>
+      <app-challenge-status-badge [status]="entry?.participant?.status || ''" size="sm" class="flex-shrink-0"></app-challenge-status-badge>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section my-2">
+      <!-- Achievement -->
+      <ng-container *ngIf="isAchievement">
+        <app-achievement-progress 
+          [progress]="entry?.participant?.progress || 0"
+          [target]="entry?.challenge?.targetValue || 1"
+          [unit]="entry?.challenge?.rulesConfig?.unit || ''"
+          variant="mini">
+        </app-achievement-progress>
+        <div class="fs-xs text-muted mt-1 progress-text">
+          {{ entry?.participant?.progress | number }} / {{ entry?.challenge?.targetValue | number }} {{ entry?.challenge?.rulesConfig?.unit }}
+        </div>
+      </ng-container>
+
+      <!-- Budget -->
+      <ng-container *ngIf="isBudget">
+        <app-budget-progress
+          [progress]="entry?.participant?.progress || 0"
+          [target]="entry?.challenge?.targetValue || 1"
+          [unit]="entry?.challenge?.rulesConfig?.unit || ''"
+          [challengeStartDate]="entry?.challenge?.startDate || ''"
+          [challengeEndDate]="entry?.challenge?.endDate || ''"
+          variant="mini">
+        </app-budget-progress>
+      </ng-container>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer d-flex justify-content-between align-items-center mt-auto border-0 bg-transparent p-0">
+      <div class="fs-xs fw-medium footer-meta" [class.text-danger]="daysRemaining <= 2 && !isCompleted && !isFailed" [class.text-muted]="daysRemaining > 2 || isCompleted || isFailed">
+        <span *ngIf="isCompleted">Finished</span>
+        <span *ngIf="isFailed">Unsuccessful</span>
+        <span *ngIf="!isCompleted && !isFailed && daysRemaining > 0">{{ daysRemaining }} days left</span>
+        <span *ngIf="!isCompleted && !isFailed && daysRemaining <= 0">Ended</span>
+      </div>
+      
+      <span class="view-details-text fs-xs fw-bold text-primary">Details &rarr;</span>
+    </div>
+  </div>
+</div>

@@ -1,74 +1,66 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { ChallengeService } from '../../../services/challenge.service';
-import { ChallengeDetail, ChallengeParticipant } from '../../../models/challenge.models';
+import { MyChallengeEntry } from '../../../models/challenge.models';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap, finalize } from 'rxjs/operators';
-import { LucideAngularModule, Target, Calendar, Activity, CheckCircle, Clock } from 'lucide-angular';
+import { MyChallengeCardComponent } from '../shared/components/my-challenge-card/my-challenge-card.component';
+import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
 
-export interface MyChallengeDisplay {
-  participant: ChallengeParticipant;
-  challenge: ChallengeDetail;
-}
+type TabType = 'ACTIVE' | 'COMPLETED' | 'FAILED';
 
 @Component({
   selector: 'app-my-challenges-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, MyChallengeCardComponent, LoadingSkeletonComponent],
   templateUrl: './my-challenges-page.component.html',
   styleUrls: ['./my-challenges-page.component.css']
 })
 export class MyChallengesPageComponent implements OnInit {
-  myChallenges: MyChallengeDisplay[] = [];
+  allChallenges: MyChallengeEntry[] = [];
+  filteredChallenges: MyChallengeEntry[] = [];
+  
   isLoading = false;
   errorMessage = '';
-
-  // Pagination
+  
+  currentTab: TabType = 'ACTIVE';
+  
   currentPage = 0;
-  pageSize = 9;
-  totalPages = 0;
-  totalElements = 0;
-
-  // Icons
-  TargetIcon = Target;
-  CalendarIcon = Calendar;
-  ActivityIcon = Activity;
-  CheckCircleIcon = CheckCircle;
-  ClockIcon = Clock;
+  pageSize = 100;
+  
+  tabs: { id: TabType, label: string }[] = [
+    { id: 'ACTIVE', label: 'Active' },
+    { id: 'COMPLETED', label: 'Completed' },
+    { id: 'FAILED', label: 'Failed' }
+  ];
 
   constructor(
     private challengeService: ChallengeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadMyChallenges(this.currentPage);
+    this.loadMyChallenges();
   }
 
-  loadMyChallenges(page: number): void {
+  loadMyChallenges(): void {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.challengeService.getMyChallenges(page, this.pageSize)
+    // Load a large page size to ensure all active/completed/failed are fetched
+    this.challengeService.getMyChallenges(this.currentPage, this.pageSize)
       .pipe(
         switchMap(response => {
-          this.currentPage = response.number;
-          this.totalPages = response.totalPages;
-          this.totalElements = response.totalElements;
-
           const participants = response.content;
-          
-          if (participants.length === 0) {
-            return of([]);
-          }
+          if (participants.length === 0) return of([]);
 
           const challengeRequests = participants.map(participant => 
             this.challengeService.getChallengeDetail(participant.challengeId).pipe(
-              map(challenge => ({ participant, challenge } as MyChallengeDisplay)),
+              map(challenge => ({ participant, challenge } as MyChallengeEntry)),
               catchError(error => {
                 console.error(`Error loading challenge detail for ID ${participant.challengeId}`, error);
-                // Return null on error, filter out later
                 return of(null);
               })
             )
@@ -76,43 +68,41 @@ export class MyChallengesPageComponent implements OnInit {
 
           return forkJoin(challengeRequests);
         }),
-        map(results => results.filter(res => res !== null) as MyChallengeDisplay[]),
+        map(results => results.filter(res => res !== null) as MyChallengeEntry[]),
         finalize(() => {
           this.isLoading = false;
           this.cdr.detectChanges();
         })
       )
       .subscribe({
-        next: (displays) => {
-          this.myChallenges = displays;
-          this.cdr.detectChanges();
+        next: (entries) => {
+          this.allChallenges = entries;
+          this.applyFilter();
         },
         error: (err) => {
           this.errorMessage = 'Failed to load your challenges. Please try again later.';
           console.error('Error fetching my challenges', err);
-          this.cdr.detectChanges();
         }
       });
   }
 
-  onPageChange(newPage: number): void {
-    if (newPage >= 0 && newPage < this.totalPages) {
-      this.loadMyChallenges(newPage);
-    }
+  setTab(tab: TabType): void {
+    this.currentTab = tab;
+    this.applyFilter();
   }
 
-  getProgressPercentage(participant: ChallengeParticipant, challenge: ChallengeDetail): number {
-    if (!challenge.targetValue || challenge.targetValue <= 0) return 0;
-    const percentage = (participant.progress / challenge.targetValue) * 100;
-    return Math.min(Math.round(percentage), 100);
+  private applyFilter(): void {
+    if (this.currentTab === 'ACTIVE') {
+      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'ACTIVE' || c.participant.status === 'WITHIN_BUDGET');
+    } else if (this.currentTab === 'COMPLETED') {
+      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'COMPLETED');
+    } else if (this.currentTab === 'FAILED') {
+      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'FAILED' || c.participant.status === 'DROPPED' || c.participant.status === 'EXCEEDED');
+    }
+    this.cdr.detectChanges();
   }
 
-  getStatusBadgeClass(status: string): string {
-    switch (status) {
-      case 'ACTIVE': return 'bg-emerald-light text-emerald';
-      case 'COMPLETED': return 'bg-blue-light text-blue';
-      case 'DROPPED': return 'bg-danger bg-opacity-10 text-danger';
-      default: return 'bg-surface text-secondary';
-    }
+  onCardClick(challengeId: number): void {
+    this.router.navigate(['/challenges', challengeId]);
   }
 }

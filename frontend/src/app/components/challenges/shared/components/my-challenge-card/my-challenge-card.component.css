@@ -1,0 +1,79 @@
+.my-challenge-card {
+  background-color: var(--bs-body-bg, #fff);
+  border-radius: var(--ch-radius-card, 12px);
+  box-shadow: var(--ch-shadow-card, 0 1px 6px rgba(0,0,0,0.08));
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  min-width: 0; /* important for flexbox text truncation */
+}
+
+.my-challenge-card:hover, .my-challenge-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--ch-shadow-hover, 0 4px 16px rgba(0,0,0,0.10));
+}
+
+.my-challenge-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Focus ring */
+}
+
+.thumbnail-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--ch-radius-card, 12px);
+  overflow: hidden;
+}
+
+.thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Compact variant for carousel */
+.my-challenge-card.compact {
+  padding: 0.75rem !important; 
+}
+
+.my-challenge-card.compact .thumbnail-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ch-radius-badge, 6px);
+}
+
+.my-challenge-card.compact .card-title {
+  font-size: 0.875rem !important; /* Equivalent to fs-sm */
+}
+
+/* Completed Overlay */
+.completed-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(16, 185, 129, 0.85); /* emerald-500 */
+  z-index: 10;
+}
+
+/* Failed State */
+.my-challenge-card.failed .thumbnail-img {
+  filter: grayscale(100%) opacity(60%);
+}
+
+.my-challenge-card.failed .card-title,
+.my-challenge-card.failed .progress-text,
+.my-challenge-card.failed .footer-meta {
+  color: #94a3b8 !important; /* text-slate-400 */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .my-challenge-card {
+    transition: none !important;
+  }
+  .my-challenge-card:hover, .my-challenge-card:focus-visible {
+    transform: none;
+  }
+}

@@ -68,6 +68,8 @@ public class ChallengeService {
         detailDTO.setTrackingMethod(challenge.getTrackingMethod());
         detailDTO.setRulesConfig(challenge.getRulesConfig());
         detailDTO.setCommunityProgress(challenge.getCommunityProgress());
+        detailDTO.setParticipantCount(participantRepository.countByChallengeId(id));
+        detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
         
         participantRepository.findByChallengeIdAndUserId(id, userId)
@@ -234,7 +236,9 @@ public class ChallengeService {
         }
                 
         if ("APPROVE".equalsIgnoreCase(action)) {
-            if (challenge.getStartDate().isAfter(LocalDateTime.now())) {
+            // Give a 5-minute grace period because the UI sets the start date 2 minutes in the future 
+            // to pass the @FutureOrPresent validation on creation.
+            if (challenge.getStartDate().isAfter(LocalDateTime.now().plusMinutes(5))) {
                 challenge.setStatus(ChallengeStatus.UPCOMING);
             } else {
                 challenge.setStatus(ChallengeStatus.ACTIVE);
@@ -319,6 +323,7 @@ public class ChallengeService {
         detailDTO.setRulesConfig(challenge.getRulesConfig());
         detailDTO.setCommunityProgress(challenge.getCommunityProgress());
         detailDTO.setParticipantCount(participantRepository.countByChallengeId(id));
+        detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
         return detailDTO;
     }
@@ -433,13 +438,23 @@ public class ChallengeService {
     private void validateTrackingConfiguration(ChallengeRequest request) {
         TrackingMethod method = request.getTrackingMethod() != null ? request.getTrackingMethod() : TrackingMethod.MANUAL;
         if (method == TrackingMethod.AUTOMATIC) {
-            if (request.getLinkedCategoryId() == null) {
-                throw new IllegalArgumentException("Linked category is required for AUTOMATIC tracking method.");
+            if (!isValidAutomaticTrackingConfiguration(request)) {
+                throw new IllegalArgumentException("Linked category or multi-source configuration is required for AUTOMATIC tracking method.");
             }
         }
         if (method == TrackingMethod.MANUAL) {
             request.setLinkedCategoryId(null);
             request.setRulesConfig(null);
         }
+    }
+
+    private boolean isValidAutomaticTrackingConfiguration(ChallengeRequest request) {
+        boolean hasLinkedCategory = request.getLinkedCategoryId() != null;
+        boolean hasCarbonCode = request.getCarbonCategoryCode() != null && !request.getCarbonCategoryCode().isBlank();
+        boolean hasMultiSource = request.getRulesConfig() != null 
+            && request.getRulesConfig().allowedSubcategoryIds() != null 
+            && !request.getRulesConfig().allowedSubcategoryIds().isEmpty();
+            
+        return hasLinkedCategory || hasCarbonCode || hasMultiSource;
     }
 }

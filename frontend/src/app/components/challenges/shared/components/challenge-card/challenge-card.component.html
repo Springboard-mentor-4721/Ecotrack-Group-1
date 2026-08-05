@@ -1,0 +1,47 @@
+<div class="card-premium h-100 p-3 d-flex flex-column position-relative transition-all hover-shadow bg-white border rounded-4 group"
+     style="cursor: pointer;"
+     [routerLink]="['/challenges', challenge.id]">
+  
+  <div class="rounded-3 position-relative mb-3 w-100 overflow-hidden" 
+       [style.background]="'url(' + (challenge.imageUrl | challengeImage: index) + ') center/cover'" 
+       style="height: 160px;">
+    <!-- Badges overlay -->
+    <div class="position-absolute top-0 start-0 m-2">
+      <div class="badge ch-text-white shadow-sm"
+           [ngClass]="challenge.challengeEvaluationType === 'ACHIEVEMENT' ? 'ch-bg-success' : 'ch-bg-warning'">
+        {{ challenge.challengeEvaluationType }}
+      </div>
+    </div>
+    <div class="position-absolute top-0 end-0 m-2">
+      <app-challenge-status-badge [status]="challenge.status" size="sm"></app-challenge-status-badge>
+    </div>
+  </div>
+
+  <h3 class="fw-bold text-dark mb-2 fs-6 text-truncate pe-2">{{ challenge.title }}</h3>
+  
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <span class="badge ch-bg-neutral bg-opacity-10 ch-text-neutral border border-secondary border-opacity-25">{{ challenge.typeCode }}</span>
+    <span class="fs-xs fw-bold text-muted">{{ challenge.trackingMethod === 'AUTOMATIC' ? 'AUTO' : 'MANUAL' }}</span>
+    <span class="fs-xs fw-bold ch-text-xp d-flex align-items-center gap-1 ms-auto">
+      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      {{ challenge.rewardXp }} XP
+    </span>
+  </div>
+
+  <p class="fs-xs text-muted mb-4 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+    {{ challenge.description }}
+  </p>
+
+  <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+    <div class="d-flex align-items-center gap-1 text-muted fs-xs">
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <span [ngClass]="{'ch-text-danger fw-bold': isUrgent, 'ch-text-warning fw-bold': isWarning}">
+        {{ daysRemaining > 0 ? daysRemaining + 'd left' : 'Expired' }}
+      </span>
+    </div>
+    
+    <button class="btn btn-primary btn-sm rounded-pill px-3 fw-bold fs-xs shadow-sm group-hover-scale transition-all">
+      Details
+    </button>
+  </div>
+</div>

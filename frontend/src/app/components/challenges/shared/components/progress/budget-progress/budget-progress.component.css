@@ -1,0 +1,48 @@
+.progress-track {
+  background-color: #f1f5f9;
+  border-radius: var(--ch-radius-pill, 9999px);
+  height: 16px;
+  overflow: visible; /* to allow box-shadow to be visible */
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--ch-radius-pill, 9999px);
+  transition: width var(--ch-duration-progress, 1200ms) var(--ch-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)), background-color 300ms ease;
+}
+
+/* Safe State */
+.fill-safe { background-color: var(--ch-success, #10b981); }
+.text-safe { color: var(--ch-success, #10b981); }
+.dot-safe { color: var(--ch-success, #10b981); }
+
+/* Caution State */
+.fill-caution { background-color: var(--ch-warning, #f59e0b); }
+.text-caution { color: var(--ch-warning, #f59e0b); }
+.dot-caution { color: var(--ch-warning, #f59e0b); }
+.alert-bg-caution { background-color: var(--ch-warning-bg, #fef3c7); }
+
+/* Critical & Exceeded State */
+.fill-critical, .fill-exceeded { 
+  background-color: var(--ch-danger, #ef4444);
+  animation: pulse-danger 2s infinite;
+}
+.text-critical, .text-exceeded { color: var(--ch-danger, #ef4444); }
+.dot-critical, .dot-exceeded { color: var(--ch-danger, #ef4444); }
+.alert-bg-critical, .alert-bg-exceeded { background-color: var(--ch-danger-bg, #fee2e2); }
+
+@keyframes pulse-danger {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill {
+    transition: none !important;
+  }
+  .fill-critical, .fill-exceeded {
+    animation: none;
+    border: 2px solid var(--ch-danger, #ef4444);
+  }
+}

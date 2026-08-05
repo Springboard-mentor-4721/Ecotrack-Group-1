@@ -1,374 +1,90 @@
-<div class="challenges-dashboard animate-page px-4 py-4 max-w-7xl mx-auto">
+<div class="container-fluid py-4 py-md-5">
   
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="row g-4 mb-5">
-    <div class="col-12"><app-loading-skeleton type="card"></app-loading-skeleton></div>
-    <div class="col-12 col-md-3"><app-loading-skeleton type="card"></app-loading-skeleton></div>
-    <div class="col-12 col-md-3"><app-loading-skeleton type="card"></app-loading-skeleton></div>
-    <div class="col-12 col-md-3"><app-loading-skeleton type="card"></app-loading-skeleton></div>
-    <div class="col-12 col-md-3"><app-loading-skeleton type="card"></app-loading-skeleton></div>
+  <div *ngIf="isLoading" class="mb-5">
+    <app-loading-skeleton type="card"></app-loading-skeleton>
   </div>
 
-  <ng-container *ngIf="!isLoading">
+  <div *ngIf="!isLoading">
     
-    <!-- Section 1: Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
-      <div>
-        <h1 class="fw-bold text-dark mb-1 fs-3">Challenges</h1>
-        <p class="desc-light mb-0">Join community sustainability Challenges and earn rewards.</p>
-      </div>
-      <div class="d-flex align-items-center">
-        <button class="btn btn-emerald rounded-pill px-4 py-2 shadow-sm fw-bold d-flex align-items-center gap-2 transition-all hover-shadow group" routerLink="/leaderboard">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20v-8"></path>
-            <path d="M18 20V4"></path>
-            <path d="M6 20v-4"></path>
-          </svg>
-          <span class="d-none d-sm-inline">Leaderboard</span>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Section 2: Premium Statistics Cards -->
-    <div class="row g-4 mb-5 animate-stagger-item">
-      <!-- Active Challenges -->
-      <div class="col-6 col-lg-3">
-        <div class="bg-white rounded-4 p-4 border-0 shadow-sm h-100 transition-all hover-shadow-lg position-relative overflow-hidden group">
-          <div class="bg-emerald bg-opacity-10 text-emerald rounded-3 d-inline-flex p-2 mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-          </div>
-          <span class="fs-sm fw-bold text-muted d-block text-uppercase tracking-wide mb-1">Active</span>
-          <div class="d-flex align-items-baseline gap-2 mb-1">
-            <span class="fs-1 fw-bolder text-dark lh-1">{{ myActiveChallenges.length }}</span>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Completed -->
-      <div class="col-6 col-lg-3">
-        <div class="bg-white rounded-4 p-4 border-0 shadow-sm h-100 transition-all hover-shadow-lg position-relative overflow-hidden group">
-          <div class="bg-purple bg-opacity-10 text-purple rounded-3 d-inline-flex p-2 mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          </div>
-          <span class="fs-sm fw-bold text-muted d-block text-uppercase tracking-wide mb-1">Completed</span>
-          <div class="d-flex align-items-baseline gap-2 mb-1">
-            <span class="fs-1 fw-bolder text-dark lh-1">{{ myCompletedChallenges.length }}</span>
-            <span class="fs-xs fw-bold text-muted">All time</span>
-          </div>
-        </div>
-      </div>
+    <!-- Hero Section -->
+    <app-dashboard-hero 
+      [activeChallengesCount]="myActiveChallenges.length" 
+      [currentStreak]="0">
+    </app-dashboard-hero>
 
-      <!-- Total XP -->
-      <div class="col-6 col-lg-3">
-        <div class="bg-white rounded-4 p-4 border-0 shadow-sm h-100 transition-all hover-shadow-lg position-relative overflow-hidden group">
-          <div class="bg-orange bg-opacity-10 text-orange rounded-3 d-inline-flex p-2 mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          </div>
-          <span class="fs-sm fw-bold text-muted d-block text-uppercase tracking-wide mb-1">Total XP</span>
-          <div class="d-flex align-items-baseline gap-2 mb-1">
-            <span class="fs-1 fw-bolder text-dark lh-1">{{ totalXpEarned | number }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Stats Section -->
+    <app-dashboard-stats
+      [activeCount]="myActiveChallenges.length"
+      [completedCount]="myCompletedChallenges.length"
+      [totalXp]="totalXpEarned">
+    </app-dashboard-stats>
 
-    <!-- Section 3: Continue Your Challenges -->
-    <div class="mb-5 animate-stagger-item">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fw-bolder text-dark mb-0 fs-3">Continue Your Challenges</h3>
-      </div>
-      
-      <!-- Empty state -->
-      <div *ngIf="myActiveChallenges.length === 0" class="bg-white rounded-4 p-5 text-center border shadow-sm">
-        <h5 class="fw-bold text-dark">No Active Challenges</h5>
-        <p class="desc-light mb-0 fs-sm">Join a Challenge below to get started.</p>
-      </div>
+    <!-- Urgency Alerts -->
+    <app-urgency-alert-banner 
+      [alerts]="urgencyAlerts">
+    </app-urgency-alert-banner>
 
-      <!-- Horizontal Carousel -->
-      <div class="d-flex gap-4 overflow-auto hide-scrollbar pb-3 px-1">
-        <div class="bg-white rounded-4 border shadow-sm transition-all hover-shadow-lg flex-shrink-0 d-flex flex-column overflow-hidden position-relative group" 
-             style="width: 320px; cursor: pointer;" 
-             *ngFor="let my of myActiveChallenges"
-             [routerLink]="['/challenges', my.challenge.id]">
-          
-          <!-- Image Banner -->
-          <div class="position-relative w-100" [style.background]="'url(' + resolveImageUrl($any(my.challenge).imageUrl, 0) + ') center/cover'" style="height: 120px;">
-             <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 transition-all group-hover-opacity-75"></div>
-             <div class="position-absolute top-0 end-0 m-3">
-               <span class="badge bg-emerald text-white px-2 py-1 rounded fs-xs fw-bolder shadow-sm tracking-wide">ACTIVE</span>
-             </div>
-          </div>
+    <!-- Quick Actions -->
+    <app-dashboard-quick-actions></app-dashboard-quick-actions>
 
-          <!-- Large Circular Progress -->
-          <div class="position-absolute start-50 translate-middle-x" style="top: 70px;">
-            <div class="position-relative bg-white rounded-circle p-1 shadow-sm d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
-              <svg width="80" height="80" viewBox="0 0 36 36">
-                <path class="text-surface" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
-                <path class="text-emerald transition-all" [attr.stroke-dasharray]="getProgressPercentage(my.participant, my.challenge) + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
-              </svg>
-              <div class="position-absolute top-50 start-50 translate-middle text-center">
-                <span class="fs-sm fw-bolder text-dark d-block lh-1">{{ Math.round(getProgressPercentage(my.participant, my.challenge)) }}%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Info -->
-          <div class="p-4 pt-5 mt-3 d-flex flex-column flex-grow-1 text-center">
-            <h5 class="fw-bolder text-dark mb-1 fs-5 text-truncate" title="{{ my.challenge.title }}">{{ my.challenge.title }}</h5>
-            <span class="fs-xs text-muted fw-bold text-uppercase tracking-wide mb-3">
-              {{ getChallengeTypeLabel(my.challenge.typeCode) }}
-              <ng-container *ngIf="my.challenge.trackingMethod === 'AUTOMATIC'">
-                • {{ getCarbonCategoryName(my.challenge.linkedCategoryId) }}
-              </ng-container>
-            </span>
-            
-            <div class="d-flex justify-content-between align-items-center mb-4 bg-surface rounded p-2 px-3 border">
-              <div class="text-start">
-                <span class="fs-xs fw-bold text-muted d-block text-uppercase tracking-wide">Reward</span>
-                <span class="fs-sm fw-bolder text-emerald">+{{ my.challenge.rewardXp }} XP</span>
-              </div>
-              <div class="text-end">
-                <span class="fs-xs fw-bold text-muted d-block text-uppercase tracking-wide">Time</span>
-                <span class="fs-sm fw-bolder text-dark">{{ getDaysRemaining(my.challenge.endDate) }} Days left</span>
-              </div>
-            </div>
-            
-            <button class="btn btn-emerald rounded-pill w-100 fw-bold py-2 shadow-sm mt-auto position-relative overflow-hidden group">
-              <span class="position-relative z-1">Log Progress</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 4: Recommended Challenges -->
-    <div class="mb-5 animate-stagger-item">
+    <!-- Active Challenges Placeholder -->
+    <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark mb-0 fs-3">Recommended For You</h3>
+        <h2 class="h4 fw-bold mb-0">Continue Your Challenges</h2>
+        <a [routerLink]="['/challenges/my']" class="text-primary text-decoration-none fw-bold fs-sm">View All &rarr;</a>
       </div>
       
-      <div class="row g-4">
-        <!-- Empty state -->
-        <div *ngIf="recommendedChallenges.length === 0" class="col-12">
-           <div class="bg-surface rounded-4 p-4 text-center border border-dashed">
-            <p class="desc-light mb-0 fs-6">You've joined all recommended challenges!</p>
-           </div>
+      <div *ngIf="myActiveChallenges.length === 0" class="bg-surface rounded-4 p-5 text-center border shadow-sm">
+        <div class="bg-slate-200 text-slate-400 mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
         </div>
+        <h3 class="fw-bold fs-5 mb-2">No active challenges</h3>
+        <p class="text-muted fs-sm mb-4 max-w-sm mx-auto">You aren't participating in any challenges right now. Explore available challenges to get started!</p>
+        <a [routerLink]="['/challenges/explore']" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">Explore Challenges</a>
+      </div>
 
-        <div class="col-12 col-md-6 col-lg-4" *ngFor="let rec of recommendedChallenges">
-          <div class="bg-white rounded-4 border-0 shadow-sm h-100 d-flex flex-column transition-all hover-shadow-lg position-relative overflow-hidden group">
-            
-            <!-- Banner Image & Gradient Overlay -->
-            <div class="position-relative w-100" [style.background]="'url(' + resolveImageUrl($any(rec).imageUrl, 1) + ') center/cover'" style="height: 180px; cursor: pointer;" [routerLink]="['/challenges', rec.id]">
-              <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);"></div>
-              
-              <div class="position-absolute top-0 end-0 m-3 d-flex flex-column gap-2 align-items-end">
-                <span class="badge bg-purple text-white px-3 py-1 rounded-pill fs-xs fw-bolder shadow-sm">RECOMMENDED</span>
-              </div>
-
-              <!-- Title inside banner -->
-              <div class="position-absolute bottom-0 start-0 p-3 w-100">
-                <h5 class="fw-bolder text-white mb-1 fs-5 text-truncate">{{ rec.title }}</h5>
-                <div class="d-flex gap-2">
-                  <span class="badge bg-white text-dark px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase">Medium Difficulty</span>
-                  <span class="badge bg-white text-dark px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase">{{ getChallengeTypeLabel(rec.typeCode) }}</span>
-                  <span *ngIf="rec.trackingMethod === 'AUTOMATIC'" class="badge bg-emerald text-white px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase">{{ getCarbonCategoryName(rec.linkedCategoryId) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Content Area -->
-            <div class="p-4 d-flex flex-column flex-grow-1">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-emerald bg-opacity-10 text-emerald rounded p-1">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                  </div>
-                  <span class="fw-bolder text-dark fs-sm">+{{ rec.rewardXp }} XP</span>
-                </div>
-                <div class="d-flex align-items-center gap-2 text-muted">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span class="fs-xs fw-bold">{{ getDaysRemaining(rec.endDate) }} Days</span>
-                </div>
-              </div>
-              
-              <div class="mt-auto d-flex gap-2">
-                <button class="btn btn-outline-dark rounded-pill fw-bold fs-sm py-2 flex-grow-1" [routerLink]="['/challenges', rec.id]">Quick Preview</button>
-                <button class="btn btn-emerald rounded-pill fw-bold fs-sm py-2 flex-grow-1 shadow-sm" (click)="joinChallenge(rec.id)">Join</button>
-              </div>
-            </div>
-            
+      <div *ngIf="myActiveChallenges.length > 0" class="mb-4">
+        <div class="row row-cols-1 row-cols-lg-2 g-3">
+          <div class="col" *ngFor="let entry of myActiveChallenges">
+            <app-my-challenge-card 
+              [entry]="entry"
+              [compact]="true"
+              (cardClicked)="onChallengeClick($event)">
+            </app-my-challenge-card>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Section 5: Explore Challenges -->
-    <div class="mb-5 animate-stagger-item position-relative">
-      
-      <!-- Sticky Header & Controls -->
-      <div class="position-sticky bg-surface bg-opacity-75" style="top: 0px; z-index: 10; backdrop-filter: blur(12px); padding: 24px 0; margin-bottom: 24px; border-bottom: 1px solid rgba(0,0,0,0.05);">
-        <div class="d-flex flex-column gap-3">
-          <!-- Top Row: Title and Search -->
-          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <h3 class="fw-bolder text-dark mb-0 fs-3 d-flex align-items-center gap-2">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-              Explore Challenges
-            </h3>
-            
-            <div class="position-relative" style="max-width: 350px; width: 100%;">
-              <svg class="position-absolute top-50 translate-middle-y ms-3 text-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" class="form-control rounded-pill ps-5 py-2 border-0 shadow-sm" style="background-color: white;" placeholder="Find your next challenge..." [(ngModel)]="searchQuery">
-            </div>
-          </div>
-          
-          <!-- Bottom Row: Status Chips -->
-          <div class="d-flex gap-2 overflow-auto hide-scrollbar pb-2 px-1 align-items-center w-100">
-            <button class="btn rounded-pill px-4 py-2 fs-xs fw-bold shadow-sm whitespace-nowrap transition-all"
-                    [ngClass]="activeStatusFilter === 'All' ? 'bg-dark text-white border-dark' : 'bg-white text-muted border'"
-                    (click)="setStatusFilter('All')">All</button>
-            
-            <div class="mx-1"></div>
-            
-            <button *ngFor="let filter of statuses" 
-                    class="btn rounded-pill px-4 py-2 fs-xs fw-bold shadow-sm whitespace-nowrap transition-all"
-                    [ngClass]="activeStatusFilter === filter ? 'bg-dark text-white border-dark' : 'bg-white text-muted border'"
-                    (click)="setStatusFilter(filter)">
-              {{ filter }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Explore Grid -->
-      <div class="row g-4 pt-2">
-        <!-- Empty state -->
-        <div *ngIf="filteredExploreChallenges.length === 0" class="col-12 text-center py-5 my-5">
-          <div class="bg-white rounded-circle d-inline-flex p-4 mb-4 shadow-sm border">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          </div>
-          <h4 class="fw-bolder text-dark mb-2">No Challenges found</h4>
-          <p class="text-muted fs-6">Try adjusting your search terms or selecting a different category.</p>
-        </div>
-
-        <!-- Premium Cards -->
-        <div class="col-12 col-md-6 col-lg-4" *ngFor="let challenge of filteredExploreChallenges">
-          <div class="bg-white rounded-4 border-0 shadow-sm h-100 d-flex flex-column transition-all hover-shadow-lg position-relative overflow-hidden group">
-            
-            <!-- Banner Image & Gradient Overlay -->
-            <div class="position-relative w-100" [style.background]="'url(' + resolveImageUrl($any(challenge).imageUrl, 2) + ') center/cover'" style="height: 180px; cursor: pointer;" [routerLink]="['/challenges', challenge.id]">
-              <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);"></div>
-              
-              <!-- Badges -->
-              <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2">
-                <span class="badge bg-white text-dark px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase tracking-wide" style="width: fit-content;">
-                  {{ getChallengeTypeLabel(challenge.typeCode) }}
-                </span>
-                <span *ngIf="challenge.trackingMethod === 'AUTOMATIC'" class="badge bg-emerald text-white px-2 py-1 rounded fs-xs fw-bolder shadow-sm text-uppercase tracking-wide">
-                  {{ getCarbonCategoryName(challenge.linkedCategoryId) }}
-                </span>
-              </div>
-              
-              <div class="position-absolute top-0 end-0 m-3">
-                <button class="btn btn-sm btn-white rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; opacity: 0.9;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                </button>
-              </div>
-
-              <!-- Title inside banner -->
-              <div class="position-absolute bottom-0 start-0 p-3 w-100">
-                <h5 class="fw-bolder text-white mb-0 fs-5 text-truncate">{{ challenge.title }}</h5>
-              </div>
-            </div>
-
-            <!-- Content Area -->
-            <div class="p-4 d-flex flex-column flex-grow-1">
-              
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-orange bg-opacity-10 text-orange rounded p-1">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  </div>
-                  <span class="fw-bolder text-dark fs-sm">{{ challenge.rewardXp }} XP</span>
-                </div>
-                <div class="d-flex align-items-center gap-2 text-muted">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                  <span class="fs-xs fw-bold">{{ $any(challenge).participantCount || 0 }}</span>
-                </div>
-              </div>
-              
-              <!-- Countdown & Progress mini -->
-              <div class="d-flex flex-column gap-2 mb-4">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Community Goal</span>
-                  <span class="fs-xs fw-bolder text-emerald">{{ getDaysRemaining(challenge.endDate) }} Days Left</span>
-                </div>
-                <div class="progress bg-surface" style="height: 6px; border-radius: 3px;">
-                  <div class="progress-bar bg-emerald rounded-pill" [style.width.%]="(challenge.communityProgress / Math.max(challenge.targetValue * 10, 1)) * 100"></div>
-                </div>
-              </div>
-
-              <div class="mt-auto d-flex gap-2">
-                <button class="btn btn-outline-dark rounded-pill fw-bold fs-sm py-2 flex-grow-1" [routerLink]="['/challenges', challenge.id]">Preview</button>
-                <button class="btn btn-emerald rounded-pill fw-bold fs-sm py-2 flex-grow-1 shadow-sm" (click)="joinChallenge(challenge.id)">Join Now</button>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 6: Completed Challenges Timeline -->
-    <div class="mb-5 animate-stagger-item">
+    <!-- Recommended Challenges Placeholder -->
+    <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark mb-0 fs-3 d-flex align-items-center gap-2">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          Completed Milestones
-        </h3>
-      </div>
-      
-      <!-- Empty state -->
-      <div *ngIf="myCompletedChallenges.length === 0" class="bg-surface rounded-4 p-5 text-center border border-dashed shadow-sm">
-        <h5 class="fw-bold text-dark">No Completed Challenges</h5>
-        <p class="text-muted mb-0">Complete your first challenge to earn rewards and unlock badges.</p>
+        <h2 class="h4 fw-bold mb-0">Recommended For You</h2>
+        <a [routerLink]="['/challenges/explore']" class="text-primary text-decoration-none fw-bold fs-sm">Explore All &rarr;</a>
       </div>
 
-      <!-- Timeline -->
-      <div class="position-relative ms-3 ps-4 border-start border-2 border-emerald border-opacity-25 py-2" *ngIf="myCompletedChallenges.length > 0">
-        <div class="mb-4 position-relative group" *ngFor="let comp of myCompletedChallenges">
-          <!-- Timeline Node -->
-          <div class="position-absolute bg-white rounded-circle shadow-sm border border-3 border-emerald transition-all group-hover-bg-emerald" style="width: 20px; height: 20px; left: -35px; top: 2px; z-index: 2;"></div>
-          
-          <div class="bg-white rounded-4 p-4 border-0 shadow-sm transition-all hover-shadow-lg d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 position-relative overflow-hidden cursor-pointer" [routerLink]="['/challenges', comp.challenge.id]">
-            <!-- Decorative accent -->
-            <div class="position-absolute top-0 start-0 h-100 bg-emerald opacity-75" style="width: 4px;"></div>
-
-            <div class="d-flex align-items-center gap-4 ps-2">
-              <div class="bg-emerald bg-opacity-10 text-emerald rounded-circle p-3 d-none d-sm-block">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              </div>
-              <div>
-                <span class="fs-xs fw-bolder text-emerald d-block text-uppercase tracking-wide mb-1">{{ comp.participant.completedAt | date:'mediumDate' }}</span>
-                <h5 class="fw-bolder text-dark mb-1 fs-5">{{ comp.challenge.title }}</h5>
-                <p class="fs-sm text-muted mb-0 fw-bold d-flex align-items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                  Target Reached: {{ comp.challenge.targetValue }} {{ comp.challenge.typeCode === 'COUNT' ? 'Entries' : 'Units' }}
-                </p>
-              </div>
-            </div>
-            
-            <div class="d-flex align-items-center gap-3">
-              <div class="text-end bg-surface rounded-pill px-3 py-1 border d-flex align-items-center gap-2">
-                <span class="fs-sm fw-bold text-muted">Reward</span>
-                <span class="fs-6 fw-bolder text-emerald">+{{ comp.challenge.rewardXp }} XP</span>
-              </div>
-              <button class="btn btn-outline-dark rounded-pill px-4 fw-bold fs-sm d-none d-md-block shadow-sm">View Certificate</button>
-            </div>
-          </div>
+      <div class="mb-4 row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        <div class="col" *ngFor="let challenge of recommendedChallenges">
+          <app-challenge-card [challenge]="challenge"></app-challenge-card>
         </div>
       </div>
     </div>
 
-  </ng-container>
+    <!-- Community Snapshot Placeholder -->
+    <div class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 fw-bold mb-0">Community Impact</h2>
+      </div>
+      <div class="bg-surface rounded-4 p-5 text-center border shadow-sm opacity-75">
+        <div class="ch-bg-neutral bg-opacity-10 ch-text-neutral mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3 class="fw-bold fs-5 mb-2">Community Snapshot</h3>
+        <p class="text-muted fs-sm mb-0 mx-auto" style="max-width: 400px;">
+          Global impact data will be connected in a future sprint. Stay tuned to see how your actions combine with the community!
+        </p>
+      </div>
+    </div>
+
+  </div>
 </div>

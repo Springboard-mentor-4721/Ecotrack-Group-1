@@ -1,78 +1,91 @@
-<div class="challenges-wrapper animate-page px-4 py-4 max-w-7xl mx-auto">
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+<div class="container-fluid py-4 py-md-5 my-challenges-container">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1 class="fw-bold text-dark mb-1 fs-3">My Challenges</h1>
-      <p class="desc-light mb-0">Track your ongoing commitments and past victories.</p>
+      <h1 class="h2 fw-bold text-slate-800 mb-1">My Challenges</h1>
+      <p class="text-muted fs-sm mb-0">Track your progress, manage active goals, and review past achievements.</p>
     </div>
-    <button class="btn btn-emerald rounded-pill px-4 fw-bold" routerLink="/challenges">Discover More</button>
+    <a [routerLink]="['/challenges/explore']" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-none d-md-inline-block">
+      Explore New Challenges
+    </a>
   </div>
 
-  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="mb-5">
+    <app-loading-skeleton type="card"></app-loading-skeleton>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="alert alert-danger rounded-4 d-flex align-items-center border-0 shadow-sm p-4 mb-4" role="alert">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3 flex-shrink-0">
+      <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <div class="flex-grow-1">
+      <h4 class="h6 fw-bold mb-1">We couldn't load your challenges</h4>
+      <p class="fs-sm mb-0">{{ errorMessage }}</p>
     </div>
+    <button class="btn btn-outline-danger btn-sm rounded-pill px-3" (click)="loadMyChallenges()">Try Again</button>
   </div>
 
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
-
-  <!-- Empty State -->
-  <div *ngIf="!isLoading && !errorMessage && myChallenges.length === 0" class="text-center py-5 my-5">
-    <div class="bg-surface rounded-circle d-inline-flex p-4 mb-3 shadow-sm">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-    </div>
-    <h4 class="fw-bold text-dark">No Challenges Joined Yet</h4>
-    <p class="desc-light">Start participating in challenges to track your progress and earn XP.</p>
-    <button class="btn btn-emerald rounded-pill px-5 py-2 fw-bold mt-2" routerLink="/challenges">Find Challenges</button>
-  </div>
-
-  <div class="row g-4 mb-5" *ngIf="!isLoading && !errorMessage && myChallenges.length > 0">
-    <div class="col-12 col-md-6 col-lg-4 animate-stagger-item" *ngFor="let item of myChallenges">
-      <div class="card-premium h-100 p-4 d-flex flex-column position-relative transition-all" 
-           style="cursor: pointer;"
-           [routerLink]="['/challenges', item.challenge.id]">
-        
-        <div class="position-absolute top-0 end-0 m-4 badge px-3 py-2 fs-xs fw-bold rounded-pill text-uppercase shadow-sm"
-             [ngClass]="getStatusBadgeClass(item.participant.status)">
-          {{ item.participant.status }}
-        </div>
-
-        <h5 class="fw-bold text-dark mb-1 fs-5 pe-5">{{ item.challenge.title }}</h5>
-        
-        <p class="fs-xs fw-bold text-muted mb-4 d-flex align-items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          {{ item.challenge.startDate | date:'MMM d' }} - {{ item.challenge.endDate | date:'MMM d' }}
-        </p>
-
-        <div class="mt-auto">
-          <div class="d-flex justify-content-between align-items-end mb-2">
-            <span class="fs-6 fw-bold text-dark">{{ item.participant.progress }} <span class="fs-xs text-muted fw-normal">/ {{ item.challenge.targetValue }}</span></span>
-            <span class="fs-xs fw-bold text-emerald">{{ getProgressPercentage(item.participant, item.challenge) | number:'1.0-0' }}%</span>
-          </div>
-          <div class="progress bg-surface border shadow-sm mb-3" style="height: 8px; border-radius: 4px;">
-            <div class="progress-bar bg-emerald rounded-pill transition-all" 
-                 role="progressbar" 
-                 [style.width.%]="getProgressPercentage(item.participant, item.challenge)"></div>
-          </div>
-          <button class="btn btn-outline-secondary w-100 rounded-pill fw-bold fs-7">
-            View Details
+  <div *ngIf="!isLoading && !errorMessage">
+    <!-- Tab Navigation -->
+    <div class="tab-nav-wrapper mb-4 border-bottom">
+      <ul class="nav nav-tabs border-0 flex-nowrap custom-tabs" role="tablist">
+        <li class="nav-item me-2" role="presentation" *ngFor="let tab of tabs">
+          <button class="nav-link custom-tab-btn" 
+                  [class.active]="currentTab === tab.id"
+                  [attr.aria-selected]="currentTab === tab.id"
+                  [attr.aria-controls]="'tabpanel-' + tab.id"
+                  id="tab-{{ tab.id }}"
+                  role="tab"
+                  (click)="setTab(tab.id)">
+            {{ tab.label }}
           </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tab Panels -->
+    <div class="tab-content">
+      <div class="tab-pane fade show active" role="tabpanel" [id]="'tabpanel-' + currentTab" [attr.aria-labelledby]="'tab-' + currentTab">
+        
+        <!-- Empty State -->
+        <div *ngIf="filteredChallenges.length === 0" class="empty-state bg-surface rounded-4 p-5 text-center border shadow-sm my-4">
+          <div class="ch-bg-neutral bg-opacity-10 ch-text-neutral mx-auto rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 72px; height: 72px;">
+            <svg *ngIf="currentTab === 'ACTIVE'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <svg *ngIf="currentTab === 'COMPLETED'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <svg *ngIf="currentTab === 'FAILED'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+          </div>
+          
+          <h3 class="fw-bold fs-5 mb-2">
+            <span *ngIf="currentTab === 'ACTIVE'">No active challenges</span>
+            <span *ngIf="currentTab === 'COMPLETED'">No completed challenges yet</span>
+            <span *ngIf="currentTab === 'FAILED'">No unsuccessful challenges</span>
+          </h3>
+          
+          <p class="text-muted fs-sm mb-4 max-w-sm mx-auto">
+            <span *ngIf="currentTab === 'ACTIVE'">You aren't currently participating in any challenges. Join one to start tracking your impact!</span>
+            <span *ngIf="currentTab === 'COMPLETED'">You haven't completed any challenges yet. Keep pushing towards your goals!</span>
+            <span *ngIf="currentTab === 'FAILED'">You don't have any failed challenges. Great job staying on track!</span>
+          </p>
+          
+          <a *ngIf="currentTab === 'ACTIVE' || currentTab === 'COMPLETED'" [routerLink]="['/challenges/explore']" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">
+            Explore Challenges
+          </a>
         </div>
+
+        <!-- Cards List -->
+        <div *ngIf="filteredChallenges.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+          <div class="col" *ngFor="let entry of filteredChallenges">
+            <app-my-challenge-card 
+              [entry]="entry"
+              (cardClicked)="onCardClick($event)">
+            </app-my-challenge-card>
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
-
-  <!-- Pagination -->
-  <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" *ngIf="totalPages > 1 && !isLoading && !errorMessage">
-    <span class="desc-light fs-7">Showing page {{ currentPage + 1 }} of {{ totalPages }}</span>
-    <div class="d-flex gap-2">
-      <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" 
-              [disabled]="currentPage === 0" 
-              (click)="onPageChange(currentPage - 1)">Previous</button>
-      <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" 
-              [disabled]="currentPage >= totalPages - 1" 
-              (click)="onPageChange(currentPage + 1)">Next</button>
-    </div>
+    
   </div>
 </div>

@@ -168,7 +168,8 @@ export class DetailComponent implements OnInit {
   resolveImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
     if (url.startsWith('http') || url.startsWith('data:')) return url;
-    return `${environment.apiUrl}/${url}`;
+    const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+    return `${baseUrl}/uploads/${url}`;
   }
 
   ngOnInit() {

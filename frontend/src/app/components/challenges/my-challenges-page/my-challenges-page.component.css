@@ -1,1 +1,59 @@
-/* my-challenges-page styles */
+.my-challenges-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Tab Navigation */
+.tab-nav-wrapper {
+  overflow-x: auto; /* Mobile scroll */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.tab-nav-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-tabs {
+  white-space: nowrap;
+}
+
+.custom-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #64748b; /* slate-500 */
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  border-radius: 0;
+  font-size: 0.95rem;
+}
+
+.custom-tab-btn:hover {
+  color: var(--ch-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.03);
+}
+
+.custom-tab-btn:focus-visible {
+  color: var(--ch-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.08);
+  outline: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.custom-tab-btn.active {
+  color: var(--ch-primary, #3b82f6);
+  border-bottom-color: var(--ch-primary, #3b82f6);
+}
+
+/* Empty State */
+.empty-state {
+  border-style: dashed !important;
+  border-color: #cbd5e1 !important; /* slate-300 */
+  border-width: 2px !important;
+}
+
+.max-w-sm {
+  max-width: 24rem;
+}

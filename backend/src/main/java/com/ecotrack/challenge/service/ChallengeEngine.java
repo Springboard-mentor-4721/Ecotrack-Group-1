@@ -9,6 +9,8 @@ import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
 import com.ecotrack.challenge.repository.ChallengeRepository;
 import com.ecotrack.event.CarbonEntryCreatedEvent;
 import com.ecotrack.event.ChallengeCompletedEvent;
+import com.ecotrack.challenge.strategy.StrategyResolver;
+import com.ecotrack.challenge.strategy.ChallengeEvaluationStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,14 +30,20 @@ public class ChallengeEngine {
     private final ChallengeParticipantRepository participantRepository;
     private final ChallengeRepository challengeRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final StrategyResolver strategyResolver;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     public void handleCarbonEntryCreated(CarbonEntryCreatedEvent event) {
         log.info("Processing carbon entry {} for challenges user {}", event.getEntryId(), event.getUserId());
         
-        List<ChallengeParticipant> activeParticipations = participantRepository.findByUserIdAndStatus(
-                event.getUserId(), ChallengeParticipantStatus.ACTIVE);
+        List<ChallengeParticipantStatus> validStatuses = List.of(
+                ChallengeParticipantStatus.ACTIVE,
+                ChallengeParticipantStatus.WITHIN_BUDGET,
+                ChallengeParticipantStatus.EXCEEDED
+        );
+        List<ChallengeParticipant> activeParticipations = participantRepository.findByUserIdAndStatusIn(
+                event.getUserId(), validStatuses);
                 
         for (ChallengeParticipant participant : activeParticipations) {
             var challenge = participant.getChallenge();
@@ -54,8 +62,13 @@ public class ChallengeEngine {
                 }
             }
             
-            if (participant.getProgress() >= challenge.getTargetValue()) {
-                participant.setStatus(ChallengeParticipantStatus.COMPLETED);
+            ChallengeEvaluationStrategy strategy = strategyResolver.resolve(challenge.getChallengeEvaluationType());
+            ChallengeParticipantStatus oldStatus = participant.getStatus();
+            ChallengeParticipantStatus newStatus = strategy.evaluateLiveStatus(participant.getProgress(), challenge.getTargetValue(), oldStatus);
+            
+            participant.setStatus(newStatus);
+            
+            if (newStatus == ChallengeParticipantStatus.COMPLETED && oldStatus != ChallengeParticipantStatus.COMPLETED) {
                 participant.setCompletedAt(LocalDateTime.now());
                 eventPublisher.publishEvent(new ChallengeCompletedEvent(
                         participant.getUserId(),

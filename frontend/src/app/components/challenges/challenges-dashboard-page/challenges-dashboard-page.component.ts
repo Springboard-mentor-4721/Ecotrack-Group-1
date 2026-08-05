@@ -1,55 +1,60 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChallengeService } from '../../../services/challenge.service';
-import { Challenge, ChallengeDetail, ChallengeParticipant } from '../../../models/challenge.models';
+import { Challenge, ChallengeDetail, ChallengeParticipant, MyChallengeEntry } from '../../../models/challenge.models';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, map, switchMap, finalize } from 'rxjs/operators';
 import { AdminChallengeService } from '../../admin/challenges-new/services/admin-challenge.service';
 import { CHALLENGE_TYPES } from '../../admin/challenges-new/shared/challenge-types.config';
-import { CarbonCategory } from '../../../models/carbon-category.models';
-import { environment } from '../../../../environments/environment';
-
-export interface MyChallengeDisplay {
-  participant: ChallengeParticipant;
-  challenge: ChallengeDetail;
-}
+import { DashboardHeroComponent } from './components/dashboard-hero/dashboard-hero.component';
+import { DashboardStatsComponent } from './components/dashboard-stats/dashboard-stats.component';
+import { UrgencyAlertBannerComponent, UrgencyAlert } from './components/urgency-alert-banner/urgency-alert-banner.component';
+import { DashboardQuickActionsComponent } from './components/dashboard-quick-actions/dashboard-quick-actions.component';
+import { MyChallengeCardComponent } from '../shared/components/my-challenge-card/my-challenge-card.component';
+import { ChallengeCardComponent } from '../shared/components/challenge-card/challenge-card.component';
 
 @Component({
   selector: 'app-challenges-dashboard-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, LoadingSkeletonComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    FormsModule, 
+    LoadingSkeletonComponent, 
+    DashboardHeroComponent,
+    DashboardStatsComponent,
+    UrgencyAlertBannerComponent,
+    DashboardQuickActionsComponent,
+    MyChallengeCardComponent,
+    ChallengeCardComponent
+  ],
   templateUrl: './challenges-dashboard-page.component.html',
   styleUrls: ['./challenges-dashboard-page.component.css']
 })
 export class ChallengesDashboardPageComponent implements OnInit {
   isLoading = true;
   
-  // Data segments
-  myActiveChallenges: MyChallengeDisplay[] = [];
-  myCompletedChallenges: MyChallengeDisplay[] = [];
+  // Data segments for challenges
+  myActiveChallenges: MyChallengeEntry[] = [];
+  myCompletedChallenges: MyChallengeEntry[] = [];
   exploreChallenges: Challenge[] = [];
   recommendedChallenges: Challenge[] = [];
 
   // Stats
   totalXpEarned = 0;
   
-  // Search and Filter
-  searchQuery = '';
-  activeStatusFilter = 'All';
-  statuses = ['Active', 'Upcoming', 'Completed', 'Archived'];
-  activeCategoryFilter = 'All';
-  carbonCategories: CarbonCategory[] = [];
-  challengeTypes = CHALLENGE_TYPES;
+  urgencyAlerts: UrgencyAlert[] = [];
   
   Math = Math;
 
   constructor(
     private challengeService: ChallengeService,
     private adminChallengeService: AdminChallengeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -66,17 +71,15 @@ export class ChallengesDashboardPageComponent implements OnInit {
           if (res.content.length === 0) return of([]);
           return forkJoin(res.content.map(p => 
             this.challengeService.getChallengeDetail(p.challengeId).pipe(
-              map(c => ({ participant: p, challenge: c } as MyChallengeDisplay)),
+              map(c => ({ participant: p, challenge: c } as MyChallengeEntry)),
               catchError(() => of(null))
             )
           ));
         }),
-        map(results => results.filter(r => r !== null) as MyChallengeDisplay[])
+        map(results => results.filter(r => r !== null) as MyChallengeEntry[])
       ),
-      explore: this.challengeService.getChallenges(0, 50).pipe(
-        map(res => res.content)
-      ),
-      categories: this.adminChallengeService.getCarbonCategories().pipe(
+      explore: this.challengeService.getChallenges(0, 20).pipe(
+        map(res => res.content),
         catchError(() => of([]))
       )
     }).pipe(
@@ -86,13 +89,9 @@ export class ChallengesDashboardPageComponent implements OnInit {
       })
     ).subscribe({
       next: (data) => {
-        if (data.categories) {
-          this.carbonCategories = data.categories;
-        }
-        
         const myChallenges = data.my;
-        this.myActiveChallenges = myChallenges.filter(c => c.participant.status === 'ACTIVE');
-        this.myCompletedChallenges = myChallenges.filter(c => c.participant.status === 'COMPLETED');
+        this.myActiveChallenges = myChallenges.filter(c => ['ACTIVE', 'WITHIN_BUDGET'].includes(c.participant.status));
+        this.myCompletedChallenges = myChallenges.filter(c => ['COMPLETED', 'FAILED', 'EXCEEDED'].includes(c.participant.status));
         
         // Calculate total XP
         this.totalXpEarned = this.myCompletedChallenges.reduce((sum, c) => sum + (c.challenge.rewardXp || 0), 0);
@@ -104,60 +103,41 @@ export class ChallengesDashboardPageComponent implements OnInit {
         this.recommendedChallenges = this.exploreChallenges
           .filter(c => !joinedIds.has(c.id) && c.status === 'ACTIVE')
           .slice(0, 3); // top 3 recommended
+          
+        // Compute Alerts
+        const alerts: UrgencyAlert[] = [];
+        const now = new Date().getTime();
+        this.myActiveChallenges.forEach(entry => {
+          if (entry.challenge.challengeEvaluationType === 'BUDGET') {
+            const usage = entry.participant.progress / (entry.challenge.targetValue || 1);
+            if (usage >= 0.8) {
+              alerts.push({
+                challengeId: entry.challenge.id,
+                title: entry.challenge.title,
+                type: 'BUDGET_CRITICAL',
+                message: usage >= 1 ? 'Budget exceeded!' : 'Approaching budget limit'
+              });
+            }
+          }
+          if (entry.challenge.endDate) {
+            const end = new Date(entry.challenge.endDate).getTime();
+            const days = Math.max(0, Math.ceil((end - now) / (1000 * 3600 * 24)));
+            if (days <= 2) {
+              alerts.push({
+                challengeId: entry.challenge.id,
+                title: entry.challenge.title,
+                type: 'EXPIRING_SOON',
+                message: `${days} days remaining`
+              });
+            }
+          }
+        });
+        this.urgencyAlerts = alerts;
       },
       error: (err) => {
         console.error('Error loading dashboard', err);
       }
     });
-  }
-
-  get filteredExploreChallenges(): Challenge[] {
-    let filtered = this.exploreChallenges;
-    if (this.searchQuery) {
-      const q = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(c => 
-        c.title.toLowerCase().includes(q) || 
-        c.description.toLowerCase().includes(q)
-      );
-    }
-    
-    if (this.activeStatusFilter !== 'All') {
-      filtered = filtered.filter(c => c.status === this.activeStatusFilter.toUpperCase());
-    }
-    
-    if (this.activeCategoryFilter !== 'All') {
-      filtered = filtered.filter(c => {
-        if (c.trackingMethod === 'AUTOMATIC') {
-          const catName = this.getCarbonCategoryName(c.linkedCategoryId);
-          return catName.toLowerCase().includes(this.activeCategoryFilter.toLowerCase());
-        } else {
-          return c.typeCode && c.typeCode.toLowerCase().includes(this.activeCategoryFilter.toLowerCase());
-        }
-      });
-    }
-    return filtered;
-  }
-
-  getCarbonCategoryName(id: number | null | undefined): string {
-    if (!id) return 'Unknown';
-    const cat = this.carbonCategories.find(c => c.id === id);
-    return cat ? cat.name : 'Unknown';
-  }
-
-  getChallengeTypeLabel(typeCode: string): string {
-    return CHALLENGE_TYPES[typeCode]?.label || typeCode;
-  }
-
-  getChallengeTypeConfig(typeCode: string): any {
-    return CHALLENGE_TYPES[typeCode] || CHALLENGE_TYPES['COMMUNITY'];
-  }
-
-  setStatusFilter(filter: string): void {
-    this.activeStatusFilter = filter;
-  }
-
-  setCategoryFilter(filter: string): void {
-    this.activeCategoryFilter = filter;
   }
 
   getProgressPercentage(participant: ChallengeParticipant, challenge: ChallengeDetail): number {
@@ -166,48 +146,7 @@ export class ChallengesDashboardPageComponent implements OnInit {
     return Math.min(Math.round(percentage), 100);
   }
 
-  getDaysRemaining(endDate: string): number {
-    if (!endDate) return 0;
-    const end = new Date(endDate).getTime();
-    const now = new Date().getTime();
-    const diff = end - now;
-    return Math.max(0, Math.ceil(diff / (1000 * 3600 * 24)));
-  }
-
-  getStatusClass(status: string): string {
-    switch(status) {
-      case 'ACTIVE': return 'bg-emerald-light text-emerald';
-      case 'PENDING': return 'bg-yellow-light text-yellow-600';
-      case 'COMPLETED': return 'bg-blue-light text-blue';
-      case 'CLOSED': 
-      case 'ARCHIVED': return 'bg-slate-200 text-slate-700';
-      default: return 'bg-surface text-secondary';
-    }
-  }
-
-  joinChallenge(id: number): void {
-    this.challengeService.joinChallenge(id).subscribe({
-      next: () => {
-        // Reload dashboard to reflect joined status
-        this.loadDashboardData();
-      },
-      error: (err) => {
-        console.error('Failed to join challenge', err);
-        alert('Could not join challenge. You might have already joined it.');
-      }
-    });
-  }
-
-  resolveImageUrl(url: string | null | undefined, fallbackIndex: number = 0): string {
-    if (!url) {
-      const fallbacks = [
-        'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=500&q=80',
-        'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500&q=80',
-        'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=500&q=80'
-      ];
-      return fallbacks[fallbackIndex % fallbacks.length];
-    }
-    if (url.startsWith('http') || url.startsWith('data:')) return url;
-    return `${environment.apiUrl}/${url}`;
+  onChallengeClick(id: number): void {
+    this.router.navigate(['/challenges', id]);
   }
 }

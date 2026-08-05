@@ -59,6 +59,11 @@ export interface ChallengeParticipant {
   completedAt: string | null;
 }
 
+export interface MyChallengeEntry {
+  participant: ChallengeParticipant;
+  challenge: ChallengeDetail;
+}
+
 export interface ChallengeRequest {
   title: string;
   description: string;
@@ -102,3 +107,9 @@ export interface ChallengeAnalytics {
   participationByMonth: { [key: string]: number };
 }
 
+export type ChallengeEvaluationType = 'ACHIEVEMENT' | 'BUDGET';
+
+export interface MyChallengeEntry {
+  participant: ChallengeParticipant;
+  challenge: ChallengeDetail;
+}

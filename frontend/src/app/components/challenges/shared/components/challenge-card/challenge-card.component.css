@@ -1,0 +1,7 @@
+.hover-shadow:hover {
+  box-shadow: var(--ch-shadow-hover, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)) !important;
+  transform: translateY(-2px);
+}
+.group:hover .group-hover-scale {
+  transform: scale(1.05);
+}

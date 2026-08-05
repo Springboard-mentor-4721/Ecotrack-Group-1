@@ -7,11 +7,15 @@ import { AuthService } from '../../../services/auth.service';
 import { ChallengeDetail } from '../../../models/challenge.models';
 import { finalize } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { ChallengeImagePipe } from '../shared/pipes/challenge-image.pipe';
+import { ProgressColorPipe } from '../shared/pipes/progress-color.pipe';
+import { ChallengeStatusBadgeComponent } from '../shared/components/status-badge/challenge-status-badge.component';
+import { getDaysRemaining } from '../shared/utils/date.utils';
 
 @Component({
   selector: 'app-challenge-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ChallengeImagePipe, ProgressColorPipe, ChallengeStatusBadgeComponent],
   templateUrl: './challenge-detail-page.component.html',
   styleUrl: './challenge-detail-page.component.css'
 })
@@ -141,7 +145,8 @@ export class ChallengeDetailPageComponent implements OnInit {
 
   get communityProgressPercentage(): number {
     if (!this.challenge) return 0;
-    const p = ((this.challenge.communityProgress || 0) / this.challenge.targetValue) * 100;
+    const totalTarget = this.challenge.targetValue * (this.challenge.participantCount && this.challenge.participantCount > 0 ? this.challenge.participantCount : 1);
+    const p = ((this.challenge.communityProgress || 0) / totalTarget) * 100;
     return Math.min(Math.max(p, 0), 100);
   }
 
@@ -151,37 +156,9 @@ export class ChallengeDetailPageComponent implements OnInit {
     return Math.min(Math.max(p, 0), 100);
   }
 
-  getStatusClass(status: string): string {
-    switch(status) {
-      case 'ACTIVE': return 'bg-emerald-light text-emerald';
-      case 'PENDING': return 'bg-yellow-light text-yellow-600';
-      case 'COMPLETED': return 'bg-blue-light text-blue';
-      case 'CLOSED': 
-      case 'ARCHIVED': return 'bg-slate-200 text-slate-700';
-      default: return 'bg-surface text-secondary';
-    }
-  }
-
   getDaysRemaining(): number {
-    if (!this.challenge || !this.challenge.endDate) return 0;
-    const end = new Date(this.challenge.endDate).getTime();
-    const now = new Date().getTime();
-    const diff = end - now;
-    return Math.max(0, Math.ceil(diff / (1000 * 3600 * 24)));
+    return getDaysRemaining(this.challenge?.endDate || '');
   }
 
   Math = Math;
-
-  resolveImageUrl(url: string | null | undefined, fallbackIndex: number = 0): string {
-    if (!url) {
-      const fallbacks = [
-        'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=500&q=80',
-        'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500&q=80',
-        'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=500&q=80'
-      ];
-      return fallbacks[fallbackIndex % fallbacks.length];
-    }
-    if (url.startsWith('http') || url.startsWith('data:')) return url;
-    return `${environment.apiUrl}/${url}`;
-  }
 }

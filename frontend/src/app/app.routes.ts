@@ -6,6 +6,9 @@ import { ChallengesDashboardPageComponent } from './components/challenges/challe
 import { ChallengeDetailPageComponent } from './components/challenges/challenge-detail-page/challenge-detail-page.component';
 import { RecommendationPageComponent } from './components/recommendations/recommendation-page/recommendation-page.component';
 import { NotificationListPageComponent } from './components/notifications/notification-list-page/notification-list-page.component';
+import { ChallengeListPageComponent } from './components/challenges/challenge-list-page/challenge-list-page.component';
+import { MyChallengesPageComponent } from './components/challenges/my-challenges-page/my-challenges-page.component';
+import { ChallengeHistoryPageComponent } from './components/challenges/challenge-history-page/challenge-history-page.component';
 
 import { AdminBadgeListComponent } from './components/admin/badges/admin-badge-list/admin-badge-list.component';
 
@@ -108,6 +111,21 @@ export const routes: Routes = [
       {
         path: 'challenges',
         component: ChallengesDashboardPageComponent,
+        canActivate: [userGuard, suspendedGuard]
+      },
+      {
+        path: 'challenges/explore',
+        component: ChallengeListPageComponent,
+        canActivate: [userGuard, suspendedGuard]
+      },
+      {
+        path: 'challenges/my',
+        component: MyChallengesPageComponent,
+        canActivate: [userGuard, suspendedGuard]
+      },
+      {
+        path: 'challenges/history',
+        component: ChallengeHistoryPageComponent,
         canActivate: [userGuard, suspendedGuard]
       },
       {

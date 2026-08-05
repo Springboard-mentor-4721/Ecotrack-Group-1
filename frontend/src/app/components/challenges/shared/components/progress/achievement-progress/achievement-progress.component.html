@@ -1,0 +1,39 @@
+<div class="achievement-progress-wrapper" [class.is-mini]="variant === 'mini'">
+  <div *ngIf="variant === 'full'" class="progress-header d-flex justify-content-between mb-2">
+    <span class="fw-bold fs-sm text-slate-700">Progress</span>
+    <span class="fw-bold fs-sm" [class.ch-text-success]="!isCompleted" [class.text-purple-600]="isCompleted">
+      {{ percentage | number:'1.0-0' }}%
+    </span>
+  </div>
+
+  <div class="progress-bar-container d-flex align-items-center gap-2">
+    <div class="progress-track flex-grow-1 position-relative">
+      <div 
+        class="progress-fill" 
+        [class.completed]="isCompleted"
+        [style.width.%]="percentage">
+      </div>
+
+      <!-- Tick marks for full variant -->
+      <ng-container *ngIf="variant === 'full'">
+        <div class="milestone-tick" style="left: 25%;"></div>
+        <div class="milestone-tick" style="left: 50%;"></div>
+        <div class="milestone-tick" style="left: 75%;"></div>
+      </ng-container>
+    </div>
+
+    <span *ngIf="variant === 'mini'" class="mini-percentage fw-bold fs-xs text-muted">
+      {{ percentage | number:'1.0-0' }}%
+    </span>
+  </div>
+
+  <div *ngIf="variant === 'full'" class="progress-footer mt-2 d-flex justify-content-between align-items-center">
+    <span class="fs-sm text-muted">{{ progress | number }} / {{ target | number }} {{ unit }}</span>
+    <div class="milestone-icons d-flex gap-1">
+      <span class="milestone-icon" [class.passed]="hasPassedMilestone(25)">{{ hasPassedMilestone(25) ? '✦' : '○' }}</span>
+      <span class="milestone-icon" [class.passed]="hasPassedMilestone(50)">{{ hasPassedMilestone(50) ? '✦' : '○' }}</span>
+      <span class="milestone-icon" [class.passed]="hasPassedMilestone(75)">{{ hasPassedMilestone(75) ? '✦' : '○' }}</span>
+      <span class="milestone-icon" [class.passed]="hasPassedMilestone(100)">{{ hasPassedMilestone(100) ? '✦' : '○' }}</span>
+    </div>
+  </div>
+</div>

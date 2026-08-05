@@ -253,14 +253,14 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                           [style.background]="autoTrackingMode === 'SINGLE' ? '#10b981' : '#f1f5f9'"
                           [style.color]="autoTrackingMode === 'SINGLE' ? 'white' : '#64748b'"
                           [style.border]="'none'" [style.padding]="'0.5rem 1rem'" [style.borderRadius]="'6px'" [style.cursor]="'pointer'" [style.fontWeight]="'600'"
-                          (click)="autoTrackingMode = 'SINGLE'">
+                          (click)="setAutoTrackingMode('SINGLE')">
                     Single Category
                   </button>
                   <button type="button" 
                           [style.background]="autoTrackingMode === 'MULTI' ? '#10b981' : '#f1f5f9'"
                           [style.color]="autoTrackingMode === 'MULTI' ? 'white' : '#64748b'"
                           [style.border]="'none'" [style.padding]="'0.5rem 1rem'" [style.borderRadius]="'6px'" [style.cursor]="'pointer'" [style.fontWeight]="'600'"
-                          (click)="autoTrackingMode = 'MULTI'">
+                          (click)="setAutoTrackingMode('MULTI')">
                     Multi-Source Tracking
                   </button>
                 </div>
@@ -323,6 +323,49 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
               </div>
 
               <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Goal Configuration</h4>
+              <div style="display: flex; gap: 1rem; align-items: flex-end; margin-bottom: 1rem;">
+                <div style="flex: 1;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
+                  <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.5rem; display: block;">Evaluation Type</label>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                    <!-- Achievement Card -->
+                    <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'" 
+                         (click)="wizardForm.patchValue({challengeEvaluationType: 'ACHIEVEMENT'})">
+                      <div class="tc-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
+                        <span class="material-icons tc-icon">emoji_events</span>
+                      </div>
+                      <div class="tc-content">
+                        <h5>Achievement Challenge</h5>
+                        <div style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                          <div style="display: flex; align-items: center; gap: 0.25rem;"><span class="material-icons" style="font-size: 1rem; color: #10b981;">check_circle</span> User reaches a target</div>
+                          <div style="display: flex; align-items: center; gap: 0.25rem; margin-top: 0.125rem;"><span class="material-icons" style="font-size: 1rem; color: #10b981;">check_circle</span> Completes immediately</div>
+                        </div>
+                      </div>
+                      <div class="tc-radio">
+                        <span class="material-icons" *ngIf="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'">check_circle</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Budget Card -->
+                    <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'BUDGET'" 
+                         (click)="wizardForm.patchValue({challengeEvaluationType: 'BUDGET'})">
+                      <div class="tc-icon-wrapper" style="background: #fef9c3; color: #ca8a04;">
+                        <span class="material-icons tc-icon">account_balance_wallet</span>
+                      </div>
+                      <div class="tc-content">
+                        <h5>Budget Challenge</h5>
+                        <div style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                          <div style="display: flex; align-items: center; gap: 0.25rem;"><span class="material-icons" style="font-size: 1rem; color: #10b981;">check_circle</span> User stays below a limit</div>
+                          <div style="display: flex; align-items: center; gap: 0.25rem; margin-top: 0.125rem;"><span class="material-icons" style="font-size: 1rem; color: #10b981;">check_circle</span> Evaluated when challenge ends</div>
+                        </div>
+                      </div>
+                      <div class="tc-radio">
+                        <span class="material-icons" *ngIf="wizardForm.get('challengeEvaluationType')?.value === 'BUDGET'">check_circle</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div style="display: flex; gap: 1rem; align-items: flex-end;">
                 <div style="flex: 2;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                   <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Goal Type</label>
@@ -386,6 +429,13 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   <div>
                     <small>Goal</small>
                     <strong>{{ wizardForm.value.targetValue || 0 }} ({{ wizardForm.value.progressType }})</strong>
+                  </div>
+                </div>
+                <div class="review-row">
+                  <span class="material-icons review-icon">rule</span>
+                  <div>
+                    <small>Evaluation Type</small>
+                    <strong>{{ wizardForm.value.challengeEvaluationType }}</strong>
                   </div>
                 </div>
                 <div class="review-row">
@@ -657,6 +707,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     typeCode: ['COMMUNITY', [Validators.required]],
     linkedCategoryId: [null],
     carbonCategoryCode: [null],
+    challengeEvaluationType: ['ACHIEVEMENT', [Validators.required]],
     progressType: ['COUNT', [Validators.required]],
     trackingMethod: ['AUTOMATIC', [Validators.required]],
     approvalRequired: [false],
@@ -716,7 +767,8 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   resolveImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
     if (url.startsWith('http') || url.startsWith('data:')) return encodeURI(url);
-    return encodeURI(`${environment.apiUrl}/${url}`);
+    const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+    return encodeURI(`${baseUrl}/uploads/${url}`);
   }
 
   onImageError(): void {
@@ -809,6 +861,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
           typeCode: challenge.typeCode,
           linkedCategoryId: challenge.linkedCategoryId,
           carbonCategoryCode: challenge.carbonCategoryCode,
+          challengeEvaluationType: challenge.challengeEvaluationType || 'ACHIEVEMENT',
           rewardXp: challenge.rewardXp,
           progressType: challenge.progressType,
           trackingMethod: challenge.trackingMethod,
@@ -833,9 +886,14 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     });
   }
 
+  setAutoTrackingMode(mode: 'SINGLE' | 'MULTI') {
+    this.autoTrackingMode = mode;
+    this.onTrackingMethodChange();
+  }
+
   onTrackingMethodChange() {
     const trackingMethod = this.wizardForm.get('trackingMethod')?.value;
-    if (trackingMethod === 'MANUAL') {
+    if (trackingMethod === 'MANUAL' || this.autoTrackingMode === 'MULTI') {
       this.wizardForm.get('linkedCategoryId')?.clearValidators();
       this.wizardForm.get('linkedCategoryId')?.setValue(null);
     } else {
@@ -949,6 +1007,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       typeCode: formValue.typeCode,
       linkedCategoryId: formValue.trackingMethod === 'AUTOMATIC' && this.autoTrackingMode === 'SINGLE' ? Number(formValue.linkedCategoryId) : undefined,
       carbonCategoryCode: carbonCode,
+      challengeEvaluationType: formValue.challengeEvaluationType,
       progressType: formValue.progressType,
       trackingMethod: formValue.trackingMethod,
       targetValue: Number(formValue.targetValue),

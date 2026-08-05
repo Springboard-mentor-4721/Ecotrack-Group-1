@@ -13,7 +13,7 @@ import { ChallengeDetail, ChallengeParticipant } from '../../../../../models/cha
 export class ManualProgressModalComponent {
   @Input() isVisible = false;
   @Input({ required: true }) challenge!: ChallengeDetail | null;
-  @Input() participant!: ChallengeParticipant | null;
+  @Input() participant!: ChallengeParticipant | null | undefined;
   @Input() isValid = false;
   @Input() isActionLoading = false;
   
@@ -45,8 +45,8 @@ export class ManualProgressModalComponent {
     this.submitProgress.emit(val);
   }
 
-  @HostListener('document:keydown.escape', ['$event'])
-  onKeydownHandler(event: KeyboardEvent) {
+  @HostListener('document:keydown.escape')
+  onKeydownHandler() {
     if (this.isVisible) {
       this.close.emit();
     }

@@ -9,8 +9,8 @@
 /* Typography & Helpers */
 .tracking-tight { letter-spacing: -0.03em; }
 .tracking-wide { letter-spacing: 0.05em; }
-.fs-7 { font-size: 0.85rem; }
-.fs-xs { font-size: 0.75rem; }
+.fs-7 { font-size: 14px; }
+.fs-xs { font-size: 14px; }
 .max-w-lg { max-width: 600px; }
 .max-w-sm { max-width: 320px; }
 

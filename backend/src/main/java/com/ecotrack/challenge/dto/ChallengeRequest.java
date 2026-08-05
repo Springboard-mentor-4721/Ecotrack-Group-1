@@ -2,7 +2,7 @@ package com.ecotrack.challenge.dto;
 
 import com.ecotrack.challenge.enums.ChallengeStatus;
 import com.ecotrack.challenge.enums.TrackingMethod;
-import com.ecotrack.challenge.entity.ChallengeRules;
+import com.ecotrack.challenge.entity.RulesConfig;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -44,5 +44,7 @@ public class ChallengeRequest {
 
     private com.ecotrack.challenge.enums.ProgressType progressType;
     private TrackingMethod trackingMethod;
-    private ChallengeRules rulesConfig;
+    private com.ecotrack.challenge.enums.ChallengeEvaluationType challengeEvaluationType;
+    private RulesConfig rulesConfig;
+    private String imageUrl;
 }

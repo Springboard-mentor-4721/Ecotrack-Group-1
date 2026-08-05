@@ -22,7 +22,7 @@ export class OAuth2SuccessComponent implements OnInit {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           if (payload.role === 'ADMIN') {
-            this.router.navigate(['/admin/users']);
+            this.router.navigate(['/admin/dashboard']);
           } else {
             this.router.navigate(['/dashboard']);
           }

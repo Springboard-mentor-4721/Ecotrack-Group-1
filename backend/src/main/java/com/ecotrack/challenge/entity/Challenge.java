@@ -71,7 +71,15 @@ public class Challenge {
     @Builder.Default
     private TrackingMethod trackingMethod = TrackingMethod.MANUAL;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "challenge_evaluation_type", nullable = false, length = 20)
+    @Builder.Default
+    private com.ecotrack.challenge.enums.ChallengeEvaluationType challengeEvaluationType = com.ecotrack.challenge.enums.ChallengeEvaluationType.ACHIEVEMENT;
+
     @Column(name = "rules_config", columnDefinition = "json")
-    @Convert(converter = ChallengeRulesConverter.class)
-    private ChallengeRules rulesConfig;
+    @Convert(converter = RulesConfigConverter.class)
+    private RulesConfig rulesConfig;
+
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private String imageUrl;
 }

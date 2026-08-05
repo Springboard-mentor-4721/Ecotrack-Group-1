@@ -30,7 +30,8 @@
       <!-- Hero Challenge (Index 0) -->
       <div class="col-12 animate-stagger-item" *ngIf="challenges.length > 0">
         <div class="card-premium position-relative overflow-hidden shadow-sm d-flex flex-column flex-md-row align-items-stretch"
-             style="cursor: pointer; min-height: 320px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
+             [style.background]="'url(' + resolveImageUrl($any(challenges[0]).imageUrl, 0) + ') center/cover'"
+             style="cursor: pointer; min-height: 320px;"
              [routerLink]="['/challenges', challenges[0].id]">
           
           <!-- Decorative circles -->
@@ -84,6 +85,7 @@
       <ng-container *ngFor="let challenge of challenges; let i = index">
         <div class="col-12 col-md-6 col-lg-4 animate-stagger-item" *ngIf="i > 0">
           <div class="card-premium h-100 p-4 d-flex flex-column position-relative transition-all hover-shadow"
+               [style.background]="'url(' + resolveImageUrl($any(challenge).imageUrl, i) + ') center/cover'"
                style="cursor: pointer; overflow: hidden;"
                [routerLink]="['/challenges', challenge.id]">
             

@@ -81,11 +81,11 @@ public class ChallengeEngine {
 
         var rules = challenge.getRulesConfig();
         if (rules != null) {
-            if (rules.getBlockedSubcategories() != null && rules.getBlockedSubcategories().contains(event.getSubCategoryId())) {
+            if (rules.blockedSubcategoryIds() != null && rules.blockedSubcategoryIds().contains(event.getSubCategoryId())) {
                 return false;
             }
-            if (rules.getAllowedSubcategories() != null && !rules.getAllowedSubcategories().isEmpty()) {
-                if (!rules.getAllowedSubcategories().contains(event.getSubCategoryId())) {
+            if (rules.allowedSubcategoryIds() != null && !rules.allowedSubcategoryIds().isEmpty()) {
+                if (!rules.allowedSubcategoryIds().contains(event.getSubCategoryId())) {
                     return false;
                 }
             }

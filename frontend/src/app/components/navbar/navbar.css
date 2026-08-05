@@ -19,7 +19,7 @@
   border: 1px solid transparent;
   border-radius: 12px;
   padding: 0.6rem 1rem 0.6rem 2.5rem;
-  font-size: 0.9rem;
+  font-size: 14px;
   color: var(--text-primary);
   transition: all 150ms ease-in-out;
 }
@@ -75,7 +75,7 @@
 .avatar {
   width: 36px;
   height: 36px;
-  font-size: 1rem;
+  font-size: 16px;
 }
 
 .profile-btn {

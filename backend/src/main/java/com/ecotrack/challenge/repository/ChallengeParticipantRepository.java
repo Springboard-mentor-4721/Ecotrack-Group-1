@@ -18,4 +18,13 @@ public interface ChallengeParticipantRepository extends JpaRepository<ChallengeP
     long countByChallengeId(Long challengeId);
     List<ChallengeParticipant> findByChallengeId(Long challengeId);
     Page<ChallengeParticipant> findByChallengeId(Long challengeId, Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(cp.challenge.rewardXp), 0) FROM ChallengeParticipant cp WHERE cp.status = 'COMPLETED'")
+    long sumTotalXpDistributed();
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT cp.userId) FROM ChallengeParticipant cp")
+    long countDistinctUsers();
+
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(cp.challenge.targetValue), 0.0) FROM ChallengeParticipant cp WHERE cp.status = 'COMPLETED' AND cp.challenge.typeCode = 'REDUCE_CO2'")
+    double sumTotalCo2Impact();
 }

@@ -39,7 +39,9 @@ export class AdminChallengeService {
     size: number = 10,
     search?: string,
     status?: string,
-    trackingMethod?: string
+    trackingMethod?: string,
+    categoryId?: string,
+    sort?: string
   ): Observable<PageableResponse<Challenge>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -48,6 +50,8 @@ export class AdminChallengeService {
     if (search) params = params.set('search', search);
     if (status) params = params.set('status', status);
     if (trackingMethod) params = params.set('trackingMethod', trackingMethod);
+    if (categoryId) params = params.set('categoryId', categoryId);
+    if (sort) params = params.set('sort', sort);
 
     return this.http.get<PageableResponse<Challenge>>(this.apiUrl, { params });
   }
@@ -102,6 +106,12 @@ export class AdminChallengeService {
 
   archiveChallenge(id: number): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}/archive`, {});
+  }
+
+  uploadImage(id: number, file: File): Observable<{imageUrl: string}> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{imageUrl: string}>(`${this.apiUrl}/${id}/image`, formData);
   }
 
   bulkModerate(request: BulkModerateRequest): Observable<BulkActionResult> {

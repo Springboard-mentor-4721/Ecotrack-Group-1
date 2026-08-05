@@ -43,6 +43,16 @@ public class AdminChallengeController {
         return ResponseEntity.ok(challengeService.updateChallenge(id, request));
     }
 
+    @PostMapping("/{id}/image")
+    public ResponseEntity<Map<String, String>> uploadImage(
+            @PathVariable Long id,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        String imageUrl = challengeService.uploadImage(id, file);
+        Map<String, String> response = new java.util.HashMap<>();
+        response.put("imageUrl", imageUrl);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{id}/moderate")
     public ResponseEntity<ChallengeDTO> moderateChallenge(
             @PathVariable Long id,
@@ -72,8 +82,9 @@ public class AdminChallengeController {
             @RequestParam(name = "search", required = false) String search,
             @RequestParam(name = "status", required = false) ChallengeStatus status,
             @RequestParam(name = "trackingMethod", required = false) TrackingMethod trackingMethod,
+            @RequestParam(name = "categoryId", required = false) Long categoryId,
             Pageable pageable) {
-        return ResponseEntity.ok(challengeService.getAllChallenges(search, status, trackingMethod, pageable));
+        return ResponseEntity.ok(challengeService.getAllChallenges(search, status, trackingMethod, categoryId, pageable));
     }
 
     @GetMapping("/{id}")

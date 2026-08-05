@@ -15,8 +15,13 @@ public class ChallengeStatsDTO {
     private long scheduledCount;
     private long completedCount;
     private long archivedCount;
+    private long draftCount;
     private long totalParticipants;
     private double completionRate;
     private long xpDistributed;
     private double co2Impact;
+    private Double totalChallengesTrend;
+    private Double activeCountTrend;
+    private Double scheduledCountTrend;
+    private Double draftCountTrend;
 }

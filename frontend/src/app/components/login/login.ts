@@ -162,7 +162,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
           try {
             const payload = JSON.parse(atob(res.accessToken.split('.')[1]));
             if (payload.role === 'ADMIN') {
-              this.router.navigate(['/admin/users']);
+              this.router.navigate(['/admin/dashboard']);
             } else {
               this.router.navigate(['/dashboard']);
             }

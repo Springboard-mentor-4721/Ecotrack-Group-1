@@ -20,6 +20,9 @@ import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
 import com.ecotrack.challenge.repository.ChallengeRepository;
 import com.ecotrack.challenge.repository.ChallengeSpecification;
 import com.ecotrack.tracking.repository.CarbonCategoryRepository;
+import com.ecotrack.user.util.FileUploadUtil;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +68,7 @@ public class ChallengeService {
         detailDTO.setTrackingMethod(challenge.getTrackingMethod());
         detailDTO.setRulesConfig(challenge.getRulesConfig());
         detailDTO.setCommunityProgress(challenge.getCommunityProgress());
+        detailDTO.setImageUrl(challenge.getImageUrl());
         
         participantRepository.findByChallengeIdAndUserId(id, userId)
                 .ifPresent(p -> detailDTO.setUserProgress(mapToDTO(p)));
@@ -162,6 +166,7 @@ public class ChallengeService {
                 .rewardXp(reward)
                 .progressType(pType)
                 .trackingMethod(tMethod)
+                .challengeEvaluationType(request.getChallengeEvaluationType() != null ? request.getChallengeEvaluationType() : com.ecotrack.challenge.enums.ChallengeEvaluationType.ACHIEVEMENT)
                 .rulesConfig(request.getRulesConfig())
                 .status(ChallengeStatus.PENDING)
                 .build();
@@ -197,9 +202,26 @@ public class ChallengeService {
         if (request.getRewardXp() != null) challenge.setRewardXp(request.getRewardXp());
         if (request.getProgressType() != null) challenge.setProgressType(request.getProgressType());
         if (request.getTrackingMethod() != null) challenge.setTrackingMethod(request.getTrackingMethod());
+        if (request.getChallengeEvaluationType() != null) challenge.setChallengeEvaluationType(request.getChallengeEvaluationType());
         challenge.setRulesConfig(request.getRulesConfig());
+        challenge.setImageUrl(request.getImageUrl());
         
         return mapToDTO(challengeRepository.save(challenge));
+    }
+
+    @Transactional
+    public String uploadImage(Long id, MultipartFile file) throws IOException {
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
+
+        String UPLOAD_DIR = "uploads/challenge-images/";
+        String fileName = FileUploadUtil.saveProfileImage(file, UPLOAD_DIR, id);
+        String imagePath = UPLOAD_DIR + fileName;
+
+        challenge.setImageUrl(imagePath);
+        challengeRepository.save(challenge);
+
+        return imagePath;
     }
 
     @Transactional
@@ -212,7 +234,11 @@ public class ChallengeService {
         }
                 
         if ("APPROVE".equalsIgnoreCase(action)) {
-            challenge.setStatus(ChallengeStatus.ACTIVE);
+            if (challenge.getStartDate().isAfter(LocalDateTime.now())) {
+                challenge.setStatus(ChallengeStatus.UPCOMING);
+            } else {
+                challenge.setStatus(ChallengeStatus.ACTIVE);
+            }
         } else if ("REJECT".equalsIgnoreCase(action)) {
             challenge.setStatus(ChallengeStatus.CLOSED);
         }
@@ -268,8 +294,8 @@ public class ChallengeService {
     }
     
     @Transactional(readOnly = true)
-    public Page<ChallengeDTO> getAllChallenges(String search, ChallengeStatus status, TrackingMethod trackingMethod, Pageable pageable) {
-        return challengeRepository.findAll(ChallengeSpecification.filter(search, status, trackingMethod), pageable).map(this::mapToDTO);
+    public Page<ChallengeDTO> getAllChallenges(String search, ChallengeStatus status, TrackingMethod trackingMethod, Long categoryId, Pageable pageable) {
+        return challengeRepository.findAll(ChallengeSpecification.filter(search, status, trackingMethod, categoryId), pageable).map(this::mapToDTO);
     }
     
     @Transactional(readOnly = true)
@@ -293,6 +319,7 @@ public class ChallengeService {
         detailDTO.setRulesConfig(challenge.getRulesConfig());
         detailDTO.setCommunityProgress(challenge.getCommunityProgress());
         detailDTO.setParticipantCount(participantRepository.countByChallengeId(id));
+        detailDTO.setImageUrl(challenge.getImageUrl());
         return detailDTO;
     }
     
@@ -304,7 +331,7 @@ public class ChallengeService {
     @Transactional(readOnly = true)
     public ChallengeStatsDTO getChallengeStats() {
         long total = challengeRepository.count();
-        long active = 0, upcoming = 0, completed = 0, archived = 0;
+        long active = 0, upcoming = 0, completed = 0, archived = 0, draft = 0;
 
         java.util.List<Object[]> statusCounts = challengeRepository.countChallengesByStatus();
         for (Object[] row : statusCounts) {
@@ -314,13 +341,28 @@ public class ChallengeService {
             else if (s == ChallengeStatus.UPCOMING) upcoming = count;
             else if (s == ChallengeStatus.COMPLETED) completed = count;
             else if (s == ChallengeStatus.ARCHIVED) archived = count;
+            else if (s == ChallengeStatus.PENDING) draft = count;
         }
 
-        long participants = participantRepository.count();
+        long participants = participantRepository.countDistinctUsers();
         
         double completionRate = total > 0 ? Math.round(((double) completed / total) * 1000.0) / 10.0 : 0.0;
-        long xpDistributed = participants * 1500L + 8500000L;
-        double co2Impact = Math.round((participants * 2.5 + 240.0) * 10.0) / 10.0;
+        long xpDistributed = participantRepository.sumTotalXpDistributed();
+        double co2Impact = Math.round(participantRepository.sumTotalCo2Impact() * 10.0) / 10.0;
+        
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.LocalDateTime thirtyDaysAgo = now.minusDays(30);
+        java.time.LocalDateTime sixtyDaysAgo = now.minusDays(60);
+        
+        long createdLast30 = challengeRepository.countByCreatedAtBetween(thirtyDaysAgo, now);
+        long createdPrevious30 = challengeRepository.countByCreatedAtBetween(sixtyDaysAgo, thirtyDaysAgo);
+        
+        Double totalChallengesTrend = null;
+        if (createdPrevious30 > 0) {
+            totalChallengesTrend = Math.round((((double) createdLast30 - createdPrevious30) / createdPrevious30) * 100.0 * 10.0) / 10.0;
+        } else if (createdLast30 > 0) {
+            totalChallengesTrend = 100.0; // 100% increase if previous was 0 and now we have some
+        }
         
         return ChallengeStatsDTO.builder()
                 .totalChallenges(total)
@@ -328,10 +370,15 @@ public class ChallengeService {
                 .scheduledCount(upcoming)
                 .completedCount(completed)
                 .archivedCount(archived)
+                .draftCount(draft)
                 .totalParticipants(participants)
                 .completionRate(completionRate)
                 .xpDistributed(xpDistributed)
                 .co2Impact(co2Impact)
+                .totalChallengesTrend(totalChallengesTrend)
+                .activeCountTrend(null)
+                .scheduledCountTrend(null)
+                .draftCountTrend(null)
                 .build();
     }
     
@@ -357,9 +404,11 @@ public class ChallengeService {
                 .rewardXp(c.getRewardXp())
                 .progressType(c.getProgressType())
                 .trackingMethod(c.getTrackingMethod())
+                .challengeEvaluationType(c.getChallengeEvaluationType())
                 .rulesConfig(c.getRulesConfig())
                 .communityProgress(c.getCommunityProgress())
                 .participantCount(participantRepository.countByChallengeId(c.getId()))
+                .imageUrl(c.getImageUrl())
                 .build();
     }
     

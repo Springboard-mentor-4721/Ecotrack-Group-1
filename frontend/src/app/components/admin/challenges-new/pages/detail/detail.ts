@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
@@ -8,6 +8,7 @@ import { AdminChallengeService } from '../../services/admin-challenge.service';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { ConfirmationDialogService } from '../../../../../shared/services/confirmation-dialog.service';
 import { ChallengeDetail } from '../../../../../models/challenge.models';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-challenge-detail',
@@ -24,19 +25,16 @@ import { ChallengeDetail } from '../../../../../models/challenge.models';
           <h1 class="mb-1" style="font-size: 1.8rem; font-weight: 700; color: #0f172a;">Challenge Details</h1>
         </div>
         <div class="actions d-flex gap-2" *ngIf="challenge() as c">
-          <button class="btn btn-outline" [disabled]="c.status !== 'PENDING' && c.status !== 'UPCOMING'" (click)="editChallenge(c.id)">
+          <button class="btn btn-outline" *ngIf="c.status === 'PENDING' || c.status === 'UPCOMING'" (click)="editChallenge(c.id)">
             <span class="material-icons text-primary">edit</span> Edit
           </button>
-          <button class="btn btn-outline" (click)="duplicateChallenge(c)">
-            <span class="material-icons text-indigo">content_copy</span> Duplicate
-          </button>
-          <button class="btn btn-outline" [disabled]="c.status !== 'PENDING'" (click)="approveChallenge(c)">
+          <button class="btn btn-outline" *ngIf="c.status === 'PENDING'" (click)="approveChallenge(c)">
             <span class="material-icons text-success">check_circle</span> Approve
           </button>
-          <button class="btn btn-outline" [disabled]="c.status !== 'PENDING'" (click)="rejectChallenge(c)">
+          <button class="btn btn-outline" *ngIf="c.status === 'PENDING'" (click)="rejectChallenge(c)">
             <span class="material-icons text-danger">cancel</span> Reject
           </button>
-          <button class="btn btn-outline" [disabled]="c.status === 'ARCHIVED'" (click)="archiveChallenge(c)">
+          <button class="btn btn-outline" *ngIf="c.status !== 'ARCHIVED'" (click)="archiveChallenge(c)">
             <span class="material-icons text-secondary">archive</span> Archive
           </button>
         </div>
@@ -52,7 +50,10 @@ import { ChallengeDetail } from '../../../../../models/challenge.models';
 
       <div class="detail-card" *ngIf="!loading() && !apiError() && challenge() as c">
         <div class="status-banner" [ngClass]="'banner-' + c.status">
-          <span class="fw-bold">{{ c.status | titlecase }}</span>
+          <span class="fw-bold">{{ c.status === 'PENDING' ? 'Draft' : (c.status | titlecase) }}</span>
+        </div>
+        
+        <div class="challenge-image-banner" [style.background]="c.imageUrl ? 'url(' + resolveImageUrl(c.imageUrl) + ') center/cover no-repeat' : 'linear-gradient(135deg, #10b981 0%, #047857 100%)'">
         </div>
         
         <div class="p-4 p-md-5">
@@ -148,6 +149,7 @@ import { ChallengeDetail } from '../../../../../models/challenge.models';
     .banner-ARCHIVED { background: #64748b; }
     .banner-UPCOMING { background: #3b82f6; }
     .banner-CLOSED { background: #ef4444; }
+    .challenge-image-banner { height: 250px; width: 100%; border-bottom: 1px solid #e2e8f0; }
   `]
 })
 export class DetailComponent implements OnInit {
@@ -157,10 +159,17 @@ export class DetailComponent implements OnInit {
   private toast = inject(ToastService);
   private dialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   challenge = signal<ChallengeDetail | null>(null);
   loading = signal<boolean>(true);
   apiError = signal<boolean>(false);
+
+  resolveImageUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return `${environment.apiUrl}/${url}`;
+  }
 
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -191,7 +200,10 @@ export class DetailComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(res => {
-        if (res) this.challenge.set(res);
+        if (res) {
+          this.challenge.set(res);
+          this.cdr.markForCheck();
+        }
       });
   }
 
@@ -218,8 +230,12 @@ export class DetailComponent implements OnInit {
       next: () => {
         this.toast.success(`Challenge approved.`);
         this.loadChallenge(c.id);
+        this.cdr.markForCheck();
       },
-      error: () => this.toast.error('Failed to approve challenge.')
+      error: () => {
+        this.toast.error('Failed to approve challenge.');
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -231,7 +247,10 @@ export class DetailComponent implements OnInit {
             this.toast.success(`Challenge rejected.`);
             this.router.navigate(['/admin/challenges']);
           },
-          error: () => this.toast.error('Failed to reject challenge.')
+          error: () => {
+            this.toast.error('Failed to reject challenge.');
+            this.cdr.markForCheck();
+          }
         });
       }
     });
@@ -244,8 +263,12 @@ export class DetailComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge archived.`);
             this.loadChallenge(c.id);
+            this.cdr.markForCheck();
           },
-          error: () => this.toast.error('Failed to archive challenge.')
+          error: () => {
+            this.toast.error('Failed to archive challenge.');
+            this.cdr.markForCheck();
+          }
         });
       }
     });

@@ -6,6 +6,7 @@ import { ChallengeService } from '../../../services/challenge.service';
 import { AuthService } from '../../../services/auth.service';
 import { ChallengeDetail } from '../../../models/challenge.models';
 import { finalize } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-challenge-detail-page',
@@ -170,4 +171,17 @@ export class ChallengeDetailPageComponent implements OnInit {
   }
 
   Math = Math;
+
+  resolveImageUrl(url: string | null | undefined, fallbackIndex: number = 0): string {
+    if (!url) {
+      const fallbacks = [
+        'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=500&q=80',
+        'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500&q=80',
+        'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=500&q=80'
+      ];
+      return fallbacks[fallbackIndex % fallbacks.length];
+    }
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return `${environment.apiUrl}/${url}`;
+  }
 }

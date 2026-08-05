@@ -14,6 +14,7 @@ import java.util.List;
 public class CarbonCategoryDto {
     private Long id;
     private String name;
+    private String code;
     private Integer displayOrder;
     private String icon;
     private String color;

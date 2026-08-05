@@ -17,7 +17,7 @@
   <div *ngIf="!isLoading && challenge" class="animate-stagger-item">
     
     <!-- Hero Banner (Full Width Premium) -->
-    <div class="position-relative overflow-hidden mb-5 rounded-4 shadow-sm group" style="background: url('https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=1200&q=80') center/cover; min-height: 380px;">
+    <div class="position-relative overflow-hidden mb-5 rounded-4 shadow-sm group" [style.background]="'url(' + resolveImageUrl($any(challenge).imageUrl, 0) + ') center/cover'" style="min-height: 380px;">
       <!-- Gradient overlay -->
       <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(6,78,59,0.85) 0%, rgba(2,44,34,0.95) 100%);"></div>
       
@@ -291,7 +291,7 @@
       <!-- Rewards -->
       <div class="col-12 col-md-5">
         <div class="bg-dark rounded-4 p-5 border-0 shadow-lg h-100 position-relative overflow-hidden group">
-          <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" style="background: url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500&q=80') center/cover; pointer-events: none;"></div>
+          <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" [style.background]="'url(' + resolveImageUrl($any(challenge).imageUrl, 1) + ') center/cover'" style="pointer-events: none;"></div>
           <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.95) 100%);"></div>
           
           <div class="position-relative z-1 h-100 d-flex flex-column">

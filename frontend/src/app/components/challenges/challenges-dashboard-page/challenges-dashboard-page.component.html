@@ -92,7 +92,7 @@
              [routerLink]="['/challenges', my.challenge.id]">
           
           <!-- Image Banner -->
-          <div class="position-relative w-100" style="height: 120px; background: url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=500&q=80') center/cover;">
+          <div class="position-relative w-100" [style.background]="'url(' + resolveImageUrl($any(my.challenge).imageUrl, 0) + ') center/cover'" style="height: 120px;">
              <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 transition-all group-hover-opacity-75"></div>
              <div class="position-absolute top-0 end-0 m-3">
                <span class="badge bg-emerald text-white px-2 py-1 rounded fs-xs fw-bolder shadow-sm tracking-wide">ACTIVE</span>
@@ -159,7 +159,7 @@
           <div class="bg-white rounded-4 border-0 shadow-sm h-100 d-flex flex-column transition-all hover-shadow-lg position-relative overflow-hidden group">
             
             <!-- Banner Image & Gradient Overlay -->
-            <div class="position-relative w-100" style="height: 180px; background: url('https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=500&q=80') center/cover; cursor: pointer;" [routerLink]="['/challenges', rec.id]">
+            <div class="position-relative w-100" [style.background]="'url(' + resolveImageUrl($any(rec).imageUrl, 1) + ') center/cover'" style="height: 180px; cursor: pointer;" [routerLink]="['/challenges', rec.id]">
               <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);"></div>
               
               <div class="position-absolute top-0 end-0 m-3 d-flex flex-column gap-2 align-items-end">
@@ -256,7 +256,7 @@
           <div class="bg-white rounded-4 border-0 shadow-sm h-100 d-flex flex-column transition-all hover-shadow-lg position-relative overflow-hidden group">
             
             <!-- Banner Image & Gradient Overlay -->
-            <div class="position-relative w-100" style="height: 180px; background: url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500&q=80') center/cover; cursor: pointer;" [routerLink]="['/challenges', challenge.id]">
+            <div class="position-relative w-100" [style.background]="'url(' + resolveImageUrl($any(challenge).imageUrl, 2) + ') center/cover'" style="height: 180px; cursor: pointer;" [routerLink]="['/challenges', challenge.id]">
               <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);"></div>
               
               <!-- Badges -->

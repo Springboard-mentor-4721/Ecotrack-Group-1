@@ -81,7 +81,7 @@
   align-items: center;
   padding: 0.35rem 0.85rem;
   border-radius: 50px;
-  font-size: 0.75rem;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -140,7 +140,7 @@
 }
 
 .ro-label {
-  font-size: 0.8rem;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;

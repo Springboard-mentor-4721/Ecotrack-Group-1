@@ -43,6 +43,7 @@ public class CarbonCategoryController {
             return CarbonCategoryDto.builder()
                 .id(cat.getCategoryId())
                 .name(cat.getName())
+                .code(cat.getCode())
                 .displayOrder(cat.getDisplayOrder())
                 .icon(cat.getIcon())
                 .color(cat.getColor())

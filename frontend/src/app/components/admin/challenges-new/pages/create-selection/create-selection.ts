@@ -2,7 +2,9 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@a
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DEFAULT_CHALLENGE_TEMPLATES, ChallengeTemplate } from '../../challenge-default-templates';
+import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
+import { ChallengeTemplate } from '../../../../../models/challenge-template.model';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-create-selection',
@@ -11,7 +13,7 @@ import { DEFAULT_CHALLENGE_TEMPLATES, ChallengeTemplate } from '../../challenge-
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="create-selection-container p-4 p-md-5">
-      <div class="mb-5">
+      <div class="mb-5" *ngIf="!showTemplates()">
         <button class="btn-back d-flex align-items-center mb-3 text-muted bg-transparent border-0 px-0" routerLink="/admin/challenges">
           <span class="material-icons me-1 fs-5">arrow_back</span> Back to Library
         </button>
@@ -60,47 +62,56 @@ import { DEFAULT_CHALLENGE_TEMPLATES, ChallengeTemplate } from '../../challenge-
               <span class="input-group-text bg-white border-0"><span class="material-icons text-muted">search</span></span>
               <input type="text" class="form-control border-0 shadow-none px-0" placeholder="Search templates..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
             </div>
-            <select class="form-select rounded-pill border shadow-none" [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event)" style="width: 140px;">
-              <option value="">All Categories</option>
-              <option value="Transport">Transport</option>
-              <option value="Waste">Waste</option>
-              <option value="Energy">Energy</option>
-              <option value="Water">Water</option>
-              <option value="Food">Food</option>
-              <option value="Nature">Nature</option>
-              <option value="Shopping">Shopping</option>
-            </select>
-            <select class="form-select rounded-pill border shadow-none" [ngModel]="difficultyFilter()" (ngModelChange)="difficultyFilter.set($event)" style="width: 140px;">
-              <option value="">All Difficulties</option>
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
-            </select>
           </div>
         </div>
 
         <div class="row g-4">
           <div class="col-12 col-md-6 col-lg-4" *ngFor="let t of filteredTemplates()">
-            <div class="template-card h-100 p-4 rounded-4 border bg-white d-flex flex-column transition-all hover-shadow-lg position-relative overflow-hidden group">
-              <div class="d-flex justify-content-between align-items-start mb-3 position-relative z-1">
-                <div class="icon-box rounded-3 d-flex align-items-center justify-content-center" [style.backgroundColor]="t.color + '20'" [style.color]="t.color" style="width: 48px; height: 48px;">
-                  <span class="material-icons fs-4">{{ t.icon }}</span>
-                </div>
-                <div class="badges d-flex flex-column gap-1 align-items-end">
-                  <span class="badge bg-light text-dark border">{{ t.recommendedCategory }}</span>
-                  <span class="badge" [ngClass]="{'bg-success': t.difficulty === 'Easy', 'bg-warning text-dark': t.difficulty === 'Medium', 'bg-danger': t.difficulty === 'Hard'}">{{ t.difficulty }}</span>
+            <div class="template-card h-100 rounded-4 border bg-white d-flex flex-column transition-all hover-shadow-lg position-relative overflow-hidden group">
+              <!-- Hero Image -->
+              <div class="template-img-header position-relative" [style.backgroundColor]="'#10b981'" style="display:flex; justify-content:center; align-items:center; overflow:hidden;">
+                <img *ngIf="t.imagePath" [src]="getImageUrl(t.imagePath)" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1;" (error)="handleImageError(t)" />
+                <span class="material-icons" style="font-size:3rem; color:white; position:relative; z-index:2;" *ngIf="!t.imagePath">eco</span>
+                <div class="overlay-gradient" style="z-index:3;"></div>
+                <div class="badges-top d-flex gap-2 position-absolute w-100 p-3" style="top:0; left:0; justify-content: space-between; z-index:4;">
+                  <span class="badge bg-dark border">{{ t.category }}</span>
+                  <span class="badge" [style.backgroundColor]="t.badgeColor">{{ t.trackingMethod }}</span>
                 </div>
               </div>
               
-              <h4 class="fw-bolder mb-2 fs-5 position-relative z-1">{{ t.title }}</h4>
-              <p class="text-muted fs-sm mb-4 flex-grow-1 position-relative z-1">{{ t.description }}</p>
-              
-              <div class="template-meta d-flex justify-content-between align-items-center pt-3 border-top position-relative z-1">
-                <div class="d-flex align-items-center text-muted fs-xs gap-3 fw-bold">
-                  <span class="d-flex align-items-center"><span class="material-icons fs-6 me-1">schedule</span> {{ t.recommendedDurationDays }} days</span>
-                  <span class="d-flex align-items-center"><span class="material-icons fs-6 me-1">star</span> {{ t.reward }} XP</span>
+              <div class="p-4 d-flex flex-column flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h4 class="fw-bolder m-0 fs-5 text-dark">{{ t.title }}</h4>
                 </div>
-                <button class="btn btn-sm btn-outline-dark rounded-pill fw-bold" (click)="useTemplate(t)">Use Template</button>
+                
+                <p class="text-muted fs-sm mb-4 flex-grow-1 lh-sm">{{ t.description }}</p>
+                
+                <div class="metrics-grid grid mb-3 p-3 bg-light rounded-3" style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
+                  <div class="metric-item d-flex flex-column">
+                    <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Goal Target</span>
+                    <span class="fw-bold fs-6 text-dark">{{ t.goalTarget }} {{ t.goalUnit }}</span>
+                  </div>
+                  <div class="metric-item d-flex flex-column">
+                    <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Duration</span>
+                    <span class="fw-bold fs-6 text-dark">{{ t.durationDays }} Days</span>
+                  </div>
+                  <div class="metric-item d-flex flex-column">
+                    <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Reward</span>
+                    <span class="fw-bold fs-6 text-warning d-flex align-items-center"><span class="material-icons fs-6 me-1">star</span>{{ t.rewardXP }} XP</span>
+                  </div>
+                  <div class="metric-item d-flex flex-column">
+                    <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Difficulty</span>
+                    <span class="fw-bold fs-6 text-dark">{{ t.difficulty }}</span>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                  <div class="d-flex align-items-center text-emerald fs-xs fw-bold" *ngIf="t.estimatedCarbonImpact > 0">
+                    <span class="material-icons fs-6 me-1">eco</span> {{ t.estimatedCarbonImpact }}kg CO₂ Impact
+                  </div>
+                  <div *ngIf="t.estimatedCarbonImpact <= 0"></div>
+                  <button class="btn btn-dark rounded-pill fw-bold px-4" (click)="useTemplate(t)">Use Template</button>
+                </div>
               </div>
             </div>
           </div>
@@ -108,7 +119,6 @@ import { DEFAULT_CHALLENGE_TEMPLATES, ChallengeTemplate } from '../../challenge-
           <div class="col-12 text-center py-5" *ngIf="filteredTemplates().length === 0">
             <span class="material-icons text-muted mb-3" style="font-size: 3rem;">search_off</span>
             <h5 class="fw-bold">No templates found</h5>
-            <p class="text-muted">Try adjusting your filters or search query.</p>
             <button class="btn btn-outline-primary rounded-pill mt-2" (click)="resetFilters()">Clear Filters</button>
           </div>
         </div>
@@ -127,6 +137,10 @@ import { DEFAULT_CHALLENGE_TEMPLATES, ChallengeTemplate } from '../../challenge-
     .template-card:hover .icon-box { transform: scale(1.1); transition: transform 0.3s ease; }
     .input-group:focus-within { box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); border-color: #86b7fe !important; }
     .form-select:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
+    
+    .template-img-header { height: 180px; width: 100%; border-bottom: 1px solid #e2e8f0; }
+    .overlay-gradient { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 100%); }
+
   `]
 })
 export class CreateSelectionComponent {
@@ -136,30 +150,27 @@ export class CreateSelectionComponent {
   templates = signal<ChallengeTemplate[]>(DEFAULT_CHALLENGE_TEMPLATES);
   
   searchQuery = signal<string>('');
-  categoryFilter = signal<string>('');
-  difficultyFilter = signal<string>('');
 
   filteredTemplates = computed(() => {
     let result = this.templates();
     const query = this.searchQuery().toLowerCase().trim();
     if (query) {
-      result = result.filter(t => t.title.toLowerCase().includes(query) || t.description.toLowerCase().includes(query));
-    }
-    const cat = this.categoryFilter();
-    if (cat) {
-      result = result.filter(t => t.recommendedCategory === cat);
-    }
-    const diff = this.difficultyFilter();
-    if (diff) {
-      result = result.filter(t => t.difficulty === diff);
+      result = result.filter(t => t.title.toLowerCase().includes(query) || t.description.toLowerCase().includes(query) || t.category.toLowerCase().includes(query));
     }
     return result;
   });
 
+  handleImageError(template: any) {
+    template.imagePath = null;
+  }
+
+  getImageUrl(path: string | undefined): string {
+    if (!path) return '';
+    return encodeURI(`${environment.apiUrl}/${path}`);
+  }
+
   resetFilters() {
     this.searchQuery.set('');
-    this.categoryFilter.set('');
-    this.difficultyFilter.set('');
   }
 
   startFromScratch() {
@@ -168,28 +179,38 @@ export class CreateSelectionComponent {
 
   useTemplate(t: ChallengeTemplate) {
     const templateData = {
+      id: t.id,
       title: t.title,
       description: t.description,
-      typeCode: t.recommendedCategory.toUpperCase(), // Using recommended category as a fallback typeCode
+      typeCode: t.defaultChallengeType || 'COMMUNITY', 
       trackingMethod: t.trackingMethod,
-      carbonCategoryCode: t.carbonCategoryCode,
-      progressType: t.goalType,
-      rewardXp: t.reward,
-      targetValue: t.targetValue,
-      rulesConfig: t.rulesConfig
+      trackingSources: t.trackingSources,
+      progressType: t.goalType === 'COUNT' ? 'COUNT' : 'AMOUNT',
+      rewardXp: t.rewardXP,
+      targetValue: t.goalTarget,
+      imageUrl: t.imagePath,
+      rulesConfig: t.defaultRules
     };
 
-    // Calculate dates based on recommendedDurationDays
+    // Calculate dates based on durationDays (in local timezone)
     const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + t.recommendedDurationDays);
+    const sy = startDate.getFullYear();
+    const sm = String(startDate.getMonth() + 1).padStart(2, '0');
+    const sd = String(startDate.getDate()).padStart(2, '0');
+    const startStr = `${sy}-${sm}-${sd}`;
     
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + t.durationDays);
+    const ey = endDate.getFullYear();
+    const em = String(endDate.getMonth() + 1).padStart(2, '0');
+    const ed = String(endDate.getDate()).padStart(2, '0');
+    const endStr = `${ey}-${em}-${ed}`;
+
     // Add dates to templateData
     const finalData = {
       ...templateData,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString()
+      startDate: startStr,
+      endDate: endStr
     };
 
     this.router.navigate(['/admin/challenges/create/wizard'], { 

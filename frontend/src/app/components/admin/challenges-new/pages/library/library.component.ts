@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { EmptyStateComponent } from '../../../../../shared/ui/empty-state/empty-
 import { LoadingSkeletonComponent } from '../../../../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { LibraryParticipantsComponent } from './components/library-participants.component';
 import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-action-bar.component';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-challenges-library',
@@ -30,83 +31,122 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
           <p>Manage, monitor and organize all sustainability challenges.</p>
         </div>
         <div class="header-right">
-          <button class="btn btn-outline" (click)="toastInfo('Import template feature coming soon.')">
-            <span class="material-icons">upload</span> Import Template
-          </button>
-          <button class="btn btn-outline" (click)="toastInfo('Export feature coming soon.')">
-            <span class="material-icons">download</span> Export
-          </button>
-          <button class="btn btn-primary" (click)="createChallenge()">
-            <span class="material-icons">add</span> Create Challenge
-          </button>
+
+        <button class="btn btn-primary" (click)="createChallenge()">
+          <span class="material-icons">add</span> Create Challenge
+        </button>
         </div>
       </header>
 
       <div class="stats-grid" *ngIf="stats() as s">
         <div class="stat-card">
-          <div class="stat-label">Total</div>
+          <div class="stat-icon" style="color: #22c55e; background: #dcfce7;"><span class="material-icons">description</span></div>
+          <div class="stat-label">Total Challenges</div>
           <div class="stat-value">{{ s.totalChallenges || 0 }}</div>
+          <div class="stat-trend" *ngIf="s.totalChallengesTrend != null"><span [ngClass]="s.totalChallengesTrend >= 0 ? 'positive' : 'negative'"><span class="material-icons">{{ s.totalChallengesTrend >= 0 ? 'arrow_upward' : 'arrow_downward' }}</span> {{ s.totalChallengesTrend }}%</span> vs last month</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Active</div>
+          <div class="stat-icon" style="color: #10b981; background: #d1fae5;"><span class="material-icons">play_circle_outline</span></div>
+          <div class="stat-label">Active Challenges</div>
           <div class="stat-value">{{ s.activeCount || 0 }}</div>
+          <div class="stat-trend" *ngIf="s.activeCountTrend != null"><span [ngClass]="s.activeCountTrend >= 0 ? 'positive' : 'negative'"><span class="material-icons">{{ s.activeCountTrend >= 0 ? 'arrow_upward' : 'arrow_downward' }}</span> {{ s.activeCountTrend }}%</span> vs last month</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Upcoming</div>
+          <div class="stat-icon" style="color: #3b82f6; background: #dbeafe;"><span class="material-icons">calendar_today</span></div>
+          <div class="stat-label">Scheduled Challenges</div>
           <div class="stat-value">{{ s.scheduledCount || 0 }}</div>
+          <div class="stat-trend" *ngIf="s.scheduledCountTrend != null"><span [ngClass]="s.scheduledCountTrend >= 0 ? 'positive' : 'negative'"><span class="material-icons">{{ s.scheduledCountTrend >= 0 ? 'arrow_upward' : 'arrow_downward' }}</span> {{ s.scheduledCountTrend }}%</span> vs last month</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Completed</div>
-          <div class="stat-value">{{ s.completedCount || 0 }}</div>
+          <div class="stat-icon" style="color: #f97316; background: #ffedd5;"><span class="material-icons">description</span></div>
+          <div class="stat-label">Draft Challenges</div>
+          <div class="stat-value">{{ s.draftCount || 0 }}</div>
+          <div class="stat-trend" *ngIf="s.draftCountTrend != null"><span [ngClass]="s.draftCountTrend >= 0 ? 'positive' : 'negative'"><span class="material-icons">{{ s.draftCountTrend >= 0 ? 'arrow_upward' : 'arrow_downward' }}</span> {{ s.draftCountTrend }}%</span> vs last month</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Archived</div>
+          <div class="stat-icon" style="color: #64748b; background: #f1f5f9;"><span class="material-icons">inventory_2</span></div>
+          <div class="stat-label">Archived Challenges</div>
           <div class="stat-value">{{ s.archivedCount || 0 }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Participants</div>
-          <div class="stat-value">{{ s.totalParticipants || 0 | number }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">XP Distributed</div>
-          <div class="stat-value">{{ s.xpDistributed || 0 | number }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">CO₂ Impact</div>
-          <div class="stat-value">{{ s.co2Impact || 0 }} kg</div>
+          <!-- Archived has no trend in design -->
         </div>
       </div>
 
       <div class="filter-bar">
-        <div class="search-input">
-          <span class="material-icons">search</span>
-          <input type="text" [formControl]="searchControl" placeholder="Search challenges..." />
+        <div class="filter-group">
+          <div class="search-input">
+            <span class="material-icons">search</span>
+            <input type="text" [formControl]="searchControl" placeholder="Search challenges..." />
+          </div>
+          
+
+          <!-- Tracking Method Dropdown -->
+          <div class="action-dropdown-container" style="min-width: 170px;">
+            <div class="filter-dropdown" (click)="showTrackingDropdown = !showTrackingDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+              <span>{{ trackingControl.value === '' ? 'Tracking Method' : (trackingControl.value === 'AUTOMATIC' ? 'Automatic' : 'Manual') }}</span>
+              <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
+            </div>
+            <div *ngIf="showTrackingDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showTrackingDropdown = false; $event.stopPropagation()"></div>
+            <div *ngIf="showTrackingDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
+              <button class="dropdown-item" [class.active-item]="trackingControl.value === ''" (click)="trackingControl.setValue(''); showTrackingDropdown = false">Tracking Method (All)</button>
+              <button class="dropdown-item" [class.active-item]="trackingControl.value === 'AUTOMATIC'" (click)="trackingControl.setValue('AUTOMATIC'); showTrackingDropdown = false">Automatic</button>
+              <button class="dropdown-item" [class.active-item]="trackingControl.value === 'MANUAL'" (click)="trackingControl.setValue('MANUAL'); showTrackingDropdown = false">Manual</button>
+            </div>
+          </div>
+
+          <!-- Category Dropdown -->
+          <div class="action-dropdown-container" style="min-width: 170px;">
+            <div class="filter-dropdown" (click)="showCategoryDropdown = !showCategoryDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+              <span>{{ getCategoryLabel() }}</span>
+              <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
+            </div>
+            <div *ngIf="showCategoryDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showCategoryDropdown = false; $event.stopPropagation()"></div>
+            <div *ngIf="showCategoryDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
+              <button class="dropdown-item" [class.active-item]="categoryControl.value === ''" (click)="categoryControl.setValue(''); showCategoryDropdown = false">Category (All)</button>
+              <button class="dropdown-item" *ngFor="let cat of carbonCategories()" [class.active-item]="categoryControl.value === cat.id.toString()" (click)="categoryControl.setValue(cat.id.toString()); showCategoryDropdown = false">{{ cat.name }}</button>
+            </div>
+          </div>
+
+          <!-- Status Dropdown -->
+          <div class="action-dropdown-container" style="min-width: 150px;">
+            <div class="filter-dropdown" (click)="showStatusDropdown = !showStatusDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+              <span>{{ getStatusLabel() }}</span>
+              <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
+            </div>
+            <div *ngIf="showStatusDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showStatusDropdown = false; $event.stopPropagation()"></div>
+            <div *ngIf="showStatusDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
+              <button class="dropdown-item" [class.active-item]="statusControl.value === ''" (click)="statusControl.setValue(''); showStatusDropdown = false">Status (All)</button>
+              <button class="dropdown-item" [class.active-item]="statusControl.value === 'PENDING'" (click)="statusControl.setValue('PENDING'); showStatusDropdown = false">Draft</button>
+              <button class="dropdown-item" [class.active-item]="statusControl.value === 'UPCOMING'" (click)="statusControl.setValue('UPCOMING'); showStatusDropdown = false">Scheduled</button>
+              <button class="dropdown-item" [class.active-item]="statusControl.value === 'ACTIVE'" (click)="statusControl.setValue('ACTIVE'); showStatusDropdown = false">Active</button>
+              <button class="dropdown-item" [class.active-item]="statusControl.value === 'COMPLETED'" (click)="statusControl.setValue('COMPLETED'); showStatusDropdown = false">Completed</button>
+              <button class="dropdown-item" [class.active-item]="statusControl.value === 'ARCHIVED'" (click)="statusControl.setValue('ARCHIVED'); showStatusDropdown = false">Archived</button>
+            </div>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="action-dropdown-container" style="min-width: 150px;">
+            <div class="filter-dropdown" (click)="showSortDropdown = !showSortDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+              <span>{{ getSortLabel() }}</span>
+              <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
+            </div>
+            <div *ngIf="showSortDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showSortDropdown = false; $event.stopPropagation()"></div>
+            <div *ngIf="showSortDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
+              <button class="dropdown-item" [class.active-item]="sortControl.value === 'newest'" (click)="sortControl.setValue('newest'); showSortDropdown = false">Sort: Newest</button>
+              <button class="dropdown-item" [class.active-item]="sortControl.value === 'oldest'" (click)="sortControl.setValue('oldest'); showSortDropdown = false">Sort: Oldest</button>
+              <button class="dropdown-item" [class.active-item]="sortControl.value === 'a-z'" (click)="sortControl.setValue('a-z'); showSortDropdown = false">Sort: A-Z</button>
+              <button class="dropdown-item" [class.active-item]="sortControl.value === 'z-a'" (click)="sortControl.setValue('z-a'); showSortDropdown = false">Sort: Z-A</button>
+            </div>
+          </div>
         </div>
         
-        <div class="filter-actions">
-          <button class="btn btn-outline" style="font-weight: 500; color: #0f172a">
-            <span class="material-icons">filter_alt</span> Filter
-          </button>
-          <select class="filter-dropdown" [formControl]="trackingControl">
-            <option value="">Tracking Method</option>
-            <option value="AUTOMATIC">Automatic</option>
-            <option value="MANUAL">Manual</option>
-          </select>
-          <select class="filter-dropdown" [formControl]="statusControl">
-            <option value="">Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="UPCOMING">Upcoming</option>
-            <option value="ACTIVE">Active</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CLOSED">Closed</option>
-            <option value="ARCHIVED">Archived</option>
-          </select>
-        </div>
       </div>
 
-      <div class="tabs">
+      <div class="tabs" style="align-items: center; padding-bottom: 4px;">
+        <button class="btn btn-outline" style="padding: 0.25rem 0.75rem; border-color: #cbd5e1; background: transparent; color: #64748b;" (click)="toggleSelectionMode()">
+          <span class="material-icons" style="font-size: 1.1rem;">check_box</span> Select
+        </button>
         <button class="tab" [class.active]="currentTab() === ''" (click)="setTab('')">All ({{ stats()?.totalChallenges || 0 }})</button>
-        <button class="tab" [class.active]="currentTab() === 'PENDING'" (click)="setTab('PENDING')">Pending</button>
+        <button class="tab" [class.active]="currentTab() === 'PENDING'" (click)="setTab('PENDING')">Draft ({{ stats()?.draftCount || 0 }})</button>
         <button class="tab" [class.active]="currentTab() === 'UPCOMING'" (click)="setTab('UPCOMING')">Scheduled ({{ stats()?.scheduledCount || 0 }})</button>
         <button class="tab" [class.active]="currentTab() === 'ACTIVE'" (click)="setTab('ACTIVE')">Active ({{ stats()?.activeCount || 0 }})</button>
         <button class="tab" [class.active]="currentTab() === 'COMPLETED'" (click)="setTab('COMPLETED')">Completed ({{ stats()?.completedCount || 0 }})</button>
@@ -136,12 +176,12 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th style="width: 40px; padding-right: 0">
+                    <th style="width: 40px; padding-right: 0" *ngIf="selectionMode()">
                       <input type="checkbox" class="custom-checkbox" 
                         [checked]="isAllSelected()" 
                         (change)="toggleAll($event)" />
                     </th>
-                    <th>Challenge</th>
+                    <th style="text-align: center;">Challenge</th>
                     <th>Category</th>
                     <th>Tracking Method</th>
                     <th>Participants</th>
@@ -155,16 +195,17 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
                 </thead>
                 <tbody>
                   <ng-container *ngFor="let c of challenges(); trackBy: trackById">
-                    <tr [class.archived]="c.status === 'ARCHIVED'" [class.expanded]="expandedRowId() === c.id">
-                      <td style="padding-right: 0">
+                    <tr [class.archived]="c.status === 'ARCHIVED'" [class.expanded]="expandedRowId() === c.id" (click)="viewChallenge(c.id)" (dblclick)="onRowDoubleClick(c.id, $event)">
+                      <td style="padding-right: 0" *ngIf="selectionMode()">
                         <input type="checkbox" class="custom-checkbox" 
                           [checked]="selectedIds().has(c.id)" 
+                          (click)="$event.stopPropagation()"
                           (change)="toggleSelection(c.id)" />
                       </td>
                       <td>
-                        <div class="campaign-cell">
-                          <div class="campaign-icon" [ngStyle]="{'background': getGradient(c.id)}">
-                            <span class="material-icons" style="color: white">flag</span>
+                        <div class="campaign-cell" style="justify-content: center; text-align: left;">
+                          <div class="campaign-icon" [ngStyle]="{'background': $any(c).imageUrl ? 'url(' + resolveImageUrl($any(c).imageUrl) + ') center/cover no-repeat' : getGradient(c.id)}">
+                            <span class="material-icons" style="color: white" *ngIf="!$any(c).imageUrl">flag</span>
                           </div>
                           <div class="campaign-info">
                             <span class="campaign-title">{{ c.title }}</span>
@@ -177,9 +218,8 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
                           <span class="material-icons">{{ getCategoryIcon(c.linkedCategoryId) }}</span>
                           <span>{{ getCarbonCategoryName(c.linkedCategoryId) }}</span>
                         </div>
-                        <div class="cat-cell" *ngIf="c.trackingMethod !== 'AUTOMATIC'">
-                          <span class="material-icons">category</span>
-                          <span>Manual Setup</span>
+                        <div class="cat-cell text-muted" *ngIf="c.trackingMethod !== 'AUTOMATIC'">
+                          <span>N/A</span>
                         </div>
                       </td>
                       <td>
@@ -191,7 +231,7 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
                       <td style="font-weight: 500; color: #0f172a">{{ c.rewardXp }} XP</td>
                       <td>
                         <span class="badge" [ngClass]="getStatusClass(c.status)">
-                          {{ c.status | titlecase }}
+                          {{ c.status === 'PENDING' ? 'Draft' : (c.status | titlecase) }}
                         </span>
                       </td>
                       <td style="color: #0f172a; font-weight: 500; font-size: 0.85rem; white-space: nowrap;">
@@ -217,26 +257,17 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
                             <button class="dropdown-item" (click)="viewChallenge(c.id)">
                               <span class="material-icons">visibility</span> View Details
                             </button>
-                            <button class="dropdown-item" (click)="toggleParticipants(c.id)">
-                              <span class="material-icons">people</span> Participants
+                            <button class="dropdown-item" *ngIf="c.status === 'PENDING' || c.status === 'UPCOMING'" (click)="editChallenge(c.id)">
+                              <span class="material-icons" style="color: #3b82f6">edit</span> Edit
                             </button>
-                            <button class="dropdown-item" [disabled]="c.status === 'PENDING' || c.status === 'UPCOMING'" (click)="viewAnalytics(c.id)">
-                              <span class="material-icons" [style.color]="c.status !== 'PENDING' && c.status !== 'UPCOMING' ? '#8b5cf6' : '#94a3b8'">analytics</span> Analytics
+                            <button class="dropdown-item" *ngIf="c.status === 'PENDING'" (click)="approveChallenge(c)">
+                              <span class="material-icons" style="color: #059669">check_circle</span> Approve
                             </button>
-                            <button class="dropdown-item" [disabled]="c.status !== 'PENDING' && c.status !== 'UPCOMING'" (click)="editChallenge(c.id)">
-                              <span class="material-icons" [style.color]="c.status === 'PENDING' || c.status === 'UPCOMING' ? '#3b82f6' : '#94a3b8'">edit</span> Edit
+                            <button class="dropdown-item" *ngIf="c.status === 'PENDING'" (click)="rejectChallenge(c)">
+                              <span class="material-icons" style="color: #dc2626">cancel</span> Reject
                             </button>
-                            <button class="dropdown-item" (click)="duplicateChallenge(c.id)">
-                              <span class="material-icons" style="color: #6366f1">content_copy</span> Duplicate
-                            </button>
-                            <button class="dropdown-item" [disabled]="c.status !== 'PENDING'" (click)="approveChallenge(c)">
-                              <span class="material-icons" [style.color]="c.status === 'PENDING' ? '#059669' : '#94a3b8'">check_circle</span> Approve
-                            </button>
-                            <button class="dropdown-item" [disabled]="c.status !== 'PENDING'" (click)="rejectChallenge(c)">
-                              <span class="material-icons" [style.color]="c.status === 'PENDING' ? '#dc2626' : '#94a3b8'">cancel</span> Reject
-                            </button>
-                            <button class="dropdown-item" [disabled]="c.status === 'ARCHIVED'" (click)="archiveChallenge(c)">
-                              <span class="material-icons" [style.color]="c.status !== 'ARCHIVED' ? '#64748b' : '#94a3b8'">archive</span> Archive
+                            <button class="dropdown-item" *ngIf="c.status !== 'ARCHIVED'" (click)="archiveChallenge(c)">
+                              <span class="material-icons" style="color: #64748b">archive</span> Archive
                             </button>
                           </div>
                         </div>
@@ -265,8 +296,11 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
               </div>
               <div class="rows-per-page">
                 <span style="font-size: 0.875rem; color: #64748b; margin-right: 0.5rem">Rows per page:</span>
-                <select class="filter-dropdown" style="padding: 0.25rem 2rem 0.25rem 0.5rem; background-position: right 0.25rem center" disabled>
-                  <option>10</option>
+                <select class="filter-dropdown" style="padding: 0.25rem 2.25rem 0.25rem 0.75rem; background-position: right 0.5rem center; cursor: pointer" [formControl]="pageSizeControl">
+                  <option [value]="5">5</option>
+                  <option [value]="10">10</option>
+                  <option [value]="25">25</option>
+                  <option [value]="50">50</option>
                 </select>
               </div>
             </div>
@@ -290,7 +324,7 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
       font-family: 'Inter', sans-serif;
       background: #f8fafc;
       min-height: 100vh;
-      padding: 2rem 2.5rem;
+      padding: 1.5rem 1rem;
       color: #0f172a;
     }
     .header {
@@ -318,34 +352,49 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
 
     /* Stats Grid */
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem; margin-bottom: 2rem;
     }
-    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     
     .stat-card {
-      background: white; border-radius: 12px; padding: 1rem;
+      background: white; border-radius: 12px; padding: 1.25rem;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
-      display: flex; flex-direction: column; justify-content: center;
+      display: flex; flex-direction: column; gap: 0.25rem;
+      align-items: center; text-align: center;
     }
-    .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 500; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-value { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.5rem;
+    }
+    .stat-icon .material-icons { font-size: 1.5rem; }
+    .stat-label { font-size: 0.8rem; color: #64748b; font-weight: 500; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem; }
+    .stat-trend { font-size: 0.75rem; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.25rem; color: #94a3b8; }
+    .stat-trend .positive { color: #16a34a; display: flex; align-items: center; }
+    .stat-trend .negative { color: #ef4444; display: flex; align-items: center; }
+    .stat-trend .material-icons { font-size: 0.875rem; }
 
     .filter-bar {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
     }
+    .filter-group { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; flex: 1; }
+    .filter-right { display: flex; }
     .search-input {
-      display: flex; align-items: center; background: white; border: 1px solid #cbd5e1;
-      border-radius: 8px; padding: 0.5rem 1rem; width: 320px;
+      position: relative; display: flex; align-items: center; width: 280px;
     }
-    .search-input input { border: none; outline: none; width: 100%; margin-left: 0.5rem; font-size: 0.9rem; color: #0f172a; }
-    .search-input input::placeholder { color: #94a3b8; }
-    .search-input .material-icons { color: #94a3b8; font-size: 1.25rem; }
-
-    .filter-actions { display: flex; gap: 0.75rem; }
+    .search-input input {
+      width: 100%; padding: 0.5rem 1rem 0.5rem 2.5rem; border: 1px solid #cbd5e1;
+      border-radius: 8px; font-size: 0.875rem; color: #334155;
+    }
+    .search-input input:focus { outline: none; border-color: #059669; }
+    .search-input .material-icons { position: absolute; left: 0.75rem; color: #94a3b8; font-size: 1.25rem; }
+    .filter-btn { display: flex; align-items: center; gap: 0.25rem; font-weight: 500; color: #0f172a; }
+    .badge-count { background: #059669; color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; margin-left: 0.25rem; }
+    .date-range-btn { display: flex; align-items: center; gap: 0.5rem; color: #334155; font-weight: 500; font-size: 0.875rem; border-color: #cbd5e1; }
+    .date-range-btn .material-icons { font-size: 1.1rem; color: #64748b; }
     .filter-dropdown {
       padding: 0.5rem 2.25rem 0.5rem 1rem; border: 1px solid #cbd5e1;
       border-radius: 8px; background-color: white; font-size: 0.875rem; color: #334155; font-weight: 500;
@@ -365,20 +414,23 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
     .tab:hover { color: #0f172a; }
     .tab.active { color: #059669; border-bottom-color: #059669; font-weight: 600; }
 
-    .table-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
-    .table-responsive { overflow-x: auto; }
+    .table-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .table-responsive { }
     .data-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .data-table th { padding: 1rem 1.25rem; background: white; color: #64748b; font-weight: 500; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
-    .data-table td { padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.875rem; vertical-align: middle; }
+    .data-table th { padding: 0.5rem 0.25rem; background: white; color: #64748b; font-weight: 500; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; text-align: center; }
+    .data-table th:first-child { border-top-left-radius: 12px; }
+    .data-table th:last-child { border-top-right-radius: 12px; }
+    .data-table td { padding: 0.5rem 0.25rem; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.8rem; vertical-align: middle; text-align: center; }
+    .data-table tbody tr { cursor: pointer; }
     .data-table tbody tr:hover { background: #f8fafc; }
 
-    .campaign-cell { display: flex; align-items: center; gap: 1rem; }
-    .campaign-icon { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .campaign-info { display: flex; flex-direction: column; }
+    .campaign-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .campaign-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .campaign-info { display: flex; flex-direction: column; max-width: 170px; }
     .campaign-title { font-weight: 600; color: #0f172a; font-size: 0.9rem; margin-bottom: 0.125rem;}
-    .campaign-desc { font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+    .campaign-desc { font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
 
-    .cat-cell { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: #0f172a; font-size: 0.85rem;}
+    .cat-cell { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 500; color: #0f172a; font-size: 0.85rem;}
     .cat-cell .material-icons { font-size: 1.25rem; color: #64748b; }
 
     .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
@@ -392,8 +444,8 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
     .status-UPCOMING { background: #e0f2fe; color: #0369a1; }
     .status-CLOSED { background: #fee2e2; color: #991b1b; }
 
-    .progress-cell { display: flex; flex-direction: column; gap: 0.375rem; width: 100px; }
-    .progress-text { font-size: 0.75rem; font-weight: 600; color: #0f172a; text-align: left; }
+    .progress-cell { display: flex; flex-direction: column; gap: 0.375rem; width: 100px; margin: 0 auto; align-items: center; }
+    .progress-text { font-size: 0.75rem; font-weight: 600; color: #0f172a; text-align: center; width: 100%; }
     .progress-bar-bg { width: 100%; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
     .progress-bar-fill { height: 100%; background: #059669; border-radius: 999px; transition: width 0.3s ease; }
 
@@ -408,6 +460,8 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
       padding: 1rem 1.5rem;
       background: white;
       border-top: 1px solid #e2e8f0;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
     }
     .page-info { color: #64748b; font-size: 0.875rem; }
     .page-buttons { display: flex; gap: 0.5rem; align-items: center; }
@@ -426,12 +480,16 @@ import { BulkActionBarComponent } from '../../components/bulk-action-bar/bulk-ac
     .dropdown-item:hover:not([disabled]) {
       background: #f1f5f9;
     }
+    .dropdown-item.active-item { background: #e2e8f0 !important; font-weight: 600; color: #0f172a; }
     .dropdown-item[disabled] {
       color: #94a3b8;
       cursor: not-allowed;
       background: transparent;
     }
     .dropdown-item .material-icons { font-size: 1.25rem; color: #64748b; }
+    
+    /* Make table scrollable if it still exceeds screen width */
+    .table-responsive { width: 100%; overflow: visible !important; }
   `]
 })
 export class LibraryComponent implements OnInit {
@@ -439,7 +497,15 @@ export class LibraryComponent implements OnInit {
   private toast = inject(ToastService);
   private dialog = inject(ConfirmationDialogService);
   private router = inject(Router);
+
+  // Custom Dropdown states
+  showTrackingDropdown = false;
+  showCategoryDropdown = false;
+  showStatusDropdown = false;
+  showSortDropdown = false;
+
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   challenges = signal<Challenge[]>([]);
   stats = signal<ChallengeStats | null>(null);
@@ -447,6 +513,7 @@ export class LibraryComponent implements OnInit {
   apiError = signal<boolean>(false);
   expandedRowId = signal<number | null>(null);
   activeActionMenuId = signal<number | null>(null);
+  selectionMode = signal<boolean>(false);
   
   currentPage = signal<number>(0);
   totalPages = signal<number>(0);
@@ -455,7 +522,10 @@ export class LibraryComponent implements OnInit {
 
   searchControl = new FormControl('');
   statusControl = new FormControl('');
+  pageSizeControl = new FormControl(10);
   trackingControl = new FormControl('');
+  categoryControl = new FormControl('');
+  sortControl = new FormControl('newest');
 
   carbonCategories = signal<CarbonCategory[]>([]);
   selectedIds = signal<Set<number>>(new Set());
@@ -513,6 +583,14 @@ export class LibraryComponent implements OnInit {
       this.resetAndLoad();
     });
     this.trackingControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
+    this.categoryControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
+    this.sortControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
+    this.pageSizeControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(size => {
+      if (size) {
+        this.pageSize = size;
+        this.resetAndLoad();
+      }
+    });
   }
 
   private setupReactiveStream() {
@@ -524,8 +602,16 @@ export class LibraryComponent implements OnInit {
         const search = this.searchControl.value || undefined;
         const status = this.statusControl.value || undefined;
         const tracking = this.trackingControl.value || undefined;
+        const categoryId = this.categoryControl.value || undefined;
+        const sortOption = this.sortControl.value || undefined;
 
-        return this.challengeService.getChallenges(this.currentPage(), this.pageSize, search, status, tracking)
+        let sort = undefined;
+        if (sortOption === 'newest') sort = 'startDate,desc';
+        else if (sortOption === 'oldest') sort = 'startDate,asc';
+        else if (sortOption === 'a-z') sort = 'title,asc';
+        else if (sortOption === 'z-a') sort = 'title,desc';
+
+        return this.challengeService.getChallenges(this.currentPage(), this.pageSize, search, status, tracking, categoryId, sort)
           .pipe(
             catchError(err => {
               console.error('Failed to load challenges:', err);
@@ -543,6 +629,7 @@ export class LibraryComponent implements OnInit {
         this.totalPages.set(res.totalPages);
         this.totalElements.set(res.totalElements);
         this.clearSelection();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -566,6 +653,45 @@ export class LibraryComponent implements OnInit {
     if (page >= 0 && page < this.totalPages()) {
       this.currentPage.set(page);
       this.triggerSubject.next();
+    }
+  }
+
+  clearFilters() {
+    this.searchControl.setValue('');
+    this.trackingControl.setValue('');
+    this.categoryControl.setValue('');
+    this.statusControl.setValue('');
+    this.sortControl.setValue('newest');
+  }
+
+  getCategoryLabel(): string {
+    const val = this.categoryControl.value;
+    if (!val) return 'Category';
+    const numVal = Number(val);
+    const cat = this.carbonCategories().find(c => c.id === numVal);
+    return cat ? cat.name : 'Category';
+  }
+
+  getStatusLabel(): string {
+    const val = this.statusControl.value;
+    switch(val) {
+      case 'PENDING': return 'Draft';
+      case 'UPCOMING': return 'Scheduled';
+      case 'ACTIVE': return 'Active';
+      case 'COMPLETED': return 'Completed';
+      case 'ARCHIVED': return 'Archived';
+      default: return 'Status';
+    }
+  }
+
+  getSortLabel(): string {
+    const val = this.sortControl.value;
+    switch(val) {
+      case 'newest': return 'Sort: Newest';
+      case 'oldest': return 'Sort: Oldest';
+      case 'a-z': return 'Sort: A-Z';
+      case 'z-a': return 'Sort: Z-A';
+      default: return 'Sort: Newest';
     }
   }
 
@@ -593,6 +719,25 @@ export class LibraryComponent implements OnInit {
 
   clearSelection() {
     this.selectedIds.set(new Set());
+    this.selectionMode.set(false);
+  }
+
+  toggleSelectionMode() {
+    if (this.selectionMode()) {
+      this.clearSelection();
+    } else {
+      this.selectionMode.set(true);
+    }
+  }
+
+  onRowDoubleClick(id: number, event: Event) {
+    event.stopPropagation();
+    this.selectionMode.set(true);
+    this.selectedIds.update(set => {
+      const newSet = new Set(set);
+      newSet.add(id);
+      return newSet;
+    });
   }
 
   handleBulkAction(action: string) {
@@ -614,12 +759,16 @@ export class LibraryComponent implements OnInit {
         if (res.failed.length === 0) {
           this.toast.success(`${res.succeeded.length} challenges updated successfully.`);
         } else {
-          this.toast.info(`${res.succeeded.length} succeeded, ${res.failed.length} failed.`);
-        }
-        this.clearSelection();
-        this.loadChallenges();
-      },
-      error: () => this.toast.error('Bulk action failed.')
+        this.toast.info(`${res.succeeded.length} succeeded, ${res.failed.length} failed.`);
+      }
+      this.clearSelection();
+      this.refresh();
+      this.cdr.markForCheck();
+    },
+    error: () => {
+      this.toast.error('Bulk action failed.');
+      this.cdr.markForCheck();
+    }
     });
   }
 
@@ -629,12 +778,16 @@ export class LibraryComponent implements OnInit {
         if (res.failed.length === 0) {
           this.toast.success(`${res.succeeded.length} challenges archived successfully.`);
         } else {
-          this.toast.info(`${res.succeeded.length} succeeded, ${res.failed.length} failed.`);
-        }
-        this.clearSelection();
-        this.loadChallenges();
-      },
-      error: () => this.toast.error('Bulk archive failed.')
+        this.toast.info(`${res.succeeded.length} succeeded, ${res.failed.length} failed.`);
+      }
+      this.clearSelection();
+      this.refresh();
+      this.cdr.markForCheck();
+    },
+    error: () => {
+      this.toast.error('Bulk archive failed.');
+      this.cdr.markForCheck();
+    }
     });
   }
 
@@ -691,8 +844,12 @@ export class LibraryComponent implements OnInit {
       next: () => {
         this.toast.success(`Challenge "${c.title}" approved.`);
         this.refresh();
+        this.cdr.markForCheck();
       },
-      error: () => this.toast.error('Failed to approve challenge.')
+      error: () => {
+        this.toast.error('Failed to approve challenge.');
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -704,8 +861,12 @@ export class LibraryComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge "${c.title}" rejected.`);
             this.refresh();
+            this.cdr.markForCheck();
           },
-          error: () => this.toast.error('Failed to reject challenge.')
+          error: () => {
+            this.toast.error('Failed to reject challenge.');
+            this.cdr.markForCheck();
+          }
         });
       }
     });
@@ -719,8 +880,12 @@ export class LibraryComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge "${c.title}" archived.`);
             this.refresh();
+            this.cdr.markForCheck();
           },
-          error: () => this.toast.error('Failed to archive challenge.')
+          error: () => {
+            this.toast.error('Failed to archive challenge.');
+            this.cdr.markForCheck();
+          }
         });
       }
     });
@@ -771,5 +936,11 @@ export class LibraryComponent implements OnInit {
 
   getStatusClass(status: string): string {
     return 'status-' + (status || '').toUpperCase();
+  }
+
+  resolveImageUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return `${environment.apiUrl}/${url}`;
   }
 }

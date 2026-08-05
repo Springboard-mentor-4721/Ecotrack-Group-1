@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ChallengeSpecification {
 
-    public static Specification<Challenge> filter(String search, ChallengeStatus status, TrackingMethod trackingMethod) {
+    public static Specification<Challenge> filter(String search, ChallengeStatus status, TrackingMethod trackingMethod, Long categoryId) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -27,6 +27,9 @@ public class ChallengeSpecification {
             }
             if (trackingMethod != null) {
                 predicates.add(cb.equal(root.get("trackingMethod"), trackingMethod));
+            }
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("linkedCategoryId"), categoryId));
             }
 
             if (predicates.isEmpty()) {

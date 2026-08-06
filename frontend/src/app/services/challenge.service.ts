@@ -13,10 +13,22 @@ export class ChallengeService {
 
   constructor(private http: HttpClient) {}
 
-  getChallenges(page: number = 0, size: number = 10): Observable<PageableResponse<Challenge>> {
-    const params = new HttpParams()
+  getChallenges(
+    page: number = 0, 
+    size: number = 10,
+    search?: string,
+    evaluationType?: string,
+    trackingMethod?: string,
+    sort?: string
+  ): Observable<PageableResponse<Challenge>> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+      
+    if (search) params = params.set('search', search);
+    if (evaluationType && evaluationType !== 'ALL') params = params.set('evaluationType', evaluationType);
+    if (trackingMethod && trackingMethod !== 'ALL') params = params.set('trackingMethod', trackingMethod);
+    if (sort) params = params.set('sort', sort);
     
     return this.http.get<PageableResponse<Challenge>>(`${this.apiUrl}/api/challenges`, { params });
   }
@@ -40,5 +52,14 @@ export class ChallengeService {
   updateProgress(id: number, delta: number): Observable<ChallengeParticipant> {
     const payload: ChallengeProgressUpdateRequest = { delta };
     return this.http.put<ChallengeParticipant>(`${this.apiUrl}/api/challenges/${id}/progress`, payload);
+  }
+
+  getChallengeParticipants(id: number, page: number = 0, size: number = 5, sort: string = 'progress,desc'): Observable<PageableResponse<ChallengeParticipant>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort);
+    
+    return this.http.get<PageableResponse<ChallengeParticipant>>(`${this.apiUrl}/api/challenges/${id}/participants`, { params });
   }
 }

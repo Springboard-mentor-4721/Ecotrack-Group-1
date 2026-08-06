@@ -1,1 +1,6 @@
 /* challenge-detail-page styles */
+@media (max-width: 767.98px) {
+  .challenge-detail-wrapper {
+    padding-bottom: 90px !important; /* Space for the sticky mobile action bar */
+  }
+}

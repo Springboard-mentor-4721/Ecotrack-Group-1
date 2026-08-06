@@ -1,0 +1,98 @@
+<div class="history-page min-vh-100 bg-body py-4 py-md-5">
+  <div class="container max-w-7xl">
+    
+    <div class="d-flex align-items-center mb-4">
+      <a routerLink="/challenges" class="btn btn-light rounded-circle shadow-sm me-3 border-0 transition-all hover-shadow d-flex justify-content-center align-items-center" style="width: 44px; height: 44px;" aria-label="Go back to dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </a>
+      <h1 class="h2 fw-bolder text-primary mb-0 tracking-tight">Challenge History</h1>
+    </div>
+
+    <ng-container *ngIf="isLoading">
+      <div class="row mt-4">
+        <div class="col-12 col-md-4" *ngFor="let i of [1, 2, 3]">
+          <app-loading-skeleton type="card"></app-loading-skeleton>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isLoading">
+      
+      <!-- Impact Summary Banner -->
+      <app-challenge-history-summary
+        [totalCompleted]="totalCompleted"
+        [totalXpEarned]="totalXpEarned"
+        [totalFailed]="totalFailed">
+      </app-challenge-history-summary>
+
+      <!-- Tabs -->
+      <div class="mb-5">
+        <div class="bg-surface rounded-pill shadow-sm border p-2 d-inline-flex flex-nowrap gap-2 overflow-auto" role="tablist" aria-label="History Filters">
+          <button 
+            class="btn rounded-pill px-4 py-2 border-0 fw-bold fs-sm transition-all"
+            [class.bg-emerald-light]="activeTab === 'all'"
+            [class.text-primary]="activeTab === 'all'"
+            [class.bg-transparent]="activeTab !== 'all'"
+            [class.text-muted]="activeTab !== 'all'"
+            [class.bg-surface-hover]="activeTab !== 'all'"
+            [attr.aria-selected]="activeTab === 'all'"
+            role="tab"
+            (click)="setTab('all')">
+            All History 
+            <span class="ms-1 badge rounded-pill fs-xs" [class.bg-emerald]="activeTab === 'all'" [class.text-white]="activeTab === 'all'" [class.bg-light]="activeTab !== 'all'" [class.text-muted]="activeTab !== 'all'">{{ historyEntries.length }}</span>
+          </button>
+
+          <button 
+            class="btn rounded-pill px-4 py-2 border-0 fw-bold fs-sm transition-all"
+            [class.bg-emerald-light]="activeTab === 'completed'"
+            [class.text-primary]="activeTab === 'completed'"
+            [class.bg-transparent]="activeTab !== 'completed'"
+            [class.text-muted]="activeTab !== 'completed'"
+            [class.bg-surface-hover]="activeTab !== 'completed'"
+            [attr.aria-selected]="activeTab === 'completed'"
+            role="tab"
+            (click)="setTab('completed')">
+            Completed 
+            <span class="ms-1 badge rounded-pill fs-xs" [class.bg-emerald]="activeTab === 'completed'" [class.text-white]="activeTab === 'completed'" [class.bg-light]="activeTab !== 'completed'" [class.text-muted]="activeTab !== 'completed'">{{ totalCompleted }}</span>
+          </button>
+
+          <button 
+            class="btn rounded-pill px-4 py-2 border-0 fw-bold fs-sm transition-all"
+            [class.bg-emerald-light]="activeTab === 'failed'"
+            [class.text-primary]="activeTab === 'failed'"
+            [class.bg-transparent]="activeTab !== 'failed'"
+            [class.text-muted]="activeTab !== 'failed'"
+            [class.bg-surface-hover]="activeTab !== 'failed'"
+            [attr.aria-selected]="activeTab === 'failed'"
+            role="tab"
+            (click)="setTab('failed')">
+            Not Achieved 
+            <span class="ms-1 badge rounded-pill fs-xs" [class.bg-emerald]="activeTab === 'failed'" [class.text-white]="activeTab === 'failed'" [class.bg-light]="activeTab !== 'failed'" [class.text-muted]="activeTab !== 'failed'">{{ totalFailed }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredEntries.length === 0" class="bg-surface rounded-4 shadow-sm border p-5 text-center my-4">
+        <div class="d-inline-flex justify-content-center align-items-center bg-light text-muted rounded-circle mb-4" style="width: 80px; height: 80px;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <h3 class="h4 fw-bold text-primary mb-2">No history to show</h3>
+        <p class="text-muted mb-0">
+          <span *ngIf="activeTab === 'all'">You haven't completed or dropped any challenges yet. Keep going!</span>
+          <span *ngIf="activeTab === 'completed'">You haven't completed any challenges yet.</span>
+          <span *ngIf="activeTab === 'failed'">You don't have any unsuccessful challenges. Great job!</span>
+        </p>
+      </div>
+
+      <!-- History Grid -->
+      <div class="row g-4" *ngIf="filteredEntries.length > 0">
+        <div class="col-12 col-md-12 col-lg-6" *ngFor="let entry of filteredEntries">
+          <app-my-challenge-card [entry]="entry" [readonly]="true" (cardClicked)="viewChallenge($event)"></app-my-challenge-card>
+        </div>
+      </div>
+
+    </ng-container>
+
+  </div>
+</div>

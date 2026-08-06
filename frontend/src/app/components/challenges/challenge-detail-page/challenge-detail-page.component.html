@@ -24,110 +24,18 @@
     </app-challenge-hero>
 
     <!-- Quick Stats Row (Premium Cards) -->
-    <div class="row g-4 mb-5">
-      <!-- Target -->
-      <div class="col-6 col-md-3">
-        <div class="bg-white rounded-4 p-4 border-0 shadow-sm text-start h-100 transition-all hover-shadow-lg group">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Target Goal</span>
-            <div class="bg-emerald bg-opacity-10 text-emerald rounded p-1">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            </div>
-          </div>
-          <div class="d-flex align-items-baseline gap-2">
-            <span class="fw-bolder text-dark fs-2 lh-1">{{ challenge.targetValue }}</span>
-            <span class="fs-sm fw-bold text-muted">{{ challenge.progressType === 'COUNT' ? 'Entries' : 'Units' }}</span>
-          </div>
-        </div>
-      </div>
-      <!-- Type -->
-      <div class="col-6 col-md-3">
-        <div class="bg-white rounded-4 p-4 border-0 shadow-sm text-start h-100 transition-all hover-shadow-lg group">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Tracking Type</span>
-            <div class="bg-blue bg-opacity-10 text-blue rounded p-1">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-            </div>
-          </div>
-          <div class="d-flex align-items-baseline gap-2">
-            <span class="fw-bolder text-dark fs-2 lh-1 text-truncate">{{ challenge.progressType }}</span>
-          </div>
-        </div>
-      </div>
-      <!-- Participants -->
-      <div class="col-6 col-md-3">
-        <div class="bg-white rounded-4 p-4 border-0 shadow-sm text-start h-100 transition-all hover-shadow-lg group">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Community</span>
-            <div class="bg-purple bg-opacity-10 text-purple rounded p-1">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            </div>
-          </div>
-          <div class="d-flex align-items-baseline gap-2">
-            <span class="fw-bolder text-dark fs-2 lh-1">{{ challenge.participantCount || 0 | number }}</span>
-            <span class="fs-sm fw-bold text-muted">Members</span>
-          </div>
-        </div>
-      </div>
-      <!-- Tracking Method -->
-      <div class="col-6 col-md-3">
-        <div class="bg-white rounded-4 p-4 border-0 shadow-sm text-start h-100 transition-all hover-shadow-lg group">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Tracking</span>
-            <div class="bg-primary bg-opacity-10 text-primary rounded p-1">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-            </div>
-          </div>
-          <div class="d-flex align-items-baseline gap-2">
-            <span class="fw-bolder text-dark fs-2 lh-1 text-truncate">{{ challenge.trackingMethod === 'AUTOMATIC' ? 'Auto' : 'Manual' }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <app-challenge-quick-stats-widget [challenge]="challenge"></app-challenge-quick-stats-widget>
 
     <!-- Progress Row -->
-    <div class="row g-4 mb-5">
-      
-      <!-- Primary: Community Progress -->
-      <div class="col-12 col-md-6">
-        <div class="bg-white border-0 rounded-4 p-5 shadow-sm h-100 d-flex flex-column align-items-center justify-content-center text-center transition-all hover-shadow-lg group position-relative overflow-hidden">
-          <div class="position-absolute top-0 start-0 w-100 h-100 bg-emerald opacity-5" style="pointer-events: none;"></div>
-          <h4 class="fw-bolder text-dark mb-5 fs-3 align-self-start w-100 text-start position-relative z-1 d-flex align-items-center gap-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            Community Goal
-          </h4>
-          
-          <div class="position-relative d-inline-flex justify-content-center align-items-center mb-5 z-1 group-hover" style="width: 220px; height: 220px;">
-            <svg viewBox="0 0 36 36" class="position-absolute top-0 start-0 w-100 h-100" style="transform: rotate(-90deg); filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.2));">
-              <path class="text-surface" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
-              <path class="text-emerald transition-all" [attr.stroke-dasharray]="communityProgressPercentage + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
-            </svg>
-            <div class="text-center position-relative z-1">
-              <span class="fs-1 fw-bolder text-dark d-block lh-1" style="font-size: 3rem !important;">{{ Math.round(communityProgressPercentage) }}%</span>
-              <span class="fs-sm text-muted d-block fw-bold mt-2 text-uppercase tracking-wide">Achieved</span>
-            </div>
-          </div>
-          
-          <div class="row w-100 mt-auto bg-surface rounded-4 p-3 border position-relative z-1">
-            <div class="col-6 border-end">
-              <span class="fs-xs text-muted d-block text-uppercase tracking-wide mb-1">{{ challenge.challengeEvaluationType === 'BUDGET' ? 'Community Used' : 'Current Total' }}</span>
-              <span class="fw-bolder text-dark fs-4 d-block">{{ challenge.communityProgress || 0 | number }}</span>
-            </div>
-            <div class="col-6">
-              <span class="fs-xs text-muted d-block text-uppercase tracking-wide mb-1">Target</span>
-              <span class="fw-bolder text-dark fs-4 d-block">{{ challenge.challengeEvaluationType === 'BUDGET' ? (challenge.targetValue * (challenge.participantCount && challenge.participantCount > 0 ? challenge.participantCount : 1) | number) : (challenge.targetValue * (challenge.participantCount && challenge.participantCount > 0 ? challenge.participantCount : 1) | number) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Secondary: Your Progress or Join Action -->
-      <div class="col-12 col-md-6">
+    <div class="row justify-content-center mb-5">
+      <!-- Your Progress or Join Action -->
+      <div class="col-12 col-md-8">
         <app-challenge-actions-panel
           [challenge]="challenge"
           [isActionLoading]="isActionLoading"
           (joinClicked)="joinChallenge()"
-          (logProgressClicked)="openProgressModal()">
+          (logProgressClicked)="openProgressModal()"
+          (milestoneReached)="onMilestoneReached($event)">
         </app-challenge-actions-panel>
       </div>
     </div>
@@ -135,93 +43,12 @@
     <div class="row g-4 mb-5">
       <!-- Challenge Rules & Guidelines -->
       <div class="col-12 col-md-7">
-        <div class="bg-white border-0 rounded-4 p-5 shadow-sm h-100 transition-all hover-shadow-lg position-relative overflow-hidden">
-          <div class="position-absolute top-0 end-0 bg-surface rounded-circle translate-middle" style="width: 250px; height: 250px; pointer-events: none;"></div>
-          
-          <h4 class="fw-bolder text-dark mb-4 fs-3 position-relative z-1 d-flex align-items-center gap-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            Guidelines & Rules
-          </h4>
-          
-          <div class="d-flex flex-column gap-4 position-relative z-1">
-            <div class="d-flex gap-3 align-items-start">
-              <div class="bg-emerald bg-opacity-10 text-emerald rounded p-2 mt-1">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div>
-                <h6 class="fw-bold text-dark mb-1">Eligible Actions</h6>
-                <p class="text-muted fs-sm mb-0">
-                  <span *ngIf="challenge.typeCode === 'CARBON_REDUCTION'">Use sustainable transport, reduce plastic waste, and conserve energy to reduce carbon footprint.</span>
-                  <span *ngIf="challenge.typeCode !== 'CARBON_REDUCTION'">Participate in eco-friendly activities related to this challenge.</span>
-                </p>
-              </div>
-            </div>
-            
-            <div class="d-flex gap-3 align-items-start">
-              <div class="bg-emerald bg-opacity-10 text-emerald rounded p-2 mt-1">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div>
-                <h6 class="fw-bold text-dark mb-1">Tracking Type</h6>
-                <p class="text-muted fs-sm mb-0">
-                  <span *ngIf="challenge.trackingMethod === 'AUTOMATIC'">Your progress is automatically tracked based on your logs in the linked modules. No manual entry is required!</span>
-                  <span *ngIf="challenge.trackingMethod === 'MANUAL'">You can manually log your progress for this challenge every day.</span>
-                </p>
-              </div>
-            </div>
-            
-            <div class="d-flex gap-3 align-items-start">
-              <div class="bg-emerald bg-opacity-10 text-emerald rounded p-2 mt-1">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div>
-                <h6 class="fw-bold text-dark mb-1">Evaluation</h6>
-                <p class="text-muted fs-sm mb-0">
-                  <span *ngIf="challenge.challengeEvaluationType === 'BUDGET'">This is a Budget challenge. Your goal is to stay under the limit set by the target value. Exceeding it will fail the challenge.</span>
-                  <span *ngIf="challenge.challengeEvaluationType !== 'BUDGET'">This is an Achievement challenge. Your goal is to reach or exceed the target value before the end date.</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <app-challenge-rules-widget [challenge]="challenge"></app-challenge-rules-widget>
       </div>
 
-      <!-- Rewards -->
-      <div class="col-12 col-md-5">
-        <div class="bg-dark rounded-4 p-5 border-0 shadow-lg h-100 position-relative overflow-hidden group">
-          <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" [style.background]="'url(' + ($any(challenge).imageUrl | challengeImage: 1) + ') center/cover'" style="pointer-events: none;"></div>
-          <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.95) 100%);"></div>
-          
-          <div class="position-relative z-1 h-100 d-flex flex-column">
-            <h4 class="fw-bolder text-white mb-4 fs-3">Completion Rewards</h4>
-            
-            <div class="d-flex flex-column gap-3 mb-4">
-              <!-- XP Card -->
-              <div class="bg-white bg-opacity-10 rounded-4 p-3 border border-white border-opacity-25 d-flex align-items-center gap-4 transition-all hover-shadow-lg group-hover">
-                <div class="bg-emerald bg-opacity-25 text-emerald rounded-3 p-3">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                </div>
-                <div>
-                  <span class="fs-xs fw-bold text-emerald d-block text-uppercase tracking-wide mb-1">Experience Points</span>
-                  <span class="fw-bolder text-white fs-4">{{ challenge.rewardXp }} XP</span>
-                </div>
-              </div>
-              
-              <!-- Badge Card -->
-              <div class="bg-white bg-opacity-10 rounded-4 p-3 border border-white border-opacity-25 d-flex align-items-center gap-4 transition-all hover-shadow-lg group-hover">
-                <div class="bg-orange bg-opacity-25 text-orange rounded-3 p-3">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5-9-5 5-9 5 2"></path></svg>
-                </div>
-                <div>
-                  <span class="fs-xs fw-bold text-orange d-block text-uppercase tracking-wide mb-1">Exclusive Badge</span>
-                  <span class="fw-bolder text-white fs-4">Eco Champion</span>
-                </div>
-              </div>
-            </div>
-            
-            <p class="text-white opacity-50 fs-xs mt-auto mb-0 text-center">Rewards are issued immediately upon 100% completion.</p>
-          </div>
-        </div>
+      <!-- Rewards and Leaderboard (Sidebar) -->
+      <div class="col-12 col-md-5 d-flex flex-column gap-4">
+        <app-reward-widget [challenge]="challenge"></app-reward-widget>
       </div>
     </div>
     <!-- Related Challenges Row -->
@@ -253,3 +80,25 @@
   (close)="closeProgressModal()"
   (cancel)="closeProgressModal()">
 </app-manual-progress-modal>
+
+<!-- Gamification Toast -->
+<app-milestone-toast
+  [milestone]="currentMilestone"
+  (dismissed)="onToastDismissed()">
+</app-milestone-toast>
+
+<!-- Mobile Sticky Action Bar -->
+<div class="mobile-sticky-action-bar d-md-none position-fixed bottom-0 start-0 w-100 bg-white p-3 border-top shadow-lg z-3">
+  <button *ngIf="!challenge?.userProgress" 
+          class="btn btn-emerald rounded-pill py-3 px-4 fw-bold w-100 shadow-sm"
+          (click)="joinChallenge()"
+          [disabled]="isActionLoading || challenge?.status !== 'ACTIVE'">
+    <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm me-2"></span>
+    {{ challenge?.status === 'ACTIVE' ? 'Accept Challenge' : 'Not Available' }}
+  </button>
+  <button *ngIf="challenge?.userProgress && challenge?.trackingMethod !== 'AUTOMATIC'" 
+          class="btn btn-emerald rounded-pill py-3 px-4 fw-bold w-100 shadow-sm"
+          (click)="openProgressModal()">
+    Log Today's Impact
+  </button>
+</div>

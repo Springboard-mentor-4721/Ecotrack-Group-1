@@ -1,0 +1,36 @@
+.history-page {
+  /* Using Tailwind-like tokens or equivalent */
+  background-color: var(--bs-gray-50, #f8fafc);
+}
+
+.text-slate-800 {
+  color: #1e293b;
+}
+
+.text-slate-600 {
+  color: #475569;
+}
+
+.text-slate-500 {
+  color: #64748b;
+}
+
+.text-slate-400 {
+  color: #94a3b8;
+}
+
+.bg-slate-100 {
+  background-color: #f1f5f9 !important;
+}
+
+.bg-slate-200 {
+  background-color: #e2e8f0 !important;
+}
+
+.bg-slate-50 {
+  background-color: #f8fafc !important;
+}
+
+.text-emerald {
+  color: var(--ch-success, #10b981) !important;
+}

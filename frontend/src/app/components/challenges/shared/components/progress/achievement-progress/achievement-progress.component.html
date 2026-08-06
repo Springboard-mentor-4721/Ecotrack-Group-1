@@ -7,7 +7,11 @@
   </div>
 
   <div class="progress-bar-container d-flex align-items-center gap-2">
-    <div class="progress-track flex-grow-1 position-relative">
+    <div class="progress-track flex-grow-1 position-relative"
+         role="progressbar"
+         [attr.aria-valuenow]="percentage"
+         aria-valuemin="0"
+         aria-valuemax="100">
       <div 
         class="progress-fill" 
         [class.completed]="isCompleted"

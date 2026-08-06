@@ -1,0 +1,15 @@
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" *ngIf="totalPages > 1">
+  <span class="desc-light fs-7">Showing page {{ currentPage + 1 }} of {{ totalPages }}</span>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" 
+            [disabled]="currentPage === 0 || isLoading" 
+            (click)="previous.emit()">
+      Previous
+    </button>
+    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" 
+            [disabled]="currentPage >= totalPages - 1 || isLoading" 
+            (click)="next.emit()">
+      Next
+    </button>
+  </div>
+</div>

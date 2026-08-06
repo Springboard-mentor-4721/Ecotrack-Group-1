@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChallengeDetail, ChallengeParticipant } from '../../../../../models/challenge.models';
@@ -16,6 +16,8 @@ export class ManualProgressModalComponent {
   @Input() participant!: ChallengeParticipant | null | undefined;
   @Input() isValid = false;
   @Input() isActionLoading = false;
+  
+  constructor(private elementRef: ElementRef) {}
   
   // Local state for the input since parent validates on submit or via an output
   amount: number | null = null;
@@ -45,10 +47,31 @@ export class ManualProgressModalComponent {
     this.submitProgress.emit(val);
   }
 
-  @HostListener('document:keydown.escape')
-  onKeydownHandler() {
-    if (this.isVisible) {
+  @HostListener('document:keydown', ['$event'])
+  onKeydownHandler(event: KeyboardEvent) {
+    if (!this.isVisible) return;
+    
+    if (event.key === 'Escape') {
       this.close.emit();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      const focusableEls = this.elementRef.nativeElement.querySelectorAll('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      const firstEl = focusableEls[0] as HTMLElement;
+      const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement;
+
+      if (event.shiftKey) {
+        if (document.activeElement === firstEl) {
+          lastEl?.focus();
+          event.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastEl) {
+          firstEl?.focus();
+          event.preventDefault();
+        }
+      }
     }
   }
 }

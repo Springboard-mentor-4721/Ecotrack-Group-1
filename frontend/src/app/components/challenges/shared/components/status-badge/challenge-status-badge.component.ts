@@ -13,6 +13,7 @@ import { LucideAngularModule, Circle, ShieldCheck, ShieldAlert, CheckCircle, XCi
 export class ChallengeStatusBadgeComponent {
   @Input() status!: string;
   @Input() size: 'sm' | 'md' = 'sm';
+  @Input() overlay: boolean = false;
 
   readonly icons = {
     Circle, ShieldCheck, ShieldAlert, CheckCircle, XCircle, MinusCircle, Clock, Archive
@@ -20,6 +21,9 @@ export class ChallengeStatusBadgeComponent {
 
   get badgeClass(): string {
     const base = `badge badge-${this.size}`;
+    if (this.overlay) {
+      return `${base} badge-overlay`;
+    }
     switch (this.status) {
       case 'ACTIVE':
       case 'WITHIN_BUDGET': return `${base} badge-success`;
@@ -37,7 +41,7 @@ export class ChallengeStatusBadgeComponent {
 
   get iconName(): any {
     switch (this.status) {
-      case 'ACTIVE': return this.icons.Circle;
+      case 'ACTIVE': return null;
       case 'WITHIN_BUDGET': return this.icons.ShieldCheck;
       case 'EXCEEDED': return this.icons.ShieldAlert;
       case 'COMPLETED': return this.icons.CheckCircle;

@@ -20,6 +20,7 @@ import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
 import com.ecotrack.challenge.repository.ChallengeRepository;
 import com.ecotrack.challenge.repository.ChallengeSpecification;
 import com.ecotrack.tracking.repository.CarbonCategoryRepository;
+import com.ecotrack.user.repository.UserRepository;
 import com.ecotrack.user.util.FileUploadUtil;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -41,10 +42,11 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipantRepository participantRepository;
     private final CarbonCategoryRepository carbonCategoryRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Page<ChallengeDTO> getActiveChallenges(Pageable pageable) {
-        return challengeRepository.findByStatus(ChallengeStatus.ACTIVE, pageable)
+    public Page<ChallengeDTO> getActiveChallenges(Long userId, String search, com.ecotrack.challenge.enums.ChallengeEvaluationType evaluationType, TrackingMethod trackingMethod, Pageable pageable) {
+        return challengeRepository.findAll(ChallengeSpecification.exploreFilter(search, evaluationType, trackingMethod, userId), pageable)
                 .map(this::mapToDTO);
     }
 
@@ -171,6 +173,7 @@ public class ChallengeService {
                 .challengeEvaluationType(request.getChallengeEvaluationType() != null ? request.getChallengeEvaluationType() : com.ecotrack.challenge.enums.ChallengeEvaluationType.ACHIEVEMENT)
                 .rulesConfig(request.getRulesConfig())
                 .status(ChallengeStatus.PENDING)
+                .imageUrl(request.getImageUrl())
                 .build();
                 
         return mapToDTO(challengeRepository.save(challenge));
@@ -426,6 +429,7 @@ public class ChallengeService {
                 .status(p.getStatus())
                 .joinedAt(p.getJoinedAt())
                 .completedAt(p.getCompletedAt())
+                .userName(userRepository.findById(p.getUserId()).map(u -> u.getName()).orElse("Unknown User"))
                 .build();
     }
 

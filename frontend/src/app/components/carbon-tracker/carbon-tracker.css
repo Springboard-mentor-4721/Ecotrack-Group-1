@@ -36,7 +36,7 @@
   transition: all 0.2s ease;
 }
 .hero-premium {
-  background: var(--hero-gradient, linear-gradient(135deg, #86efac 0%, #ecfdf5 100%));
+  background: var(--hero-gradient);
   border: 1px solid var(--border-color);
 }
 .hero-title {

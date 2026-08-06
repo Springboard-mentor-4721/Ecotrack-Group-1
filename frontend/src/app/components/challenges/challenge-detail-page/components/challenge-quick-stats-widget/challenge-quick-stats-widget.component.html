@@ -1,0 +1,59 @@
+<div class="row g-4 mb-5">
+  <!-- Target -->
+  <div class="col-6 col-md-3">
+    <div class="card-premium text-start h-100 group">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Target Goal</span>
+        <div class="bg-emerald bg-opacity-10 text-emerald rounded p-2 transition-transform group-hover:scale-110" style="transition: transform 0.3s ease;">
+          <lucide-icon [img]="TargetIcon" size="20" strokeWidth="2.5"></lucide-icon>
+        </div>
+      </div>
+      <div class="d-flex align-items-baseline gap-2 mt-auto">
+        <span class="fw-bolder text-primary fs-2 lh-1">{{ challenge?.targetValue }}</span>
+        <span class="fs-sm fw-bold text-muted">{{ challenge?.progressType | titlecase }}</span>
+      </div>
+    </div>
+  </div>
+  <!-- Type -->
+  <div class="col-6 col-md-3">
+    <div class="card-premium text-start h-100 group">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Challenge Type</span>
+        <div class="bg-blue bg-opacity-10 text-blue rounded p-2 transition-transform group-hover:scale-110" style="transition: transform 0.3s ease;">
+          <lucide-icon [img]="ActivityIcon" size="20" strokeWidth="2.5"></lucide-icon>
+        </div>
+      </div>
+      <div class="d-flex align-items-baseline gap-2 mt-auto">
+        <span class="fw-bolder text-primary fs-4 lh-1 text-truncate">{{ challenge?.challengeEvaluationType | titlecase }}</span>
+      </div>
+    </div>
+  </div>
+  <!-- Participants -->
+  <div class="col-6 col-md-3">
+    <div class="card-premium text-start h-100 group">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Participants</span>
+        <div class="bg-purple bg-opacity-10 text-purple rounded p-2 transition-transform group-hover:scale-110" style="transition: transform 0.3s ease;">
+          <lucide-icon [img]="UsersIcon" size="20" strokeWidth="2.5"></lucide-icon>
+        </div>
+      </div>
+      <div class="d-flex align-items-baseline gap-2 mt-auto">
+        <span class="fw-bolder text-primary fs-2 lh-1">{{ challenge?.participantCount || 0 | number }}</span>
+        <span class="fs-sm fw-bold text-muted">Members</span>
+      </div>
+    </div>
+  </div>
+  <!-- Tracking Method -->
+  <div class="col-6 col-md-3">
+    <div class="card-premium text-start h-100 group">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Tracking</span>
+        <div class="bg-info bg-opacity-10 text-info rounded p-2 transition-transform group-hover:scale-110" style="transition: transform 0.3s ease;">
+          <lucide-icon [img]="challenge?.trackingMethod === 'AUTOMATIC' ? SettingsIcon : HandIcon" size="20" strokeWidth="2.5"></lucide-icon>
+        </div>
+      </div>
+      <div class="d-flex align-items-baseline gap-2 mt-auto">
+        <span class="fw-bolder text-primary fs-2 lh-1 text-truncate">{{ challenge?.trackingMethod === 'AUTOMATIC' ? 'Auto' : 'Manual' }}</span>
+      </div>
+    </div>
+</div>

@@ -20,4 +20,5 @@ public class ChallengeParticipantDTO {
     private ChallengeParticipantStatus status;
     private LocalDateTime joinedAt;
     private LocalDateTime completedAt;
+    private String userName;
 }

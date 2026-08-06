@@ -1,0 +1,34 @@
+<div class="card-premium h-100 d-flex flex-column">
+  <div class="d-flex align-items-center mb-4">
+    <div class="bg-emerald bg-opacity-10 text-emerald rounded-circle p-2 me-3">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h3 class="fs-4 fw-bold mb-0">Completion Rewards</h3>
+  </div>
+  
+  <div class="d-flex flex-column gap-3 mb-4">
+    <!-- XP Card -->
+    <div class="bg-light rounded-4 p-3 border border-color d-flex align-items-center gap-4 transition-all hover-shadow-lg group-hover">
+      <div class="bg-emerald bg-opacity-10 text-emerald rounded-3 p-3">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </div>
+      <div>
+        <span class="fs-xs fw-bold text-emerald d-block text-uppercase tracking-wide mb-1">Experience Points</span>
+        <span class="fw-bolder fs-4">{{ challenge?.rewardXp || 0 }} XP</span>
+      </div>
+    </div>
+    
+    <!-- Badge Card -->
+    <div class="bg-light rounded-4 p-3 border border-color d-flex align-items-center gap-4 transition-all hover-shadow-lg group-hover">
+      <div class="bg-orange bg-opacity-10 text-orange rounded-3 p-3">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5-9-5 5-9 5 2"></path></svg>
+      </div>
+      <div>
+        <span class="fs-xs fw-bold text-orange d-block text-uppercase tracking-wide mb-1">Exclusive Badge</span>
+        <span class="fw-bolder fs-4">Eco Champion</span>
+      </div>
+    </div>
+  </div>
+  
+  <p class="text-muted fs-xs mt-auto mb-0 text-center">Rewards are issued immediately upon 100% completion.</p>
+</div>

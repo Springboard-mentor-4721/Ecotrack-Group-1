@@ -1,14 +1,6 @@
 <div class="container-fluid py-4 py-md-5 my-challenges-container">
   
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h2 fw-bold text-slate-800 mb-1">My Challenges</h1>
-      <p class="text-muted fs-sm mb-0">Track your progress, manage active goals, and review past achievements.</p>
-    </div>
-    <a [routerLink]="['/challenges/explore']" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm d-none d-md-inline-block">
-      Explore New Challenges
-    </a>
-  </div>
+  <app-my-challenges-header (exploreClicked)="exploreClicked()"></app-my-challenges-header>
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="mb-5">
@@ -28,55 +20,26 @@
   </div>
 
   <div *ngIf="!isLoading && !errorMessage">
-    <!-- Tab Navigation -->
-    <div class="tab-nav-wrapper mb-4 border-bottom">
-      <ul class="nav nav-tabs border-0 flex-nowrap custom-tabs" role="tablist">
-        <li class="nav-item me-2" role="presentation" *ngFor="let tab of tabs">
-          <button class="nav-link custom-tab-btn" 
-                  [class.active]="currentTab === tab.id"
-                  [attr.aria-selected]="currentTab === tab.id"
-                  [attr.aria-controls]="'tabpanel-' + tab.id"
-                  id="tab-{{ tab.id }}"
-                  role="tab"
-                  (click)="setTab(tab.id)">
-            {{ tab.label }}
-          </button>
-        </li>
-      </ul>
-    </div>
+    <app-my-challenges-tab-bar 
+      [tabs]="tabs" 
+      [currentTab]="currentTab" 
+      (tabSelected)="setTab($event)">
+    </app-my-challenges-tab-bar>
 
     <!-- Tab Panels -->
     <div class="tab-content">
       <div class="tab-pane fade show active" role="tabpanel" [id]="'tabpanel-' + currentTab" [attr.aria-labelledby]="'tab-' + currentTab">
         
         <!-- Empty State -->
-        <div *ngIf="filteredChallenges.length === 0" class="empty-state bg-surface rounded-4 p-5 text-center border shadow-sm my-4">
-          <div class="ch-bg-neutral bg-opacity-10 ch-text-neutral mx-auto rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 72px; height: 72px;">
-            <svg *ngIf="currentTab === 'ACTIVE'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <svg *ngIf="currentTab === 'COMPLETED'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            <svg *ngIf="currentTab === 'FAILED'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-          </div>
-          
-          <h3 class="fw-bold fs-5 mb-2">
-            <span *ngIf="currentTab === 'ACTIVE'">No active challenges</span>
-            <span *ngIf="currentTab === 'COMPLETED'">No completed challenges yet</span>
-            <span *ngIf="currentTab === 'FAILED'">No unsuccessful challenges</span>
-          </h3>
-          
-          <p class="text-muted fs-sm mb-4 max-w-sm mx-auto">
-            <span *ngIf="currentTab === 'ACTIVE'">You aren't currently participating in any challenges. Join one to start tracking your impact!</span>
-            <span *ngIf="currentTab === 'COMPLETED'">You haven't completed any challenges yet. Keep pushing towards your goals!</span>
-            <span *ngIf="currentTab === 'FAILED'">You don't have any failed challenges. Great job staying on track!</span>
-          </p>
-          
-          <a *ngIf="currentTab === 'ACTIVE' || currentTab === 'COMPLETED'" [routerLink]="['/challenges/explore']" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">
-            Explore Challenges
-          </a>
-        </div>
+        <app-my-challenges-empty-state 
+          *ngIf="filteredChallenges.length === 0"
+          [currentTab]="currentTab"
+          (exploreClicked)="exploreClicked()">
+        </app-my-challenges-empty-state>
 
         <!-- Cards List -->
-        <div *ngIf="filteredChallenges.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-          <div class="col" *ngFor="let entry of filteredChallenges">
+        <div *ngIf="filteredChallenges.length > 0" class="row g-4">
+          <div class="col-12 col-lg-6" *ngFor="let entry of filteredChallenges">
             <app-my-challenge-card 
               [entry]="entry"
               (cardClicked)="onCardClick($event)">

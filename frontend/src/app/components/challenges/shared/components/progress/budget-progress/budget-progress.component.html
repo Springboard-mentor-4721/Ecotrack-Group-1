@@ -35,7 +35,11 @@
     </div>
 
     <!-- Progress Bar -->
-    <div class="progress-track position-relative mb-2">
+    <div class="progress-track position-relative mb-2"
+         role="progressbar"
+         [attr.aria-valuenow]="percentageUsed"
+         aria-valuemin="0"
+         aria-valuemax="100">
       <div class="progress-fill" 
            [style.width.%]="percentageUsed"
            [ngClass]="'fill-' + riskLevel">

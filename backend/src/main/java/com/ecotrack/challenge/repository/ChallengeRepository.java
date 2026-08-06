@@ -16,6 +16,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface ChallengeRepository extends JpaRepository<Challenge, Long>, JpaSpecificationExecutor<Challenge> {
     Page<Challenge> findByStatus(ChallengeStatus status, Pageable pageable);
     
+    @org.springframework.data.jpa.repository.Query("SELECT c FROM Challenge c WHERE c.status = :status AND c.id NOT IN (SELECT p.challenge.id FROM ChallengeParticipant p WHERE p.userId = :userId)")
+    Page<Challenge> findExploreChallenges(@org.springframework.data.repository.query.Param("status") ChallengeStatus status, @org.springframework.data.repository.query.Param("userId") Long userId, Pageable pageable);
+    
     @org.springframework.data.jpa.repository.Query("""
         SELECT c.status, COUNT(c)
         FROM Challenge c

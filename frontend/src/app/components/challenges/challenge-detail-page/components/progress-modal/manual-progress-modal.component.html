@@ -1,66 +1,87 @@
-<div class="modal fade show" tabindex="-1" *ngIf="isVisible" style="display: block; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);" role="dialog" aria-modal="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+<div class="modal fade show" tabindex="-1" *ngIf="isVisible" style="display: block; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px);" role="dialog" aria-modal="true" aria-labelledby="progressModalTitle">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-5 border-0 shadow-premium overflow-hidden bg-glass">
       
-      <div class="modal-header border-0 bg-emerald text-white p-4">
+      <div class="modal-header border-0 bg-gradient-premium p-4 p-md-5 pb-4">
         <div>
-          <h5 class="modal-title fw-bold fs-4">Log Progress</h5>
-          <p class="mb-0 fs-sm opacity-75">{{ challenge?.title }}</p>
+          <h5 class="modal-title fw-bolder text-white fs-3 mb-1" id="progressModalTitle">
+            <i class="lucide-zap me-2"></i>Log Your Progress
+          </h5>
+          <p class="mb-0 text-white-50 fs-sm">{{ challenge?.title }}</p>
         </div>
-        <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="close.emit()"></button>
+        <button type="button" class="btn-close btn-close-white rounded-circle p-3 shadow-sm bg-dark bg-opacity-25 hover-scale" aria-label="Close" (click)="close.emit()"></button>
       </div>
       
       <div class="modal-body p-4 p-md-5">
         
         <!-- COUNT Type Modal Options -->
         <div *ngIf="challenge?.progressType === 'COUNT'">
-          <p class="text-center text-muted mb-4 fs-5">How many entries would you like to log?</p>
-          <div class="d-flex justify-content-center gap-3 mb-4">
-            <button class="btn btn-outline-emerald rounded-pill px-4 py-2 fw-bold fs-5 shadow-sm" (click)="submitQuickCount(1)" [disabled]="isActionLoading">+1</button>
-            <button class="btn btn-outline-emerald rounded-pill px-4 py-2 fw-bold fs-5 shadow-sm" (click)="submitQuickCount(5)" [disabled]="isActionLoading">+5</button>
+          <div class="text-center mb-5">
+            <h4 class="fw-bold text-dark mb-2">Awesome Work!</h4>
+            <p class="text-muted fs-5">How many entries would you like to log?</p>
           </div>
-          <div class="d-flex align-items-center gap-3 mt-4 pt-4 border-top">
-            <input type="number" class="form-control rounded-pill px-4 py-2 fs-5 bg-surface border-0" 
+
+          <div class="d-flex justify-content-center gap-4 mb-5">
+            <button class="btn btn-premium-action quick-add-btn flex-grow-1" (click)="submitQuickCount(1)" [disabled]="isActionLoading">
+              <span class="fs-2 fw-bolder">+1</span>
+              <span class="fs-6 d-block opacity-75 mt-1">Quick Add</span>
+            </button>
+            <button class="btn btn-premium-action quick-add-btn flex-grow-1" (click)="submitQuickCount(5)" [disabled]="isActionLoading">
+              <span class="fs-2 fw-bolder">+5</span>
+              <span class="fs-6 d-block opacity-75 mt-1">Quick Add</span>
+            </button>
+          </div>
+
+          <div class="position-relative text-center mb-5">
+            <hr class="text-muted opacity-25">
+            <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted fs-sm fw-bold">OR CUSTOM AMOUNT</span>
+          </div>
+
+          <div class="d-flex flex-column flex-sm-row align-items-center gap-3">
+            <input type="number" class="form-control form-control-premium w-100" 
                    [ngModel]="customAmount" (ngModelChange)="onAmountChange($event)" 
-                   placeholder="Custom amount" min="1" [disabled]="isActionLoading">
-            <button class="btn btn-emerald rounded-pill px-4 py-2 fw-bold shadow-sm" 
+                   placeholder="Enter custom amount..." min="1" [disabled]="isActionLoading">
+            <button class="btn btn-premium-submit w-100 w-sm-auto px-5" 
                     (click)="onSubmit()" 
                     [disabled]="!isValid || isActionLoading">
-              <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm"></span>
-              <span *ngIf="!isActionLoading">Add</span>
+              <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm me-2"></span>
+              <span *ngIf="!isActionLoading">Confirm <i class="lucide-check ms-1"></i></span>
             </button>
           </div>
         </div>
 
         <!-- AMOUNT Type Modal -->
         <div *ngIf="challenge?.progressType === 'AMOUNT'">
-          <div class="text-center mb-4">
-            <div class="bg-surface rounded-circle d-inline-flex p-4 mb-3">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <div class="text-center mb-5">
+            <div class="icon-pulse-container mb-4">
+              <div class="icon-pulse bg-gradient-premium rounded-circle d-inline-flex p-4 shadow-premium">
+                <i class="lucide-trending-up text-white" style="width: 32px; height: 32px;"></i>
+              </div>
             </div>
+            <h4 class="fw-bold text-dark mb-2">Track Your Impact</h4>
             <p class="text-muted fs-5">Enter the amount you achieved.</p>
           </div>
           
-          <div class="mb-4">
-            <label class="form-label fw-bold text-dark fs-sm ms-2">Amount</label>
-            <div class="input-group input-group-lg shadow-sm rounded-4 overflow-hidden border">
-              <input type="number" class="form-control border-0 bg-white focus-ring-emerald px-4 fw-bold fs-4" 
+          <div class="mb-5">
+            <label class="form-label fw-bold text-dark fs-sm ms-3 text-uppercase tracking-wide">Amount Achieved</label>
+            <div class="input-group input-group-premium">
+              <input type="number" class="form-control form-control-premium border-0" 
                      [ngModel]="customAmount" (ngModelChange)="onAmountChange($event)" 
                      placeholder="0.00" min="0.01" step="0.01" [disabled]="isActionLoading">
-              <span class="input-group-text bg-surface border-0 border-start text-muted fw-bold">{{ challenge?.rulesConfig?.unit || 'Units' }}</span>
+              <span class="input-group-text bg-light text-muted fw-bold px-4">{{ challenge?.rulesConfig?.unit || 'Units' }}</span>
             </div>
           </div>
           
-          <div class="d-flex gap-3 mt-2">
-            <button class="btn btn-outline-secondary rounded-pill w-100 py-3 fw-bold fs-5 shadow-sm" 
+          <div class="d-flex flex-column flex-sm-row gap-3">
+            <button class="btn btn-light btn-premium-cancel flex-grow-1" 
                     (click)="cancel.emit()" [disabled]="isActionLoading">
               Cancel
             </button>
-            <button class="btn btn-emerald rounded-pill w-100 py-3 fw-bold fs-5 shadow-sm" 
+            <button class="btn btn-premium-submit flex-grow-1" 
                     (click)="onSubmit()"
                     [disabled]="!isValid || isActionLoading">
               <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm me-2"></span>
-              Submit Progress
+              <span *ngIf="!isActionLoading">Submit Progress</span>
             </button>
           </div>
         </div>

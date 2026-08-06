@@ -1,0 +1,18 @@
+<div class="mb-5">
+  <div class="bg-surface rounded-pill shadow-sm border p-2 d-inline-flex flex-nowrap gap-2 overflow-auto" role="tablist">
+    <button *ngFor="let tab of tabs"
+            class="btn rounded-pill px-4 py-2 border-0 fw-bold fs-sm transition-all"
+            [class.bg-emerald-light]="currentTab === tab.id"
+            [class.text-primary]="currentTab === tab.id"
+            [class.bg-transparent]="currentTab !== tab.id"
+            [class.text-muted]="currentTab !== tab.id"
+            [class.bg-surface-hover]="currentTab !== tab.id"
+            [attr.aria-selected]="currentTab === tab.id"
+            [attr.aria-controls]="'tabpanel-' + tab.id"
+            [id]="'tab-' + tab.id"
+            role="tab"
+            (click)="tabSelected.emit(tab.id)">
+      {{ tab.label }}
+    </button>
+  </div>
+</div>

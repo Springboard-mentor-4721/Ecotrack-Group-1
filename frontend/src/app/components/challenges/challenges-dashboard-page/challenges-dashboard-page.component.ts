@@ -64,6 +64,12 @@ export class ChallengesDashboardPageComponent implements OnInit {
   loadDashboardData(): void {
     this.isLoading = true;
     
+    // ARCHITECTURE NOTE (Phase 1 Container/Presentational):
+    // The Dashboard employs an N+1 loading strategy to stitch together participant progress
+    // and full challenge details. It limits the initial fetch to `size=100` to cap the
+    // concurrent request overhead. In Phase 3, this should be optimized by a backend DTO 
+    // that returns full details in a single request.
+    
     // ForkJoin to get both my challenges and explore challenges at the same time
     forkJoin({
       my: this.challengeService.getMyChallenges(0, 100).pipe(
@@ -96,12 +102,11 @@ export class ChallengesDashboardPageComponent implements OnInit {
         // Calculate total XP
         this.totalXpEarned = this.myCompletedChallenges.reduce((sum, c) => sum + (c.challenge.rewardXp || 0), 0);
         
-        // Filter out joined challenges from explore to find recommended
-        const joinedIds = new Set(myChallenges.map(c => c.challenge.id));
+        // The backend now natively filters out challenges we've already joined
         this.exploreChallenges = data.explore;
         
         this.recommendedChallenges = this.exploreChallenges
-          .filter(c => !joinedIds.has(c.id) && c.status === 'ACTIVE')
+          .filter(c => c.status === 'ACTIVE')
           .slice(0, 3); // top 3 recommended
           
         // Compute Alerts

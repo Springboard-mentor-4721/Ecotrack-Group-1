@@ -1,0 +1,15 @@
+<div class="text-center py-5 my-5 bg-white rounded-4 shadow-sm">
+  <div class="ch-bg-info bg-opacity-10 rounded-circle d-inline-flex p-4 mb-3">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="ch-text-info"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+  </div>
+  <h4 class="fw-bold text-dark">No challenges found</h4>
+  <p class="desc-light mb-4">Try adjusting your search or filters for this page.</p>
+  <div class="d-flex justify-content-center gap-3 flex-wrap">
+    <button class="btn btn-outline-secondary rounded-pill px-4" (click)="clearFilters.emit()">
+      Clear all filters
+    </button>
+    <button class="btn btn-primary rounded-pill px-4" (click)="browseAll.emit()">
+      Browse All Challenges
+    </button>
+  </div>
+</div>

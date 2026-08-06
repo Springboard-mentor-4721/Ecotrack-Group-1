@@ -846,8 +846,9 @@ export class LibraryComponent implements OnInit {
         this.refresh();
         this.cdr.markForCheck();
       },
-      error: () => {
-        this.toast.error('Failed to approve challenge.');
+      error: (err) => {
+        const msg = err.error?.message || 'Failed to approve challenge.';
+        this.toast.error(msg);
         this.cdr.markForCheck();
       }
     });
@@ -863,8 +864,9 @@ export class LibraryComponent implements OnInit {
             this.refresh();
             this.cdr.markForCheck();
           },
-          error: () => {
-            this.toast.error('Failed to reject challenge.');
+          error: (err) => {
+            const msg = err.error?.message || 'Failed to reject challenge.';
+            this.toast.error(msg);
             this.cdr.markForCheck();
           }
         });
@@ -940,8 +942,11 @@ export class LibraryComponent implements OnInit {
 
   resolveImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
-    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    if (url.startsWith('http') || url.startsWith('data:')) return encodeURI(url);
     const baseUrl = environment.apiUrl.replace(/\/api$/, '');
-    return `${baseUrl}/uploads/${url}`;
+    if (url.startsWith('uploads/')) {
+      return encodeURI(`${baseUrl}/${url}`);
+    }
+    return encodeURI(`${baseUrl}/uploads/${url}`);
   }
 }

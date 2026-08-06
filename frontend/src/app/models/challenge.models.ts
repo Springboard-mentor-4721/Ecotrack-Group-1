@@ -53,6 +53,7 @@ export interface ChallengeParticipant {
   id: number;
   challengeId: number;
   userId: number;
+  userName?: string;
   progress: number;
   status: ChallengeParticipantStatus;
   joinedAt: string;

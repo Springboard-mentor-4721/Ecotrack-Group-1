@@ -6,17 +6,22 @@
      (keydown)="onKeydown($event)"
      tabindex="0"
      role="button"
-     [attr.aria-label]="'View details for ' + entry?.challenge?.title">
+     [attr.aria-label]="readonly ? 'History record for ' + entry?.challenge?.title : 'View details for ' + entry?.challenge?.title">
      
   <!-- Thumbnail Area -->
   <div class="thumbnail-wrapper position-relative me-3 flex-shrink-0">
-    <img [src]="entry?.challenge?.imageUrl | challengeImage" 
-         alt="" 
+    <img [src]="entry?.challenge?.imageUrl | challengeImage: entry?.challenge?.id" 
+         [alt]="entry?.challenge?.title + ' thumbnail'" 
          class="thumbnail-img">
     
     <!-- Completed Overlay -->
     <div *ngIf="isCompleted" class="completed-overlay d-flex justify-content-center align-items-center">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 6L9 17l-5-5"></path></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 6L9 17l-5-5"></path></svg>
+    </div>
+
+    <!-- Failed Overlay -->
+    <div *ngIf="isFailed" class="failed-overlay d-flex justify-content-center align-items-center">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </div>
   </div>
 
@@ -24,14 +29,14 @@
   <div class="content-wrapper flex-grow-1 min-w-0 d-flex flex-column justify-content-between">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-1 gap-2">
-      <h3 class="card-title text-truncate mb-0 fs-6 fw-bold text-slate-800">
+      <h3 class="card-title text-truncate mb-0 fs-6 fw-bold text-primary">
         {{ entry?.challenge?.title }}
       </h3>
       <app-challenge-status-badge [status]="entry?.participant?.status || ''" size="sm" class="flex-shrink-0"></app-challenge-status-badge>
     </div>
 
-    <!-- Progress Section -->
-    <div class="progress-section my-2">
+    <!-- Progress Section (Active Mode Only) -->
+    <div class="progress-section my-2" *ngIf="!readonly">
       <!-- Achievement -->
       <ng-container *ngIf="isAchievement">
         <app-achievement-progress 
@@ -58,8 +63,22 @@
       </ng-container>
     </div>
 
-    <!-- Footer -->
-    <div class="card-footer d-flex justify-content-between align-items-center mt-auto border-0 bg-transparent p-0">
+    <!-- History Mode Details (Readonly Mode Only) -->
+    <div class="history-details my-2 mt-auto d-flex justify-content-between align-items-center" *ngIf="readonly">
+      <div class="d-flex flex-column bg-light rounded px-2 py-1">
+        <span class="fs-xs text-muted text-uppercase tracking-wider fw-bold mb-1" *ngIf="isCompleted">Completed On</span>
+        <span class="fs-xs text-muted text-uppercase tracking-wider fw-bold mb-1" *ngIf="isFailed">Ended On</span>
+        <span class="fs-sm fw-bolder text-primary">{{ (entry?.participant?.completedAt || entry?.challenge?.endDate) | date:'mediumDate' }}</span>
+      </div>
+      
+      <div class="d-flex flex-column align-items-end bg-emerald-light rounded px-2 py-1" *ngIf="isCompleted">
+        <span class="fs-xs text-emerald fw-bold text-uppercase tracking-wider mb-1">Earned</span>
+        <span class="fs-sm fw-black text-emerald">+{{ entry?.challenge?.rewardXp }} XP</span>
+      </div>
+    </div>
+
+    <!-- Footer (Active Mode Only) -->
+    <div class="card-footer d-flex justify-content-between align-items-center mt-auto border-0 bg-transparent p-0" *ngIf="!readonly">
       <div class="fs-xs fw-medium footer-meta" [class.text-danger]="daysRemaining <= 2 && !isCompleted && !isFailed" [class.text-muted]="daysRemaining > 2 || isCompleted || isFailed">
         <span *ngIf="isCompleted">Finished</span>
         <span *ngIf="isFailed">Unsuccessful</span>

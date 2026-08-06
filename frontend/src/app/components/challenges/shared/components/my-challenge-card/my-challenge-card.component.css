@@ -1,18 +1,21 @@
 .my-challenge-card {
-  background-color: var(--bs-body-bg, #fff);
-  border-radius: var(--ch-radius-card, 12px);
-  box-shadow: var(--ch-shadow-card, 0 1px 6px rgba(0,0,0,0.08));
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: var(--bg-surface);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   outline: none;
   width: 100%;
-  min-width: 0; /* important for flexbox text truncation */
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .my-challenge-card:hover, .my-challenge-card:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: var(--ch-shadow-hover, 0 4px 16px rgba(0,0,0,0.10));
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.2);
 }
 
 .my-challenge-card:focus-visible {
@@ -20,16 +23,23 @@
 }
 
 .thumbnail-wrapper {
-  width: 80px;
-  height: 80px;
-  border-radius: var(--ch-radius-card, 12px);
+  width: 160px;
+  height: 120px;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease;
+}
+
+.my-challenge-card:hover .thumbnail-wrapper {
+  transform: scale(1.05) rotate(-2deg);
 }
 
 .thumbnail-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: filter 0.3s ease;
 }
 
 /* Compact variant for carousel */
@@ -38,8 +48,8 @@
 }
 
 .my-challenge-card.compact .thumbnail-wrapper {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: var(--ch-radius-badge, 6px);
 }
 
@@ -47,20 +57,36 @@
   font-size: 0.875rem !important; /* Equivalent to fs-sm */
 }
 
-/* Completed Overlay */
-.completed-overlay {
+/* Overlays (Completed and Failed) */
+.completed-overlay,
+.failed-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(16, 185, 129, 0.85); /* emerald-500 */
+  backdrop-filter: blur(3px);
   z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.completed-overlay {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(5, 150, 105, 0.95) 100%);
+}
+
+.failed-overlay {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.85) 0%, rgba(185, 28, 28, 0.95) 100%);
+}
+
+.my-challenge-card:hover .completed-overlay,
+.my-challenge-card:hover .failed-overlay {
+  opacity: 1;
 }
 
 /* Failed State */
 .my-challenge-card.failed .thumbnail-img {
-  filter: grayscale(100%) opacity(60%);
+  filter: none; /* No grayscale until maybe hover or we keep original image */
 }
 
 .my-challenge-card.failed .card-title,
@@ -68,6 +94,7 @@
 .my-challenge-card.failed .footer-meta {
   color: #94a3b8 !important; /* text-slate-400 */
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   .my-challenge-card {

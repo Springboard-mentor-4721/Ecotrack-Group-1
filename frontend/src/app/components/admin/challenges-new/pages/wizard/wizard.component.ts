@@ -730,6 +730,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       setTimeout(() => {
         this.wizardForm.patchValue(state['duplicateData']);
         this.wizardForm.markAllAsTouched(); // Trigger validation UI
+        this.onTrackingMethodChange();
       });
     } else if (nav?.extras.state?.['templateData']) {
       this.isTemplate = true;
@@ -748,6 +749,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
            this.wizardForm.patchValue(this.templateDataRef.rulesConfig);
         }
         this.wizardForm.markAllAsTouched();
+        this.onTrackingMethodChange();
         this.syncTrackingCategory();
       });
     }
@@ -768,6 +770,9 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     if (!url) return null;
     if (url.startsWith('http') || url.startsWith('data:')) return encodeURI(url);
     const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+    if (url.startsWith('uploads/')) {
+      return encodeURI(`${baseUrl}/${url}`);
+    }
     return encodeURI(`${baseUrl}/uploads/${url}`);
   }
 
@@ -875,6 +880,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
         };
         this.wizardForm.patchValue(formData);
         this.wizardForm.markAllAsTouched();
+        this.onTrackingMethodChange();
         if (challenge.imageUrl) {
           this.imagePreviewUrl = challenge.imageUrl;
         }
@@ -963,18 +969,22 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
 
   nextStep() {
     if (this.currentStep() === 1) {
-      if (this.wizardForm.get('title')?.valid && this.wizardForm.get('typeCode')?.valid && this.wizardForm.get('description')?.valid && this.wizardForm.get('startDate')?.valid && this.wizardForm.get('endDate')?.valid) {
+      const step1Fields = ['title', 'typeCode', 'description', 'startDate', 'endDate'];
+      const isValid = step1Fields.every(f => this.wizardForm.get(f)?.valid ?? true);
+      if (isValid) {
         this.currentStep.set(2);
       } else {
-        ['title', 'typeCode', 'description', 'startDate', 'endDate'].forEach(f => this.wizardForm.get(f)?.markAsTouched());
-        this.toast.error('Please fill required fields.');
+        step1Fields.forEach(f => this.wizardForm.get(f)?.markAsTouched());
+        this.toast.error('Please fill required fields in Basic Info.');
       }
     } else if (this.currentStep() === 2) {
-      if (this.wizardForm.get('progressType')?.valid && this.wizardForm.get('trackingMethod')?.valid && this.wizardForm.get('targetValue')?.valid && this.wizardForm.get('rewardXp')?.valid) {
+      const step2Fields = ['progressType', 'trackingMethod', 'targetValue', 'rewardXp', 'linkedCategoryId', 'challengeEvaluationType'];
+      const isValid = step2Fields.every(f => this.wizardForm.get(f)?.valid ?? true);
+      if (isValid) {
         this.currentStep.set(3);
       } else {
-        ['progressType', 'trackingMethod', 'targetValue', 'rewardXp'].forEach(f => this.wizardForm.get(f)?.markAsTouched());
-        this.toast.error('Please complete goal configuration.');
+        step2Fields.forEach(f => this.wizardForm.get(f)?.markAsTouched());
+        this.toast.error('Please complete goal configuration correctly.');
       }
     }
   }
@@ -990,6 +1000,19 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
 
   submit() {
     if (this.wizardForm.invalid) {
+      this.wizardForm.markAllAsTouched();
+      const step1Fields = ['title', 'typeCode', 'description', 'startDate', 'endDate'];
+      const step2Fields = ['trackingMethod', 'linkedCategoryId', 'challengeEvaluationType', 'progressType', 'targetValue', 'rewardXp'];
+      if (step1Fields.some(f => this.wizardForm.get(f)?.invalid)) {
+        this.currentStep.set(1);
+        this.toast.error('Please correct the errors in Basic Info.');
+        return;
+      }
+      if (step2Fields.some(f => this.wizardForm.get(f)?.invalid)) {
+        this.currentStep.set(2);
+        this.toast.error('Please correct the errors in Tracking & Goal.');
+        return;
+      }
       this.toast.error('Please correct the errors in the form.');
       return;
     }

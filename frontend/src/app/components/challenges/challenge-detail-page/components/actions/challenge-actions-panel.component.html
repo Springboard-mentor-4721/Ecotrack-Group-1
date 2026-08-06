@@ -1,14 +1,15 @@
 <!-- Action Panel (If Not Joined) -->
-<div *ngIf="!challenge.userProgress" class="bg-white border-0 rounded-4 p-5 shadow-sm h-100 d-flex flex-column align-items-center justify-content-center text-center transition-all hover-shadow-lg position-relative overflow-hidden">
+<div *ngIf="!challenge.userProgress" class="card-premium border-0 p-5 shadow-sm h-100 d-flex flex-column align-items-center justify-content-center text-center transition-all group position-relative overflow-hidden">
   <div class="position-absolute top-0 end-0 bg-emerald opacity-10 rounded-circle translate-middle" style="width: 300px; height: 300px; pointer-events: none;"></div>
   
-  <div class="bg-emerald bg-opacity-10 text-emerald rounded-circle p-4 mb-4 position-relative z-1 border border-emerald border-opacity-25 shadow-sm">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+  <div class="bg-emerald bg-opacity-10 text-emerald rounded-circle p-4 mb-4 position-relative z-1 border border-emerald border-opacity-25 shadow-sm transition-transform group-hover:scale-110" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+    <lucide-icon [img]="RocketIcon" size="48" strokeWidth="2"></lucide-icon>
   </div>
-  <h3 class="fw-bolder text-dark mb-3 position-relative z-1">Ready to make an impact?</h3>
+  <h3 class="fw-bolder text-primary mb-3 position-relative z-1">Ready to make an impact?</h3>
   <p class="text-muted mb-5 fs-sm max-w-sm position-relative z-1 lh-base">Join this challenge, log your actions daily, and earn rewards for your contribution to a better planet.</p>
   
-  <button class="btn btn-emerald rounded-pill py-3 px-5 fw-bold shadow-sm position-relative z-1 w-100 fs-5 transition-all hover-shadow-lg hover-translate-up group"
+  <button class="btn rounded-pill py-3 px-5 fw-bold shadow-sm position-relative z-1 w-100 fs-5 transition-all group hover-translate-up"
+          style="background-color: var(--color-emerald); color: white;"
           (click)="joinClicked.emit()"
           [disabled]="isActionLoading || challenge.status !== 'ACTIVE'">
     <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm me-2"></span>
@@ -18,52 +19,67 @@
 </div>
 
 <!-- Your Progress (Only if Joined) -->
-<div *ngIf="challenge.userProgress" class="bg-white border-0 rounded-4 p-5 shadow-sm h-100 d-flex flex-column transition-all hover-shadow-lg">
+<div *ngIf="challenge.userProgress" class="card-premium border-0 p-5 shadow-sm h-100 d-flex flex-column transition-all group">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bolder text-dark mb-0 fs-3 d-flex align-items-center gap-2">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <h4 class="fw-bolder text-primary mb-0 fs-3 d-flex align-items-center gap-2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald transition-transform group-hover:scale-110"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
       Your Progress
     </h4>
     <app-challenge-status-badge [status]="challenge.userProgress.status" size="md"></app-challenge-status-badge>
   </div>
   
-  <!-- Sub-components for Progress UI -->
-  <app-achievement-progress 
-    *ngIf="challenge.challengeEvaluationType !== 'BUDGET'"
-    [progress]="challenge.userProgress.progress"
-    [target]="challenge.targetValue"
-    [unit]="challenge.rulesConfig?.unit || ''"
-    variant="full"
-    class="mb-4 d-block">
-  </app-achievement-progress>
+  <!-- Active Progress View -->
+  <ng-container *ngIf="challenge.userProgress.status !== 'COMPLETED'">
+    <!-- Sub-components for Progress UI -->
+    <app-achievement-progress 
+      *ngIf="challenge.challengeEvaluationType !== 'BUDGET'"
+      [progress]="challenge.userProgress.progress"
+      [target]="challenge.targetValue"
+      [unit]="challenge.rulesConfig?.unit || ''"
+      variant="full"
+      (milestoneReached)="milestoneReached.emit($event)"
+      class="mb-4 d-block">
+    </app-achievement-progress>
 
-  <app-budget-progress 
-    *ngIf="challenge.challengeEvaluationType === 'BUDGET'"
-    [progress]="challenge.userProgress.progress"
-    [target]="challenge.targetValue"
-    [unit]="challenge.rulesConfig?.unit || ''"
-    [challengeStartDate]="challenge.startDate"
-    [challengeEndDate]="challenge.endDate"
-    variant="full"
-    class="mb-4 d-block">
-  </app-budget-progress>
-  
-  <div class="row g-3 mb-4 mt-1">
-    <div class="col-12">
-      <div class="bg-blue bg-opacity-10 rounded-4 p-3 border border-blue border-opacity-25 text-center h-100">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue mb-2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        <span class="fs-xs text-blue d-block fw-bolder text-uppercase tracking-wide mb-1">XP Reward on Completion</span>
-        <span class="fs-4 fw-bolder text-dark">{{ challenge.rewardXp }} XP</span>
+    <app-budget-progress 
+      *ngIf="challenge.challengeEvaluationType === 'BUDGET'"
+      [progress]="challenge.userProgress.progress"
+      [target]="challenge.targetValue"
+      [unit]="challenge.rulesConfig?.unit || ''"
+      [challengeStartDate]="challenge.startDate"
+      [challengeEndDate]="challenge.endDate"
+      variant="full"
+      class="mb-4 d-block">
+    </app-budget-progress>
+    
+    <div class="row g-3 mb-4 mt-1">
+      <div class="col-12">
+        <div class="bg-blue bg-opacity-10 rounded-4 p-3 border border-blue border-opacity-25 text-center h-100">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue mb-2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span class="fs-xs text-blue d-block fw-bolder text-uppercase tracking-wide mb-1">XP Reward on Completion</span>
+          <span class="fs-4 fw-bolder text-primary">{{ challenge.rewardXp }} XP</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <button *ngIf="challenge.trackingMethod !== 'AUTOMATIC'" class="btn btn-emerald rounded-pill py-3 px-4 fw-bolder w-100 shadow-sm mt-auto fs-5 transition-all hover-shadow-lg" (click)="logProgressClicked.emit()">
-    Log Today's Impact
-  </button>
-  
-  <div *ngIf="challenge.trackingMethod === 'AUTOMATIC'" class="bg-emerald bg-opacity-10 text-emerald rounded-pill py-3 px-4 fw-bolder text-center w-100 mt-auto fs-sm border border-emerald border-opacity-25 d-flex align-items-center justify-content-center">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-    Automatic Tracking Enabled
+    <button *ngIf="challenge.trackingMethod !== 'AUTOMATIC'" class="btn rounded-pill py-3 px-4 fw-bolder w-100 shadow-sm mt-auto fs-5 transition-all hover-shadow-lg hover-translate-up" 
+            style="background-color: var(--color-emerald); color: white;" 
+            (click)="logProgressClicked.emit()">
+      Log Today's Impact
+    </button>
+    
+    <div *ngIf="challenge.trackingMethod === 'AUTOMATIC'" class="bg-emerald bg-opacity-10 text-emerald rounded-pill py-3 px-4 fw-bolder text-center w-100 mt-auto fs-sm border border-emerald border-opacity-25 d-flex align-items-center justify-content-center">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      Automatic Tracking Enabled
+    </div>
+  </ng-container>
+
+  <!-- Completed View -->
+  <div *ngIf="challenge.userProgress.status === 'COMPLETED'" class="bg-success bg-opacity-10 rounded-4 p-5 text-center mt-2 border border-success border-opacity-25 h-100 d-flex flex-column justify-content-center align-items-center">
+    <div class="bg-success text-white rounded-circle p-3 mb-3 d-inline-block shadow-sm">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    </div>
+    <h4 class="fw-bolder text-success mb-2 fs-3">Challenge Completed!</h4>
+    <p class="text-success text-opacity-75 mb-0 fw-bold fs-sm">You've successfully completed this challenge and earned {{ challenge.rewardXp }} XP!</p>
   </div>
 </div>

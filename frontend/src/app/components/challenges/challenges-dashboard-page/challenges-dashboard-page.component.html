@@ -9,29 +9,25 @@
     <!-- Hero Section -->
     <app-dashboard-hero 
       [activeChallengesCount]="myActiveChallenges.length" 
-      [currentStreak]="0">
+      [completedCount]="myCompletedChallenges.length">
     </app-dashboard-hero>
-
-    <!-- Stats Section -->
-    <app-dashboard-stats
-      [activeCount]="myActiveChallenges.length"
-      [completedCount]="myCompletedChallenges.length"
-      [totalXp]="totalXpEarned">
-    </app-dashboard-stats>
 
     <!-- Urgency Alerts -->
     <app-urgency-alert-banner 
       [alerts]="urgencyAlerts">
     </app-urgency-alert-banner>
 
-    <!-- Quick Actions -->
-    <app-dashboard-quick-actions></app-dashboard-quick-actions>
+    <!-- Quick Actions (with Total XP) -->
+    <app-dashboard-quick-actions [totalXp]="totalXpEarned"></app-dashboard-quick-actions>
 
     <!-- Active Challenges Placeholder -->
     <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="h4 fw-bold mb-0">Continue Your Challenges</h2>
-        <a [routerLink]="['/challenges/my']" class="text-primary text-decoration-none fw-bold fs-sm">View All &rarr;</a>
+        <a [routerLink]="['/challenges/my']" class="text-primary text-decoration-none fw-bold fs-sm d-inline-flex align-items-center group">
+          View All 
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ms-1 transition-transform group-hover:translate-x-1" style="transition: transform 0.2s ease;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
       </div>
       
       <div *ngIf="myActiveChallenges.length === 0" class="bg-surface rounded-4 p-5 text-center border shadow-sm">
@@ -60,7 +56,10 @@
     <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="h4 fw-bold mb-0">Recommended For You</h2>
-        <a [routerLink]="['/challenges/explore']" class="text-primary text-decoration-none fw-bold fs-sm">Explore All &rarr;</a>
+        <a [routerLink]="['/challenges/explore']" class="text-primary text-decoration-none fw-bold fs-sm d-inline-flex align-items-center group">
+          Explore All 
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ms-1 transition-transform group-hover:translate-x-1" style="transition: transform 0.2s ease;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
       </div>
 
       <div class="mb-4 row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
@@ -70,21 +69,7 @@
       </div>
     </div>
 
-    <!-- Community Snapshot Placeholder -->
-    <div class="mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4 fw-bold mb-0">Community Impact</h2>
-      </div>
-      <div class="bg-surface rounded-4 p-5 text-center border shadow-sm opacity-75">
-        <div class="ch-bg-neutral bg-opacity-10 ch-text-neutral mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
-          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-        </div>
-        <h3 class="fw-bold fs-5 mb-2">Community Snapshot</h3>
-        <p class="text-muted fs-sm mb-0 mx-auto" style="max-width: 400px;">
-          Global impact data will be connected in a future sprint. Stay tuned to see how your actions combine with the community!
-        </p>
-      </div>
-    </div>
+
 
   </div>
 </div>

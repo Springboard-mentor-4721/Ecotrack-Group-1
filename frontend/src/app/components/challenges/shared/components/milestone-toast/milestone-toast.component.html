@@ -1,0 +1,15 @@
+<div *ngIf="milestone !== null" 
+     class="milestone-toast shadow-lg p-3 rounded-3" 
+     role="alert" 
+     aria-live="polite">
+  <div class="d-flex align-items-center">
+    <div class="toast-icon d-flex align-items-center justify-content-center me-3 rounded-circle">
+      <i class="lucide-zap" style="width: 20px; height: 20px;"></i>
+    </div>
+    <div class="toast-content flex-grow-1">
+      <h6 class="mb-0 fw-bold">Milestone Reached!</h6>
+      <small>You've completed {{ milestone }}% of this challenge.</small>
+    </div>
+    <button type="button" class="btn-close ms-2" aria-label="Close" (click)="dismiss()"></button>
+  </div>
+</div>

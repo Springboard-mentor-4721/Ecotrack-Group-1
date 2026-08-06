@@ -23,8 +23,13 @@ public class ChallengeController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<ChallengeDTO>> getChallenges(Pageable pageable) {
-        return ResponseEntity.ok(challengeService.getActiveChallenges(pageable));
+    public ResponseEntity<Page<ChallengeDTO>> getChallenges(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) com.ecotrack.challenge.enums.ChallengeEvaluationType evaluationType,
+            @RequestParam(required = false) com.ecotrack.challenge.enums.TrackingMethod trackingMethod,
+            Pageable pageable, Authentication authentication) {
+        Long userId = getUserId(authentication);
+        return ResponseEntity.ok(challengeService.getActiveChallenges(userId, search, evaluationType, trackingMethod, pageable));
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
@@ -62,6 +67,14 @@ public class ChallengeController {
             Authentication authentication) {
         Long userId = getUserId(authentication);
         return ResponseEntity.ok(challengeService.updateProgress(id, userId, request));
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/{id}/participants")
+    public ResponseEntity<Page<ChallengeParticipantDTO>> getChallengeParticipants(
+            @PathVariable Long id,
+            Pageable pageable) {
+        return ResponseEntity.ok(challengeService.getChallengeParticipants(id, pageable));
     }
 
     private Long getUserId(Authentication authentication) {

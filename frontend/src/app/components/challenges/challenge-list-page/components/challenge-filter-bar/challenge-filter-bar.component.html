@@ -1,0 +1,49 @@
+<div class="d-flex flex-wrap align-items-center gap-3">
+  <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">Filters:</span>
+  
+  <!-- Evaluation Filter -->
+  <div class="dropdown">
+    <button class="btn btn-white d-flex align-items-center gap-2 px-3 fw-600 border border-color rounded-pill shadow-sm hover-shadow transition-all" 
+            type="button" data-bs-toggle="dropdown" aria-expanded="false" [disabled]="isLoading">
+      <span class="text-muted fw-normal me-1">Type:</span> 
+      <span class="text-dark">{{ evaluationFilter === 'ALL' ? 'All' : (evaluationFilter === 'ACHIEVEMENT' ? 'Achievement' : 'Budget') }}</span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted ms-1"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <ul class="dropdown-menu shadow-lg border-0 rounded-4 mt-2 py-2 animate-page dropdown-menu-premium" style="min-width: 180px;">
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="evaluationFilter === 'ALL'" [class.text-emerald]="evaluationFilter === 'ALL'" (click)="setEvaluationFilter('ALL')">All Types</button></li>
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="evaluationFilter === 'ACHIEVEMENT'" [class.text-emerald]="evaluationFilter === 'ACHIEVEMENT'" (click)="setEvaluationFilter('ACHIEVEMENT')">Achievement</button></li>
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="evaluationFilter === 'BUDGET'" [class.text-emerald]="evaluationFilter === 'BUDGET'" (click)="setEvaluationFilter('BUDGET')">Budget</button></li>
+    </ul>
+  </div>
+
+  <!-- Tracking Filter -->
+  <div class="dropdown">
+    <button class="btn btn-white d-flex align-items-center gap-2 px-3 fw-600 border border-color rounded-pill shadow-sm hover-shadow transition-all" 
+            type="button" data-bs-toggle="dropdown" aria-expanded="false" [disabled]="isLoading">
+      <span class="text-muted fw-normal me-1">Tracking:</span> 
+      <span class="text-dark">{{ trackingFilter === 'ALL' ? 'All' : (trackingFilter === 'AUTOMATIC' ? 'Auto' : 'Manual') }}</span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted ms-1"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <ul class="dropdown-menu shadow-lg border-0 rounded-4 mt-2 py-2 animate-page dropdown-menu-premium" style="min-width: 180px;">
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="trackingFilter === 'ALL'" [class.text-emerald]="trackingFilter === 'ALL'" (click)="setTrackingFilter('ALL')">All Tracking</button></li>
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="trackingFilter === 'AUTOMATIC'" [class.text-emerald]="trackingFilter === 'AUTOMATIC'" (click)="setTrackingFilter('AUTOMATIC')">Auto</button></li>
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="trackingFilter === 'MANUAL'" [class.text-emerald]="trackingFilter === 'MANUAL'" (click)="setTrackingFilter('MANUAL')">Manual</button></li>
+    </ul>
+  </div>
+
+  <!-- Sort By -->
+  <div class="dropdown">
+    <button class="btn btn-white d-flex align-items-center gap-2 px-3 fw-600 border border-color rounded-pill shadow-sm hover-shadow transition-all" 
+            type="button" data-bs-toggle="dropdown" aria-expanded="false" [disabled]="isLoading">
+      <span class="text-muted fw-normal me-1">Sort:</span> 
+      <span class="text-dark">{{ sortFilter === 'newest' ? 'Newest' : (sortFilter === 'oldest' ? 'Oldest' : (sortFilter === 'a-z' ? 'A-Z' : 'Z-A')) }}</span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted ms-1"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <ul class="dropdown-menu shadow-lg border-0 rounded-4 mt-2 py-2 animate-page dropdown-menu-premium" style="min-width: 180px;">
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="sortFilter === 'newest'" [class.text-emerald]="sortFilter === 'newest'" (click)="setSortFilter('newest')">Newest</button></li>
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="sortFilter === 'oldest'" [class.text-emerald]="sortFilter === 'oldest'" (click)="setSortFilter('oldest')">Oldest</button></li>
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="sortFilter === 'a-z'" [class.text-emerald]="sortFilter === 'a-z'" (click)="setSortFilter('a-z')">A-Z</button></li>
+      <li><button class="dropdown-item fw-500 py-2 px-3 d-flex align-items-center gap-2 transition-all" [class.bg-emerald-light]="sortFilter === 'z-a'" [class.text-emerald]="sortFilter === 'z-a'" (click)="setSortFilter('z-a')">Z-A</button></li>
+    </ul>
+  </div>
+</div>

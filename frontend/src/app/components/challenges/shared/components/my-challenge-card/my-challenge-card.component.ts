@@ -23,6 +23,7 @@ import { getDaysRemaining } from '../../utils/date.utils';
 export class MyChallengeCardComponent {
   @Input() entry!: MyChallengeEntry;
   @Input() compact: boolean = false;
+  @Input() readonly: boolean = false;
 
   @Output() cardClicked = new EventEmitter<number>();
 

@@ -1,0 +1,23 @@
+<div class="empty-state bg-surface rounded-4 p-5 text-center border shadow-sm my-4">
+  <div class="ch-bg-neutral bg-opacity-10 ch-text-neutral mx-auto rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 72px; height: 72px;">
+    <svg *ngIf="currentTab === 'ACTIVE'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+    <svg *ngIf="currentTab === 'COMPLETED'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <svg *ngIf="currentTab === 'FAILED'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+  </div>
+  
+  <h3 class="fw-bold fs-5 mb-2">
+    <span *ngIf="currentTab === 'ACTIVE'">No active challenges</span>
+    <span *ngIf="currentTab === 'COMPLETED'">No completed challenges yet</span>
+    <span *ngIf="currentTab === 'FAILED'">No unsuccessful challenges</span>
+  </h3>
+  
+  <p class="text-muted fs-sm mb-4 max-w-sm mx-auto">
+    <span *ngIf="currentTab === 'ACTIVE'">You aren't currently participating in any challenges. Join one to start tracking your impact!</span>
+    <span *ngIf="currentTab === 'COMPLETED'">You haven't completed any challenges yet. Keep pushing towards your goals!</span>
+    <span *ngIf="currentTab === 'FAILED'">You don't have any failed challenges. Great job staying on track!</span>
+  </p>
+  
+  <button *ngIf="currentTab === 'ACTIVE' || currentTab === 'COMPLETED'" (click)="exploreClicked.emit()" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">
+    Explore Challenges
+  </button>
+</div>

@@ -1,4 +1,4 @@
 <span [class]="badgeClass" [attr.aria-label]="'Challenge status: ' + (status | challengeStatusLabel)" role="status">
-  <lucide-icon [img]="iconName" [size]="size === 'md' ? 16 : 14" class="mr-1.5"></lucide-icon>
+  <lucide-icon *ngIf="iconName" [img]="iconName" [size]="size === 'md' ? 16 : 14" class="me-1"></lucide-icon>
   {{ status | challengeStatusLabel }}
 </span>

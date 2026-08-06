@@ -4,6 +4,7 @@
   font-weight: 500;
   border-radius: var(--ch-radius-badge, 6px);
   white-space: nowrap;
+  backdrop-filter: blur(8px);
 }
 .badge-sm {
   padding: 0.25rem 0.5rem;
@@ -21,3 +22,4 @@
 .badge-info { background-color: var(--ch-info-bg, #dbeafe); color: var(--ch-info, #3b82f6); }
 .badge-xp { background-color: var(--ch-xp-bg, #ede9fe); color: var(--ch-xp, #8b5cf6); }
 .badge-neutral { background-color: rgba(156, 163, 175, 0.1); color: #6b7280; }
+.badge-overlay { background-color: rgba(0, 0, 0, 0.6); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); }

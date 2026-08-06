@@ -41,6 +41,8 @@
   
   --transition-smooth: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   
+  --hero-gradient: linear-gradient(135deg, #86efac 0%, #ecfdf5 100%);
+  
   /* Auth Fallback */
   --color-primary: #10B981;
   --color-primary-hover: #059669;
@@ -71,6 +73,20 @@
   --ch-duration-progress: 1200ms;
   --ch-duration-milestone: 400ms;
 }
+
+/* Challenge Module Utility Classes */
+.ch-text-success { color: var(--ch-success) !important; }
+.ch-bg-success { background-color: var(--ch-success-bg) !important; }
+.ch-text-warning { color: var(--ch-warning) !important; }
+.ch-bg-warning { background-color: var(--ch-warning-bg) !important; }
+.ch-text-danger { color: var(--ch-danger) !important; }
+.ch-bg-danger { background-color: var(--ch-danger-bg) !important; }
+.ch-text-info { color: var(--ch-info) !important; }
+.ch-bg-info { background-color: var(--ch-info-bg) !important; }
+.ch-text-xp { color: var(--ch-xp) !important; }
+.ch-bg-xp { background-color: var(--ch-xp-bg) !important; }
+.ch-text-neutral { color: var(--text-muted) !important; }
+.ch-bg-neutral { background-color: var(--bg-surface-hover) !important; }
 
 [data-theme="dark"] {
   color-scheme: dark;
@@ -601,6 +617,16 @@ select option {
 @keyframes staggerFadeIn {
   from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(2px); }
   to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* Accessibility Focus Rings */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--ch-info, #0ea5e9) !important;
+  outline-offset: 2px !important;
 }
 
 /* Respect Reduced Motion */

@@ -12,3 +12,13 @@ frontend/update_frontend.ps1
 
 frontend/update_frontend_ts.ps1
 
+# IDEs
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Plans
+plans/

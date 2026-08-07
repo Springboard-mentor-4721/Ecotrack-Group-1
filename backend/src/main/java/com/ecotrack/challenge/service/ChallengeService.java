@@ -132,7 +132,7 @@ public class ChallengeService {
             throw new ChallengeClosedException("Challenge is not active");
         }
         
-        ChallengeParticipant participant = participantRepository.findByChallengeIdAndUserId(id, userId)
+        ChallengeParticipant participant = participantRepository.findByChallengeIdAndUserIdForUpdate(id, userId)
                 .orElseThrow(() -> new IllegalArgumentException("User is not a participant"));
                 
         if (participant.getStatus() == ChallengeParticipantStatus.COMPLETED) {

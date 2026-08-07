@@ -13,6 +13,12 @@ import java.util.Optional;
 @Repository
 public interface ChallengeParticipantRepository extends JpaRepository<ChallengeParticipant, Long> {
     Optional<ChallengeParticipant> findByChallengeIdAndUserId(Long challengeId, Long userId);
+    
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.QueryHints({@jakarta.persistence.QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
+    @org.springframework.data.jpa.repository.Query("SELECT cp FROM ChallengeParticipant cp WHERE cp.challenge.id = :challengeId AND cp.userId = :userId")
+    Optional<ChallengeParticipant> findByChallengeIdAndUserIdForUpdate(@org.springframework.data.repository.query.Param("challengeId") Long challengeId, @org.springframework.data.repository.query.Param("userId") Long userId);
+
     List<ChallengeParticipant> findByUserIdAndStatus(Long userId, ChallengeParticipantStatus status);
     List<ChallengeParticipant> findByUserIdAndStatusIn(Long userId, List<ChallengeParticipantStatus> statuses);
     Page<ChallengeParticipant> findByUserId(Long userId, Pageable pageable);

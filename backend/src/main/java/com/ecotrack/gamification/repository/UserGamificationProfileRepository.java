@@ -9,4 +9,10 @@ import java.util.Optional;
 @Repository
 public interface UserGamificationProfileRepository extends JpaRepository<UserGamificationProfile, Long> {
     Optional<UserGamificationProfile> findByUserId(Long userId);
+    
+    java.util.List<UserGamificationProfile> findTop50ByOrderByLifetimeEcoXpDesc();
+    java.util.List<UserGamificationProfile> findTop50ByOrderByCurrentEcoScoreDesc();
+    long countByLifetimeEcoXpGreaterThan(Long lifetimeEcoXp);
+    
+    java.util.List<UserGamificationProfile> findTop500ByLastActivityDateBeforeAndUserIdGreaterThanOrderByUserIdAsc(java.time.LocalDate threshold, Long lastId);
 }

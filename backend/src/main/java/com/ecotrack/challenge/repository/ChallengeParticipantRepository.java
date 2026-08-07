@@ -35,7 +35,7 @@ public interface ChallengeParticipantRepository extends JpaRepository<ChallengeP
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT cp.userId) FROM ChallengeParticipant cp")
     long countDistinctUsers();
 
-    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(cp.challenge.targetValue), 0.0) FROM ChallengeParticipant cp WHERE cp.status = 'COMPLETED' AND cp.challenge.typeCode = 'REDUCE_CO2'")
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(CASE WHEN cp.challenge.challengeEvaluationType = com.ecotrack.challenge.enums.ChallengeEvaluationType.BUDGET THEN (cp.challenge.targetValue - cp.progress) ELSE cp.progress END), 0.0) FROM ChallengeParticipant cp WHERE cp.status = 'COMPLETED' AND cp.challenge.progressMetric = com.ecotrack.challenge.enums.ProgressMetric.CARBON_EMISSION")
     double sumTotalCo2Impact();
     
     @org.springframework.data.jpa.repository.Query(

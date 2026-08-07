@@ -47,7 +47,7 @@ public class ChallengeService {
     private final ChallengeParticipantRepository participantRepository;
     private final UserRepository userRepository;
     private final CarbonCategoryRepository carbonCategoryRepository;
-    private final FileUploadUtil fileUploadUtil;
+    private final com.ecotrack.tracking.repository.CarbonSubCategoryRepository carbonSubCategoryRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final StrategyResolver strategyResolver;
 
@@ -66,17 +66,21 @@ public class ChallengeService {
         detailDTO.setId(challenge.getId());
         detailDTO.setTitle(challenge.getTitle());
         detailDTO.setDescription(challenge.getDescription());
-        detailDTO.setTypeCode(challenge.getTypeCode());
         detailDTO.setStatus(challenge.getStatus());
         detailDTO.setTargetValue(challenge.getTargetValue());
         detailDTO.setStartDate(challenge.getStartDate());
         detailDTO.setEndDate(challenge.getEndDate());
         detailDTO.setLinkedCategoryId(challenge.getLinkedCategoryId());
+        if (challenge.getLinkedCategoryId() != null) {
+            detailDTO.setCarbonCategoryCode(carbonCategoryRepository.findById(challenge.getLinkedCategoryId())
+                    .map(com.ecotrack.tracking.entity.CarbonCategory::getCode)
+                    .orElse(null));
+        }
         detailDTO.setRewardXp(challenge.getRewardXp());
-        detailDTO.setProgressType(challenge.getProgressType());
+        detailDTO.setProgressMetric(challenge.getProgressMetric());
         detailDTO.setTrackingMethod(challenge.getTrackingMethod());
         detailDTO.setRulesConfig(challenge.getRulesConfig());
-        detailDTO.setCommunityProgress(challenge.getCommunityProgress());
+        detailDTO.setGlobalProgress(challenge.getGlobalProgress());
         detailDTO.setParticipantCount(participantRepository.countByChallengeId(id));
         detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
@@ -164,11 +168,14 @@ public class ChallengeService {
     // Admin Methods
     @Transactional
     public ChallengeDTO createChallenge(ChallengeRequest request) {
-        validateChallengeType(request.getTypeCode());
         validateTrackingConfiguration(request);
+        
+        if (request.getStartDate().toLocalDate().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("Start date cannot be in the past.");
+        }
 
         Integer reward = request.getRewardXp() != null ? request.getRewardXp() : 500;
-        com.ecotrack.challenge.enums.ProgressType pType = request.getProgressType() != null ? request.getProgressType() : com.ecotrack.challenge.enums.ProgressType.COUNT;
+        com.ecotrack.challenge.enums.ProgressMetric pMetric = request.getProgressMetric() != null ? request.getProgressMetric() : com.ecotrack.challenge.enums.ProgressMetric.ENTRY_COUNT;
         TrackingMethod tMethod = request.getTrackingMethod() != null ? request.getTrackingMethod() : TrackingMethod.MANUAL;
         
         Long finalLinkedCategoryId = request.getLinkedCategoryId();
@@ -181,13 +188,12 @@ public class ChallengeService {
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .typeCode(request.getTypeCode())
                 .targetValue(request.getTargetValue())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .linkedCategoryId(finalLinkedCategoryId)
                 .rewardXp(reward)
-                .progressType(pType)
+                .progressMetric(pMetric)
                 .trackingMethod(tMethod)
                 .challengeEvaluationType(request.getChallengeEvaluationType() != null ? request.getChallengeEvaluationType() : com.ecotrack.challenge.enums.ChallengeEvaluationType.ACHIEVEMENT)
                 .rulesConfig(request.getRulesConfig())
@@ -200,8 +206,11 @@ public class ChallengeService {
 
     @Transactional
     public ChallengeDTO updateChallenge(Long id, ChallengeRequest request) {
-        validateChallengeType(request.getTypeCode());
         validateTrackingConfiguration(request);
+        
+        if (request.getStartDate().toLocalDate().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("Start date cannot be in the past.");
+        }
         
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
@@ -212,7 +221,6 @@ public class ChallengeService {
 
         challenge.setTitle(request.getTitle());
         challenge.setDescription(request.getDescription());
-        challenge.setTypeCode(request.getTypeCode());
         challenge.setTargetValue(request.getTargetValue());
         challenge.setStartDate(request.getStartDate());
         challenge.setEndDate(request.getEndDate());
@@ -224,7 +232,7 @@ public class ChallengeService {
             challenge.setLinkedCategoryId(request.getLinkedCategoryId());
         }
         if (request.getRewardXp() != null) challenge.setRewardXp(request.getRewardXp());
-        if (request.getProgressType() != null) challenge.setProgressType(request.getProgressType());
+        if (request.getProgressMetric() != null) challenge.setProgressMetric(request.getProgressMetric());
         if (request.getTrackingMethod() != null) challenge.setTrackingMethod(request.getTrackingMethod());
         if (request.getChallengeEvaluationType() != null) challenge.setChallengeEvaluationType(request.getChallengeEvaluationType());
         challenge.setRulesConfig(request.getRulesConfig());
@@ -258,9 +266,7 @@ public class ChallengeService {
         }
                 
         if ("APPROVE".equalsIgnoreCase(action)) {
-            // Give a 5-minute grace period because the UI sets the start date 2 minutes in the future 
-            // to pass the @FutureOrPresent validation on creation.
-            if (challenge.getStartDate().isAfter(LocalDateTime.now().plusMinutes(5))) {
+            if (challenge.getStartDate().toLocalDate().isAfter(java.time.LocalDate.now())) {
                 challenge.setStatus(ChallengeStatus.UPCOMING);
             } else {
                 challenge.setStatus(ChallengeStatus.ACTIVE);
@@ -334,17 +340,16 @@ public class ChallengeService {
         detailDTO.setId(challenge.getId());
         detailDTO.setTitle(challenge.getTitle());
         detailDTO.setDescription(challenge.getDescription());
-        detailDTO.setTypeCode(challenge.getTypeCode());
         detailDTO.setStatus(challenge.getStatus());
         detailDTO.setTargetValue(challenge.getTargetValue());
         detailDTO.setStartDate(challenge.getStartDate());
         detailDTO.setEndDate(challenge.getEndDate());
         detailDTO.setLinkedCategoryId(challenge.getLinkedCategoryId());
         detailDTO.setRewardXp(challenge.getRewardXp());
-        detailDTO.setProgressType(challenge.getProgressType());
+        detailDTO.setProgressMetric(challenge.getProgressMetric());
         detailDTO.setTrackingMethod(challenge.getTrackingMethod());
         detailDTO.setRulesConfig(challenge.getRulesConfig());
-        detailDTO.setCommunityProgress(challenge.getCommunityProgress());
+        detailDTO.setGlobalProgress(challenge.getGlobalProgress());
         detailDTO.setParticipantCount(participantRepository.countByChallengeId(id));
         detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
@@ -440,33 +445,73 @@ public class ChallengeService {
                 counts.put((Long) row[0], ((Number) row[1]).longValue());
             }
         }
-        return page.map(c -> mapToDTO(c, counts.getOrDefault(c.getId(), 0L)));
+        
+        List<Long> categoryIds = page.getContent().stream()
+                .map(Challenge::getLinkedCategoryId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+        java.util.Map<Long, String> categoryCodes = new java.util.HashMap<>();
+        if (!categoryIds.isEmpty()) {
+            carbonCategoryRepository.findAllById(categoryIds).forEach(cat -> 
+                categoryCodes.put(cat.getCategoryId(), cat.getCode())
+            );
+        }
+
+        return page.map(c -> mapToDTO(c, counts.getOrDefault(c.getId(), 0L), categoryCodes.get(c.getLinkedCategoryId())));
     }
 
     private ChallengeDTO mapToDTO(Challenge c) {
-        return mapToDTO(c, participantRepository.countByChallengeId(c.getId()));
+        String carbonCategoryCode = null;
+        if (c.getLinkedCategoryId() != null) {
+            carbonCategoryCode = carbonCategoryRepository.findById(c.getLinkedCategoryId())
+                    .map(com.ecotrack.tracking.entity.CarbonCategory::getCode)
+                    .orElse(null);
+        }
+        return mapToDTO(c, participantRepository.countByChallengeId(c.getId()), carbonCategoryCode);
     }
 
-    private ChallengeDTO mapToDTO(Challenge c, long participantCount) {
+    private ChallengeDTO mapToDTO(Challenge c, long participantCount, String carbonCategoryCode) {
         return ChallengeDTO.builder()
                 .id(c.getId())
                 .title(c.getTitle())
                 .description(c.getDescription())
-                .typeCode(c.getTypeCode())
                 .status(c.getStatus())
                 .targetValue(c.getTargetValue())
                 .startDate(c.getStartDate())
                 .endDate(c.getEndDate())
                 .linkedCategoryId(c.getLinkedCategoryId())
+                .carbonCategoryCode(carbonCategoryCode)
                 .rewardXp(c.getRewardXp())
-                .progressType(c.getProgressType())
+                .progressMetric(c.getProgressMetric())
                 .trackingMethod(c.getTrackingMethod())
                 .challengeEvaluationType(c.getChallengeEvaluationType())
                 .rulesConfig(c.getRulesConfig())
-                .communityProgress(c.getCommunityProgress())
+                .globalProgress(c.getGlobalProgress())
+                .derivedUnit(derivedUnit(c))
                 .participantCount(participantCount)
                 .imageUrl(c.getImageUrl())
                 .build();
+    }
+    
+    private String derivedUnit(Challenge c) {
+        if (c.getProgressMetric() == com.ecotrack.challenge.enums.ProgressMetric.CARBON_EMISSION) return "kgCO2e";
+        if (c.getProgressMetric() == com.ecotrack.challenge.enums.ProgressMetric.ENTRY_COUNT) return ""; 
+        if (c.getProgressMetric() == com.ecotrack.challenge.enums.ProgressMetric.QUANTITY && c.getRulesConfig() != null) {
+            java.util.List<Long> ids = c.getRulesConfig().allowedSubcategoryIds();
+            if (ids != null && !ids.isEmpty()) {
+                return carbonSubCategoryRepository.findById(ids.get(0))
+                    .map(com.ecotrack.tracking.entity.CarbonSubCategory::getDefaultUnit)
+                    .orElse("");
+            }
+            if (c.getLinkedCategoryId() != null) {
+                java.util.List<com.ecotrack.tracking.entity.CarbonSubCategory> subs = carbonSubCategoryRepository.findByCategory_CategoryId(c.getLinkedCategoryId());
+                if (!subs.isEmpty()) {
+                    return subs.get(0).getDefaultUnit();
+                }
+            }
+        }
+        return "";
     }
     
     private ChallengeParticipantDTO mapToDTO(ChallengeParticipant p) {
@@ -482,11 +527,7 @@ public class ChallengeService {
                 .build();
     }
 
-    private void validateChallengeType(String typeCode) {
-        if ("PERSONAL".equalsIgnoreCase(typeCode) || "RECURRING".equalsIgnoreCase(typeCode)) {
-            throw new IllegalArgumentException("Cannot create PERSONAL or RECURRING challenges.");
-        }
-    }
+
 
     private void validateTrackingConfiguration(ChallengeRequest request) {
         TrackingMethod method = request.getTrackingMethod() != null ? request.getTrackingMethod() : TrackingMethod.MANUAL;
@@ -494,10 +535,36 @@ public class ChallengeService {
             if (!isValidAutomaticTrackingConfiguration(request)) {
                 throw new IllegalArgumentException("Linked category or multi-source configuration is required for AUTOMATIC tracking method.");
             }
+            validateUnitCompatibility(request);
+            validateSubcategoryBelongsToCategory(request);
         }
         if (method == TrackingMethod.MANUAL) {
             request.setLinkedCategoryId(null);
             request.setRulesConfig(null);
+        }
+    }
+
+    private void validateUnitCompatibility(ChallengeRequest request) {
+        if (request.getProgressMetric() != com.ecotrack.challenge.enums.ProgressMetric.QUANTITY) return;
+        List<Long> ids = request.getRulesConfig() != null ? request.getRulesConfig().allowedSubcategoryIds() : null;
+        if (ids == null || ids.size() <= 1) return;
+        List<String> units = carbonSubCategoryRepository.findAllById(ids)
+            .stream().map(com.ecotrack.tracking.entity.CarbonSubCategory::getDefaultUnit).distinct().toList();
+        if (units.size() > 1) {
+            throw new IllegalArgumentException("All selected subcategories must share the same unit for QUANTITY tracking. Found: " + units);
+        }
+    }
+
+    private void validateSubcategoryBelongsToCategory(ChallengeRequest request) {
+        if (request.getLinkedCategoryId() == null) return; // Cross-category challenges allowed (e.g. Carbon Reduction)
+        List<Long> ids = request.getRulesConfig() != null ? request.getRulesConfig().allowedSubcategoryIds() : null;
+        if (ids == null || ids.isEmpty()) return;
+        
+        List<com.ecotrack.tracking.entity.CarbonSubCategory> subs = carbonSubCategoryRepository.findAllById(ids);
+        for (com.ecotrack.tracking.entity.CarbonSubCategory sub : subs) {
+            if (!sub.getCategory().getCategoryId().equals(request.getLinkedCategoryId())) {
+                throw new IllegalArgumentException("Subcategory does not belong to selected category");
+            }
         }
     }
 

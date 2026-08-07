@@ -35,7 +35,7 @@
       *ngIf="challenge.challengeEvaluationType !== 'BUDGET'"
       [progress]="challenge.userProgress.progress"
       [target]="challenge.targetValue"
-      [unit]="challenge.rulesConfig?.unit || ''"
+      [unit]="''"
       variant="full"
       (milestoneReached)="milestoneReached.emit($event)"
       class="mb-4 d-block">
@@ -45,7 +45,7 @@
       *ngIf="challenge.challengeEvaluationType === 'BUDGET'"
       [progress]="challenge.userProgress.progress"
       [target]="challenge.targetValue"
-      [unit]="challenge.rulesConfig?.unit || ''"
+      [unit]="''"
       [challengeStartDate]="challenge.startDate"
       [challengeEndDate]="challenge.endDate"
       variant="full"

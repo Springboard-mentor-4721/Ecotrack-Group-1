@@ -6,7 +6,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AdminChallengeService } from '../challenges-new/services/admin-challenge.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { Challenge, ChallengeStats } from '../../../models/challenge.models';
-import { CHALLENGE_TYPES } from '../challenges-new/shared/challenge-types.config';
 import { CarbonCategory } from '../../../models/carbon-category.models';
 
 @Component({
@@ -79,13 +78,13 @@ import { CarbonCategory } from '../../../models/carbon-category.models';
             <div class="challenge-list">
               <div class="challenge-row" *ngFor="let c of recentChallenges()">
                 <div class="c-info">
-                  <div class="c-thumb" [ngClass]="getChallengeTypeConfig(c.typeCode).bgClass">
-                    <span class="material-icons">{{ getChallengeTypeConfig(c.typeCode).icon }}</span>
+                  <div class="c-thumb" [ngClass]="getProgressMetricConfig(c.progressMetric).bgClass">
+                    <span class="material-icons">{{ getProgressMetricConfig(c.progressMetric).icon }}</span>
                   </div>
                   <div class="c-details">
                     <h4>{{ c.title }}</h4>
                     <span class="c-category">
-                      <span class="material-icons">style</span> {{ getChallengeTypeConfig(c.typeCode).label }}
+                      <span class="material-icons">style</span> {{ getProgressMetricConfig(c.progressMetric).label }}
                       <ng-container *ngIf="c.trackingMethod === 'AUTOMATIC'">
                         <span style="margin-left: 0.5rem; color: #10b981; display: flex; align-items: center; gap: 0.25rem;">
                           <span class="material-icons">eco</span> {{ getCarbonCategoryName(c.linkedCategoryId) }}
@@ -538,7 +537,7 @@ export class AdminDashboardComponent implements OnInit {
 
   getCompletionPercent(c: Challenge): number {
     if (!c.targetValue || c.targetValue === 0) return 0;
-    const p = Math.round(((c.communityProgress || 0) / c.targetValue) * 100);
+    const p = c.targetValue > 0 ? Math.round(((c.globalProgress || 0) / c.targetValue) * 100) : ((c.globalProgress || 0) > 0 ? 100 : 0);
     return p > 100 ? 100 : p;
   }
   
@@ -557,8 +556,10 @@ export class AdminDashboardComponent implements OnInit {
     return percent > 50 ? 'fill-green' : 'fill-blue';
   }
   
-  getChallengeTypeConfig(typeCode: string): any {
-    return CHALLENGE_TYPES[typeCode] || CHALLENGE_TYPES['COMMUNITY'];
+  getProgressMetricConfig(metric: string): any {
+    if (metric === 'CARBON_EMISSION') return { bgClass: 'bg-seasonal', icon: 'co2', label: 'Emission' };
+    if (metric === 'QUANTITY') return { bgClass: 'bg-community', icon: 'bar_chart', label: 'Quantity' };
+    return { bgClass: 'bg-community', icon: 'check_circle', label: 'Count' };
   }
 
   getCarbonCategoryName(id: number | null | undefined): string {

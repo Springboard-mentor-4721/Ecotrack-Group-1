@@ -29,8 +29,6 @@ public class Challenge {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(name = "type_code", nullable = false, length = 30)
-    private String typeCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -58,13 +56,13 @@ public class Challenge {
     private Integer rewardXp = 500;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "progress_type", nullable = false, length = 20)
+    @Column(name = "progress_metric", nullable = false, length = 30)
     @Builder.Default
-    private com.ecotrack.challenge.enums.ProgressType progressType = com.ecotrack.challenge.enums.ProgressType.COUNT;
+    private com.ecotrack.challenge.enums.ProgressMetric progressMetric = com.ecotrack.challenge.enums.ProgressMetric.ENTRY_COUNT;
 
-    @Column(name = "community_progress", nullable = false)
+    @Column(name = "global_progress", nullable = false)
     @Builder.Default
-    private java.math.BigDecimal communityProgress = java.math.BigDecimal.ZERO;
+    private java.math.BigDecimal globalProgress = java.math.BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tracking_method", nullable = false, length = 20)

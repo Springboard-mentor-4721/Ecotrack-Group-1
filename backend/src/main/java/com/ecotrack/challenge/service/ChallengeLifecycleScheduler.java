@@ -28,6 +28,7 @@ public class ChallengeLifecycleScheduler {
     private final ChallengeParticipantRepository participantRepository;
     private final StrategyResolver strategyResolver;
     private final ApplicationEventPublisher eventPublisher;
+    private final jakarta.persistence.EntityManager entityManager;
 
     @Scheduled(cron = "0 0 * * * *") // Run hourly
     @Transactional
@@ -39,38 +40,51 @@ public class ChallengeLifecycleScheduler {
                 ChallengeStatus.ACTIVE, LocalDateTime.now());
                 
         for (Challenge challenge : expiredChallenges) {
-            challenge.setStatus(ChallengeStatus.CLOSED);
-            log.info("Closed expired challenge ID: {}", challenge.getId());
+            challenge.setStatus(ChallengeStatus.COMPLETED);
+            challengeRepository.save(challenge);
+            log.info("Closed expired challenge ID: {} as COMPLETED", challenge.getId());
             
-            List<ChallengeParticipant> participants = participantRepository.findByChallengeId(challenge.getId());
             ChallengeEvaluationStrategy strategy = strategyResolver.resolve(challenge.getChallengeEvaluationType());
             
-            for (ChallengeParticipant p : participants) {
-                if (p.getStatus() == ChallengeParticipantStatus.COMPLETED || p.getStatus() == ChallengeParticipantStatus.FAILED || p.getStatus() == ChallengeParticipantStatus.DROPPED) {
-                    continue;
-                }
+            int pageSize = 1000;
+            int pageNumber = 0;
+            org.springframework.data.domain.Page<ChallengeParticipant> page;
+            
+            do {
+                page = participantRepository.findByChallengeId(
+                        challenge.getId(), 
+                        org.springframework.data.domain.PageRequest.of(pageNumber, pageSize)
+                );
                 
-                ChallengeParticipantStatus oldStatus = p.getStatus();
-                ChallengeParticipantStatus newStatus = strategy.evaluateFinalStatus(p.getProgress(), challenge.getTargetValue(), oldStatus);
-                
-                if (newStatus != oldStatus) {
-                    p.setStatus(newStatus);
-                    if (newStatus == ChallengeParticipantStatus.COMPLETED) {
-                        p.setCompletedAt(LocalDateTime.now());
-                        eventPublisher.publishEvent(new ChallengeCompletedEvent(
-                                p.getUserId(),
-                                challenge.getId(),
-                                challenge.getTitle(),
-                                challenge.getRewardXp()
-                        ));
+                for (ChallengeParticipant p : page.getContent()) {
+                    if (p.getStatus() == ChallengeParticipantStatus.COMPLETED || p.getStatus() == ChallengeParticipantStatus.FAILED || p.getStatus() == ChallengeParticipantStatus.DROPPED) {
+                        continue;
+                    }
+                    
+                    ChallengeParticipantStatus oldStatus = p.getStatus();
+                    ChallengeParticipantStatus newStatus = strategy.evaluateFinalStatus(p.getProgress().doubleValue(), (double) challenge.getTargetValue(), oldStatus);
+                    
+                    if (newStatus != oldStatus) {
+                        p.setStatus(newStatus);
+                        if (newStatus == ChallengeParticipantStatus.COMPLETED) {
+                            p.setCompletedAt(LocalDateTime.now());
+                            eventPublisher.publishEvent(new ChallengeCompletedEvent(
+                                    p.getUserId(),
+                                    challenge.getId(),
+                                    challenge.getTitle(),
+                                    challenge.getRewardXp()
+                            ));
+                        }
                     }
                 }
-            }
-            participantRepository.saveAll(participants);
-        }
-        
-        if (!expiredChallenges.isEmpty()) {
-            challengeRepository.saveAll(expiredChallenges);
+                participantRepository.saveAll(page.getContent());
+                
+                // Flush and clear memory for this batch
+                entityManager.flush();
+                entityManager.clear();
+                
+                pageNumber++;
+            } while (page.hasNext());
         }
 
         // 2. Activate UPCOMING challenges

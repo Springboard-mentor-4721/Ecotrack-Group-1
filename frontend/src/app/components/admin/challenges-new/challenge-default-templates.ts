@@ -8,19 +8,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Beach cleanup.png',
     category: 'Community',
     trackingMethod: 'MANUAL',
-    goalType: 'COUNT',
+    progressMetric: 'ENTRY_COUNT',
     goalUnit: 'Cleanup Event',
     goalTarget: 1,
     durationDays: 7,
     rewardXP: 300,
     difficulty: 'Intermediate',
     estimatedCarbonImpact: 5,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'cleaning_services',
-    badgeColor: '#10b981',
-    defaultRules: { allowManualApproval: true, allowPartialProgress: false, minimumEntryCount: 1 }
+    badgeColor: '#10b981'
   },
   {
     id: 'carbon-reduction',
@@ -29,19 +28,19 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Carbon Reduction Challenge.png',
     category: 'Overall Sustainability',
     trackingMethod: 'AUTOMATIC',
-    goalType: 'CO2',
+    challengeEvaluationType: 'BUDGET',
+    progressMetric: 'CARBON_EMISSION',
     goalUnit: 'kg CO2',
     goalTarget: 50,
     durationDays: 30,
     rewardXP: 600,
     difficulty: 'Advanced',
     estimatedCarbonImpact: 50,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'co2',
-    badgeColor: '#3b82f6',
-    defaultRules: { minimumCarbonReduction: 1, allowPartialProgress: true }
+    badgeColor: '#3b82f6'
   },
   {
     id: 'car-free-weekend',
@@ -50,20 +49,20 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Car-Free Weekend.png',
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
-    trackingSources: ['WALK', 'CYCLE', 'BUS', 'TRAIN', 'METRO'],
-    goalType: 'CO2',
-    goalUnit: 'kg CO2',
-    goalTarget: 8,
+    challengeEvaluationType: 'BUDGET',
+    trackingSources: ['CAR'],
+    progressMetric: 'QUANTITY',
+    goalUnit: 'km',
+    goalTarget: 0,
     durationDays: 2,
     rewardXP: 180,
     difficulty: 'Beginner',
     estimatedCarbonImpact: 8,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'directions_car_filled',
-    badgeColor: '#10b981',
-    defaultRules: { minimumCarbonReduction: 0.5, allowPartialProgress: true }
+    badgeColor: '#10b981'
   },
   {
     id: 'community-cleanup',
@@ -72,19 +71,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Community Cleanup.png',
     category: 'Community',
     trackingMethod: 'MANUAL',
-    goalType: 'COUNT',
+    progressMetric: 'ENTRY_COUNT',
     goalUnit: 'Cleanup Events',
     goalTarget: 1,
     durationDays: 7,
     rewardXP: 300,
     difficulty: 'Beginner',
     estimatedCarbonImpact: 2,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'group',
-    badgeColor: '#10b981',
-    defaultRules: { allowManualApproval: true, allowPartialProgress: false, minimumEntryCount: 1 }
+    badgeColor: '#10b981'
   },
   {
     id: 'custom-challenge',
@@ -93,19 +91,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Custom Challenge (Generic Image).png',
     category: 'Generic',
     trackingMethod: 'MANUAL',
-    goalType: 'CUSTOM',
+    progressMetric: 'ENTRY_COUNT',
     goalUnit: 'Custom Unit',
     goalTarget: 10,
     durationDays: 7,
     rewardXP: 100,
     difficulty: 'Beginner',
     estimatedCarbonImpact: 0,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'build',
-    badgeColor: '#64748b',
-    defaultRules: { allowManualApproval: true, allowPartialProgress: true }
+    badgeColor: '#64748b'
   },
   {
     id: 'cycle-to-work',
@@ -115,19 +112,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
     trackingSources: ['CYCLE'],
-    goalType: 'DISTANCE',
+    progressMetric: 'QUANTITY',
     goalUnit: 'km',
     goalTarget: 40,
     durationDays: 7,
     rewardXP: 220,
     difficulty: 'Intermediate',
     estimatedCarbonImpact: 10,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'pedal_bike',
-    badgeColor: '#10b981',
-    defaultRules: { minimumDistance: 1, allowPartialProgress: true }
+    badgeColor: '#10b981'
   },
   {
     id: 'digital-detox',
@@ -136,19 +132,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Digital Detox Week.png',
     category: 'Lifestyle',
     trackingMethod: 'MANUAL',
-    goalType: 'COUNT',
+    progressMetric: 'ENTRY_COUNT',
     goalUnit: 'Days Completed',
     goalTarget: 7,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Beginner',
     estimatedCarbonImpact: 1,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'phonelink_off',
-    badgeColor: '#8b5cf6',
-    defaultRules: { allowManualApproval: true, allowPartialProgress: true, minimumEntryCount: 1 }
+    badgeColor: '#8b5cf6'
   },
   {
     id: 'eco-commute',
@@ -158,19 +153,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
     trackingSources: ['WALK', 'CYCLE', 'BUS', 'TRAIN', 'METRO'],
-    goalType: 'CO2',
-    goalUnit: 'kg CO2',
+    progressMetric: 'QUANTITY',
+    goalUnit: 'km',
     goalTarget: 20,
     durationDays: 14,
     rewardXP: 300,
     difficulty: 'Intermediate',
     estimatedCarbonImpact: 20,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'emoji_transportation',
-    badgeColor: '#10b981',
-    defaultRules: { minimumCarbonReduction: 1, allowPartialProgress: true }
+    badgeColor: '#10b981'
   },
   {
     id: 'public-transport-week',
@@ -180,19 +174,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
     trackingSources: ['BUS', 'TRAIN', 'METRO'],
-    goalType: 'TRIPS',
+    progressMetric: 'ENTRY_COUNT',
     goalUnit: 'Trips',
     goalTarget: 10,
     durationDays: 7,
     rewardXP: 220,
     difficulty: 'Beginner',
     estimatedCarbonImpact: 12,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'directions_bus',
-    badgeColor: '#3b82f6',
-    defaultRules: { minimumTrips: 1, allowPartialProgress: true }
+    badgeColor: '#3b82f6'
   },
   {
     id: 'reduce-waste-recycling',
@@ -201,20 +194,20 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Reduce waste and iniate Recyling.png',
     category: 'Waste',
     trackingMethod: 'AUTOMATIC',
-    trackingSources: ['RECYCLING', 'PAPER', 'PLASTIC', 'GLASS'],
-    goalType: 'WASTE',
-    goalUnit: 'kg Waste',
+    challengeEvaluationType: 'BUDGET',
+    trackingSources: ['LANDFILL'],
+    progressMetric: 'QUANTITY',
+    goalUnit: 'kg',
     goalTarget: 15,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Intermediate',
     estimatedCarbonImpact: 15,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'recycling',
-    badgeColor: '#f59e0b',
-    defaultRules: { minimumWaste: 1, allowPartialProgress: true }
+    badgeColor: '#f59e0b'
   },
   {
     id: 'save-electricity',
@@ -225,19 +218,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     trackingMethod: 'AUTOMATIC',
     challengeEvaluationType: 'BUDGET',
     trackingSources: ['ELECTRICITY'],
-    goalType: 'ENERGY',
+    progressMetric: 'QUANTITY',
     goalUnit: 'kWh',
     goalTarget: 25,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Intermediate',
     estimatedCarbonImpact: 20,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'bolt',
-    badgeColor: '#eab308',
-    defaultRules: { minimumEnergy: 1, allowPartialProgress: true }
+    badgeColor: '#eab308'
   },
   {
     id: 'tree-plantation',
@@ -246,19 +238,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Tree planting.png',
     category: 'Community',
     trackingMethod: 'MANUAL',
-    goalType: 'COUNT',
+    progressMetric: 'ENTRY_COUNT',
     goalUnit: 'Trees',
     goalTarget: 5,
     durationDays: 14,
     rewardXP: 500,
     difficulty: 'Intermediate',
     estimatedCarbonImpact: 50,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'park',
-    badgeColor: '#10b981',
-    defaultRules: { allowManualApproval: true, allowPartialProgress: true, minimumEntryCount: 1 }
+    badgeColor: '#10b981'
   },
   {
     id: 'walk-more',
@@ -268,19 +259,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
     trackingSources: ['WALK'],
-    goalType: 'DISTANCE',
+    progressMetric: 'QUANTITY',
     goalUnit: 'km',
     goalTarget: 30,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Beginner',
     estimatedCarbonImpact: 5,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'directions_walk',
-    badgeColor: '#10b981',
-    defaultRules: { minimumDistance: 1, allowPartialProgress: true }
+    badgeColor: '#10b981'
   },
   {
     id: 'water-saver',
@@ -291,18 +281,17 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     trackingMethod: 'AUTOMATIC',
     challengeEvaluationType: 'BUDGET',
     trackingSources: ['WATER'],
-    goalType: 'WATER',
+    progressMetric: 'QUANTITY',
     goalUnit: 'Litres',
     goalTarget: 500,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Intermediate',
     estimatedCarbonImpact: 10,
-    defaultChallengeType: 'COMMUNITY',
+    
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'water_drop',
-    badgeColor: '#3b82f6',
-    defaultRules: { minimumWater: 10, allowPartialProgress: true }
+    badgeColor: '#3b82f6'
   }
 ];

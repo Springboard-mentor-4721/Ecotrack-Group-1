@@ -43,11 +43,11 @@ import { RouterModule } from '@angular/router';
             <tr *ngFor="let challenge of challenges" [class.archived]="challenge.status === 'ARCHIVED'">
               <td class="title-cell">
                 <strong>{{ challenge.title }}</strong>
-                <span class="type-badge">{{ challenge.typeCode }}</span>
+                <span class="type-badge">{{ challenge.progressMetric }}</span>
               </td>
               <td><span class="status-badge" [ngClass]="challenge.status.toLowerCase()">{{ challenge.status }}</span></td>
               <td>{{ challenge.trackingMethod }}</td>
-              <td>{{ challenge.communityProgress || 0 }}</td>
+              <td>{{ challenge.globalProgress || 0 }}</td>
               <td>{{ challenge.startDate | date:'shortDate' }}</td>
               <td>{{ challenge.endDate | date:'shortDate' }}</td>
               <td class="actions-cell">

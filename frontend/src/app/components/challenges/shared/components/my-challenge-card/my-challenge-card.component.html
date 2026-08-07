@@ -42,11 +42,11 @@
         <app-achievement-progress 
           [progress]="entry?.participant?.progress || 0"
           [target]="entry?.challenge?.targetValue || 1"
-          [unit]="entry?.challenge?.rulesConfig?.unit || ''"
+          [unit]="''"
           variant="mini">
         </app-achievement-progress>
         <div class="fs-xs text-muted mt-1 progress-text">
-          {{ entry?.participant?.progress | number }} / {{ entry?.challenge?.targetValue | number }} {{ entry?.challenge?.rulesConfig?.unit }}
+          {{ entry?.participant?.progress | number }} / {{ entry?.challenge?.targetValue | number }}
         </div>
       </ng-container>
 
@@ -55,7 +55,7 @@
         <app-budget-progress
           [progress]="entry?.participant?.progress || 0"
           [target]="entry?.challenge?.targetValue || 1"
-          [unit]="entry?.challenge?.rulesConfig?.unit || ''"
+          [unit]="''"
           [challengeStartDate]="entry?.challenge?.startDate || ''"
           [challengeEndDate]="entry?.challenge?.endDate || ''"
           variant="mini">

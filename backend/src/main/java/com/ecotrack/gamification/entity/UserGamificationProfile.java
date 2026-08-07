@@ -56,4 +56,8 @@ public class UserGamificationProfile {
 
     @Column(name = "monthly_snapshot_month")
     private Integer monthlySnapshotMonth;
+
+    @Column(name = "accumulated_decay", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal accumulatedDecay = BigDecimal.ZERO;
 }

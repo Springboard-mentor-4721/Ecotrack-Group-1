@@ -14,8 +14,8 @@
       <div>
         <h6 class="fw-bold text-dark mb-1">Eligible Actions</h6>
         <p class="text-muted fs-sm mb-0">
-          <span *ngIf="challenge?.typeCode === 'CARBON_REDUCTION'">Use sustainable transport, reduce plastic waste, and conserve energy to reduce carbon footprint.</span>
-          <span *ngIf="challenge?.typeCode !== 'CARBON_REDUCTION'">Participate in eco-friendly activities related to this challenge.</span>
+          <span *ngIf="challenge?.progressMetric === 'CARBON_EMISSION'">Use sustainable transport, reduce plastic waste, and conserve energy to reduce carbon footprint.</span>
+          <span *ngIf="challenge?.progressMetric !== 'CARBON_EMISSION'">Participate in eco-friendly activities related to this challenge.</span>
         </p>
       </div>
     </div>

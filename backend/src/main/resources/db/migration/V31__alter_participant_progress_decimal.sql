@@ -1,0 +1,1 @@
+ALTER TABLE challenge_participants MODIFY COLUMN progress DECIMAL(10,2) NOT NULL DEFAULT 0.00;

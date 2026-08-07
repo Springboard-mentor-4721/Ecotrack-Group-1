@@ -7,7 +7,7 @@ import { AdminChallengeService } from '../../services/admin-challenge.service';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { ChallengeRequest } from '../../../../../models/challenge.models';
 import { CanComponentDeactivate } from '../../guards/unsaved-changes.guard';
-import { CHALLENGE_TYPES } from '../../shared/challenge-types.config';
+
 import { CarbonCategory, CarbonSubcategory } from '../../../../../models/carbon-category.models';
 import { environment } from '../../../../../../environments/environment';
 import { TemplateTrackingMapperService } from '../../services/template-tracking-mapper.service';
@@ -89,13 +89,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 <div class="validation-error" *ngIf="isInvalid('title')">Challenge name is required and must be at least 5 characters.</div>
               </div>
 
-              <div class="form-group">
-                <label for="typeCode">Challenge Type <span class="required">*</span></label>
-                <select id="typeCode" class="premium-input" formControlName="typeCode" [attr.aria-invalid]="isInvalid('typeCode')">
-                  <option *ngFor="let type of challengeTypes" [value]="type.id">{{ type.label }}</option>
-                </select>
-                <div class="validation-error" *ngIf="isInvalid('typeCode')">Challenge type is required.</div>
-              </div>
+
 
 
               <div class="form-group">
@@ -163,7 +157,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                     <span class="material-icons">category</span>
                     <div class="p-text">
                       <small>Category</small>
-                      <strong>{{ wizardForm.value.typeCode || 'General' }}</strong>
+                      <strong>General</strong>
                     </div>
                   </div>
                   <div class="p-item">
@@ -369,7 +363,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
               <div style="display: flex; gap: 1rem; align-items: flex-end;">
                 <div style="flex: 2;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                   <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Goal Type</label>
-                  <select class="premium-input" formControlName="progressType">
+                  <select class="premium-input" formControlName="progressMetric">
                     <option value="COUNT">Count (e.g. 10 actions)</option>
                     <option value="AMOUNT">{{ amountLabel }}</option>
                   </select>
@@ -407,7 +401,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   <span class="material-icons review-icon">category</span>
                   <div>
                     <small>Category</small>
-                    <strong>{{ wizardForm.value.typeCode || 'Not set' }}</strong>
+                    <strong>Not set</strong>
                   </div>
                 </div>
                 <div class="review-row">
@@ -428,7 +422,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   <span class="material-icons review-icon">track_changes</span>
                   <div>
                     <small>Goal</small>
-                    <strong>{{ wizardForm.value.targetValue || 0 }} ({{ wizardForm.value.progressType }})</strong>
+                    <strong>{{ wizardForm.value.targetValue || 0 }} ({{ wizardForm.value.progressMetric }})</strong>
                   </div>
                 </div>
                 <div class="review-row">
@@ -694,7 +688,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   selectedImageFile: File | null = null;
   imagePreviewUrl: string | null = null;
 
-  challengeTypes = Object.values(CHALLENGE_TYPES);
+  
   automaticCategories = signal<CarbonCategory[]>([]);
   allSubcategories: CarbonSubcategory[] = [];
   
@@ -704,11 +698,11 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   wizardForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(5)]],
     description: ['', [Validators.required, Validators.maxLength(2000)]],
-    typeCode: ['COMMUNITY', [Validators.required]],
+    
     linkedCategoryId: [null],
     carbonCategoryCode: [null],
     challengeEvaluationType: ['ACHIEVEMENT', [Validators.required]],
-    progressType: ['COUNT', [Validators.required]],
+    progressMetric: ['ENTRY_COUNT', [Validators.required]],
     trackingMethod: ['AUTOMATIC', [Validators.required]],
     approvalRequired: [false],
     submissionType: ['PHOTO/TEXT'],
@@ -729,7 +723,6 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       
       setTimeout(() => {
         this.wizardForm.patchValue(state['duplicateData']);
-        this.wizardForm.markAllAsTouched(); // Trigger validation UI
         this.onTrackingMethodChange();
       });
     } else if (nav?.extras.state?.['templateData']) {
@@ -744,7 +737,18 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       }
       // Prefill with template data
       setTimeout(() => {
-        this.wizardForm.patchValue(this.templateDataRef);
+        let mappedProgressMetric = 'ENTRY_COUNT';
+        if (this.templateDataRef.goalType && this.templateDataRef.goalType !== 'COUNT' && this.templateDataRef.goalType !== 'TRIPS') {
+            mappedProgressMetric = 'QUANTITY';
+        }
+        
+        this.wizardForm.patchValue({
+           ...this.templateDataRef,
+           targetValue: this.templateDataRef.goalTarget,
+           rewardXp: this.templateDataRef.rewardXP,
+           progressMetric: mappedProgressMetric
+        });
+        
         if (this.templateDataRef?.rulesConfig) {
            this.wizardForm.patchValue(this.templateDataRef.rulesConfig);
         }
@@ -859,23 +863,23 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     this.challengeService.getChallengeDetail(id).subscribe({
       next: (challenge) => {
         // Build payload for form
-        const rules = challenge.rulesConfig || {};
+        const rules: any = challenge.rulesConfig || {};
         const formData = {
           title: challenge.title,
           description: challenge.description,
-          typeCode: challenge.typeCode,
+          
           linkedCategoryId: challenge.linkedCategoryId,
           carbonCategoryCode: challenge.carbonCategoryCode,
           challengeEvaluationType: challenge.challengeEvaluationType || 'ACHIEVEMENT',
           rewardXp: challenge.rewardXp,
-          progressType: challenge.progressType,
+          progressMetric: challenge.progressMetric,
           trackingMethod: challenge.trackingMethod,
           approvalRequired: rules.approvalRequired || false,
           submissionType: rules.submissionType || 'PHOTO/TEXT',
           evidenceRequired: rules.evidenceRequired || false,
           targetValue: challenge.targetValue,
-          startDate: challenge.startDate ? new Date(challenge.startDate).toISOString().split('T')[0] : '',
-          endDate: challenge.endDate ? new Date(challenge.endDate).toISOString().split('T')[0] : '',
+          startDate: challenge.startDate ? challenge.startDate.split('T')[0] : '',
+          endDate: challenge.endDate ? challenge.endDate.split('T')[0] : '',
           maxParticipants: challenge.participantCount || ''
         };
         this.wizardForm.patchValue(formData);
@@ -969,7 +973,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
 
   nextStep() {
     if (this.currentStep() === 1) {
-      const step1Fields = ['title', 'typeCode', 'description', 'startDate', 'endDate'];
+      const step1Fields = ['title', 'description', 'startDate', 'endDate'];
       const isValid = step1Fields.every(f => this.wizardForm.get(f)?.valid ?? true);
       if (isValid) {
         this.currentStep.set(2);
@@ -978,7 +982,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
         this.toast.error('Please fill required fields in Basic Info.');
       }
     } else if (this.currentStep() === 2) {
-      const step2Fields = ['progressType', 'trackingMethod', 'targetValue', 'rewardXp', 'linkedCategoryId', 'challengeEvaluationType'];
+      const step2Fields = ['progressMetric', 'trackingMethod', 'targetValue', 'rewardXp', 'linkedCategoryId', 'challengeEvaluationType'];
       const isValid = step2Fields.every(f => this.wizardForm.get(f)?.valid ?? true);
       if (isValid) {
         this.currentStep.set(3);
@@ -1001,8 +1005,8 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   submit() {
     if (this.wizardForm.invalid) {
       this.wizardForm.markAllAsTouched();
-      const step1Fields = ['title', 'typeCode', 'description', 'startDate', 'endDate'];
-      const step2Fields = ['trackingMethod', 'linkedCategoryId', 'challengeEvaluationType', 'progressType', 'targetValue', 'rewardXp'];
+      const step1Fields = ['title', 'description', 'startDate', 'endDate'];
+      const step2Fields = ['trackingMethod', 'linkedCategoryId', 'challengeEvaluationType', 'progressMetric', 'targetValue', 'rewardXp'];
       if (step1Fields.some(f => this.wizardForm.get(f)?.invalid)) {
         this.currentStep.set(1);
         this.toast.error('Please correct the errors in Basic Info.');
@@ -1027,11 +1031,11 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     const request: ChallengeRequest = {
       title: formValue.title,
       description: formValue.description,
-      typeCode: formValue.typeCode,
+      
       linkedCategoryId: formValue.trackingMethod === 'AUTOMATIC' && this.autoTrackingMode === 'SINGLE' ? Number(formValue.linkedCategoryId) : undefined,
       carbonCategoryCode: carbonCode,
       challengeEvaluationType: formValue.challengeEvaluationType,
-      progressType: formValue.progressType,
+      progressMetric: formValue.progressMetric,
       trackingMethod: formValue.trackingMethod,
       targetValue: Number(formValue.targetValue),
       rewardXp: Number(formValue.rewardXp),
@@ -1108,13 +1112,6 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
 
   private formatStartDate(dateStr: string): string {
     if (dateStr.includes('T')) return dateStr;
-    if (dateStr === this.minDate) {
-      const now = new Date();
-      now.setMinutes(now.getMinutes() + 2); // Add 2 minutes to ensure it safely passes backend FutureOrPresent validation
-      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + 
-                      String(now.getMinutes()).padStart(2, '0') + ':00';
-      return `${dateStr}T${timeStr}`;
-    }
     return `${dateStr}T00:00:00`;
   }
 
@@ -1139,4 +1136,5 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     return 'Amount (e.g. 50 kg CO2)';
   }
 }
+
 

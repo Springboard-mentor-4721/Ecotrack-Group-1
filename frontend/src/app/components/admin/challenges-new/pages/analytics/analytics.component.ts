@@ -7,8 +7,8 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
 import { AdminChallengeService } from '../../services/admin-challenge.service';
 import { Challenge, ChallengeStats, ChallengeAnalytics } from '../../../../../models/challenge.models';
 import { forkJoin, catchError, of, finalize } from 'rxjs';
-import { ChartConfiguration } from 'chart.js';
-import { CHALLENGE_TYPES } from '../../shared/challenge-types.config';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+
 import { CarbonCategory } from '../../../../../models/carbon-category.models';
 
 @Component({
@@ -140,7 +140,7 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
                 <tr *ngFor="let c of paginatedChallenges()">
                   <td class="font-medium">{{ c.title }}</td>
                   <td>
-                    <span class="type-badge">{{ getChallengeTypeConfig(c.typeCode).label }}</span>
+                    <span class="type-badge">{{ getProgressMetricConfig(c.progressMetric).label }}</span>
                     <span class="type-badge category-badge" *ngIf="c.trackingMethod === 'AUTOMATIC'" style="margin-left: 0.5rem; background: #ecfdf5; color: #10b981;">
                       {{ getCarbonCategoryName(c.linkedCategoryId) }}
                     </span>
@@ -159,7 +159,7 @@ import { CarbonCategory } from '../../../../../models/carbon-category.models';
                     </div>
                   </td>
                   <td>{{ c.participantCount || 0 }}</td>
-                  <td>{{ c.communityProgress || 0 }}</td>
+                  <td>{{ c.globalProgress || 0 }}</td>
                   <td>{{ (c.participantCount || 0) * c.rewardXp }}</td>
                   <td class="actions-cell">
                     <button class="btn-link" (click)="viewInLibrary(c.id)">View</button>
@@ -282,7 +282,7 @@ export class AnalyticsComponent implements OnInit {
   // Derived stats
   derivedAvgCompletionRate = computed(() => {
     if (this.allChallenges().length === 0) return 0;
-    return Math.round(this.allChallenges().reduce((acc, c) => acc + (Number(c.communityProgress) || 0), 0) / this.allChallenges().length);
+    return Math.round(this.allChallenges().reduce((acc, c) => acc + (Number(c.globalProgress) || 0), 0) / this.allChallenges().length);
   });
 
   derivedTotalXp = computed(() => {
@@ -290,7 +290,7 @@ export class AnalyticsComponent implements OnInit {
   });
 
   derivedTotalImpact = computed(() => {
-    return this.allChallenges().reduce((acc, c) => acc + (c.communityProgress || 0), 0);
+    return this.allChallenges().reduce((acc, c) => acc + (c.globalProgress || 0), 0);
   });
 
   categoryChartData: ChartConfiguration<'doughnut'>['data'] = {
@@ -375,7 +375,7 @@ export class AnalyticsComponent implements OnInit {
     challenges.forEach(c => {
       const label = c.trackingMethod === 'AUTOMATIC' 
         ? this.getCarbonCategoryName(c.linkedCategoryId) 
-        : this.getChallengeTypeConfig(c.typeCode).label;
+        : this.getProgressMetricConfig(c.progressMetric).label;
       catMap.set(label, (catMap.get(label) || 0) + 1);
     });
     
@@ -415,8 +415,10 @@ export class AnalyticsComponent implements OnInit {
 
 
 
-  getChallengeTypeConfig(typeCode: string): any {
-    return CHALLENGE_TYPES[typeCode] || CHALLENGE_TYPES['COMMUNITY'];
+  getProgressMetricConfig(metric: string): any {
+    if (metric === 'CARBON_EMISSION') return { bgClass: 'bg-seasonal', icon: 'co2', label: 'Emission' };
+    if (metric === 'QUANTITY') return { bgClass: 'bg-community', icon: 'bar_chart', label: 'Quantity' };
+    return { bgClass: 'bg-community', icon: 'check_circle', label: 'Count' };
   }
 
   getCarbonCategoryName(id: number | null | undefined): string {

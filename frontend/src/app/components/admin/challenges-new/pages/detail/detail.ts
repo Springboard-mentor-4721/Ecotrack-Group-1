@@ -59,7 +59,7 @@ import { environment } from '../../../../../../environments/environment';
         <div class="p-4 p-md-5">
           <div class="row mb-4">
             <div class="col-12 col-md-8">
-              <span class="badge bg-light text-dark border px-2 py-1 mb-2">{{ c.typeCode }}</span>
+              <span class="badge bg-light text-dark border px-2 py-1 mb-2">{{ c.progressMetric }}</span>
               <h2 class="fw-bolder mb-3" style="font-size: 2.2rem;">{{ c.title }}</h2>
               <p class="text-muted fs-5 lh-base">{{ c.description }}</p>
             </div>
@@ -87,7 +87,7 @@ import { environment } from '../../../../../../environments/environment';
             <div class="col-6 col-md-3">
               <div class="info-block border rounded p-3 h-100">
                 <span class="text-muted fs-sm fw-bold text-uppercase d-block mb-1">Target</span>
-                <span class="fw-bold fs-5">{{ c.targetValue }} {{ c.progressType === 'COUNT' ? 'Entries' : 'Units' }}</span>
+                <span class="fw-bold fs-5">{{ c.targetValue }} {{ c.derivedUnit || 'Units' }}</span>
               </div>
             </div>
             <div class="col-6 col-md-3">
@@ -103,7 +103,7 @@ import { environment } from '../../../../../../environments/environment';
               <div class="info-block border rounded p-4 h-100 bg-light">
                 <h5 class="fw-bolder mb-3">Community Progress</h5>
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="fw-bold">{{ c.communityProgress || 0 }} Achieved</span>
+                  <span class="fw-bold">{{ c.globalProgress || 0 }} Achieved</span>
                   <span class="fw-bold text-success">{{ getCompletionPercent(c) }}%</span>
                 </div>
                 <div class="progress" style="height: 10px;">
@@ -213,7 +213,7 @@ export class DetailComponent implements OnInit {
 
   getCompletionPercent(c: ChallengeDetail): number {
     if (!c.targetValue) return 0;
-    const p = Math.round(((c.communityProgress || 0) / c.targetValue) * 100);
+    const p = c.targetValue > 0 ? Math.round(((c.globalProgress || 0) / c.targetValue) * 100) : ((c.globalProgress || 0) > 0 ? 100 : 0);
     return p > 100 ? 100 : p;
   }
 

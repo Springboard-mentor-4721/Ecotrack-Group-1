@@ -31,9 +31,9 @@ public class ChallengeParticipant {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     @Builder.Default
-    private Integer progress = 0;
+    private java.math.BigDecimal progress = java.math.BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)

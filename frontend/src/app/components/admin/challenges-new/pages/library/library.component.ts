@@ -10,7 +10,7 @@ import { ToastService } from '../../../../../shared/services/toast.service';
 import { ConfirmationDialogService } from '../../../../../shared/services/confirmation-dialog.service';
 import { Challenge, ChallengeStats } from '../../../../../models/challenge.models';
 import { PageableResponse } from '../../../../../models/carbon.models';
-import { CHALLENGE_TYPES } from '../../shared/challenge-types.config';
+
 import { CarbonCategory } from '../../../../../models/carbon-category.models';
 import { EmptyStateComponent } from '../../../../../shared/ui/empty-state/empty-state.component';
 import { LoadingSkeletonComponent } from '../../../../../shared/ui/loading-skeleton/loading-skeleton.component';
@@ -931,7 +931,7 @@ export class LibraryComponent implements OnInit {
 
   getProgressPercent(c: Challenge): number {
     if (!c.targetValue) return 0;
-    const progress = c.communityProgress || 0;
+    const progress = c.globalProgress || 0;
     const percent = Math.min((progress / c.targetValue) * 100, 100);
     return Math.round(percent);
   }

@@ -68,10 +68,9 @@ export class AdminChallengeService {
     return {
       title: `Copy of ${challenge.title}`,
       description: challenge.description,
-      typeCode: challenge.typeCode,
       targetValue: challenge.targetValue,
       rewardXp: challenge.rewardXp,
-      progressType: challenge.progressType,
+      progressMetric: challenge.progressMetric,
       trackingMethod: challenge.trackingMethod,
       rulesConfig: challenge.rulesConfig,
       linkedCategoryId: challenge.linkedCategoryId,

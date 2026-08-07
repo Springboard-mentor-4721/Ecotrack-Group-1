@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
 import com.ecotrack.event.CarbonEntryCreatedEvent;
+import com.ecotrack.event.CarbonEntryDeletedEvent;
+import com.ecotrack.event.CarbonEntryUpdatedEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -94,12 +96,24 @@ public class CarbonEntryService {
                 request.getQuantity()
         );
 
+        BigDecimal oldAmount = entity.getQuantity();
+        BigDecimal oldCarbonEmission = entity.getEmissionKgco2e();
+        Long oldSubCategoryId = entity.getSubCategory().getId();
+        Long oldCategoryId = entity.getSubCategory().getCategory().getCategoryId();
+
         carbonEntryMapper.updateEntity(request, entity);
         entity.setSubCategory(subCategory);
         entity.setEmissionKgco2e(emissionKgco2e);
         entity.setNotes(normalizeNotes(request.getNotes()));
 
         CarbonEntry savedEntity = carbonEntryRepository.save(entity);
+        eventPublisher.publishEvent(new CarbonEntryUpdatedEvent(
+                userId, savedEntity.getId(),
+                oldCategoryId, oldSubCategoryId,
+                subCategory.getCategory().getCategoryId(), subCategory.getId(),
+                oldAmount, oldCarbonEmission,
+                savedEntity.getQuantity(), savedEntity.getEmissionKgco2e()
+        ));
         return carbonEntryMapper.toResponse(savedEntity);
     }
 
@@ -111,6 +125,12 @@ public class CarbonEntryService {
                 .orElseThrow(CarbonEntryNotFoundException::new);
 
         carbonEntryRepository.delete(entity);
+        eventPublisher.publishEvent(new CarbonEntryDeletedEvent(
+                userId, entity.getId(),
+                entity.getSubCategory().getCategory().getCategoryId(),
+                entity.getSubCategory().getId(),
+                entity.getQuantity(), entity.getEmissionKgco2e()
+        ));
     }
 
     @Transactional(readOnly = true)

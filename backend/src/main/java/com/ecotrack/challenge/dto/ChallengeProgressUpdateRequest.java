@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class ChallengeProgressUpdateRequest {
     @NotNull(message = "Progress increment cannot be null")
     @Positive(message = "Progress increment must be positive")
-    private Integer delta;
+    private java.math.BigDecimal delta;
 }

@@ -21,6 +21,7 @@ public class EcoScoreEngine {
 
     private final UserGamificationProfileRepository profileRepository;
     private final GamificationConfigService configService;
+    private final jakarta.persistence.EntityManager entityManager;
 
     @Transactional
     public void recalculateScore(Long userId) {
@@ -35,10 +36,19 @@ public class EcoScoreEngine {
             BigDecimal scoreFromXp = BigDecimal.valueOf(xp).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
             BigDecimal scoreFromStreak = BigDecimal.valueOf(streak);
             
-            BigDecimal totalScore = scoreFromXp.add(scoreFromStreak);
+            // Decay recovery logic
+            if (profile.getAccumulatedDecay().compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal finalDecay = profile.getAccumulatedDecay().subtract(new BigDecimal("0.5"));
+                profile.setAccumulatedDecay(finalDecay.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : finalDecay);
+            }
+            
+            // Base score minus accumulated decay
+            BigDecimal totalScore = scoreFromXp.add(scoreFromStreak).subtract(profile.getAccumulatedDecay());
             
             if (totalScore.compareTo(BigDecimal.valueOf(100)) > 0) {
                 totalScore = BigDecimal.valueOf(100);
+            } else if (totalScore.compareTo(BigDecimal.ZERO) < 0) {
+                totalScore = BigDecimal.ZERO;
             }
             
             profile.setCurrentEcoScore(totalScore);
@@ -62,24 +72,34 @@ public class EcoScoreEngine {
         
         LocalDate thresholdDate = LocalDate.now().minusDays(inactiveDaysThreshold);
         
-        profileRepository.findAll().forEach(profile -> {
-            if (profile.getLastActivityDate() != null && profile.getLastActivityDate().isBefore(thresholdDate)) {
+        Long lastId = -1L;
+        boolean hasMore = true;
+        
+        while (hasMore) {
+            java.util.List<com.ecotrack.gamification.entity.UserGamificationProfile> batch = 
+                profileRepository.findTop500ByLastActivityDateBeforeAndUserIdGreaterThanOrderByUserIdAsc(thresholdDate, lastId);
+                
+            if (batch.isEmpty()) {
+                hasMore = false;
+                continue;
+            }
+            
+            for (com.ecotrack.gamification.entity.UserGamificationProfile profile : batch) {
+                // lastActivityDate is guaranteed to be before thresholdDate by the query, and therefore not null.
                 long daysInactive = ChronoUnit.DAYS.between(profile.getLastActivityDate(), LocalDate.now());
                 long daysToDecay = daysInactive - inactiveDaysThreshold;
                 
                 if (daysToDecay > 0) {
-                    BigDecimal decayAmount = decayRate.multiply(BigDecimal.valueOf(daysToDecay));
-                    BigDecimal newScore = profile.getCurrentEcoScore().subtract(decayAmount);
-                    
-                    if (newScore.compareTo(BigDecimal.ZERO) < 0) {
-                        newScore = BigDecimal.ZERO;
-                    }
-                    
-                    profile.setCurrentEcoScore(newScore);
+                    profile.setAccumulatedDecay(profile.getAccumulatedDecay().add(decayRate));
                     profileRepository.save(profile);
-                    log.info("Applied Eco Score decay for user {}: new score {}", profile.getUserId(), newScore);
+                    log.info("Applied Eco Score decay for user {}: new accumulated decay {}", profile.getUserId(), profile.getAccumulatedDecay());
                 }
+                
+                lastId = profile.getUserId();
             }
-        });
+            
+            entityManager.flush();
+            entityManager.clear();
+        }
     }
 }

@@ -1,10 +1,13 @@
 package com.ecotrack.leaderboard;
 
 import com.ecotrack.gamification.repository.UserGamificationProfileRepository;
+import com.ecotrack.user.repository.UserRepository;
+import com.ecotrack.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -12,53 +15,66 @@ import java.util.stream.Collectors;
 public class LeaderboardService {
 
     private final UserGamificationProfileRepository profileRepository;
+    private final com.ecotrack.gamification.repository.XpLedgerRepository xpLedgerRepository;
+    private final UserRepository userRepository;
 
     public List<LeaderboardEntryDTO> getAllTimeLeaderboard() {
-        return profileRepository.findAll().stream()
-                .sorted((p1, p2) -> Long.compare(p2.getLifetimeEcoXp(), p1.getLifetimeEcoXp()))
-                .limit(50)
+        var topProfiles = profileRepository.findTop50ByOrderByLifetimeEcoXpDesc();
+        
+        List<Long> userIds = topProfiles.stream()
+                .map(p -> p.getUserId())
+                .collect(Collectors.toList());
+                
+        Map<Long, String> userNames = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getName));
+
+        return topProfiles.stream()
                 .map(p -> LeaderboardEntryDTO.builder()
                         .userId(p.getUserId())
-                        .username("User " + p.getUserId()) // Simplified for now
+                        .username(userNames.getOrDefault(p.getUserId(), "User " + p.getUserId()))
                         .scoreValue(p.getLifetimeEcoXp())
                         .build())
                 .collect(Collectors.toList());
     }
 
     public List<LeaderboardEntryDTO> getMonthlyLeaderboard() {
-        return profileRepository.findAll().stream()
-                .sorted((p1, p2) -> p2.getCurrentEcoScore().compareTo(p1.getCurrentEcoScore()))
-                .limit(50)
-                .map(p -> LeaderboardEntryDTO.builder()
-                        .userId(p.getUserId())
-                        .username("User " + p.getUserId())
-                        .scoreValue(p.getCurrentEcoScore().longValue())
+        java.time.LocalDateTime startOfMonth = java.time.LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        return xpLedgerRepository.findTopUsersByXpSince(startOfMonth, org.springframework.data.domain.PageRequest.of(0, 50)).stream()
+                .map(row -> LeaderboardEntryDTO.builder()
+                        .userId((Long) row[0])
+                        .username((String) row[1])
+                        .scoreValue(((Number) row[2]).longValue())
                         .build())
                 .collect(Collectors.toList());
     }
 
     public List<LeaderboardEntryDTO> getWeeklyLeaderboard() {
-        // Simplified for demo: use currentEcoScore as well
-        return profileRepository.findAll().stream()
-                .sorted((p1, p2) -> p2.getCurrentEcoScore().compareTo(p1.getCurrentEcoScore()))
-                .limit(50)
-                .map(p -> LeaderboardEntryDTO.builder()
-                        .userId(p.getUserId())
-                        .username("User " + p.getUserId())
-                        .scoreValue(p.getCurrentEcoScore().longValue())
+        java.time.LocalDateTime startOfWeek = java.time.LocalDateTime.now().minusDays(7);
+        return xpLedgerRepository.findTopUsersByXpSince(startOfWeek, org.springframework.data.domain.PageRequest.of(0, 50)).stream()
+                .map(row -> LeaderboardEntryDTO.builder()
+                        .userId((Long) row[0])
+                        .username((String) row[1])
+                        .scoreValue(((Number) row[2]).longValue())
                         .build())
                 .collect(Collectors.toList());
     }
 
     public LeaderboardEntryDTO getMyRank(Long userId) {
-        List<LeaderboardEntryDTO> allTime = getAllTimeLeaderboard();
-        for (int i = 0; i < allTime.size(); i++) {
-            if (allTime.get(i).getUserId().equals(userId)) {
-                LeaderboardEntryDTO dto = allTime.get(i);
-                dto.setRank(i + 1);
-                return dto;
-            }
-        }
-        return LeaderboardEntryDTO.builder().userId(userId).rank(-1).build();
+        return profileRepository.findByUserId(userId)
+                .map(profile -> {
+                    long xp = profile.getLifetimeEcoXp() != null ? profile.getLifetimeEcoXp() : 0L;
+                    long betterRankCount = profileRepository.countByLifetimeEcoXpGreaterThan(xp);
+                    String username = userRepository.findById(userId)
+                            .map(User::getName)
+                            .orElse("User " + userId);
+                            
+                    return LeaderboardEntryDTO.builder()
+                            .userId(userId)
+                            .username(username)
+                            .scoreValue(xp)
+                            .rank((int) betterRankCount + 1)
+                            .build();
+                })
+                .orElseGet(() -> LeaderboardEntryDTO.builder().userId(userId).rank(-1).build());
     }
 }

@@ -49,6 +49,7 @@ export class TemplateTrackingMapperService {
       'PAPER': ['paper', 'cardboard'],
       'GLASS': ['glass'],
       'ORGANIC': ['organic', 'compost', 'food waste'],
+      'LANDFILL': ['landfill'],
       'TREE_PLANTING': [],
       'COMMUNITY_EVENT': [],
       'DIGITAL_DETOX': []

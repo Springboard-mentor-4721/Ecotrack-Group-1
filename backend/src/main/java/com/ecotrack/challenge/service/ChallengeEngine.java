@@ -3,7 +3,7 @@ package com.ecotrack.challenge.service;
 import com.ecotrack.challenge.entity.Challenge;
 import com.ecotrack.challenge.entity.ChallengeParticipant;
 import com.ecotrack.challenge.enums.ChallengeParticipantStatus;
-import com.ecotrack.challenge.enums.ProgressType;
+
 import com.ecotrack.challenge.enums.TrackingMethod;
 import com.ecotrack.challenge.repository.ChallengeParticipantRepository;
 import com.ecotrack.challenge.repository.ChallengeRepository;
@@ -56,14 +56,10 @@ public class ChallengeEngine {
                 continue;
             }
 
-            if (challenge.getProgressType() == ProgressType.COUNT) {
-                participant.setProgress(participant.getProgress().add(java.math.BigDecimal.ONE));
-                challengeRepository.incrementCommunityProgress(challenge.getId(), java.math.BigDecimal.ONE);
-            } else if (challenge.getProgressType() == ProgressType.AMOUNT) {
-                if (event.getCarbonEmission() != null) {
-                    participant.setProgress(participant.getProgress().add(event.getCarbonEmission()));
-                    challengeRepository.incrementCommunityProgress(challenge.getId(), event.getCarbonEmission());
-                }
+            java.math.BigDecimal delta = extractDelta(challenge.getProgressMetric(), event.getAmount(), event.getCarbonEmission());
+            if (delta != null && delta.compareTo(java.math.BigDecimal.ZERO) != 0) {
+                participant.setProgress(participant.getProgress().add(delta));
+                challengeRepository.incrementGlobalProgress(challenge.getId(), delta);
             }
             
             ChallengeEvaluationStrategy strategy = strategyResolver.resolve(challenge.getChallengeEvaluationType());
@@ -108,14 +104,10 @@ public class ChallengeEngine {
                 continue;
             }
 
-            if (challenge.getProgressType() == ProgressType.COUNT) {
-                participant.setProgress(participant.getProgress().subtract(java.math.BigDecimal.ONE));
-                challengeRepository.incrementCommunityProgress(challenge.getId(), java.math.BigDecimal.ONE.negate());
-            } else if (challenge.getProgressType() == ProgressType.AMOUNT) {
-                if (event.getCarbonEmission() != null) {
-                    participant.setProgress(participant.getProgress().subtract(event.getCarbonEmission()));
-                    challengeRepository.incrementCommunityProgress(challenge.getId(), event.getCarbonEmission().negate());
-                }
+            java.math.BigDecimal delta = extractDelta(challenge.getProgressMetric(), event.getAmount(), event.getCarbonEmission());
+            if (delta != null && delta.compareTo(java.math.BigDecimal.ZERO) != 0) {
+                participant.setProgress(participant.getProgress().subtract(delta));
+                challengeRepository.incrementGlobalProgress(challenge.getId(), delta.negate());
             }
             
             ChallengeEvaluationStrategy strategy = strategyResolver.resolve(challenge.getChallengeEvaluationType());
@@ -154,27 +146,28 @@ public class ChallengeEngine {
 
             java.math.BigDecimal deltaProgress = java.math.BigDecimal.ZERO;
 
-            if (challenge.getProgressType() == ProgressType.COUNT) {
+            if (challenge.getProgressMetric() == com.ecotrack.challenge.enums.ProgressMetric.ENTRY_COUNT) {
                 if (wasApplicable && !isApplicableNow) {
                     deltaProgress = java.math.BigDecimal.ONE.negate();
                 } else if (!wasApplicable && isApplicableNow) {
                     deltaProgress = java.math.BigDecimal.ONE;
                 }
-            } else if (challenge.getProgressType() == ProgressType.AMOUNT) {
+            } else {
+                java.math.BigDecimal oldVal = extractDelta(challenge.getProgressMetric(), event.getOldAmount(), event.getOldCarbonEmission());
+                java.math.BigDecimal newVal = extractDelta(challenge.getProgressMetric(), event.getNewAmount(), event.getNewCarbonEmission());
+                
                 if (wasApplicable && !isApplicableNow) {
-                    if (event.getOldCarbonEmission() != null) deltaProgress = event.getOldCarbonEmission().negate();
+                    deltaProgress = oldVal.negate();
                 } else if (!wasApplicable && isApplicableNow) {
-                    if (event.getNewCarbonEmission() != null) deltaProgress = event.getNewCarbonEmission();
+                    deltaProgress = newVal;
                 } else if (wasApplicable && isApplicableNow) {
-                    java.math.BigDecimal oldE = event.getOldCarbonEmission() != null ? event.getOldCarbonEmission() : java.math.BigDecimal.ZERO;
-                    java.math.BigDecimal newE = event.getNewCarbonEmission() != null ? event.getNewCarbonEmission() : java.math.BigDecimal.ZERO;
-                    deltaProgress = newE.subtract(oldE);
+                    deltaProgress = newVal.subtract(oldVal);
                 }
             }
 
             if (deltaProgress.compareTo(java.math.BigDecimal.ZERO) != 0) {
                 participant.setProgress(participant.getProgress().add(deltaProgress));
-                challengeRepository.incrementCommunityProgress(challenge.getId(), deltaProgress);
+                challengeRepository.incrementGlobalProgress(challenge.getId(), deltaProgress);
                 
                 ChallengeEvaluationStrategy strategy = strategyResolver.resolve(challenge.getChallengeEvaluationType());
                 ChallengeParticipantStatus oldStatus = participant.getStatus();
@@ -217,5 +210,12 @@ public class ChallengeEngine {
         }
         
         return true;
+    }
+
+    private java.math.BigDecimal extractDelta(com.ecotrack.challenge.enums.ProgressMetric metric, java.math.BigDecimal amount, java.math.BigDecimal carbonEmission) {
+        if (metric == com.ecotrack.challenge.enums.ProgressMetric.ENTRY_COUNT) return java.math.BigDecimal.ONE;
+        if (metric == com.ecotrack.challenge.enums.ProgressMetric.QUANTITY) return amount != null ? amount : java.math.BigDecimal.ZERO;
+        if (metric == com.ecotrack.challenge.enums.ProgressMetric.CARBON_EMISSION) return carbonEmission != null ? carbonEmission : java.math.BigDecimal.ZERO;
+        return java.math.BigDecimal.ZERO;
     }
 }

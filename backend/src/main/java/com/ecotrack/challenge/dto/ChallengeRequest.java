@@ -3,7 +3,6 @@ package com.ecotrack.challenge.dto;
 import com.ecotrack.challenge.enums.ChallengeStatus;
 import com.ecotrack.challenge.enums.TrackingMethod;
 import com.ecotrack.challenge.entity.RulesConfig;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -23,15 +22,12 @@ public class ChallengeRequest {
     @NotBlank
     private String description;
     
-    @NotBlank
-    private String typeCode;
-    
+
     @NotNull
-    @Positive
+    @jakarta.validation.constraints.Min(0)
     private Integer targetValue;
     
     @NotNull
-    @FutureOrPresent
     private LocalDateTime startDate;
     
     @NotNull
@@ -42,7 +38,7 @@ public class ChallengeRequest {
 
     private Integer rewardXp;
 
-    private com.ecotrack.challenge.enums.ProgressType progressType;
+    private com.ecotrack.challenge.enums.ProgressMetric progressMetric;
     private TrackingMethod trackingMethod;
     private com.ecotrack.challenge.enums.ChallengeEvaluationType challengeEvaluationType;
     private RulesConfig rulesConfig;

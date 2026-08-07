@@ -8,9 +8,9 @@ import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/lo
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, map, switchMap, finalize } from 'rxjs/operators';
 import { AdminChallengeService } from '../../admin/challenges-new/services/admin-challenge.service';
-import { CHALLENGE_TYPES } from '../../admin/challenges-new/shared/challenge-types.config';
+
 import { DashboardHeroComponent } from './components/dashboard-hero/dashboard-hero.component';
-import { DashboardStatsComponent } from './components/dashboard-stats/dashboard-stats.component';
+
 import { UrgencyAlertBannerComponent, UrgencyAlert } from './components/urgency-alert-banner/urgency-alert-banner.component';
 import { DashboardQuickActionsComponent } from './components/dashboard-quick-actions/dashboard-quick-actions.component';
 import { MyChallengeCardComponent } from '../shared/components/my-challenge-card/my-challenge-card.component';
@@ -25,7 +25,7 @@ import { ChallengeCardComponent } from '../shared/components/challenge-card/chal
     FormsModule, 
     LoadingSkeletonComponent, 
     DashboardHeroComponent,
-    DashboardStatsComponent,
+
     UrgencyAlertBannerComponent,
     DashboardQuickActionsComponent,
     MyChallengeCardComponent,
@@ -96,8 +96,8 @@ export class ChallengesDashboardPageComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         const myChallenges = data.my;
-        this.myActiveChallenges = myChallenges.filter(c => ['ACTIVE', 'WITHIN_BUDGET'].includes(c.participant.status));
-        this.myCompletedChallenges = myChallenges.filter(c => ['COMPLETED', 'FAILED', 'EXCEEDED'].includes(c.participant.status));
+        this.myActiveChallenges = myChallenges.filter(c => ['ACTIVE', 'WITHIN_BUDGET', 'EXCEEDED'].includes(c.participant.status));
+        this.myCompletedChallenges = myChallenges.filter(c => ['COMPLETED', 'FAILED', 'DROPPED'].includes(c.participant.status));
         
         // Calculate total XP
         this.totalXpEarned = this.myCompletedChallenges.reduce((sum, c) => sum + (c.challenge.rewardXp || 0), 0);

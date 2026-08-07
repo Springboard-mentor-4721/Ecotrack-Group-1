@@ -182,16 +182,14 @@ export class CreateSelectionComponent {
       id: t.id,
       title: t.title,
       description: t.description,
-      typeCode: t.defaultChallengeType || 'COMMUNITY', 
       trackingMethod: t.trackingMethod,
       trackingSources: t.trackingSources,
-      progressType: t.goalType === 'COUNT' ? 'COUNT' : 'AMOUNT',
+      progressMetric: t.progressMetric,
       rewardXp: t.rewardXP,
       targetValue: t.goalTarget,
-      imageUrl: t.imagePath,
-      rulesConfig: t.defaultRules
+      imageUrl: t.imagePath
     };
-
+    
     // Calculate dates based on durationDays (in local timezone)
     const startDate = new Date();
     const sy = startDate.getFullYear();

@@ -16,7 +16,7 @@ public class ChallengeParticipantDTO {
     private Long id;
     private Long challengeId;
     private Long userId;
-    private Integer progress;
+    private java.math.BigDecimal progress;
     private ChallengeParticipantStatus status;
     private LocalDateTime joinedAt;
     private LocalDateTime completedAt;

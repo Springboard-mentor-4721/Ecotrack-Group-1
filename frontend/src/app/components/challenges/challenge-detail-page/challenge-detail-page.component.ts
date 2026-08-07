@@ -12,7 +12,6 @@ import { ChallengeHeroComponent } from './components/hero/challenge-hero.compone
 import { ChallengeActionsPanelComponent } from './components/actions/challenge-actions-panel.component';
 import { ManualProgressModalComponent } from './components/progress-modal/manual-progress-modal.component';
 import { ChallengeCardComponent } from '../shared/components/challenge-card/challenge-card.component';
-import { CommunityImpactWidgetComponent } from './components/community-impact-widget/community-impact-widget.component';
 import { ChallengeRulesWidgetComponent } from './components/challenge-rules-widget/challenge-rules-widget.component';
 import { RewardWidgetComponent } from './components/reward-widget/reward-widget.component';
 import { ChallengeQuickStatsWidgetComponent } from './components/challenge-quick-stats-widget/challenge-quick-stats-widget.component';
@@ -177,7 +176,10 @@ export class ChallengeDetailPageComponent implements OnInit {
   get communityProgressPercentage(): number {
     if (!this.challenge) return 0;
     const totalTarget = this.challenge.targetValue * (this.challenge.participantCount && this.challenge.participantCount > 0 ? this.challenge.participantCount : 1);
-    const p = ((this.challenge.communityProgress || 0) / totalTarget) * 100;
+    if (totalTarget === 0) {
+      return (this.challenge.globalProgress || 0) > 0 ? 100 : 0;
+    }
+    const p = ((this.challenge.globalProgress || 0) / totalTarget) * 100;
     return Math.min(Math.max(p, 0), 100);
   }
 

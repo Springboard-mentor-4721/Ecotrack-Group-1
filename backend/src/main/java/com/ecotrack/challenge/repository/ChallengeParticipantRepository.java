@@ -20,6 +20,9 @@ public interface ChallengeParticipantRepository extends JpaRepository<ChallengeP
     List<ChallengeParticipant> findByChallengeId(Long challengeId);
     Page<ChallengeParticipant> findByChallengeId(Long challengeId, Pageable pageable);
 
+    @org.springframework.data.jpa.repository.Query("SELECT cp.challenge.id, COUNT(cp) FROM ChallengeParticipant cp WHERE cp.challenge.id IN :challengeIds GROUP BY cp.challenge.id")
+    List<Object[]> countParticipantsByChallengeIds(@org.springframework.data.repository.query.Param("challengeIds") List<Long> challengeIds);
+
     @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(cp.challenge.rewardXp), 0) FROM ChallengeParticipant cp WHERE cp.status = 'COMPLETED'")
     long sumTotalXpDistributed();
 
@@ -28,4 +31,10 @@ public interface ChallengeParticipantRepository extends JpaRepository<ChallengeP
 
     @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(cp.challenge.targetValue), 0.0) FROM ChallengeParticipant cp WHERE cp.status = 'COMPLETED' AND cp.challenge.typeCode = 'REDUCE_CO2'")
     double sumTotalCo2Impact();
+    
+    @org.springframework.data.jpa.repository.Query(
+        value = "SELECT DATE_FORMAT(joined_at, '%Y-%m') as monthStr, COUNT(*) FROM challenge_participants GROUP BY monthStr", 
+        nativeQuery = true
+    )
+    List<Object[]> countParticipationByMonth();
 }

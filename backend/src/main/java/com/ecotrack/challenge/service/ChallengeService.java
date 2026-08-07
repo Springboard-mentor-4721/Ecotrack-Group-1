@@ -25,6 +25,10 @@ import com.ecotrack.user.util.FileUploadUtil;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
+import org.springframework.context.ApplicationEventPublisher;
+import com.ecotrack.event.ChallengeCompletedEvent;
+import com.ecotrack.challenge.strategy.StrategyResolver;
+import com.ecotrack.challenge.strategy.ChallengeEvaluationStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,13 +45,16 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipantRepository participantRepository;
-    private final CarbonCategoryRepository carbonCategoryRepository;
     private final UserRepository userRepository;
+    private final CarbonCategoryRepository carbonCategoryRepository;
+    private final FileUploadUtil fileUploadUtil;
+    private final ApplicationEventPublisher eventPublisher;
+    private final StrategyResolver strategyResolver;
 
     @Transactional(readOnly = true)
     public Page<ChallengeDTO> getActiveChallenges(Long userId, String search, com.ecotrack.challenge.enums.ChallengeEvaluationType evaluationType, TrackingMethod trackingMethod, Pageable pageable) {
-        return challengeRepository.findAll(ChallengeSpecification.exploreFilter(search, evaluationType, trackingMethod, userId), pageable)
-                .map(this::mapToDTO);
+        Page<Challenge> page = challengeRepository.findAll(ChallengeSpecification.exploreFilter(search, evaluationType, trackingMethod, userId), pageable);
+        return mapToDTOPage(page);
     }
 
     @Transactional(readOnly = true)
@@ -132,11 +139,23 @@ public class ChallengeService {
             return mapToDTO(participant); // already completed
         }
         
-        participant.setProgress(participant.getProgress() + request.getDelta());
+        boolean wasCompleted = participant.getStatus() == ChallengeParticipantStatus.COMPLETED;
+        com.ecotrack.challenge.enums.ChallengeParticipantStatus oldStatus = participant.getStatus();
         
-        if (participant.getProgress() >= challenge.getTargetValue()) {
-            participant.setStatus(ChallengeParticipantStatus.COMPLETED);
+        participant.setProgress(participant.getProgress().add(request.getDelta()));
+        
+        ChallengeEvaluationStrategy strategy = strategyResolver.resolve(challenge.getChallengeEvaluationType());
+        com.ecotrack.challenge.enums.ChallengeParticipantStatus newStatus = strategy.evaluateLiveStatus(
+                participant.getProgress().doubleValue(), 
+                (double) challenge.getTargetValue(), 
+                oldStatus
+        );
+        
+        participant.setStatus(newStatus);
+        
+        if (newStatus == com.ecotrack.challenge.enums.ChallengeParticipantStatus.COMPLETED && !wasCompleted) {
             participant.setCompletedAt(LocalDateTime.now());
+            eventPublisher.publishEvent(new ChallengeCompletedEvent(userId, challenge.getId(), challenge.getTitle(), challenge.getRewardXp()));
         }
         
         return mapToDTO(participantRepository.save(participant));
@@ -302,7 +321,8 @@ public class ChallengeService {
     
     @Transactional(readOnly = true)
     public Page<ChallengeDTO> getAllChallenges(String search, ChallengeStatus status, TrackingMethod trackingMethod, Long categoryId, Pageable pageable) {
-        return challengeRepository.findAll(ChallengeSpecification.filter(search, status, trackingMethod, categoryId), pageable).map(this::mapToDTO);
+        Page<Challenge> page = challengeRepository.findAll(ChallengeSpecification.filter(search, status, trackingMethod, categoryId), pageable);
+        return mapToDTOPage(page);
     }
     
     @Transactional(readOnly = true)
@@ -392,13 +412,42 @@ public class ChallengeService {
     
     @Transactional(readOnly = true)
     public ChallengeAnalyticsDTO getChallengeAnalytics() {
+        java.util.Map<String, Long> statusMap = new java.util.HashMap<>();
+        for (Object[] row : challengeRepository.countChallengesByStatus()) {
+            ChallengeStatus status = (ChallengeStatus) row[0];
+            Number count = (Number) row[1];
+            statusMap.put(status.name(), count.longValue());
+        }
+
+        java.util.Map<String, Long> monthMap = new java.util.HashMap<>();
+        for (Object[] row : participantRepository.countParticipationByMonth()) {
+            String month = (String) row[0];
+            Number count = (Number) row[1];
+            monthMap.put(month, count.longValue());
+        }
+
         return ChallengeAnalyticsDTO.builder()
-                .challengesByStatus(java.util.Collections.emptyMap())
-                .participationByMonth(java.util.Collections.emptyMap())
+                .challengesByStatus(statusMap)
+                .participationByMonth(monthMap)
                 .build();
     }
 
+    private Page<ChallengeDTO> mapToDTOPage(Page<Challenge> page) {
+        List<Long> challengeIds = page.getContent().stream().map(Challenge::getId).toList();
+        java.util.Map<Long, Long> counts = new java.util.HashMap<>();
+        if (!challengeIds.isEmpty()) {
+            for (Object[] row : participantRepository.countParticipantsByChallengeIds(challengeIds)) {
+                counts.put((Long) row[0], ((Number) row[1]).longValue());
+            }
+        }
+        return page.map(c -> mapToDTO(c, counts.getOrDefault(c.getId(), 0L)));
+    }
+
     private ChallengeDTO mapToDTO(Challenge c) {
+        return mapToDTO(c, participantRepository.countByChallengeId(c.getId()));
+    }
+
+    private ChallengeDTO mapToDTO(Challenge c, long participantCount) {
         return ChallengeDTO.builder()
                 .id(c.getId())
                 .title(c.getTitle())
@@ -415,7 +464,7 @@ public class ChallengeService {
                 .challengeEvaluationType(c.getChallengeEvaluationType())
                 .rulesConfig(c.getRulesConfig())
                 .communityProgress(c.getCommunityProgress())
-                .participantCount(participantRepository.countByChallengeId(c.getId()))
+                .participantCount(participantCount)
                 .imageUrl(c.getImageUrl())
                 .build();
     }

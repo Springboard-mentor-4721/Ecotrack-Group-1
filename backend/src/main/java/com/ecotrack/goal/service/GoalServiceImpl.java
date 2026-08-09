@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
 import com.ecotrack.event.GoalCompletedEvent;
+import com.ecotrack.event.CarbonEntryCreatedEvent;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.event.TransactionPhase;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -300,5 +303,32 @@ public class GoalServiceImpl implements GoalService {
                 .build();
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public void handleCarbonEntryCreated(CarbonEntryCreatedEvent event) {
+        log.info("Evaluating automatic goals for user: {} after carbon entry: {}", event.getUserId(), event.getEntryId());
+        
+        List<Goal> activeAutoGoals = goalRepository.findByUserIdAndStatus(event.getUserId(), GoalStatus.ACTIVE, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .filter(g -> g.getGoalType().isAutomatic())
+                .collect(Collectors.toList());
+                
+        if (activeAutoGoals.isEmpty()) {
+            return;
+        }
 
+        java.util.Map<Long, BigDecimal> progressMap = carbonProgressService.calculateBulkDynamicProgress(activeAutoGoals);
+        
+        for (Goal goal : activeAutoGoals) {
+            BigDecimal currentProgress = progressMap.getOrDefault(goal.getId(), BigDecimal.ZERO);
+            if (currentProgress.compareTo(goal.getTargetValue()) >= 0) {
+                log.info("Automatic Goal {} target reached! Transitioning to ACHIEVED.", goal.getId());
+                Goal goalToUpdate = goalRepository.findById(goal.getId()).get();
+                goalToUpdate.setStatus(GoalStatus.ACHIEVED);
+                goalRepository.save(goalToUpdate);
+                eventPublisher.publishEvent(new GoalCompletedEvent(goalToUpdate.getUser().getId(), goalToUpdate.getId(), java.util.UUID.randomUUID().toString()));
+            }
+        }
+    }
 }

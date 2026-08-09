@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -50,6 +51,7 @@ public class BadgeEngine {
                     .userId(userId)
                     .badgeId(badge.getId())
                     .currentValue(0)
+                    .lastEvaluatedAt(java.time.LocalDateTime.now())
                     .build());
 
             if ("STREAK_DAYS".equals(triggerType)) {
@@ -88,17 +90,25 @@ public class BadgeEngine {
         log.info("Awarded badge '{}' to user {}", badge.getName(), userId);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCarbonEntryCreated(CarbonEntryCreatedEvent event) {
-        evaluateBadges(event.getUserId(), "CARBON_ENTRIES_COUNT", 1, event.getCorrelationId());
-        evaluateBadges(event.getUserId(), "CATEGORY_SPECIALIST", 1, event.getCorrelationId()); // Simplification for demo
+        try {
+            log.info("BadgeEngine processing CarbonEntryCreatedEvent for user {}", event.getUserId());
+            evaluateBadges(event.getUserId(), "CARBON_ENTRIES_COUNT", 1, event.getCorrelationId());
+            evaluateBadges(event.getUserId(), "CATEGORY_SPECIALIST", 1, event.getCorrelationId()); // Simplification for demo
+        } catch (Exception e) {
+            log.error("Failed to evaluate badges for CarbonEntryCreatedEvent: ", e);
+        }
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleGoalCompleted(GoalCompletedEvent event) {
         evaluateBadges(event.getUserId(), "GOAL_COMPLETED_COUNT", 1, event.getCorrelationId());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleStreakMilestone(StreakMilestoneEvent event) {
         evaluateBadges(event.getUserId(), "STREAK_DAYS", event.getStreakDays(), event.getCorrelationId()); // For streak, we can just pass the streak as increment, but it depends on criteria. 
@@ -106,6 +116,7 @@ public class BadgeEngine {
         // But for this simple implementation, we'll leave it.
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleChallengeCompleted(ChallengeCompletedEvent event) {
         evaluateBadges(event.getUserId(), "CHALLENGE_COMPLETED_COUNT", 1, event.getCorrelationId());

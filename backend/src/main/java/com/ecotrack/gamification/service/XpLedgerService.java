@@ -37,6 +37,11 @@ public class XpLedgerService {
             return;
         }
 
+        if (sourceId != null && xpLedgerRepository.existsByUser_IdAndSourceTypeAndSourceId(userId, sourceType, sourceId)) {
+            log.info("XP already awarded for user {} source {} type {}, skipping.", userId, sourceId, sourceType);
+            return;
+        }
+
         userRepository.findById(userId).ifPresent(user -> {
             XpLedger ledger = XpLedger.builder()
                     .user(user)
@@ -65,6 +70,7 @@ public class XpLedgerService {
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCarbonEntryCreated(CarbonEntryCreatedEvent event) {
         int cap = configService.getInt("MAX_DAILY_CARBON_ENTRY_CAP", 3);
@@ -73,6 +79,7 @@ public class XpLedgerService {
         awardXpWithCap(event.getUserId(), xp, XpSourceType.CARBON_ENTRY, event.getEntryId(), cap, event.getCorrelationId());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleGoalCompleted(GoalCompletedEvent event) {
         if (xpLedgerRepository.existsByUser_IdAndSourceTypeAndSourceId(event.getUserId(), XpSourceType.GOAL_COMPLETED, event.getGoalId())) {
@@ -84,6 +91,7 @@ public class XpLedgerService {
         awardXp(event.getUserId(), xp, XpSourceType.GOAL_COMPLETED, event.getGoalId(), event.getCorrelationId());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleDailyLogin(DailyLoginEvent event) {
         int cap = configService.getInt("MAX_DAILY_LOGIN_CAP", 1);
@@ -95,6 +103,7 @@ public class XpLedgerService {
         awardXpWithCap(event.getUserId(), xp, XpSourceType.DAILY_LOGIN, sourceId, cap, event.getCorrelationId());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleChallengeCompleted(com.ecotrack.event.ChallengeCompletedEvent event) {
         if (xpLedgerRepository.existsByUser_IdAndSourceTypeAndSourceId(event.getUserId(), XpSourceType.CHALLENGE_COMPLETED, event.getChallengeId())) {

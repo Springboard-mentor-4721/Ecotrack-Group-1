@@ -34,6 +34,7 @@ public class GamificationProfileService {
         profileRepository.save(profile);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleXPGranted(XPGrantedEvent event) {
         profileRepository.findByUserId(event.getUserId()).ifPresent(profile -> {

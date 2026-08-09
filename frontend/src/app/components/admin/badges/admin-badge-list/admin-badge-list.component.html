@@ -129,8 +129,13 @@
 
             <div class="col-md-6">
               <label class="form-label fw-bold">Category</label>
-              <input type="text" class="form-control" formControlName="category" placeholder="e.g. MILESTONE"
-                     [ngClass]="{'is-invalid': badgeForm.get('category')?.invalid && badgeForm.get('category')?.touched}">
+              <select class="form-select" formControlName="category"
+                      [ngClass]="{'is-invalid': badgeForm.get('category')?.invalid && badgeForm.get('category')?.touched}">
+                <option value="" disabled>Select Category</option>
+                <option value="TRACKING">TRACKING</option>
+                <option value="GOALS">GOALS</option>
+                <option value="ENGAGEMENT">ENGAGEMENT</option>
+              </select>
               <div class="invalid-feedback">Category is required.</div>
             </div>
             
@@ -156,8 +161,15 @@
             
             <div class="col-md-4">
               <label class="form-label fw-bold">Criteria Type</label>
-              <input type="text" class="form-control" formControlName="criteriaType" placeholder="e.g. CHALLENGE_COUNT"
-                     [ngClass]="{'is-invalid': badgeForm.get('criteriaType')?.invalid && badgeForm.get('criteriaType')?.touched}">
+              <select class="form-select" formControlName="criteriaType"
+                      [ngClass]="{'is-invalid': badgeForm.get('criteriaType')?.invalid && badgeForm.get('criteriaType')?.touched}">
+                <option value="" disabled>Select Criteria Type</option>
+                <option value="CARBON_ENTRIES_COUNT">CARBON_ENTRIES_COUNT</option>
+                <option value="GOAL_COMPLETED_COUNT">GOAL_COMPLETED_COUNT</option>
+                <option value="STREAK_DAYS">STREAK_DAYS</option>
+                <option value="CHALLENGE_COMPLETED_COUNT">CHALLENGE_COMPLETED_COUNT</option>
+                <option value="CATEGORY_SPECIALIST">CATEGORY_SPECIALIST</option>
+              </select>
               <div class="invalid-feedback">Criteria Type is required.</div>
             </div>
 

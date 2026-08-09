@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import org.springframework.cache.annotation.EnableCaching;
 
-@SpringBootApplication(exclude = {org.springframework.cloud.function.context.config.ContextFunctionCatalogAutoConfiguration.class})
+@SpringBootApplication
 @EnableScheduling
 @EnableCaching
 public class EcotrackBackendApplication {

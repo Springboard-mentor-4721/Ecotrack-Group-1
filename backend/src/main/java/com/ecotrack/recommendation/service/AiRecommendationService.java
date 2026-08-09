@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.ChatClient;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -51,7 +51,7 @@ public class AiRecommendationService {
         
         List<Recommendation> generated = new ArrayList<>();
         try {
-            String aiResponse = chatClient.call(prompt);
+            String aiResponse = chatClient.prompt(prompt).call().content();
             log.info("AI Response: {}", aiResponse);
             
             // Clean markdown JSON ticks if present

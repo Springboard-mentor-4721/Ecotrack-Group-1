@@ -87,6 +87,61 @@
         </div>
       </div>
 
+      <!-- AI JOURNAL SUMMARY -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card-premium p-4 position-relative overflow-hidden border-start border-4 border-teal">
+            <div class="position-absolute top-0 end-0 p-3 opacity-25">
+               <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            </div>
+            
+            <div class="d-flex align-items-center mb-3 position-relative z-1">
+               <div class="icon-circle bg-teal-soft text-teal me-3" style="width: 40px; height: 40px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+               </div>
+               <h5 class="fw-bold text-dark mb-0">AI Journal Summary</h5>
+            </div>
+
+            <div *ngIf="journalSummaryState.loading" class="position-relative z-1 mt-3">
+               <app-ai-skeleton-line [lines]="3"></app-ai-skeleton-line>
+            </div>
+            
+            <div *ngIf="journalSummaryState.error" class="text-danger position-relative z-1 fs-7 mt-2 fw-bold">
+               {{ journalSummaryState.error }}
+            </div>
+            
+            <div *ngIf="journalSummaryState.data" class="position-relative z-1 mt-3">
+               <p class="fs-6 text-dark mb-3">{{ journalSummaryState.data.summaryText }}</p>
+               
+               <div class="d-flex gap-2 flex-wrap mb-3">
+                 <span class="badge bg-danger-soft text-danger px-3 py-2 fs-7 border border-danger border-opacity-25 rounded-pill d-flex align-items-center">
+                    <svg width="14" height="14" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Highest Emission: {{ journalSummaryState.data.highestEmissionCategory }}
+                 </span>
+                 <span class="badge bg-success-soft text-success px-3 py-2 fs-7 border border-success border-opacity-25 rounded-pill d-flex align-items-center" *ngIf="journalSummaryState.data.mostImprovedCategory">
+                    <svg width="14" height="14" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                    Most Improved: {{ journalSummaryState.data.mostImprovedCategory }}
+                 </span>
+                 <span class="badge bg-primary-soft text-primary px-3 py-2 fs-7 border border-primary border-opacity-25 rounded-pill d-flex align-items-center">
+                    <svg width="14" height="14" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Trend: {{ journalSummaryState.data.overallProgress }}
+                 </span>
+               </div>
+               
+               <div *ngIf="journalSummaryState.data.recommendations?.length" class="bg-surface rounded-3 p-3 border">
+                  <h6 class="fw-bold text-muted mb-2 text-uppercase fs-xs tracking-wide">Key Recommendations</h6>
+                  <ul class="list-unstyled mb-0">
+                    <li *ngFor="let rec of journalSummaryState.data.recommendations" class="d-flex align-items-start mb-2 last-mb-0">
+                       <svg width="16" height="16" class="text-teal me-2 mt-1 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg>
+                       <span class="fs-7 text-dark lh-sm">{{ rec }}</span>
+                    </li>
+                  </ul>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 2. STATS CARDS -->
       <div class="row g-4 mb-4">
         <div class="col-md-4">
@@ -598,6 +653,38 @@
           <div class="fs-xs text-muted text-uppercase fw-bold tracking-wide mb-1">Notes</div>
           <div class="fs-6 p-3 bg-surface-hover border rounded-3 mt-1" [ngClass]="viewEntry.notes ? 'text-dark' : 'text-muted fst-italic'">{{ viewEntry.notes || 'No notes provided' }}</div>
         </div>
+      </div>
+      
+      <!-- AI SMART SUGGESTION -->
+      <div class="mt-4 pt-4 border-top">
+         <div class="d-flex align-items-center mb-3">
+            <svg width="20" height="20" class="text-amber me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path></svg>
+            <h6 class="fw-bold text-dark mb-0">AI Smart Suggestion</h6>
+         </div>
+         
+         <div *ngIf="smartSuggestionState.loading">
+            <app-ai-skeleton-line [lines]="2"></app-ai-skeleton-line>
+         </div>
+         
+         <div *ngIf="smartSuggestionState.error" class="text-muted fs-7 fst-italic">
+            <svg width="14" height="14" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            {{ smartSuggestionState.error }}
+         </div>
+         
+         <div *ngIf="smartSuggestionState.data" class="bg-amber-soft border border-amber border-opacity-25 rounded-3 p-3 position-relative">
+            <p class="fs-7 text-dark mb-2">{{ smartSuggestionState.data.suggestionText }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+               <span class="badge bg-white text-dark border fs-xs rounded-pill">Category: {{ smartSuggestionState.data.category }}</span>
+               <span class="badge rounded-pill fs-xs px-2 py-1" 
+                     [ngClass]="{
+                        'bg-success': smartSuggestionState.data.impactLevel === 'HIGH',
+                        'bg-warning text-dark': smartSuggestionState.data.impactLevel === 'MEDIUM',
+                        'bg-secondary': smartSuggestionState.data.impactLevel === 'LOW'
+                     }">
+                  Impact: {{ smartSuggestionState.data.impactLevel }}
+               </span>
+            </div>
+         </div>
       </div>
     </div>
     <div class="modal-footer border-0 bg-surface p-4 pt-0">

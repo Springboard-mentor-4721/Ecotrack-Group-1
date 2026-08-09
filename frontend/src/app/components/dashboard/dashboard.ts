@@ -19,6 +19,11 @@ import { EcoScoreCardComponent } from './widgets/eco-score-card/eco-score-card.c
 import { XpLevelBarComponent } from './widgets/xp-level-bar/xp-level-bar.component';
 import { StreakTrackerComponent } from './widgets/streak-tracker/streak-tracker.component';
 import { RecentAchievementsComponent } from './widgets/recent-achievements/recent-achievements.component';
+import { EcoTipCardComponent } from './widgets/eco-tip-card/eco-tip-card.component';
+import { TrendPredictionPanelComponent } from './widgets/trend-prediction-panel/trend-prediction-panel.component';
+import { BehavioralInsightsPanelComponent } from './widgets/behavioral-insights-panel/behavioral-insights-panel.component';
+import { AiFeatureState } from '../../models/ai-feature-state.model';
+import { EcoTipResponse, TrendPredictionResponse, BehavioralInsightsResponse } from '../../models/ai-models';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,7 +36,10 @@ import { RecentAchievementsComponent } from './widgets/recent-achievements/recen
     EcoScoreCardComponent,
     XpLevelBarComponent,
     StreakTrackerComponent,
-    RecentAchievementsComponent
+    RecentAchievementsComponent,
+    EcoTipCardComponent,
+    TrendPredictionPanelComponent,
+    BehavioralInsightsPanelComponent
   ],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './dashboard.html',
@@ -61,6 +69,11 @@ export class DashboardComponent implements OnInit {
   // Gamification Data
   gamificationProfile: GamificationProfile | null = null;
   recentBadges: Badge[] = [];
+  
+  // AI Feature States
+  ecoTipState: AiFeatureState<EcoTipResponse> = { loading: false, data: null, error: null };
+  trendPredictionState: AiFeatureState<TrendPredictionResponse> = { loading: false, data: null, error: null };
+  behavioralInsightsState: AiFeatureState<BehavioralInsightsResponse> = { loading: false, data: null, error: null };
   
   // Storytelling Elements
   greeting = 'Good Day';
@@ -242,6 +255,31 @@ export class DashboardComponent implements OnInit {
           this.recentBadges = res.badges.filter(b => b.isEarned).slice(0, 5);
         }
       }
+    });
+
+    this.loadAiFeatures();
+  }
+
+  private loadAiFeatures(): void {
+    // 1. Eco Tip
+    this.ecoTipState = { loading: true, data: null, error: null };
+    this.dashboardService.getEcoTip().subscribe({
+      next: (res) => this.ecoTipState = { loading: false, data: res, error: null },
+      error: (err) => this.ecoTipState = { loading: false, data: null, error: 'Failed to generate daily tip' }
+    });
+
+    // 2. Trend Prediction
+    this.trendPredictionState = { loading: true, data: null, error: null };
+    this.dashboardService.getTrendPrediction().subscribe({
+      next: (res) => this.trendPredictionState = { loading: false, data: res, error: null },
+      error: (err) => this.trendPredictionState = { loading: false, data: null, error: 'Failed to predict trends' }
+    });
+
+    // 3. Behavioral Insights
+    this.behavioralInsightsState = { loading: true, data: null, error: null };
+    this.dashboardService.getBehavioralInsights().subscribe({
+      next: (res) => this.behavioralInsightsState = { loading: false, data: res, error: null },
+      error: (err) => this.behavioralInsightsState = { loading: false, data: null, error: 'Failed to analyze behaviors' }
     });
   }
 

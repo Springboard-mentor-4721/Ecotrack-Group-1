@@ -2,8 +2,14 @@ spring:
   config:
     import: optional:file:.env[.properties]
   ai:
+    retry:
+      max-attempts: 1
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${GEMINI_API_KEY}
+      base-url: https://generativelanguage.googleapis.com/v1beta/openai/
+      chat:
+        options:
+          model: gemini-2.5-flash
   servlet:
     multipart:
       max-file-size: 5MB
@@ -17,7 +23,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -51,10 +57,31 @@ spring:
               - email
 jwt:
   # 256-bit Base64 Key for signing JWTs
-  secret: ${JWT_SECRET:}
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   # Token expiration time in milliseconds (1 day = 86400000)
   expiration: 86400000
 
 app:
   frontend:
     url: ${FRONTEND_URL:http://localhost:4200}
+
+ecotrack:
+  ai:
+    enabled: ${AI_FEATURES_ENABLED:true}
+    models:
+      smart-suggestion: gemini-2.5-flash
+      daily-tip: gemini-2.5-flash
+      trend-prediction: gemini-2.5-flash
+      journal-summary: gemini-2.5-flash
+      behavioral-insight: gemini-2.5-pro
+    timeouts:
+      call-seconds: 8
+      retry-max-attempts: 2
+    cache:
+      daily-tip-ttl-hours: 24
+      trend-prediction-ttl-hours: 24
+      journal-summary-weekly-ttl-days: 7
+      journal-summary-monthly-ttl-days: 30
+      behavioral-insight-ttl-days: 7
+    rate-limit:
+      requests-per-user-per-minute: 10

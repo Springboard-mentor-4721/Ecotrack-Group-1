@@ -26,6 +26,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.ecotrack.event.CarbonEntryCreatedEvent;
 import com.ecotrack.event.CarbonEntryDeletedEvent;
 import com.ecotrack.event.CarbonEntryUpdatedEvent;
+import com.ecotrack.ai.cache.AiInsightCacheRepository;
+import com.ecotrack.ai.cache.AiInsightCache;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -54,6 +56,7 @@ public class CarbonEntryService {
     private final CarbonEntryMapper carbonEntryMapper;
     private final EntityManager entityManager;
     private final ApplicationEventPublisher eventPublisher;
+    private final AiInsightCacheRepository cacheRepository;
 
     @Transactional
     public CarbonEntryResponse createEntry(Long userId, CreateCarbonEntryRequest request) {
@@ -77,6 +80,7 @@ public class CarbonEntryService {
         entity.setNotes(normalizeNotes(request.getNotes()));
 
         CarbonEntry savedEntity = carbonEntryRepository.save(entity);
+        cacheRepository.deleteByUserIdAndInsightType(userId, AiInsightCache.InsightType.JOURNAL_SUMMARY);
         eventPublisher.publishEvent(new CarbonEntryCreatedEvent(user.getId(), savedEntity.getId(), subCategory.getCategory().getCategoryId(), subCategory.getId(), request.getQuantity(), emissionKgco2e, java.util.UUID.randomUUID().toString()));
         return carbonEntryMapper.toResponse(savedEntity);
     }
@@ -107,6 +111,7 @@ public class CarbonEntryService {
         entity.setNotes(normalizeNotes(request.getNotes()));
 
         CarbonEntry savedEntity = carbonEntryRepository.save(entity);
+        cacheRepository.deleteByUserIdAndInsightType(userId, AiInsightCache.InsightType.JOURNAL_SUMMARY);
         eventPublisher.publishEvent(new CarbonEntryUpdatedEvent(
                 userId, savedEntity.getId(),
                 oldCategoryId, oldSubCategoryId,
@@ -125,6 +130,7 @@ public class CarbonEntryService {
                 .orElseThrow(CarbonEntryNotFoundException::new);
 
         carbonEntryRepository.delete(entity);
+        cacheRepository.deleteByUserIdAndInsightType(userId, AiInsightCache.InsightType.JOURNAL_SUMMARY);
         eventPublisher.publishEvent(new CarbonEntryDeletedEvent(
                 userId, entity.getId(),
                 entity.getSubCategory().getCategory().getCategoryId(),
@@ -307,6 +313,21 @@ public class CarbonEntryService {
                 .categorySummaries(categorySummaries)
                 .weeklyTrend(weeklyTrend)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public String getRawJournalDataStringForUser(Long userId, String timeframe) {
+        LocalDate end = LocalDate.now();
+        LocalDate start = timeframe.equalsIgnoreCase("monthly") ? end.minusDays(30) : end.minusDays(7);
+        return getRawJournalDataStringForUser(userId, start, end);
+    }
+
+    @Transactional(readOnly = true)
+    public String getRawJournalDataStringForUser(Long userId, LocalDate start, LocalDate end) {
+        List<CarbonEntry> entries = carbonEntryRepository.findAllWithCategoriesByUserIdAndDateRange(userId, start.atStartOfDay(), end.atTime(23, 59, 59));
+        return entries.stream()
+                .map(e -> String.format("%s: %s (%.2f kgCO2e)", e.getEntryDate().toLocalDate(), e.getSubCategory().getName(), e.getEmissionKgco2e()))
+                .collect(Collectors.joining("\n"));
     }
 
     private void enforceSameDayEditRule(LocalDateTime entryDate) {

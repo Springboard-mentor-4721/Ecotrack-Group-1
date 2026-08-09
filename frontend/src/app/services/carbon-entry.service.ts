@@ -9,6 +9,7 @@ import {
   PageableResponse,
   UpdateCarbonEntryRequest
 } from '../models/carbon.models';
+import { SmartSuggestionResponse, JournalSummaryResponse } from '../models/ai-models';
 
 @Injectable({
   providedIn: 'root'
@@ -71,5 +72,16 @@ export class CarbonEntryService {
       .set('endDate', endDate);
     
     return this.http.get<CarbonSummaryResponse>(`${this.apiUrl}/api/carbon/summary`, { params });
+  }
+
+  getSmartSuggestions(entryId: number): Observable<SmartSuggestionResponse> {
+    return this.http.get<SmartSuggestionResponse>(`${this.apiUrl}/api/carbon/${entryId}/smart-suggestion`);
+  }
+
+  getJournalSummary(timeframe: string = 'weekly', startDate?: string, endDate?: string): Observable<JournalSummaryResponse> {
+    let params = new HttpParams().set('timeframe', timeframe);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get<JournalSummaryResponse>(`${this.apiUrl}/api/carbon/journal-summary`, { params });
   }
 }

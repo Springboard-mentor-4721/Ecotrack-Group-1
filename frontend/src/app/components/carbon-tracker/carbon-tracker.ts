@@ -6,6 +6,10 @@ import { CarbonEntryResponse, CarbonSummaryResponse } from '../../models/carbon.
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
+import { AiFeatureState } from '../../models/ai-feature-state.model';
+import { SmartSuggestionResponse, JournalSummaryResponse } from '../../models/ai-models';
+import { AiSkeletonLineComponent } from '../../shared/components/ai-skeleton-line/ai-skeleton-line.component';
+import { DashboardService } from '../../services/dashboard.service';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
@@ -23,7 +27,7 @@ function pastOrPresentValidator(control: AbstractControl): ValidationErrors | nu
 @Component({
   selector: 'app-carbon-tracker',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, LoadingSkeletonComponent, BaseChartDirective],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, LoadingSkeletonComponent, BaseChartDirective, AiSkeletonLineComponent],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './carbon-tracker.html',
   styleUrls: ['./carbon-tracker.css'],
@@ -32,6 +36,10 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   entries: CarbonEntryResponse[] = [];
   summary: CarbonSummaryResponse | null = null;
+  
+  // AI Features
+  smartSuggestionState: AiFeatureState<SmartSuggestionResponse> = { loading: false, data: null, error: null };
+  journalSummaryState: AiFeatureState<JournalSummaryResponse> = { loading: false, data: null, error: null };
   
   entryForm: FormGroup;
   isEditing = false;
@@ -164,6 +172,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private carbonEntryService: CarbonEntryService,
+    private dashboardService: DashboardService,
     private cdr: ChangeDetectorRef
   ) {
     this.entryForm = this.fb.group({
@@ -521,6 +530,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
         next: (summary) => {
           this.distributionTotalEmission = summary.totalEmission || 0;
           this.processCarbonSources(summary.categorySummaries);
+          this.loadJournalSummary(startDate, endDate);
         },
         error: (err) => console.error('Failed to load category distribution', err)
       });
@@ -823,6 +833,23 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
 
   openViewModal(entry: CarbonEntryResponse): void {
     this.viewEntry = entry;
+    this.loadSmartSuggestion(entry.id);
+  }
+
+  loadSmartSuggestion(entryId: number): void {
+    this.smartSuggestionState = { loading: true, data: null, error: null };
+    this.carbonEntryService.getSmartSuggestions(entryId).subscribe({
+      next: (res) => this.smartSuggestionState = { loading: false, data: res, error: null },
+      error: (err) => this.smartSuggestionState = { loading: false, data: null, error: 'Failed to generate suggestion' }
+    });
+  }
+
+  loadJournalSummary(startDate: string, endDate: string): void {
+    this.journalSummaryState = { loading: true, data: null, error: null };
+    this.carbonEntryService.getJournalSummary('custom', startDate, endDate).subscribe({
+      next: (res) => this.journalSummaryState = { loading: false, data: res, error: null },
+      error: (err) => this.journalSummaryState = { loading: false, data: null, error: 'Failed to generate summary' }
+    });
   }
 
   closeViewModal(): void {

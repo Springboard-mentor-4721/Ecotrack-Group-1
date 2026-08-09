@@ -29,6 +29,9 @@ public class CarbonEntryController {
 
     private final CarbonEntryService carbonEntryService;
     private final UserRepository userRepository;
+    private final com.ecotrack.ai.cache.AiInsightCacheRepository cacheRepository;
+    private final com.ecotrack.ai.parser.AiJsonCodec codec;
+    private final com.ecotrack.tracking.ai.service.JournalSummaryService trackingAiService;
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
@@ -101,6 +104,45 @@ public class CarbonEntryController {
             Authentication authentication) {
         Long userId = getUserId(authentication);
         CarbonSummaryResponse response = carbonEntryService.getDashboardSummary(userId, startDate, endDate);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/{id}/smart-suggestion")
+    public ResponseEntity<com.ecotrack.tracking.ai.dto.SmartSuggestionResponse> getSmartSuggestion(
+            @PathVariable Long id,
+            Authentication authentication) {
+        Long userId = getUserId(authentication);
+        java.util.Optional<com.ecotrack.ai.cache.AiInsightCache> cached = cacheRepository.findByUserIdAndInsightTypeAndReferenceKey(
+                userId, com.ecotrack.ai.cache.AiInsightCache.InsightType.SMART_SUGGESTION, String.valueOf(id));
+        
+        if (cached.isPresent()) {
+            com.ecotrack.tracking.ai.dto.SmartSuggestionResponse response = codec.deserialize(cached.get().getPayloadJson(), com.ecotrack.tracking.ai.dto.SmartSuggestionResponse.class);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/journal-summary")
+    public ResponseEntity<com.ecotrack.tracking.ai.dto.JournalSummaryResponse> getJournalSummary(
+            @RequestParam(defaultValue = "weekly") String timeframe,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Authentication authentication) {
+        Long userId = getUserId(authentication);
+        LocalDate start = startDate;
+        LocalDate end = endDate;
+        if (start == null || end == null) {
+            end = LocalDate.now();
+            start = timeframe.equalsIgnoreCase("monthly") ? end.minusDays(30) : end.minusDays(7);
+        }
+        
+        String journalData = carbonEntryService.getRawJournalDataStringForUser(userId, start, end);
+        String cacheKey = timeframe + "_" + start + "_" + end + "_" + journalData.hashCode();
+        
+        com.ecotrack.tracking.ai.dto.JournalSummaryContext context = new com.ecotrack.tracking.ai.dto.JournalSummaryContext(timeframe, journalData);
+        com.ecotrack.tracking.ai.dto.JournalSummaryResponse response = trackingAiService.generateJournalSummary(userId, cacheKey, timeframe, context);
         return ResponseEntity.ok(response);
     }
 

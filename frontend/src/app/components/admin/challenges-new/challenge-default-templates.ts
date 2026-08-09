@@ -2,19 +2,41 @@ import { ChallengeTemplate } from '../../../models/challenge-template.model';
 
 export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
+    id: 'custom-challenge',
+    title: 'Custom Challenge',
+    description: 'This is the fallback template. Build a completely custom challenge.',
+    imagePath: 'uploads/challenge-images/Custom Challenge (Generic Image).png',
+    category: 'Generic',
+    trackingMethod: 'MANUAL',
+    challengeEvaluationType: 'ACHIEVEMENT',
+    progressMetric: 'ENTRY_COUNT',
+    goalUnit: 'custom',
+    goalTarget: 10,
+    durationDays: 7,
+    rewardXP: 100,
+    difficulty: 'Beginner',
+
+    
+    defaultStatus: 'UPCOMING',
+    defaultVisibility: 'PUBLIC',
+    icon: 'build',
+    badgeColor: '#64748b'
+  },
+  {
     id: 'beach-cleanup',
     title: 'Beach Cleanup Drive',
     description: 'Join a community beach cleanup and help remove plastic waste from coastal areas.',
     imagePath: 'uploads/challenge-images/Beach cleanup.png',
     category: 'Community',
     trackingMethod: 'MANUAL',
+    challengeEvaluationType: 'ACHIEVEMENT',
     progressMetric: 'ENTRY_COUNT',
-    goalUnit: 'Cleanup Event',
+    goalUnit: 'events',
     goalTarget: 1,
     durationDays: 7,
     rewardXP: 300,
     difficulty: 'Intermediate',
-    estimatedCarbonImpact: 5,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -24,18 +46,18 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
     id: 'carbon-reduction',
     title: 'Carbon Reduction Challenge',
-    description: 'This challenge aggregates carbon reductions across all supported carbon entry modules.',
+    description: 'This challenge aggregates carbon reductions across all supported carbon entry modules. It is a carbon-emission budget that you should try to stay under.',
     imagePath: 'uploads/challenge-images/Carbon Reduction Challenge.png',
     category: 'Overall Sustainability',
     trackingMethod: 'AUTOMATIC',
     challengeEvaluationType: 'BUDGET',
     progressMetric: 'CARBON_EMISSION',
-    goalUnit: 'kg CO2',
+    goalUnit: 'kgCO2e',
     goalTarget: 50,
     durationDays: 30,
     rewardXP: 600,
     difficulty: 'Advanced',
-    estimatedCarbonImpact: 50,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -45,7 +67,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
     id: 'car-free-weekend',
     title: 'Car-Free Weekend',
-    description: 'Private Car entries should increase emissions while sustainable transport contributes toward challenge completion.',
+    description: 'Avoid private-car travel and keep your car usage at 0 km during the challenge.',
     imagePath: 'uploads/challenge-images/Car-Free Weekend.png',
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
@@ -57,7 +79,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     durationDays: 2,
     rewardXP: 180,
     difficulty: 'Beginner',
-    estimatedCarbonImpact: 8,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -71,38 +93,19 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Community Cleanup.png',
     category: 'Community',
     trackingMethod: 'MANUAL',
+    challengeEvaluationType: 'ACHIEVEMENT',
     progressMetric: 'ENTRY_COUNT',
-    goalUnit: 'Cleanup Events',
+    goalUnit: 'events',
     goalTarget: 1,
     durationDays: 7,
     rewardXP: 300,
     difficulty: 'Beginner',
-    estimatedCarbonImpact: 2,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'group',
     badgeColor: '#10b981'
-  },
-  {
-    id: 'custom-challenge',
-    title: 'Custom Challenge',
-    description: 'This is the fallback template. Build a completely custom challenge.',
-    imagePath: 'uploads/challenge-images/Custom Challenge (Generic Image).png',
-    category: 'Generic',
-    trackingMethod: 'MANUAL',
-    progressMetric: 'ENTRY_COUNT',
-    goalUnit: 'Custom Unit',
-    goalTarget: 10,
-    durationDays: 7,
-    rewardXP: 100,
-    difficulty: 'Beginner',
-    estimatedCarbonImpact: 0,
-    
-    defaultStatus: 'UPCOMING',
-    defaultVisibility: 'PUBLIC',
-    icon: 'build',
-    badgeColor: '#64748b'
   },
   {
     id: 'cycle-to-work',
@@ -111,6 +114,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Cycle to Work.png',
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
+    challengeEvaluationType: 'ACHIEVEMENT',
     trackingSources: ['CYCLE'],
     progressMetric: 'QUANTITY',
     goalUnit: 'km',
@@ -118,7 +122,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     durationDays: 7,
     rewardXP: 220,
     difficulty: 'Intermediate',
-    estimatedCarbonImpact: 10,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -132,13 +136,14 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Digital Detox Week.png',
     category: 'Lifestyle',
     trackingMethod: 'MANUAL',
+    challengeEvaluationType: 'ACHIEVEMENT',
     progressMetric: 'ENTRY_COUNT',
-    goalUnit: 'Days Completed',
+    goalUnit: 'days',
     goalTarget: 7,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Beginner',
-    estimatedCarbonImpact: 1,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -148,10 +153,11 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
     id: 'eco-commute',
     title: 'Eco Commute Challenge',
-    description: 'Use eco-friendly transport modes like walking, cycling, or public transport.',
+    description: 'Log your eco-friendly commute distances (walking, cycling, or public transport) in km.',
     imagePath: 'uploads/challenge-images/Eco Commute Challenge.png',
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
+    challengeEvaluationType: 'ACHIEVEMENT',
     trackingSources: ['WALK', 'CYCLE', 'BUS', 'TRAIN', 'METRO'],
     progressMetric: 'QUANTITY',
     goalUnit: 'km',
@@ -159,7 +165,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     durationDays: 14,
     rewardXP: 300,
     difficulty: 'Intermediate',
-    estimatedCarbonImpact: 20,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -173,14 +179,15 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Public Transport Week.png',
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
+    challengeEvaluationType: 'ACHIEVEMENT',
     trackingSources: ['BUS', 'TRAIN', 'METRO'],
     progressMetric: 'ENTRY_COUNT',
-    goalUnit: 'Trips',
+    goalUnit: 'trips',
     goalTarget: 10,
     durationDays: 7,
     rewardXP: 220,
     difficulty: 'Beginner',
-    estimatedCarbonImpact: 12,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -190,7 +197,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
     id: 'reduce-waste-recycling',
     title: 'Reduce Waste & Recycling',
-    description: 'Waste entries.',
+    description: 'Track and reduce the amount of waste sent to landfill.',
     imagePath: 'uploads/challenge-images/Reduce waste and iniate Recyling.png',
     category: 'Waste',
     trackingMethod: 'AUTOMATIC',
@@ -202,7 +209,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Intermediate',
-    estimatedCarbonImpact: 15,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -212,19 +219,19 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
     id: 'save-electricity',
     title: 'Save Electricity',
-    description: 'Electricity entries.',
+    description: 'Track your electricity usage and stay below the target kWh limit.',
     imagePath: 'uploads/challenge-images/Save Electricity.png',
     category: 'Energy',
     trackingMethod: 'AUTOMATIC',
     challengeEvaluationType: 'BUDGET',
-    trackingSources: ['ELECTRICITY'],
+    trackingSources: ['GRID_ELECTRICITY'],
     progressMetric: 'QUANTITY',
     goalUnit: 'kWh',
     goalTarget: 25,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Intermediate',
-    estimatedCarbonImpact: 20,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -238,13 +245,14 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     imagePath: 'uploads/challenge-images/Tree planting.png',
     category: 'Community',
     trackingMethod: 'MANUAL',
+    challengeEvaluationType: 'ACHIEVEMENT',
     progressMetric: 'ENTRY_COUNT',
-    goalUnit: 'Trees',
+    goalUnit: 'trees',
     goalTarget: 5,
     durationDays: 14,
     rewardXP: 500,
     difficulty: 'Intermediate',
-    estimatedCarbonImpact: 50,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -254,10 +262,11 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
     id: 'walk-more',
     title: 'Walk More Challenge',
-    description: 'Walking entries.',
+    description: 'Log your walking distances and reach the target amount of kilometers.',
     imagePath: 'uploads/challenge-images/Walk More Challenge.png',
     category: 'Transportation',
     trackingMethod: 'AUTOMATIC',
+    challengeEvaluationType: 'ACHIEVEMENT',
     trackingSources: ['WALK'],
     progressMetric: 'QUANTITY',
     goalUnit: 'km',
@@ -265,7 +274,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Beginner',
-    estimatedCarbonImpact: 5,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
@@ -275,19 +284,19 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
   {
     id: 'water-saver',
     title: 'Water Saver Challenge',
-    description: 'Water entries.',
+    description: 'Conserve water and stay below your water usage budget.',
     imagePath: 'uploads/challenge-images/Water Saver Challenge.png',
     category: 'Water',
     trackingMethod: 'AUTOMATIC',
     challengeEvaluationType: 'BUDGET',
-    trackingSources: ['WATER'],
+    trackingSources: ['TAP_WATER', 'BOTTLED_WATER'],
     progressMetric: 'QUANTITY',
-    goalUnit: 'Litres',
+    goalUnit: 'litres',
     goalTarget: 500,
     durationDays: 7,
     rewardXP: 180,
     difficulty: 'Intermediate',
-    estimatedCarbonImpact: 10,
+
     
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',

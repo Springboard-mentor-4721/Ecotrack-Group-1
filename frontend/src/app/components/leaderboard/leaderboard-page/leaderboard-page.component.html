@@ -78,8 +78,9 @@
             {{ entry.username }}
             <span *ngIf="myRank?.userId === entry.userId" class="badge bg-emerald-light text-emerald fs-xs rounded-pill">You</span>
           </h6>
-          <span class="fs-xs text-muted fw-600" *ngIf="!challengeId">Level {{ Math.floor(entry.scoreValue / 1000) + 1 || 1 }}</span>
+          <span *ngIf="!challengeId">Level {{ Math.floor(entry.scoreValue / 1000) + 1 || 1 }}</span>
           <span *ngIf="challengeId && entry.status === 'COMPLETED' && entry.completedAt" class="fs-xs text-emerald fw-600">Completed: {{ entry.completedAt | date:'mediumDate' }}</span>
+          <div *ngIf="challengeId && entry.exceededAverage" class="fs-xs text-danger fw-600 mt-1">Exceeded average budget of current days ({{ entry.currentDays }})</div>
         </div>
       </div>
 
@@ -90,7 +91,7 @@
       </div>
       <div class="text-end d-flex flex-column align-items-end" *ngIf="challengeId">
         <div class="fw-bold text-dark fs-5">{{ entry.scoreValue | number }}</div>
-        <div class="fs-xs text-muted text-uppercase tracking-wide mb-1">Progress</div>
+        <div class="fs-xs text-muted tracking-wide mb-1">{{ challengeUnit }}</div>
         <app-challenge-status-badge [status]="entry.status || 'ACTIVE'" size="sm"></app-challenge-status-badge>
       </div>
 

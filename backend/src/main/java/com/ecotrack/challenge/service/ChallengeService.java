@@ -84,6 +84,7 @@ public class ChallengeService {
         detailDTO.setParticipantCount(participantRepository.countByChallengeId(id));
         detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
+        detailDTO.setDerivedUnit(derivedUnit(challenge));
         
         participantRepository.findByChallengeIdAndUserId(id, userId)
                 .ifPresent(p -> detailDTO.setUserProgress(mapToDTO(p)));
@@ -326,8 +327,8 @@ public class ChallengeService {
     }
     
     @Transactional(readOnly = true)
-    public Page<ChallengeDTO> getAllChallenges(String search, ChallengeStatus status, TrackingMethod trackingMethod, Long categoryId, Pageable pageable) {
-        Page<Challenge> page = challengeRepository.findAll(ChallengeSpecification.filter(search, status, trackingMethod, categoryId), pageable);
+    public Page<ChallengeDTO> getAllChallenges(String search, ChallengeStatus status, TrackingMethod trackingMethod, com.ecotrack.challenge.enums.ChallengeEvaluationType evaluationType, Long categoryId, Pageable pageable) {
+        Page<Challenge> page = challengeRepository.findAll(ChallengeSpecification.filter(search, status, trackingMethod, evaluationType, categoryId), pageable);
         return mapToDTOPage(page);
     }
     
@@ -353,6 +354,7 @@ public class ChallengeService {
         detailDTO.setParticipantCount(participantRepository.countByChallengeId(id));
         detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
+        detailDTO.setDerivedUnit(derivedUnit(challenge));
         return detailDTO;
     }
     

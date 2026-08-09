@@ -41,7 +41,7 @@
       <ng-container *ngIf="isAchievement">
         <app-achievement-progress 
           [progress]="entry?.participant?.progress || 0"
-          [target]="entry?.challenge?.targetValue || 1"
+          [target]="entry?.challenge?.targetValue ?? 1"
           [unit]="''"
           variant="mini">
         </app-achievement-progress>
@@ -54,7 +54,7 @@
       <ng-container *ngIf="isBudget">
         <app-budget-progress
           [progress]="entry?.participant?.progress || 0"
-          [target]="entry?.challenge?.targetValue || 1"
+          [target]="entry?.challenge?.targetValue ?? 1"
           [unit]="''"
           [challengeStartDate]="entry?.challenge?.startDate || ''"
           [challengeEndDate]="entry?.challenge?.endDate || ''"

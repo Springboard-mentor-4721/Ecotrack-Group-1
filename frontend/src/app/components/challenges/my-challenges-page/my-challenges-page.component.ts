@@ -102,11 +102,11 @@ export class MyChallengesPageComponent implements OnInit {
 
   private applyFilter(): void {
     if (this.currentTab === 'ACTIVE') {
-      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'ACTIVE' || c.participant.status === 'WITHIN_BUDGET' || c.participant.status === 'EXCEEDED');
+      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'ACTIVE' || c.participant.status === 'WITHIN_BUDGET');
     } else if (this.currentTab === 'COMPLETED') {
       this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'COMPLETED');
     } else if (this.currentTab === 'FAILED') {
-      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'FAILED' || c.participant.status === 'DROPPED');
+      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'FAILED' || c.participant.status === 'DROPPED' || c.participant.status === 'EXCEEDED');
     }
     this.cdr.detectChanges();
   }

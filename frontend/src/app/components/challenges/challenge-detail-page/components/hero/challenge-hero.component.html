@@ -21,8 +21,11 @@
   <!-- Content -->
   <div class="position-absolute bottom-0 start-0 w-100 p-4 p-md-5 z-1 d-flex flex-column justify-content-end" style="height: 100%;">
     <div class="d-flex flex-wrap gap-2 mb-3">
-      <span class="badge bg-emerald text-white px-3 py-2 rounded-pill fs-xs fw-bolder tracking-wide shadow-sm text-uppercase">
-        {{ challenge.progressMetric }}
+      <span class="badge bg-dark bg-opacity-50 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill fs-xs fw-bolder tracking-wide shadow-sm d-flex align-items-center gap-2 backdrop-blur">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        {{ challenge.startDate | date:'MMM d, y, h:mm a' }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        {{ challenge.endDate | date:'MMM d, y, h:mm a' }}
       </span>
       <span class="badge bg-white text-dark px-3 py-2 rounded-pill fs-xs fw-bolder tracking-wide shadow-sm text-uppercase d-flex align-items-center gap-1" *ngIf="challenge.challengeEvaluationType === 'BUDGET'">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg> STAY UNDER BUDGET

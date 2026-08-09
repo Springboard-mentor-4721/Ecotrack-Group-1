@@ -7,10 +7,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class ChallengeStatusLabelPipe implements PipeTransform {
   private labelMap: Record<string, string> = {
     'ACTIVE': 'Active',
-    'WITHIN_BUDGET': 'On Track',
-    'EXCEEDED': 'Budget Exceeded',
+    'WITHIN_BUDGET': 'On Budget',
+    'EXCEEDED': 'Failed',
     'COMPLETED': 'Completed',
-    'FAILED': 'Not Achieved',
+    'FAILED': 'Failed',
     'DROPPED': 'Dropped Out',
     'UPCOMING': 'Upcoming',
     'CLOSED': 'Ended',

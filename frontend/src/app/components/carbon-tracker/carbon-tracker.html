@@ -177,6 +177,10 @@
                       <div class="calendar-day-header" *ngFor="let day of weekDays">{{ day }}</div>
                       <div *ngFor="let d of calendarDays" class="calendar-day" [class.text-muted-light]="!d.isCurrentMonth" [class.selected]="(filterStartDate | date:'yyyy-MM-dd') === (d.date | date:'yyyy-MM-dd')" (click)="selectDate(d.date, $event)">{{ d.day }}</div>
                     </div>
+                    <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                      <button type="button" class="btn btn-sm text-primary fw-bold p-0" style="background: none; border: none;" (click)="selectDate(todayDate, $event)">Today</button>
+                      <button type="button" class="btn btn-sm text-danger fw-bold p-0" style="background: none; border: none;" (click)="clearDate($event)">Clear</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -198,6 +202,10 @@
                     <div class="calendar-grid">
                       <div class="calendar-day-header" *ngFor="let day of weekDays">{{ day }}</div>
                       <div *ngFor="let d of calendarDays" class="calendar-day" [class.text-muted-light]="!d.isCurrentMonth" [class.selected]="(filterEndDate | date:'yyyy-MM-dd') === (d.date | date:'yyyy-MM-dd')" (click)="selectDate(d.date, $event)">{{ d.day }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                      <button type="button" class="btn btn-sm text-primary fw-bold p-0" style="background: none; border: none;" (click)="selectDate(todayDate, $event)">Today</button>
+                      <button type="button" class="btn btn-sm text-danger fw-bold p-0" style="background: none; border: none;" (click)="clearDate($event)">Clear</button>
                     </div>
                   </div>
                 </div>
@@ -664,10 +672,10 @@
               <span class="fs-7 flex-grow-1" [class.text-dark]="entryForm.get('entryDateDate')?.value" [class.text-muted]="!entryForm.get('entryDateDate')?.value">{{ entryForm.get('entryDateDate')?.value ? (entryForm.get('entryDateDate')?.value | date:'mediumDate') : 'Select Date' }}</span>
               <svg width="14" height="14" class="text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
               
-              <!-- Invisible backdrop -->
-              <div *ngIf="activeDateField === 'formDate'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
+              <!-- Invisible backdrop with slight dim -->
+              <div *ngIf="activeDateField === 'formDate'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1150; background: rgba(0,0,0,0.15); cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
               
-              <div *ngIf="activeDateField === 'formDate'" class="dropdown-menu-premium position-absolute bg-surface shadow-lg p-3" style="bottom: 100%; left: 0; z-index: 1100; min-width: 260px;" (click)="$event.stopPropagation()">
+              <div *ngIf="activeDateField === 'formDate'" class="dropdown-menu-premium position-fixed bg-surface shadow-lg p-4" style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1160; min-width: 300px;" (click)="$event.stopPropagation()">
                 <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
                   <button type="button" class="btn btn-sm btn-light p-1" (click)="prevMonth($event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                   <span class="fw-bold fs-7 text-dark">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
@@ -677,6 +685,10 @@
                   <div class="calendar-day-header" *ngFor="let day of weekDays">{{ day }}</div>
                   <div *ngFor="let d of calendarDays" class="calendar-day" [class.text-muted-light]="!d.isCurrentMonth" [class.selected]="(entryForm.get('entryDateDate')?.value | date:'yyyy-MM-dd') === (d.date | date:'yyyy-MM-dd')" (click)="selectDate(d.date, $event)">{{ d.day }}</div>
                 </div>
+                <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                  <button type="button" class="btn btn-sm text-primary fw-bold p-0" style="background: none; border: none;" (click)="selectDate(todayDate, $event)">Today</button>
+                  <button type="button" class="btn btn-sm text-danger fw-bold p-0" style="background: none; border: none;" (click)="clearDate($event)">Clear</button>
+                </div>
               </div>
             </div>
             
@@ -684,10 +696,10 @@
               <span class="fs-7 flex-grow-1 text-center" [class.text-dark]="entryForm.get('entryDateTime')?.value" [class.text-muted]="!entryForm.get('entryDateTime')?.value">{{ displayTime }}</span>
               <svg width="14" height="14" class="text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
               
-              <!-- Invisible backdrop -->
-              <div *ngIf="activeTimeField === 'formTime'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
+              <!-- Invisible backdrop with slight dim -->
+              <div *ngIf="activeTimeField === 'formTime'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1150; background: rgba(0,0,0,0.15); cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
               
-              <div *ngIf="activeTimeField === 'formTime'" class="dropdown-menu-premium position-absolute bg-surface shadow-lg p-3" style="bottom: 100%; right: 0; z-index: 1100; min-width: 240px;" (click)="$event.stopPropagation()">
+              <div *ngIf="activeTimeField === 'formTime'" class="dropdown-menu-premium position-fixed bg-surface shadow-lg p-4" style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1160; min-width: 280px;" (click)="$event.stopPropagation()">
                 <div class="fw-bold fs-6 text-center text-dark mb-3 border-bottom pb-2">Set Time</div>
                 <div class="d-flex justify-content-center align-items-center gap-3">
                   <!-- Hours -->

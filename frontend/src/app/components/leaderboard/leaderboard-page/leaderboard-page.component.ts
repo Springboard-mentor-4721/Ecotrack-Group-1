@@ -26,6 +26,7 @@ export class LeaderboardPageComponent implements OnInit {
   filterType: FilterType = 'ALL_TIME';
   challengeId: number | null = null;
   challengeTitle: string = '';
+  challengeUnit: string = 'PROGRESS';
 
   // Math object for template
   Math = Math;
@@ -71,21 +72,56 @@ export class LeaderboardPageComponent implements OnInit {
     ).subscribe(result => {
       if (result.challenge) {
         this.challengeTitle = result.challenge.title;
+        let unit = result.challenge.derivedUnit || 
+          (result.challenge.progressMetric === 'ENTRY_COUNT' ? 'Entries' : 
+          (result.challenge.progressMetric === 'CARBON_EMISSION' ? 'kg CO₂' : 'Quantity'));
+        if (unit.toLowerCase() === 'kgco2e' || unit.toLowerCase() === 'kg co2e') {
+          unit = 'kg CO₂e';
+        } else if (unit.toLowerCase() === 'kgco2' || unit.toLowerCase() === 'kg co2') {
+          unit = 'kg CO₂';
+        }
+        this.challengeUnit = unit;
       }
       if (result.participants && result.participants.content) {
         let allParticipants = result.participants.content;
+        let isBudget = result.challenge?.challengeEvaluationType === 'BUDGET';
         
+        let currentDays = 0;
+        let currentBudget = 0;
+        
+        if (isBudget && result.challenge) {
+          const start = new Date(result.challenge.startDate).getTime();
+          const end = new Date(result.challenge.endDate).getTime();
+          const now = Date.now();
+          const totalDays = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+          currentDays = Math.max(1, Math.ceil((now - start) / (1000 * 60 * 60 * 24)));
+          if (currentDays > totalDays) currentDays = totalDays;
+          
+          const dailyAvg = result.challenge.targetValue / totalDays;
+          currentBudget = dailyAvg * currentDays;
+        }
+
         allParticipants.sort((a, b) => {
-          if (a.status === 'COMPLETED' && b.status !== 'COMPLETED') return -1;
-          if (a.status !== 'COMPLETED' && b.status === 'COMPLETED') return 1;
-          
-          if (a.status === 'COMPLETED' && b.status === 'COMPLETED') {
-            const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
-            const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
-            return dateA - dateB;
+          if (isBudget) {
+            const aExceeded = a.progress > currentBudget;
+            const bExceeded = b.progress > currentBudget;
+            
+            if (aExceeded !== bExceeded) {
+              return aExceeded ? 1 : -1;
+            }
+            return a.progress - b.progress; // Lowest progress first
+          } else {
+            if (a.status === 'COMPLETED' && b.status !== 'COMPLETED') return -1;
+            if (a.status !== 'COMPLETED' && b.status === 'COMPLETED') return 1;
+            
+            if (a.status === 'COMPLETED' && b.status === 'COMPLETED') {
+              const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+              const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+              return dateA - dateB;
+            }
+            
+            return b.progress - a.progress; // Highest progress first
           }
-          
-          return b.progress - a.progress;
         });
 
         this.entries = allParticipants.map((p, index) => ({
@@ -94,7 +130,9 @@ export class LeaderboardPageComponent implements OnInit {
           scoreValue: p.progress,
           rank: index + 1,
           status: p.status,
-          completedAt: p.completedAt
+          completedAt: p.completedAt,
+          exceededAverage: isBudget ? p.progress > currentBudget : false,
+          currentDays: isBudget ? currentDays : undefined
         }));
       } else {
         this.entries = [];

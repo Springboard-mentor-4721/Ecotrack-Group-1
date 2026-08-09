@@ -422,8 +422,8 @@ export class AnalyticsComponent implements OnInit {
   }
 
   getCarbonCategoryName(id: number | null | undefined): string {
-    if (!id) return 'Unknown';
+    if (!id) return 'General';
     const cat = this.carbonCategories().find(c => c.id === id);
-    return cat ? cat.name : 'Unknown';
+    return cat ? cat.name : 'General';
   }
 }

@@ -78,6 +78,18 @@ import { environment } from '../../../../../../environments/environment';
             <input type="text" [formControl]="searchControl" placeholder="Search challenges..." />
           </div>
           
+          <!-- Category Dropdown -->
+          <div class="action-dropdown-container" style="min-width: 170px;">
+            <div class="filter-dropdown" (click)="showCategoryDropdown = !showCategoryDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+              <span>{{ getCategoryLabel() }}</span>
+              <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
+            </div>
+            <div *ngIf="showCategoryDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showCategoryDropdown = false; $event.stopPropagation()"></div>
+            <div *ngIf="showCategoryDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
+              <button class="dropdown-item" [class.active-item]="categoryControl.value === ''" (click)="categoryControl.setValue(''); showCategoryDropdown = false">Category (All)</button>
+              <button class="dropdown-item" *ngFor="let cat of carbonCategories()" [class.active-item]="categoryControl.value === cat.id.toString()" (click)="categoryControl.setValue(cat.id.toString()); showCategoryDropdown = false">{{ cat.name }}</button>
+            </div>
+          </div>
 
           <!-- Tracking Method Dropdown -->
           <div class="action-dropdown-container" style="min-width: 170px;">
@@ -93,33 +105,17 @@ import { environment } from '../../../../../../environments/environment';
             </div>
           </div>
 
-          <!-- Category Dropdown -->
+          <!-- Type Dropdown -->
           <div class="action-dropdown-container" style="min-width: 170px;">
-            <div class="filter-dropdown" (click)="showCategoryDropdown = !showCategoryDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
-              <span>{{ getCategoryLabel() }}</span>
+            <div class="filter-dropdown" (click)="showTypeDropdown = !showTypeDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+              <span>{{ typeControl.value === '' ? 'Type' : (typeControl.value === 'ACHIEVEMENT' ? 'Achievement' : 'Budget') }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
             </div>
-            <div *ngIf="showCategoryDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showCategoryDropdown = false; $event.stopPropagation()"></div>
-            <div *ngIf="showCategoryDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
-              <button class="dropdown-item" [class.active-item]="categoryControl.value === ''" (click)="categoryControl.setValue(''); showCategoryDropdown = false">Category (All)</button>
-              <button class="dropdown-item" *ngFor="let cat of carbonCategories()" [class.active-item]="categoryControl.value === cat.id.toString()" (click)="categoryControl.setValue(cat.id.toString()); showCategoryDropdown = false">{{ cat.name }}</button>
-            </div>
-          </div>
-
-          <!-- Status Dropdown -->
-          <div class="action-dropdown-container" style="min-width: 150px;">
-            <div class="filter-dropdown" (click)="showStatusDropdown = !showStatusDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
-              <span>{{ getStatusLabel() }}</span>
-              <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
-            </div>
-            <div *ngIf="showStatusDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showStatusDropdown = false; $event.stopPropagation()"></div>
-            <div *ngIf="showStatusDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
-              <button class="dropdown-item" [class.active-item]="statusControl.value === ''" (click)="statusControl.setValue(''); showStatusDropdown = false">Status (All)</button>
-              <button class="dropdown-item" [class.active-item]="statusControl.value === 'PENDING'" (click)="statusControl.setValue('PENDING'); showStatusDropdown = false">Draft</button>
-              <button class="dropdown-item" [class.active-item]="statusControl.value === 'UPCOMING'" (click)="statusControl.setValue('UPCOMING'); showStatusDropdown = false">Scheduled</button>
-              <button class="dropdown-item" [class.active-item]="statusControl.value === 'ACTIVE'" (click)="statusControl.setValue('ACTIVE'); showStatusDropdown = false">Active</button>
-              <button class="dropdown-item" [class.active-item]="statusControl.value === 'COMPLETED'" (click)="statusControl.setValue('COMPLETED'); showStatusDropdown = false">Completed</button>
-              <button class="dropdown-item" [class.active-item]="statusControl.value === 'ARCHIVED'" (click)="statusControl.setValue('ARCHIVED'); showStatusDropdown = false">Archived</button>
+            <div *ngIf="showTypeDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showTypeDropdown = false; $event.stopPropagation()"></div>
+            <div *ngIf="showTypeDropdown" class="action-dropdown" style="left: 0; right: auto; top: calc(100% + 4px); max-height: 250px; overflow-y: auto;">
+              <button class="dropdown-item" [class.active-item]="typeControl.value === ''" (click)="typeControl.setValue(''); showTypeDropdown = false">Type (All)</button>
+              <button class="dropdown-item" [class.active-item]="typeControl.value === 'ACHIEVEMENT'" (click)="typeControl.setValue('ACHIEVEMENT'); showTypeDropdown = false">Achievement</button>
+              <button class="dropdown-item" [class.active-item]="typeControl.value === 'BUDGET'" (click)="typeControl.setValue('BUDGET'); showTypeDropdown = false">Budget</button>
             </div>
           </div>
 
@@ -137,6 +133,10 @@ import { environment } from '../../../../../../environments/environment';
               <button class="dropdown-item" [class.active-item]="sortControl.value === 'z-a'" (click)="sortControl.setValue('z-a'); showSortDropdown = false">Sort: Z-A</button>
             </div>
           </div>
+          
+          <button class="btn btn-outline" style="border-color: #cbd5e1; color: #64748b;" (click)="clearFilters()">
+            <span class="material-icons" style="font-size: 1.1rem;">filter_alt_off</span> Clear Filters
+          </button>
         </div>
         
       </div>
@@ -184,12 +184,13 @@ import { environment } from '../../../../../../environments/environment';
                     <th style="text-align: center;">Challenge</th>
                     <th>Category</th>
                     <th>Tracking Method</th>
+                    <th>Type</th>
                     <th>Participants</th>
                     <th>XP Reward</th>
                     <th>Status</th>
                     <th>Start Date</th>
                     <th>End Date</th>
-                    <th>Progress</th>
+
                     <th class="actions-col">Actions</th>
                   </tr>
                 </thead>
@@ -227,6 +228,11 @@ import { environment } from '../../../../../../environments/environment';
                           {{ c.trackingMethod | titlecase }}
                         </span>
                       </td>
+                      <td>
+                        <span class="badge" [ngClass]="c.challengeEvaluationType === 'BUDGET' ? 'badge-budget' : 'badge-achievement'">
+                          {{ (c.challengeEvaluationType || 'ACHIEVEMENT') | titlecase }}
+                        </span>
+                      </td>
                       <td style="font-weight: 500; color: #0f172a">{{ c.participantCount || 0 | number }}</td>
                       <td style="font-weight: 500; color: #0f172a">{{ c.rewardXp }} XP</td>
                       <td>
@@ -240,33 +246,26 @@ import { environment } from '../../../../../../environments/environment';
                       <td style="color: #64748b; font-size: 0.85rem; white-space: nowrap;">
                         {{ c.endDate | date:'dd MMM yyyy' }}
                       </td>
-                      <td>
-                        <div class="progress-cell">
-                          <span class="progress-text">{{ getProgressPercent(c) }}%</span>
-                          <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" [style.width.%]="getProgressPercent(c)"></div>
-                          </div>
-                        </div>
-                      </td>
+
                       <td class="actions-cell">
                         <div class="action-dropdown-container">
                           <button class="btn-icon" title="Actions" (click)="toggleActionMenu(c.id, $event)">
                             <span class="material-icons">more_vert</span>
                           </button>
                           <div class="action-dropdown" *ngIf="activeActionMenuId() === c.id">
-                            <button class="dropdown-item" (click)="viewChallenge(c.id)">
+                            <button class="dropdown-item" (click)="$event.stopPropagation(); viewChallenge(c.id)">
                               <span class="material-icons">visibility</span> View Details
                             </button>
-                            <button class="dropdown-item" *ngIf="c.status === 'PENDING' || c.status === 'UPCOMING'" (click)="editChallenge(c.id)">
+                            <button class="dropdown-item" *ngIf="c.status === 'PENDING' || c.status === 'UPCOMING'" (click)="$event.stopPropagation(); editChallenge(c.id)">
                               <span class="material-icons" style="color: #3b82f6">edit</span> Edit
                             </button>
-                            <button class="dropdown-item" *ngIf="c.status === 'PENDING'" (click)="approveChallenge(c)">
+                            <button class="dropdown-item" *ngIf="c.status === 'PENDING'" (click)="$event.stopPropagation(); approveChallenge(c)">
                               <span class="material-icons" style="color: #059669">check_circle</span> Approve
                             </button>
-                            <button class="dropdown-item" *ngIf="c.status === 'PENDING'" (click)="rejectChallenge(c)">
+                            <button class="dropdown-item" *ngIf="c.status === 'PENDING'" (click)="$event.stopPropagation(); rejectChallenge(c)">
                               <span class="material-icons" style="color: #dc2626">cancel</span> Reject
                             </button>
-                            <button class="dropdown-item" *ngIf="c.status !== 'ARCHIVED'" (click)="archiveChallenge(c)">
+                            <button class="dropdown-item" *ngIf="c.status !== 'ARCHIVED'" (click)="$event.stopPropagation(); archiveChallenge(c)">
                               <span class="material-icons" style="color: #64748b">archive</span> Archive
                             </button>
                           </div>
@@ -296,12 +295,19 @@ import { environment } from '../../../../../../environments/environment';
               </div>
               <div class="rows-per-page">
                 <span style="font-size: 0.875rem; color: #64748b; margin-right: 0.5rem">Rows per page:</span>
-                <select class="filter-dropdown" style="padding: 0.25rem 2.25rem 0.25rem 0.75rem; background-position: right 0.5rem center; cursor: pointer" [formControl]="pageSizeControl">
-                  <option [value]="5">5</option>
-                  <option [value]="10">10</option>
-                  <option [value]="25">25</option>
-                  <option [value]="50">50</option>
-                </select>
+                <div class="action-dropdown-container">
+                  <div class="filter-dropdown" (click)="showPageSizeDropdown = !showPageSizeDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.25rem 0.5rem 0.25rem 0.75rem; min-width: 60px; border-radius: 8px; border: 1px solid #e2e8f0; height: 32px;">
+                    <span>{{ pageSizeControl.value }}</span>
+                    <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8; margin-left: 0.25rem;">expand_more</span>
+                  </div>
+                  <div *ngIf="showPageSizeDropdown" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 40;" (click)="showPageSizeDropdown = false; $event.stopPropagation()"></div>
+                  <div *ngIf="showPageSizeDropdown" class="action-dropdown" style="bottom: calc(100% + 4px); top: auto; right: 0; left: auto; max-height: 250px; overflow-y: auto; min-width: 80px;">
+                    <button class="dropdown-item" [class.active-item]="pageSizeControl.value === 5" (click)="pageSizeControl.setValue(5); showPageSizeDropdown = false">5</button>
+                    <button class="dropdown-item" [class.active-item]="pageSizeControl.value === 10" (click)="pageSizeControl.setValue(10); showPageSizeDropdown = false">10</button>
+                    <button class="dropdown-item" [class.active-item]="pageSizeControl.value === 25" (click)="pageSizeControl.setValue(25); showPageSizeDropdown = false">25</button>
+                    <button class="dropdown-item" [class.active-item]="pageSizeControl.value === 50" (click)="pageSizeControl.setValue(50); showPageSizeDropdown = false">50</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -340,8 +346,9 @@ import { environment } from '../../../../../../environments/environment';
     .btn {
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;
-      border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s;
+      border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s ease;
     }
+    .btn:active { transform: translateY(1px); }
     .btn-outline { background: white; border: 1px solid #cbd5e1; color: #334155; }
     .btn-outline:hover { background: #f1f5f9; }
     .btn-primary { background: #059669; color: white; }
@@ -359,10 +366,16 @@ import { environment } from '../../../../../../environments/environment';
     @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     
     .stat-card {
-      background: white; border-radius: 12px; padding: 1.25rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
-      display: flex; flex-direction: column; gap: 0.25rem;
+      background: white; border-radius: 12px; padding: 1.5rem 1.25rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); 
+      border: 1px solid #e2e8f0;
+      display: flex; flex-direction: column; gap: 0.5rem;
       align-items: center; text-align: center;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
     }
     .stat-icon {
       width: 40px; height: 40px; border-radius: 8px;
@@ -414,7 +427,7 @@ import { environment } from '../../../../../../environments/environment';
     .tab:hover { color: #0f172a; }
     .tab.active { color: #059669; border-bottom-color: #059669; font-weight: 600; }
 
-    .table-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .table-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
     .table-responsive { }
     .data-table { width: 100%; border-collapse: collapse; text-align: left; }
     .data-table th { padding: 0.5rem 0.25rem; background: white; color: #64748b; font-weight: 500; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; text-align: center; }
@@ -436,6 +449,8 @@ import { environment } from '../../../../../../environments/environment';
     .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
     .badge-auto { background: #ecfdf5; color: #059669; }
     .badge-manual { background: #eff6ff; color: #2563eb; }
+    .badge-achievement { background: #e0e7ff; color: #4338ca; }
+    .badge-budget { background: #fef08a; color: #a16207; }
 
     .status-ACTIVE { background: #dcfce3; color: #166534; }
     .status-PENDING { background: #fef08a; color: #854d0e; }
@@ -470,9 +485,10 @@ import { environment } from '../../../../../../environments/environment';
     .action-dropdown-container { position: relative; }
     .action-dropdown {
       position: absolute; right: 0; top: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); padding: 0.5rem 0;
-      min-width: 160px; z-index: 50;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding: 0.5rem 0;
+      min-width: 160px; z-index: 50; animation: fadeIn 0.15s ease-out;
     }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
     .dropdown-item {
       display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.5rem 1rem; border: none;
       background: none; text-align: left; font-size: 0.875rem; color: #334155; cursor: pointer;
@@ -502,7 +518,9 @@ export class LibraryComponent implements OnInit {
   showTrackingDropdown = false;
   showCategoryDropdown = false;
   showStatusDropdown = false;
+  showTypeDropdown = false;
   showSortDropdown = false;
+  showPageSizeDropdown = false;
 
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
@@ -525,6 +543,7 @@ export class LibraryComponent implements OnInit {
   pageSizeControl = new FormControl(10);
   trackingControl = new FormControl('');
   categoryControl = new FormControl('');
+  typeControl = new FormControl('');
   sortControl = new FormControl('newest');
 
   carbonCategories = signal<CarbonCategory[]>([]);
@@ -584,6 +603,7 @@ export class LibraryComponent implements OnInit {
     });
     this.trackingControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
     this.categoryControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
+    this.typeControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
     this.sortControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
     this.pageSizeControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(size => {
       if (size) {
@@ -603,6 +623,7 @@ export class LibraryComponent implements OnInit {
         const status = this.statusControl.value || undefined;
         const tracking = this.trackingControl.value || undefined;
         const categoryId = this.categoryControl.value || undefined;
+        const evaluationType = this.typeControl.value || undefined;
         const sortOption = this.sortControl.value || undefined;
 
         let sort = undefined;
@@ -611,7 +632,7 @@ export class LibraryComponent implements OnInit {
         else if (sortOption === 'a-z') sort = 'title,asc';
         else if (sortOption === 'z-a') sort = 'title,desc';
 
-        return this.challengeService.getChallenges(this.currentPage(), this.pageSize, search, status, tracking, categoryId, sort)
+        return this.challengeService.getChallenges(this.currentPage(), this.pageSize, search, status, tracking, categoryId, evaluationType, sort)
           .pipe(
             catchError(err => {
               console.error('Failed to load challenges:', err);
@@ -639,6 +660,16 @@ export class LibraryComponent implements OnInit {
     this.triggerSubject.next();
   }
 
+  clearFilters() {
+    this.searchControl.setValue('', { emitEvent: false });
+    this.categoryControl.setValue('', { emitEvent: false });
+    this.trackingControl.setValue('', { emitEvent: false });
+    this.typeControl.setValue('', { emitEvent: false });
+    this.sortControl.setValue('newest', { emitEvent: false });
+    this.statusControl.setValue('', { emitEvent: false });
+    this.resetAndLoad();
+  }
+
   loadChallenges() {
     this.triggerSubject.next();
   }
@@ -656,13 +687,7 @@ export class LibraryComponent implements OnInit {
     }
   }
 
-  clearFilters() {
-    this.searchControl.setValue('');
-    this.trackingControl.setValue('');
-    this.categoryControl.setValue('');
-    this.statusControl.setValue('');
-    this.sortControl.setValue('newest');
-  }
+
 
   getCategoryLabel(): string {
     const val = this.categoryControl.value;
@@ -840,16 +865,20 @@ export class LibraryComponent implements OnInit {
 
   approveChallenge(c: Challenge) {
     this.activeActionMenuId.set(null);
-    this.challengeService.moderateChallenge(c.id, 'APPROVE').subscribe({
-      next: () => {
-        this.toast.success(`Challenge "${c.title}" approved.`);
-        this.refresh();
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Failed to approve challenge.';
-        this.toast.error(msg);
-        this.cdr.markForCheck();
+    this.dialog.confirm(`Are you sure you want to approve "${c.title}"?`).then(res => {
+      if (res) {
+        this.challengeService.moderateChallenge(c.id, 'APPROVE').subscribe({
+          next: () => {
+            this.toast.success(`Challenge "${c.title}" approved.`);
+            this.refresh();
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            const msg = err.error?.message || 'Failed to approve challenge.';
+            this.toast.error(msg);
+            this.cdr.markForCheck();
+          }
+        });
       }
     });
   }
@@ -902,9 +931,9 @@ export class LibraryComponent implements OnInit {
   }
 
   getCarbonCategoryName(id: number | null | undefined): string {
-    if (!id) return 'Unknown';
+    if (!id) return 'General';
     const cat = this.carbonCategories().find(c => c.id === id);
-    return cat ? cat.name : 'Unknown';
+    return cat ? cat.name : 'General';
   }
 
   getCategoryIcon(id: number | null | undefined): string {

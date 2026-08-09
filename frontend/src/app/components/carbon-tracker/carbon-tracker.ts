@@ -391,6 +391,24 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     this.activeDateField = null;
   }
 
+  get todayDate(): Date {
+    return new Date();
+  }
+
+  clearDate(event: Event) {
+    event.stopPropagation();
+    if (this.activeDateField === 'start') {
+      this.filterStartDate = '';
+      this.applyFilters();
+    } else if (this.activeDateField === 'end') {
+      this.filterEndDate = '';
+      this.applyFilters();
+    } else if (this.activeDateField === 'formDate') {
+      this.entryForm.patchValue({ entryDateDate: '' });
+    }
+    this.activeDateField = null;
+  }
+
   openCustomTimePicker(field: 'formTime', event: Event) {
     event.stopPropagation();
     if (this.activeTimeField === field) {

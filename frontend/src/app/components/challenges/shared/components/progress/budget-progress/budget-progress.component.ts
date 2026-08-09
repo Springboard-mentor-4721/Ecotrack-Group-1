@@ -20,7 +20,7 @@ export class BudgetProgressWidgetComponent implements OnChanges {
   private wasCritical: boolean = false;
 
   get percentageUsed(): number {
-    if (this.target <= 0) return 0;
+    if (this.target <= 0) return this.progress > 0 ? 100 : 0;
     const p = (this.progress / this.target) * 100;
     return Math.min(Math.max(p, 0), 100);
   }
@@ -43,6 +43,9 @@ export class BudgetProgressWidgetComponent implements OnChanges {
   }
 
   get riskLevel(): 'safe' | 'caution' | 'critical' | 'exceeded' {
+    if (this.target <= 0) {
+      return this.progress > 0 ? 'exceeded' : 'safe';
+    }
     const p = (this.progress / this.target) * 100;
     if (p < 60) return 'safe';
     if (p < 80) return 'caution';

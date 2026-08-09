@@ -10,7 +10,7 @@
       </div>
       <div class="d-flex align-items-baseline gap-2 mt-auto">
         <span class="fw-bolder text-primary fs-2 lh-1">{{ challenge?.targetValue }}</span>
-        <span class="fs-sm fw-bold text-muted">{{ challenge?.progressMetric | titlecase }}</span>
+        <span class="fs-sm fw-bold text-muted">{{ challenge?.derivedUnit || (challenge?.progressMetric === 'ENTRY_COUNT' ? 'Entries' : (challenge?.progressMetric === 'CARBON_EMISSION' ? 'Carbon Emission' : 'Quantity')) }}</span>
       </div>
     </div>
   </div>

@@ -11,6 +11,7 @@ import com.ecotrack.challenge.dto.BulkArchiveRequest;
 import com.ecotrack.challenge.dto.BulkActionResult;
 import com.ecotrack.challenge.enums.ChallengeStatus;
 import com.ecotrack.challenge.enums.TrackingMethod;
+import com.ecotrack.challenge.enums.ChallengeEvaluationType;
 import com.ecotrack.challenge.service.ChallengeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -82,9 +83,10 @@ public class AdminChallengeController {
             @RequestParam(name = "search", required = false) String search,
             @RequestParam(name = "status", required = false) ChallengeStatus status,
             @RequestParam(name = "trackingMethod", required = false) TrackingMethod trackingMethod,
+            @RequestParam(name = "evaluationType", required = false) ChallengeEvaluationType evaluationType,
             @RequestParam(name = "categoryId", required = false) Long categoryId,
             Pageable pageable) {
-        return ResponseEntity.ok(challengeService.getAllChallenges(search, status, trackingMethod, categoryId, pageable));
+        return ResponseEntity.ok(challengeService.getAllChallenges(search, status, trackingMethod, evaluationType, categoryId, pageable));
     }
 
     @GetMapping("/{id}")

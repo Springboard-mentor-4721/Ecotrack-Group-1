@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 export interface UrgencyAlert {
   challengeId: number;
@@ -11,7 +12,7 @@ export interface UrgencyAlert {
 @Component({
   selector: 'app-urgency-alert-banner',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <div *ngIf="alerts && alerts.length > 0" class="mb-5 animate-stagger-item" role="status" aria-live="polite">
       <h3 class="fs-6 fw-bold text-dark mb-3 d-flex align-items-center gap-2">
@@ -37,7 +38,7 @@ export interface UrgencyAlert {
             </div>
           </div>
           
-          <button class="btn btn-sm text-primary fw-bold px-3 py-1 bg-primary bg-opacity-10 rounded-pill hover-shadow transition-all" style="font-size: 0.75rem;">
+          <button [routerLink]="['/challenges', alert.challengeId]" class="btn btn-sm text-primary fw-bold px-3 py-1 bg-primary bg-opacity-10 rounded-pill hover-shadow transition-all" style="font-size: 0.75rem;">
             View
           </button>
         </div>

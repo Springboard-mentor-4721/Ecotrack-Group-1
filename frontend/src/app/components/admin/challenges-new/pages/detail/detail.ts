@@ -9,6 +9,9 @@ import { ToastService } from '../../../../../shared/services/toast.service';
 import { ConfirmationDialogService } from '../../../../../shared/services/confirmation-dialog.service';
 import { ChallengeDetail } from '../../../../../models/challenge.models';
 import { environment } from '../../../../../../environments/environment';
+import { CarbonEntryService } from '../../../../../services/carbon-entry.service';
+import { CarbonCategory } from '../../../../../models/carbon-category.models';
+import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
 
 @Component({
   selector: 'app-admin-challenge-detail',
@@ -86,8 +89,8 @@ import { environment } from '../../../../../../environments/environment';
             </div>
             <div class="col-6 col-md-3">
               <div class="info-block border rounded p-3 h-100">
-                <span class="text-muted fs-sm fw-bold text-uppercase d-block mb-1">Target</span>
-                <span class="fw-bold fs-5">{{ c.targetValue }} {{ c.derivedUnit || 'Units' }}</span>
+                <span class="text-muted fs-sm fw-bold text-uppercase d-block mb-1">{{ c.challengeEvaluationType === 'BUDGET' ? 'Budget' : 'Target' }}</span>
+                <span class="fw-bold fs-5">{{ c.targetValue }} {{ getUnit(c) }}</span>
               </div>
             </div>
             <div class="col-6 col-md-3">
@@ -99,29 +102,29 @@ import { environment } from '../../../../../../environments/environment';
           </div>
           
           <div class="row g-4">
-            <div class="col-12 col-md-6">
-              <div class="info-block border rounded p-4 h-100 bg-light">
-                <h5 class="fw-bolder mb-3">Community Progress</h5>
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="fw-bold">{{ c.globalProgress || 0 }} Achieved</span>
-                  <span class="fw-bold text-success">{{ getCompletionPercent(c) }}%</span>
-                </div>
-                <div class="progress" style="height: 10px;">
-                  <div class="progress-bar bg-success" [style.width.%]="getCompletionPercent(c)"></div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-md-6">
+            <div class="col-12">
                <div class="info-block border rounded p-4 h-100 bg-light">
                   <h5 class="fw-bolder mb-3">Settings & Rules</h5>
                   <div class="d-flex flex-column gap-2">
                      <div class="d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Type</span>
+                        <span class="fw-bold">
+                          <span class="badge" [ngClass]="c.challengeEvaluationType === 'ACHIEVEMENT' ? 'bg-primary' : 'bg-warning text-dark'">
+                            {{ c.challengeEvaluationType || 'ACHIEVEMENT' }}
+                          </span>
+                        </span>
+                     </div>
+                     <div class="d-flex justify-content-between border-bottom pb-2 mt-2">
                         <span class="text-muted">Tracking Method</span>
                         <span class="fw-bold">{{ c.trackingMethod }}</span>
                      </div>
-                     <div class="d-flex justify-content-between">
-                        <span class="text-muted">Category ID</span>
-                        <span class="fw-bold">{{ c.linkedCategoryId || 'N/A' }}</span>
+                     <div class="d-flex justify-content-between border-bottom pb-2 mt-2">
+                        <span class="text-muted">Category</span>
+                        <span class="fw-bold">{{ getCategoryName(c) }}</span>
+                     </div>
+                     <div class="d-flex justify-content-between mt-2" *ngIf="c.trackingMethod === 'AUTOMATIC'">
+                        <span class="text-muted">Allowed Data Sources</span>
+                        <span class="fw-bold text-end">{{ getSubcategoryNames(c) }}</span>
                      </div>
                   </div>
                </div>
@@ -149,13 +152,14 @@ import { environment } from '../../../../../../environments/environment';
     .banner-ARCHIVED { background: #64748b; }
     .banner-UPCOMING { background: #3b82f6; }
     .banner-CLOSED { background: #ef4444; }
-    .challenge-image-banner { height: 250px; width: 100%; border-bottom: 1px solid #e2e8f0; }
+    .challenge-image-banner { height: 350px; width: 100%; border-bottom: 1px solid #e2e8f0; }
   `]
 })
 export class DetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private challengeService = inject(AdminChallengeService);
+  private carbonService = inject(CarbonEntryService);
   private toast = inject(ToastService);
   private dialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
@@ -164,6 +168,7 @@ export class DetailComponent implements OnInit {
   challenge = signal<ChallengeDetail | null>(null);
   loading = signal<boolean>(true);
   apiError = signal<boolean>(false);
+  categories = signal<CarbonCategory[]>([]);
 
   resolveImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
@@ -176,6 +181,10 @@ export class DetailComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.carbonService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(cats => {
+      this.categories.set(cats);
+    });
+
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       const numericId = Number(idParam);
@@ -189,6 +198,42 @@ export class DetailComponent implements OnInit {
       this.apiError.set(true);
       this.loading.set(false);
     }
+  }
+
+  getCategoryName(c: ChallengeDetail): string {
+    if (c.linkedCategoryId) {
+      const cat = this.categories().find(cat => cat.id === c.linkedCategoryId);
+      if (cat) return cat.name;
+    }
+    const template = DEFAULT_CHALLENGE_TEMPLATES.find(t => t.title === c.title);
+    if (template && template.category) {
+      return template.category;
+    }
+    return 'Not assigned';
+  }
+
+  getSubcategoryNames(c: ChallengeDetail): string {
+    if (c.linkedCategoryId && c.rulesConfig?.allowedSubcategoryIds && c.rulesConfig.allowedSubcategoryIds.length > 0) {
+      const cat = this.categories().find(cat => cat.id === c.linkedCategoryId);
+      if (cat && cat.subcategories) {
+        const names = c.rulesConfig.allowedSubcategoryIds
+          .map(id => cat.subcategories!.find(s => s.id === id)?.name)
+          .filter(name => !!name);
+        if (names.length > 0) return names.join(', ');
+      }
+    }
+    const template = DEFAULT_CHALLENGE_TEMPLATES.find(t => t.title === c.title);
+    if (template && template.trackingSources && template.trackingSources.length > 0) {
+      return template.trackingSources.map(s => s.replace(/_/g, ' ')).map(s => s.charAt(0) + s.slice(1).toLowerCase()).join(', ');
+    }
+    return 'All subcategories allowed';
+  }
+
+  getUnit(c: ChallengeDetail): string {
+    if (c.derivedUnit) return c.derivedUnit;
+    const template = DEFAULT_CHALLENGE_TEMPLATES.find(t => t.title === c.title);
+    if (template && template.goalUnit) return template.goalUnit;
+    return c.progressMetric === 'ENTRY_COUNT' ? 'entries' : (c.progressMetric === 'CARBON_EMISSION' ? 'kg CO₂' : 'units');
   }
 
   loadChallenge(id: number) {
@@ -230,16 +275,20 @@ export class DetailComponent implements OnInit {
   }
 
   approveChallenge(c: ChallengeDetail) {
-    this.challengeService.moderateChallenge(c.id, 'APPROVE').subscribe({
-      next: () => {
-        this.toast.success(`Challenge approved.`);
-        this.loadChallenge(c.id);
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Failed to approve challenge.';
-        this.toast.error(msg);
-        this.cdr.markForCheck();
+    this.dialog.confirm(`Are you sure you want to approve "${c.title}"?`).then((res: boolean) => {
+      if (res) {
+        this.challengeService.moderateChallenge(c.id, 'APPROVE').subscribe({
+          next: () => {
+            this.toast.success(`Challenge approved.`);
+            this.loadChallenge(c.id);
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            const msg = err.error?.message || 'Failed to approve challenge.';
+            this.toast.error(msg);
+            this.cdr.markForCheck();
+          }
+        });
       }
     });
   }

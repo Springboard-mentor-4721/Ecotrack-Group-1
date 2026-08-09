@@ -33,7 +33,7 @@
       </div>
       <div class="d-flex flex-column flex-grow-1">
         <span class="fw-bold fs-sm">{{ p.userName || ('User #' + p.userId) }}</span>
-        <span class="text-muted fs-xs">Progress: {{ p.progress }}</span>
+        <span class="text-muted fs-xs">{{ p.progress }} {{ challengeUnit }}</span>
         <span *ngIf="p.status === 'COMPLETED' && p.completedAt" class="text-muted fs-xs">Completed: {{ p.completedAt | date:'mediumDate' }}</span>
       </div>
       <app-challenge-status-badge [status]="p.status" size="sm"></app-challenge-status-badge>

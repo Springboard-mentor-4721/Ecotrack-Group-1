@@ -3,8 +3,10 @@
   <ng-container *ngIf="variant === 'mini'">
     <div class="d-flex align-items-center gap-1">
       <span class="mini-dot" [ngClass]="'dot-' + riskLevel">●</span>
-      <span class="fs-xs fw-bold" [ngClass]="'text-' + riskLevel">
-        Remaining: {{ remaining | number:'1.0-1' }} {{ unit }}
+      <span class="fs-xs fw-bold" [ngClass]="'text-' + riskLevel" [attr.aria-label]="target > 0 ? 'Remaining allowance' : 'Current status'">
+        <ng-container *ngIf="target > 0">Remaining: {{ remaining | number:'1.0-1' }} {{ unit }}</ng-container>
+        <ng-container *ngIf="target <= 0 && riskLevel === 'safe'">Perfectly on track</ng-container>
+        <ng-container *ngIf="target <= 0 && riskLevel !== 'safe'">Limit exceeded by {{ progress | number:'1.0-1' }} {{ unit }}</ng-container>
       </span>
     </div>
   </ng-container>
@@ -14,7 +16,12 @@
     <!-- Alert Row -->
     <div *ngIf="riskLevel !== 'safe'" class="alert-row mb-3 p-2 rounded d-flex align-items-center" [ngClass]="'alert-bg-' + riskLevel">
       <span class="fw-bold fs-sm" [ngClass]="'text-' + riskLevel">
-        {{ riskLevel === 'caution' ? 'Caution: Approaching budget limit' : 'Critical: Budget limit reached or exceeded' }}
+        <ng-container *ngIf="target > 0">
+          {{ riskLevel === 'caution' ? 'Caution: Approaching budget limit' : 'Critical: Budget limit exceeded, Challenge Failed' }}
+        </ng-container>
+        <ng-container *ngIf="target <= 0">
+          Critical: Limit exceeded by {{ progress | number:'1.0-1' }} {{ unit }}
+        </ng-container>
       </span>
     </div>
 
@@ -28,9 +35,15 @@
         <div class="text-muted fs-xs text-uppercase mb-1">Budget</div>
         <div class="fw-bold fs-5">{{ target | number:'1.0-1' }}</div>
       </div>
-      <div class="col-4 text-center">
-        <div class="text-muted fs-xs text-uppercase mb-1">Remaining</div>
-        <div class="fw-bold fs-5" [ngClass]="'text-' + riskLevel">{{ remaining | number:'1.0-1' }}</div>
+      <div class="col-4 text-center" aria-live="polite">
+        <ng-container *ngIf="target > 0">
+          <div class="text-muted fs-xs text-uppercase mb-1">Remaining</div>
+          <div class="fw-bold fs-5" [ngClass]="'text-' + riskLevel">{{ remaining | number:'1.0-1' }}</div>
+        </ng-container>
+        <ng-container *ngIf="target <= 0">
+          <div class="text-muted fs-xs text-uppercase mb-1">Status</div>
+          <div class="fw-bold fs-5" [ngClass]="'text-' + riskLevel">{{ riskLevel === 'safe' ? 'Safe' : 'Failed' }}</div>
+        </ng-container>
       </div>
     </div>
 
@@ -48,8 +61,10 @@
 
     <!-- Footer -->
     <div class="d-flex justify-content-between align-items-center text-muted fs-xs">
-      <span>{{ percentageUsed | number:'1.0-0' }}% used</span>
-      <span>Allowance: {{ dailyAllowance | number:'1.0-2' }} {{ unit }}/day</span>
+      <span *ngIf="target > 0">{{ percentageUsed | number:'1.0-0' }}% used</span>
+      <span *ngIf="target <= 0">{{ riskLevel === 'safe' ? '0 usage' : 'Over limit' }}</span>
+      <span *ngIf="target > 0">Allowance: {{ dailyAllowance | number:'1.0-2' }} {{ unit }}/day</span>
+      <span *ngIf="target <= 0">Allowance: 0 {{ unit }}/day</span>
     </div>
   </ng-container>
 </div>

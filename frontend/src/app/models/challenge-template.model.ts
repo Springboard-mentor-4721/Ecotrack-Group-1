@@ -4,9 +4,14 @@ export interface RulesConfig {
 }
 
 export type TrackingSourceCode = 
-  | 'BUS' | 'TRAIN' | 'METRO' | 'WALK' | 'CYCLE' | 'CAR' | 'ELECTRIC_CAR' | 'MOTORBIKE'
-  | 'ELECTRICITY' | 'WATER' | 'RECYCLING' | 'PLASTIC' | 'PAPER' | 'GLASS' | 'ORGANIC' | 'LANDFILL'
-  | 'TREE_PLANTING' | 'COMMUNITY_EVENT' | 'DIGITAL_DETOX';
+  | 'CAR' | 'BIKE' | 'CYCLE' | 'BUS' | 'TRAIN' | 'METRO' | 'FLIGHT' | 'WALK'
+  | 'GRID_ELECTRICITY' | 'SOLAR'
+  | 'PETROL' | 'DIESEL' | 'NATURAL_GAS'
+  | 'BEEF' | 'CHICKEN' | 'VEGETARIAN' | 'DAIRY' | 'SEAFOOD'
+  | 'LANDFILL' | 'RECYCLED'
+  | 'TAP_WATER' | 'BOTTLED_WATER'
+  | 'ELECTRONICS' | 'CLOTHING'
+  | 'HOTEL_STAYS' | 'CRUISES' | string;
 
 
 export interface ChallengeTemplate {
@@ -24,7 +29,7 @@ export interface ChallengeTemplate {
   durationDays: number;
   rewardXP: number;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  estimatedCarbonImpact: number;
+
 
   defaultStatus: string;
   defaultVisibility: string;

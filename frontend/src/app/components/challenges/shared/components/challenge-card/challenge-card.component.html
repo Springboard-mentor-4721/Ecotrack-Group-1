@@ -12,7 +12,7 @@
       <div class="badge shadow-sm"
            style="backdrop-filter: blur(8px); background-color: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.3);"
            [ngClass]="challenge.challengeEvaluationType === 'ACHIEVEMENT' ? 'text-white' : 'text-warning'">
-        {{ challenge.challengeEvaluationType }}
+        {{ challenge.challengeEvaluationType === 'ACHIEVEMENT' ? 'Target Goal' : (challenge.challengeEvaluationType === 'BUDGET' ? 'Budget Limit' : 'Challenge') }}
       </div>
     </div>
     <div class="position-absolute top-0 end-0 m-2">
@@ -29,7 +29,7 @@
   <h3 class="fw-bold text-dark mb-2 fs-6 text-truncate pe-2">{{ challenge.title }}</h3>
   
   <div class="d-flex align-items-center gap-2 mb-2">
-    <span class="px-2 py-1 rounded bg-secondary bg-opacity-10 text-secondary text-xs font-semibold uppercase tracking-wider border border-secondary border-opacity-25">{{ challenge.progressMetric }}</span>
+    <span class="px-2 py-1 rounded bg-secondary bg-opacity-10 text-secondary text-xs font-semibold uppercase tracking-wider border border-secondary border-opacity-25">{{ challenge.derivedUnit || (challenge.progressMetric === 'ENTRY_COUNT' ? 'Entries' : (challenge.progressMetric === 'CARBON_EMISSION' ? 'Carbon Emission' : 'Quantity')) }}</span>
     <span class="fs-xs fw-bold ch-text-xp d-flex align-items-center gap-1 ms-auto">
       <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
       {{ challenge.rewardXp }} XP

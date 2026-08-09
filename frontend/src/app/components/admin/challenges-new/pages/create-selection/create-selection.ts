@@ -13,48 +13,15 @@ import { environment } from '../../../../../../environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="create-selection-container p-4 p-md-5">
-      <div class="mb-5" *ngIf="!showTemplates()">
-        <button class="btn-back d-flex align-items-center mb-3 text-muted bg-transparent border-0 px-0" routerLink="/admin/challenges">
+      <div class="templates-view">
+        <button class="btn-back d-flex align-items-center mb-4 text-muted bg-transparent border-0 px-0" routerLink="/admin/challenges">
           <span class="material-icons me-1 fs-5">arrow_back</span> Back to Library
         </button>
-        <h1 class="fw-bolder text-dark mb-2" style="font-size: 2.2rem;">Create Challenge</h1>
-        <p class="text-muted fs-5">How would you like to begin?</p>
-      </div>
+        <h1 class="fw-bolder text-dark mb-4" style="font-size: 2.2rem;">Create Challenge</h1>
 
-      <div class="row g-4 mb-5" *ngIf="!showTemplates()">
-        <!-- Option 1: Template -->
-        <div class="col-12 col-md-6">
-          <div class="option-card h-100 p-5 rounded-4 border bg-white text-center cursor-pointer transition-all hover-shadow-lg" (click)="showTemplates.set(true)">
-            <div class="icon-circle bg-emerald bg-opacity-10 text-emerald mb-4 mx-auto d-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px;">
-              <span class="material-icons" style="font-size: 2.5rem;">description</span>
-            </div>
-            <h3 class="fw-bolder mb-3">Use Template</h3>
-            <p class="text-muted mb-4 fs-6">Choose from our ready-made challenge templates</p>
-            <button class="btn btn-emerald rounded-pill px-4 py-2 fw-bold">Browse Templates</button>
-          </div>
-        </div>
-
-        <!-- Option 2: Scratch -->
-        <div class="col-12 col-md-6">
-          <div class="option-card h-100 p-5 rounded-4 border bg-white text-center cursor-pointer transition-all hover-shadow-lg" (click)="startFromScratch()">
-            <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-4 mx-auto d-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px;">
-              <span class="material-icons" style="font-size: 2.5rem;">add_circle_outline</span>
-            </div>
-            <h3 class="fw-bolder mb-3">Create From Scratch</h3>
-            <p class="text-muted mb-4 fs-6">Create a completely custom challenge manually</p>
-            <button class="btn btn-primary rounded-pill px-4 py-2 fw-bold">Start Creating</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Templates Grid -->
-      <div class="templates-view" *ngIf="showTemplates()">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
           <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary rounded-pill d-flex align-items-center" (click)="showTemplates.set(false)">
-              <span class="material-icons me-1 fs-6">arrow_back</span> Back
-            </button>
-            <h3 class="fw-bolder m-0">Challenge Templates</h3>
+            <h3 class="fw-bolder m-0">Select a Template</h3>
           </div>
           
           <div class="search-filter d-flex gap-2">
@@ -106,10 +73,7 @@ import { environment } from '../../../../../../environments/environment';
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center pt-2">
-                  <div class="d-flex align-items-center text-emerald fs-xs fw-bold" *ngIf="t.estimatedCarbonImpact > 0">
-                    <span class="material-icons fs-6 me-1">eco</span> {{ t.estimatedCarbonImpact }}kg CO₂ Impact
-                  </div>
-                  <div *ngIf="t.estimatedCarbonImpact <= 0"></div>
+                  <div></div>
                   <button class="btn btn-dark rounded-pill fw-bold px-4" (click)="useTemplate(t)">Use Template</button>
                 </div>
               </div>
@@ -146,7 +110,7 @@ import { environment } from '../../../../../../environments/environment';
 export class CreateSelectionComponent {
   private router = inject(Router);
 
-  showTemplates = signal<boolean>(false);
+
   templates = signal<ChallengeTemplate[]>(DEFAULT_CHALLENGE_TEMPLATES);
   
   searchQuery = signal<string>('');
@@ -184,10 +148,12 @@ export class CreateSelectionComponent {
       description: t.description,
       trackingMethod: t.trackingMethod,
       trackingSources: t.trackingSources,
+      challengeEvaluationType: t.challengeEvaluationType,
       progressMetric: t.progressMetric,
       rewardXp: t.rewardXP,
       targetValue: t.goalTarget,
-      imageUrl: t.imagePath
+      imageUrl: t.imagePath,
+      durationDays: t.durationDays
     };
     
     // Calculate dates based on durationDays (in local timezone)

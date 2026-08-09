@@ -43,7 +43,7 @@ public class ChallengeSpecification {
         };
     }
 
-    public static Specification<Challenge> filter(String search, ChallengeStatus status, TrackingMethod trackingMethod, Long categoryId) {
+    public static Specification<Challenge> filter(String search, ChallengeStatus status, TrackingMethod trackingMethod, com.ecotrack.challenge.enums.ChallengeEvaluationType evaluationType, Long categoryId) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -61,6 +61,9 @@ public class ChallengeSpecification {
             }
             if (categoryId != null) {
                 predicates.add(cb.equal(root.get("linkedCategoryId"), categoryId));
+            }
+            if (evaluationType != null) {
+                predicates.add(cb.equal(root.get("challengeEvaluationType"), evaluationType));
             }
 
             if (predicates.isEmpty()) {

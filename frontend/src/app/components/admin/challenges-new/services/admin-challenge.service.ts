@@ -41,6 +41,7 @@ export class AdminChallengeService {
     status?: string,
     trackingMethod?: string,
     categoryId?: string,
+    evaluationType?: string,
     sort?: string
   ): Observable<PageableResponse<Challenge>> {
     let params = new HttpParams()
@@ -51,6 +52,7 @@ export class AdminChallengeService {
     if (status) params = params.set('status', status);
     if (trackingMethod) params = params.set('trackingMethod', trackingMethod);
     if (categoryId) params = params.set('categoryId', categoryId);
+    if (evaluationType) params = params.set('evaluationType', evaluationType);
     if (sort) params = params.set('sort', sort);
 
     return this.http.get<PageableResponse<Challenge>>(this.apiUrl, { params });

@@ -5,4 +5,6 @@ export interface LeaderboardEntry {
   rank: number;
   status?: string;
   completedAt?: string | null;
+  exceededAverage?: boolean;
+  currentDays?: number;
 }

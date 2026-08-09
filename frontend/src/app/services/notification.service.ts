@@ -15,10 +15,11 @@ export class NotificationService {
 
   constructor(private http: HttpClient) {}
 
-  getNotifications(page: number = 0, size: number = 10): Observable<PageableResponse<Notification>> {
+  getNotifications(page: number = 0, size: number = 10, unreadOnly: boolean = false): Observable<PageableResponse<Notification>> {
     const params = new HttpParams()
       .set('page', page.toString())
-      .set('size', size.toString());
+      .set('size', size.toString())
+      .set('unreadOnly', unreadOnly.toString());
     
     return this.http.get<PageableResponse<Notification>>(`${this.apiUrl}/api/notifications`, { params });
   }

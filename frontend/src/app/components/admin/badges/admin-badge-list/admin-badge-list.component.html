@@ -146,10 +146,10 @@
               <select class="form-select" formControlName="rarity"
                       [ngClass]="{'is-invalid': badgeForm.get('rarity')?.invalid && badgeForm.get('rarity')?.touched}">
                 <option value="" disabled>Select Rarity</option>
-                <option value="BRONZE">Bronze</option>
-                <option value="SILVER">Silver</option>
-                <option value="GOLD">Gold</option>
-                <option value="PLATINUM">Platinum</option>
+                <option value="COMMON">Common</option>
+                <option value="RARE">Rare</option>
+                <option value="EPIC">Epic</option>
+                <option value="LEGENDARY">Legendary</option>
               </select>
               <div class="invalid-feedback">Please select a rarity.</div>
             </div>

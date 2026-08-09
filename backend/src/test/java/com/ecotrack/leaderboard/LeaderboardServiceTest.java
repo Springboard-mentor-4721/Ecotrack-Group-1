@@ -66,6 +66,8 @@ public class LeaderboardServiceTest {
         assertEquals(2L, result.get(0).getUserId());
         assertEquals("MonthUser", result.get(0).getUsername());
         assertEquals(3000L, result.get(0).getScoreValue());
+        assertEquals(1, result.get(0).getLevel());
+        assertEquals(0L, result.get(0).getXpToNextRank());
     }
 
     @Test
@@ -89,6 +91,8 @@ public class LeaderboardServiceTest {
         assertEquals(1L, result.get(0).getUserId());
         assertEquals("Real Name", result.get(0).getUsername());
         assertEquals(5000L, result.get(0).getScoreValue());
+        assertEquals(1, result.get(0).getLevel());
+        assertEquals(0L, result.get(0).getXpToNextRank());
         
         verify(userRepository).findAllById(Collections.singletonList(1L));
     }
@@ -115,5 +119,7 @@ public class LeaderboardServiceTest {
         assertEquals("My Real Name", result.getUsername());
         assertEquals(2000L, result.getScoreValue());
         assertEquals(6, result.getRank());
+        assertEquals(1, result.getLevel());
+        assertEquals(0L, result.getXpToNextRank());
     }
 }

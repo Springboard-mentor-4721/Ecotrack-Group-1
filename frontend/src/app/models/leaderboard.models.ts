@@ -7,4 +7,6 @@ export interface LeaderboardEntry {
   completedAt?: string | null;
   exceededAverage?: boolean;
   currentDays?: number;
+  level?: number;
+  xpToNextRank?: number;
 }

@@ -74,7 +74,8 @@ public class ChallengeEngine {
                         participant.getUserId(),
                         challenge.getId(),
                         challenge.getTitle(),
-                        challenge.getRewardXp()
+                        challenge.getRewardXp(),
+                        java.util.UUID.randomUUID().toString()
                 ));
             }
             
@@ -180,7 +181,8 @@ public class ChallengeEngine {
                             participant.getUserId(),
                             challenge.getId(),
                             challenge.getTitle(),
-                            challenge.getRewardXp()
+                            challenge.getRewardXp(),
+                            java.util.UUID.randomUUID().toString()
                     ));
                 }
                 participantRepository.save(participant);

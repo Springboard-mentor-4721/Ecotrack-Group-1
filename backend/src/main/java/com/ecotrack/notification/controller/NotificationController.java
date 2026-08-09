@@ -24,10 +24,16 @@ public class NotificationController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<NotificationDTO>> getNotifications(Pageable pageable, Authentication authentication) {
+    public ResponseEntity<Page<NotificationDTO>> getNotifications(
+            @RequestParam(required = false, defaultValue = "false") boolean unreadOnly,
+            Pageable pageable, Authentication authentication) {
         Long userId = getUserId(authentication);
-        Page<NotificationDTO> page = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
-                .map(this::mapToDTO);
+        Page<NotificationDTO> page;
+        if (unreadOnly) {
+            page = notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId, pageable).map(this::mapToDTO);
+        } else {
+            page = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable).map(this::mapToDTO);
+        }
         return ResponseEntity.ok(page);
     }
 
@@ -79,6 +85,7 @@ public class NotificationController {
                 .entityId(notif.getEntityId())
                 .isRead(notif.getIsRead())
                 .createdAt(notif.getCreatedAt())
+                .correlationId(notif.getCorrelationId())
                 .build();
     }
 }

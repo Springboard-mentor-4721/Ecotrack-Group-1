@@ -4,12 +4,14 @@ import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../components/navbar/navbar';
 import { SidebarComponent } from '../../../components/sidebar/sidebar';
 import { AuthService } from '../../../services/auth.service';
+import { ToastContainerComponent } from '../toast-container/toast-container';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent],
+  imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent, ToastContainerComponent],
   template: `
+    <app-toast-container></app-toast-container>
     <div class="layout-wrapper">
       <div *ngIf="isSuspended" class="bg-danger text-white text-center py-2 fw-bold" style="position: sticky; top: 0; z-index: 1050; width: 100%;">
         Your account is suspended. Please contact the administrator.

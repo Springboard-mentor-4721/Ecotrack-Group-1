@@ -19,4 +19,9 @@ public class BadgeDTO {
     private String rarity;
     private Boolean isEarned;
     private LocalDateTime awardedAt;
+    
+    // Progress fields
+    private Integer currentValue;
+    private Integer criteriaThreshold;
+    private Integer xpReward;
 }

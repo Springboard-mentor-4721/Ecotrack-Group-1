@@ -41,7 +41,7 @@ public class ChallengeEndingReminderScheduler {
                 String message = "The challenge '" + challenge.getTitle() + "' ends soon. Complete your goals!";
                 try {
                     notificationService.createNotification(
-                            participant.getUserId(), type, title, message, "CHALLENGE", challenge.getId());
+                            participant.getUserId(), type, title, message, "CHALLENGE", challenge.getId(), java.util.UUID.randomUUID().toString());
                 } catch (Exception e) {
                     log.error("Failed to send ending reminder to user {}", participant.getUserId(), e);
                 }

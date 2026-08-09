@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class StreakMilestoneEvent {
     private Long userId;
     private Integer streakDays;
+    private String correlationId;
 }

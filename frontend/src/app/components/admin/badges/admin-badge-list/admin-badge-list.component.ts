@@ -193,10 +193,10 @@ export class AdminBadgeListComponent implements OnInit {
 
   getRarityClass(rarity: string): string {
     switch (rarity) {
-      case 'BRONZE': return 'badge bg-warning text-dark opacity-75';
-      case 'SILVER': return 'badge bg-secondary';
-      case 'GOLD': return 'badge bg-warning text-dark';
-      case 'PLATINUM': return 'badge bg-info text-dark';
+      case 'COMMON': return 'badge bg-warning text-dark opacity-75';
+      case 'RARE': return 'badge bg-secondary';
+      case 'EPIC': return 'badge bg-warning text-dark';
+      case 'LEGENDARY': return 'badge bg-info text-dark';
       default: return 'badge bg-light text-dark';
     }
   }

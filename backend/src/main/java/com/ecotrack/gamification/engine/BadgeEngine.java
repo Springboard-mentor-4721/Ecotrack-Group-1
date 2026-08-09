@@ -36,7 +36,7 @@ public class BadgeEngine {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void evaluateBadges(Long userId, String triggerType, int increment) {
+    public void evaluateBadges(Long userId, String triggerType, int increment, String correlationId) {
         List<Badge> badgesToEvaluate = badgeRepository.findByCriteriaType(triggerType);
 
         for (Badge badge : badgesToEvaluate) {
@@ -60,7 +60,7 @@ public class BadgeEngine {
             badgeProgressRepository.save(progress);
 
             if (progress.getCurrentValue() >= badge.getCriteriaThreshold()) {
-                awardBadge(userId, badge);
+                awardBadge(userId, badge, correlationId);
                 if (badge.getIsRepeatable()) {
                     progress.setCurrentValue(progress.getCurrentValue() - badge.getCriteriaThreshold());
                     badgeProgressRepository.save(progress);
@@ -69,7 +69,7 @@ public class BadgeEngine {
         }
     }
 
-    private void awardBadge(Long userId, Badge badge) {
+    private void awardBadge(Long userId, Badge badge, String correlationId) {
         if (!badge.getIsRepeatable() && userBadgeRepository.existsByUserIdAndBadgeId(userId, badge.getId())) {
             return;
         }
@@ -81,32 +81,33 @@ public class BadgeEngine {
         userBadgeRepository.save(userBadge);
 
         // Standard XP for a badge award
-        xpLedgerService.awardXp(userId, 100, XpSourceType.BADGE_BONUS, badge.getId());
+        int xpReward = com.ecotrack.gamification.enums.BadgeRarity.fromString(badge.getRarity()).getXpReward();
+        xpLedgerService.awardXp(userId, xpReward, XpSourceType.BADGE_BONUS, badge.getId(), correlationId);
         
-        eventPublisher.publishEvent(new BadgeUnlockedEvent(userId, badge.getId()));
+        eventPublisher.publishEvent(new BadgeUnlockedEvent(userId, badge.getId(), correlationId));
         log.info("Awarded badge '{}' to user {}", badge.getName(), userId);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCarbonEntryCreated(CarbonEntryCreatedEvent event) {
-        evaluateBadges(event.getUserId(), "CARBON_ENTRIES_COUNT", 1);
-        evaluateBadges(event.getUserId(), "CATEGORY_SPECIALIST", 1); // Simplification for demo
+        evaluateBadges(event.getUserId(), "CARBON_ENTRIES_COUNT", 1, event.getCorrelationId());
+        evaluateBadges(event.getUserId(), "CATEGORY_SPECIALIST", 1, event.getCorrelationId()); // Simplification for demo
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleGoalCompleted(GoalCompletedEvent event) {
-        evaluateBadges(event.getUserId(), "GOAL_COMPLETED_COUNT", 1);
+        evaluateBadges(event.getUserId(), "GOAL_COMPLETED_COUNT", 1, event.getCorrelationId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleStreakMilestone(StreakMilestoneEvent event) {
-        evaluateBadges(event.getUserId(), "STREAK_DAYS", event.getStreakDays()); // For streak, we can just pass the streak as increment, but it depends on criteria. 
+        evaluateBadges(event.getUserId(), "STREAK_DAYS", event.getStreakDays(), event.getCorrelationId()); // For streak, we can just pass the streak as increment, but it depends on criteria. 
         // Actually, if criteria is STREAK_DAYS, we should probably set the value, not increment. 
         // But for this simple implementation, we'll leave it.
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleChallengeCompleted(ChallengeCompletedEvent event) {
-        evaluateBadges(event.getUserId(), "CHALLENGE_COMPLETED_COUNT", 1);
+        evaluateBadges(event.getUserId(), "CHALLENGE_COMPLETED_COUNT", 1, event.getCorrelationId());
     }
 }

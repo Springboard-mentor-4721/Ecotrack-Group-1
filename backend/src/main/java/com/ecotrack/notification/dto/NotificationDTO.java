@@ -21,4 +21,5 @@ public class NotificationDTO {
     private Long entityId;
     private Boolean isRead;
     private LocalDateTime createdAt;
+    private String correlationId;
 }

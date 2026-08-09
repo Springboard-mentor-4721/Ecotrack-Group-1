@@ -73,7 +73,7 @@ public class ChallengeEngineTest {
 
     @Test
     void testProcessNewEntry_CarbonEmission() {
-        CarbonEntryCreatedEvent event = new CarbonEntryCreatedEvent(1L, 1L, 100L, 1L, BigDecimal.valueOf(5.0), BigDecimal.valueOf(10.5));
+        CarbonEntryCreatedEvent event = new CarbonEntryCreatedEvent(1L, 1L, 100L, 1L, BigDecimal.valueOf(5.0), BigDecimal.valueOf(10.5), java.util.UUID.randomUUID().toString());
         
         List<ChallengeParticipant> list = new ArrayList<>();
         list.add(participant);
@@ -95,7 +95,7 @@ public class ChallengeEngineTest {
     @Test
     void testProcessNewEntry_Quantity() {
         challenge.setProgressMetric(ProgressMetric.QUANTITY);
-        CarbonEntryCreatedEvent event = new CarbonEntryCreatedEvent(1L, 1L, 100L, 1L, BigDecimal.valueOf(5.0), BigDecimal.valueOf(10.5));
+        CarbonEntryCreatedEvent event = new CarbonEntryCreatedEvent(1L, 1L, 100L, 1L, BigDecimal.valueOf(5.0), BigDecimal.valueOf(10.5), java.util.UUID.randomUUID().toString());
         
         List<ChallengeParticipant> list = new ArrayList<>();
         list.add(participant);

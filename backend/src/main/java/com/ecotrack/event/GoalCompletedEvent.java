@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class GoalCompletedEvent {
     private Long userId;
     private Long goalId;
+    private String correlationId;
 }

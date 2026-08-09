@@ -46,7 +46,7 @@ public class GamificationProfileService {
             
             if (newLevel > oldLevel) {
                 profile.setCurrentLevel(newLevel);
-                eventPublisher.publishEvent(new LevelUpEvent(event.getUserId(), oldLevel, newLevel));
+                eventPublisher.publishEvent(new LevelUpEvent(event.getUserId(), oldLevel, newLevel, event.getCorrelationId()));
                 log.info("User {} leveled up to {}", event.getUserId(), newLevel);
             }
             

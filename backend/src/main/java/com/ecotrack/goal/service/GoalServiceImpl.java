@@ -219,7 +219,7 @@ public class GoalServiceImpl implements GoalService {
             log.info("Goal {} target reached! Transitioning to ACHIEVED.", goalId);
             goal.setStatus(GoalStatus.ACHIEVED);
             goalRepository.save(goal);
-            eventPublisher.publishEvent(new GoalCompletedEvent(userId, goalId));
+            eventPublisher.publishEvent(new GoalCompletedEvent(userId, goalId, java.util.UUID.randomUUID().toString()));
         }
 
         return goalMapper.toDto(savedProgress);

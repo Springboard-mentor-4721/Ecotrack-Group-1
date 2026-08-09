@@ -19,7 +19,10 @@ export class AchievementsPageComponent implements OnInit {
   
   // Filtering & Searching
   searchTerm: string = '';
-  filterType: 'ALL' | 'EARNED' | 'LOCKED' = 'ALL';
+  filterType: 'ALL' | 'EARNED' | 'LOCKED' | 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' = 'ALL';
+
+  // Modal State
+  selectedBadge: Badge | null = null;
 
   constructor(
     private gamificationService: GamificationService,
@@ -61,30 +64,37 @@ export class AchievementsPageComponent implements OnInit {
         matchesFilter = badge.isEarned === true;
       } else if (this.filterType === 'LOCKED') {
         matchesFilter = badge.isEarned === false;
+      } else if (['COMMON', 'RARE', 'EPIC', 'LEGENDARY'].includes(this.filterType)) {
+        matchesFilter = badge.rarity.toUpperCase() === this.filterType;
       }
 
       return matchesSearch && matchesFilter;
     });
   }
 
-  getXpReward(rarity: string): number {
-    switch(rarity.toUpperCase()) {
-      case 'BRONZE': return 100;
-      case 'SILVER': return 250;
-      case 'GOLD': return 500;
-      case 'PLATINUM': return 1000;
-      default: return 50;
-    }
+  openBadgeModal(badge: Badge): void {
+    this.selectedBadge = badge;
+  }
+
+  closeBadgeModal(): void {
+    this.selectedBadge = null;
   }
 
   getBadgeIconClass(rarity: string, isEarned: boolean): string {
     if (!isEarned) return 'bg-light text-secondary opacity-50';
     switch (rarity.toUpperCase()) {
-      case 'BRONZE': return 'bg-orange-light text-orange';
-      case 'SILVER': return 'bg-slate-200 text-slate-700';
-      case 'GOLD': return 'bg-yellow-light text-yellow-600';
-      case 'PLATINUM': return 'bg-cyan-light text-cyan-600';
+      case 'COMMON': return 'bg-orange-light text-orange';
+      case 'RARE': return 'bg-slate-200 text-slate-700';
+      case 'EPIC': return 'bg-yellow-light text-yellow-600';
+      case 'LEGENDARY': return 'bg-cyan-light text-cyan-600';
       default: return 'bg-emerald-light text-emerald';
     }
+  }
+
+  getBadgeProgressPercent(badge: Badge): number {
+    if (!badge.currentValue || !badge.criteriaThreshold || badge.criteriaThreshold === 0) return 0;
+    if (badge.isEarned) return 100;
+    const progress = (badge.currentValue / badge.criteriaThreshold) * 100;
+    return Math.min(Math.max(progress, 0), 100);
   }
 }

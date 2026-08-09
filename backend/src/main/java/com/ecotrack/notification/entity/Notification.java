@@ -46,4 +46,7 @@ public class Notification {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+    
+    @Column(name = "correlation_id", length = 36)
+    private String correlationId;
 }

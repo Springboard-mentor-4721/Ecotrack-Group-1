@@ -3,8 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { UserProfileResponse } from '../../models/profile.models';
+import { GamificationService } from '../../services/gamification.service';
+import { GamificationProfile, Badge, XpLedgerEntry } from '../../models/gamification.models';
+import { NotificationService } from '../../services/notification.service';
+import { NotificationPreference } from '../../models/notification.models';
 import { environment } from '../../../environments/environment';
-import { finalize } from 'rxjs/operators';
+import { finalize, forkJoin } from 'rxjs';
 import { HttpEventType } from '@angular/common/http';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
@@ -19,6 +23,15 @@ import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   profile: UserProfileResponse | null = null;
+  gamificationProfile: GamificationProfile | null = null;
+  recentBadges: Badge[] = [];
+  recentActivity: XpLedgerEntry[] = [];
+  
+  notificationPrefs: NotificationPreference[] = [];
+  prefSuccessMessage = '';
+  prefErrorMessage = '';
+  isSavingPrefs = false;
+  
   isLoading = false;
   successMessage = '';
   errorMessage = '';
@@ -45,6 +58,8 @@ export class ProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
+    private gamificationService: GamificationService,
+    private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
   ) {
     this.profileForm = this.fb.group({
@@ -60,25 +75,42 @@ export class ProfileComponent implements OnInit {
 
   loadProfile(): void {
     this.isLoading = true;
-    this.profileService.getMyProfile()
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: (data) => {
-          this.profile = data;
-          this.profileForm.patchValue({
-            bio: data.bio || '',
-            location: data.location || '',
-            lifestylePreferences: data.lifestylePreferences || ''
-          });
-        },
-        error: (err) => {
-          this.errorMessage = 'Failed to load profile. Please try again later.';
-          console.error('Error fetching profile:', err);
-        }
-      });
+    
+    forkJoin({
+      profile: this.profileService.getMyProfile(),
+      gamification: this.gamificationService.getProfile(),
+      badges: this.gamificationService.getBadges(),
+      xpHistory: this.gamificationService.getXpHistory(0, 5),
+      prefBadge: this.notificationService.getPreference('BADGE_EARNED'),
+      prefChallenge: this.notificationService.getPreference('CHALLENGE_COMPLETED'),
+      prefGoal: this.notificationService.getPreference('GOAL_ACHIEVED'),
+      prefLevel: this.notificationService.getPreference('LEVEL_UP'),
+      prefStreak: this.notificationService.getPreference('STREAK_MILESTONE')
+    }).pipe(finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })).subscribe({
+      next: (data) => {
+        this.profile = data.profile;
+        this.gamificationProfile = data.gamification;
+        this.recentBadges = data.badges.filter(b => b.isEarned).slice(0, 4);
+        this.recentActivity = data.xpHistory.content;
+        
+        this.notificationPrefs = [
+          data.prefBadge, data.prefChallenge, data.prefGoal, data.prefLevel, data.prefStreak
+        ];
+        
+        this.profileForm.patchValue({
+          bio: this.profile.bio || '',
+          location: this.profile.location || '',
+          lifestylePreferences: this.profile.lifestylePreferences || ''
+        });
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load profile. Please try again later.';
+        console.error('Error fetching profile:', err);
+      }
+    });
   }
 
   // Drag and Drop
@@ -318,5 +350,79 @@ export class ProfileComponent implements OnInit {
     if (!this.profile?.location) missing.push('Location');
     if (!this.profile?.lifestylePreferences) missing.push('Lifestyle Preferences');
     return missing;
+  }
+  
+  togglePref(index: number, type: 'inApp' | 'email'): void {
+    const pref = this.notificationPrefs[index];
+    if (type === 'inApp') {
+      pref.inAppEnabled = !pref.inAppEnabled;
+    } else {
+      pref.emailEnabled = !pref.emailEnabled;
+    }
+  }
+
+  savePreferences(): void {
+    this.isSavingPrefs = true;
+    this.prefSuccessMessage = '';
+    this.prefErrorMessage = '';
+    
+    const updates = this.notificationPrefs.map(pref => this.notificationService.updatePreference(pref));
+    forkJoin(updates)
+      .pipe(finalize(() => {
+        this.isSavingPrefs = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          this.prefSuccessMessage = 'Notification preferences updated.';
+          setTimeout(() => { this.prefSuccessMessage = ''; this.cdr.detectChanges(); }, 3000);
+        },
+        error: (err) => {
+          this.prefErrorMessage = 'Failed to update preferences.';
+          console.error(err);
+        }
+      });
+  }
+  
+  getPrefLabel(eventType: string): string {
+    switch(eventType) {
+      case 'BADGE_EARNED': return 'Badge achievements';
+      case 'CHALLENGE_COMPLETED': return 'Challenge completion';
+      case 'GOAL_ACHIEVED': return 'Goal completion';
+      case 'LEVEL_UP': return 'Level up';
+      case 'STREAK_MILESTONE': return 'Streak milestones';
+      default: return eventType;
+    }
+  }
+  
+  getLevelProgress(): number {
+    if (!this.gamificationProfile) return 0;
+    const currentXp = this.gamificationProfile.lifetimeEcoXp;
+    const currentLevelThreshold = this.gamificationProfile.currentLevelBaseXp || 0; 
+    const nextLevelThreshold = this.gamificationProfile.nextLevelXp;
+    
+    if (nextLevelThreshold <= currentLevelThreshold) return 100;
+    
+    const progress = ((currentXp - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)) * 100;
+    return Math.min(Math.max(progress, 0), 100);
+  }
+  
+  getXpToNextLevel(): number {
+    if (!this.gamificationProfile) return 0;
+    return Math.max(this.gamificationProfile.nextLevelXp - this.gamificationProfile.lifetimeEcoXp, 0);
+  }
+  
+  getBadgeClass(rarity: string): string {
+    switch (rarity) {
+      case 'COMMON': return 'bg-orange-light text-orange';
+      case 'RARE': return 'bg-slate-200 text-slate-700';
+      case 'EPIC': return 'bg-yellow-light text-yellow-600';
+      case 'LEGENDARY': return 'bg-cyan-light text-cyan-600';
+      default: return 'bg-light text-secondary';
+    }
+  }
+  
+  formatSourceType(type: string): string {
+    return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 }

@@ -11,4 +11,5 @@ public class LevelUpEvent {
     private Long userId;
     private Integer oldLevel;
     private Integer newLevel;
+    private String correlationId;
 }

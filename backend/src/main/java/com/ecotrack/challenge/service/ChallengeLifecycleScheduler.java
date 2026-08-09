@@ -72,7 +72,8 @@ public class ChallengeLifecycleScheduler {
                                     p.getUserId(),
                                     challenge.getId(),
                                     challenge.getTitle(),
-                                    challenge.getRewardXp()
+                                    challenge.getRewardXp(),
+                                    java.util.UUID.randomUUID().toString()
                             ));
                         }
                     }

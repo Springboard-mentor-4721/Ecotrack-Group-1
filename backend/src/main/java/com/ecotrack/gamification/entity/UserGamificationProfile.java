@@ -43,6 +43,10 @@ public class UserGamificationProfile {
     @Builder.Default
     private Integer currentStreak = 0;
 
+    @Column(name = "longest_streak", nullable = false)
+    @Builder.Default
+    private Integer longestStreak = 0;
+
     @Column(name = "last_activity_date")
     private LocalDate lastActivityDate;
 

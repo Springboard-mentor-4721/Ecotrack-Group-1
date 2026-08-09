@@ -22,6 +22,8 @@ type FilterType = 'ALL_TIME' | 'MONTHLY' | 'WEEKLY';
 export class LeaderboardPageComponent implements OnInit {
   isLoading = true;
   entries: LeaderboardEntry[] = [];
+  topThree: LeaderboardEntry[] = [];
+  remainingEntries: LeaderboardEntry[] = [];
   myRank: LeaderboardEntry | null = null;
   filterType: FilterType = 'ALL_TIME';
   challengeId: number | null = null;
@@ -138,6 +140,7 @@ export class LeaderboardPageComponent implements OnInit {
         this.entries = [];
       }
       this.myRank = null; // Optional: highlight current user if needed, could find in entries
+      this.updatePodium();
       this.cdr.detectChanges();
     });
   }
@@ -164,8 +167,19 @@ export class LeaderboardPageComponent implements OnInit {
       if (!this.myRank && result.myRank) {
         this.myRank = result.myRank;
       }
+      this.updatePodium();
       this.cdr.detectChanges();
     });
+  }
+
+  updatePodium(): void {
+    if (!this.challengeId && this.entries.length >= 3) {
+      this.topThree = this.entries.slice(0, 3);
+      this.remainingEntries = this.entries.slice(3);
+    } else {
+      this.topThree = [];
+      this.remainingEntries = this.entries;
+    }
   }
 
   getRankClass(rank: number): string {

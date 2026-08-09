@@ -1,4 +1,4 @@
-export type NotificationType = 'BADGE' | 'GOAL' | 'CHALLENGE' | 'LEVEL_UP';
+export type NotificationType = 'BADGE' | 'GOAL' | 'CHALLENGE' | 'LEVEL_UP' | 'STREAK_MILESTONE';
 
 export interface Notification {
   id: number;
@@ -10,6 +10,7 @@ export interface Notification {
   entityId: number | null;
   isRead: boolean;
   createdAt: string;
+  correlationId: string | null;
 }
 
 export interface NotificationPreference {

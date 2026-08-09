@@ -1,0 +1,55 @@
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+  <div *ngFor="let toast of toasts" class="toast show align-items-center mb-2 shadow-lg border-0" 
+       [ngClass]="{
+         'bg-success text-white': toast.type === 'success',
+         'bg-danger text-white': toast.type === 'error',
+         'bg-info text-white': toast.type === 'info',
+         'reward-toast': toast.type === 'reward'
+       }" 
+       role="alert" aria-live="assertive" aria-atomic="true">
+    
+    <!-- Standard Toasts -->
+    <div class="d-flex" *ngIf="toast.type !== 'reward'">
+      <div class="toast-body fw-bold">
+        {{ toast.message }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="remove(toast.id)" aria-label="Close"></button>
+    </div>
+
+    <!-- Reward Celebration Toast -->
+    <div *ngIf="toast.type === 'reward'" class="p-3 bg-dark text-white rounded-3 position-relative overflow-hidden">
+      <div class="d-flex justify-content-between align-items-start mb-2 position-relative z-1">
+        <h5 class="mb-0 fw-bold text-warning d-flex align-items-center gap-2">
+          🎉 Reward Unlocked!
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="remove(toast.id)" aria-label="Close"></button>
+      </div>
+      
+      <div class="reward-list position-relative z-1 mt-3">
+        <div *ngFor="let notif of getGroupedNotifications(toast)" class="d-flex align-items-center gap-3 mb-2 pb-2 border-bottom border-secondary border-opacity-50">
+          <div class="icon-circle-sm" [ngClass]="{
+            'bg-primary-soft text-primary': notif.type === 'GOAL',
+            'bg-warning-soft text-warning': notif.type === 'BADGE',
+            'bg-success-soft text-success': notif.type === 'LEVEL_UP',
+            'bg-info-soft text-info': notif.type === 'STREAK_MILESTONE',
+            'bg-purple-soft text-purple': notif.type === 'CHALLENGE'
+          }">
+            <span *ngIf="notif.type === 'BADGE'">🏆</span>
+            <span *ngIf="notif.type === 'LEVEL_UP'">⬆️</span>
+            <span *ngIf="notif.type === 'STREAK_MILESTONE'">🔥</span>
+            <span *ngIf="notif.type === 'GOAL'">✅</span>
+            <span *ngIf="notif.type === 'CHALLENGE'">⭐</span>
+          </div>
+          <div>
+            <div class="fw-bold fs-6">{{ notif.title }}</div>
+            <div class="fs-7 text-white-50">{{ notif.message }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sparkle/Glow effect -->
+      <div class="celebration-glow position-absolute top-0 start-0 w-100 h-100 pointer-events-none"></div>
+    </div>
+
+  </div>
+</div>

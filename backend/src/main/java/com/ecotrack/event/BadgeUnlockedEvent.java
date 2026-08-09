@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class BadgeUnlockedEvent {
     private Long userId;
     private Long badgeId;
+    private String correlationId;
 }

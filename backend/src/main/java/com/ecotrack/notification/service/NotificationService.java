@@ -4,6 +4,7 @@ import com.ecotrack.event.BadgeUnlockedEvent;
 import com.ecotrack.event.ChallengeCompletedEvent;
 import com.ecotrack.event.GoalCompletedEvent;
 import com.ecotrack.event.LevelUpEvent;
+import com.ecotrack.event.StreakMilestoneEvent;
 import com.ecotrack.notification.entity.Notification;
 import com.ecotrack.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class NotificationService {
     private final EmailNotificationService emailNotificationService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createNotification(Long userId, String type, String title, String message, String entityType, Long entityId) {
+    public void createNotification(Long userId, String type, String title, String message, String entityType, Long entityId, String correlationId) {
         Notification notification = Notification.builder()
                 .userId(userId)
                 .type(type)
@@ -32,6 +33,7 @@ public class NotificationService {
                 .entityType(entityType)
                 .entityId(entityId)
                 .isRead(false)
+                .correlationId(correlationId)
                 .build();
         notificationRepository.save(notification);
     }
@@ -42,7 +44,7 @@ public class NotificationService {
         String type = "BADGE_EARNED";
         String title = "Badge Unlocked!";
         String message = "Congratulations! You have unlocked a new badge!";
-        createNotification(event.getUserId(), type, title, message, "BADGE", event.getBadgeId());
+        createNotification(event.getUserId(), type, title, message, "BADGE", event.getBadgeId(), event.getCorrelationId());
         emailNotificationService.sendEmailIfEnabled(event.getUserId(), type, title, message);
     }
 
@@ -52,7 +54,7 @@ public class NotificationService {
         String type = "LEVEL_UP";
         String title = "Leveled Up!";
         String message = "You reached level " + event.getNewLevel();
-        createNotification(event.getUserId(), type, title, message, "LEVEL", null);
+        createNotification(event.getUserId(), type, title, message, "LEVEL", null, event.getCorrelationId());
         // No email requested for Level Up, but can be added.
     }
 
@@ -62,7 +64,7 @@ public class NotificationService {
         String type = "CHALLENGE_COMPLETED";
         String title = "Challenge Completed!";
         String message = "You have completed the challenge: " + event.getChallengeTitle();
-        createNotification(event.getUserId(), type, title, message, "CHALLENGE", event.getChallengeId());
+        createNotification(event.getUserId(), type, title, message, "CHALLENGE", event.getChallengeId(), event.getCorrelationId());
         emailNotificationService.sendEmailIfEnabled(event.getUserId(), type, title, message);
     }
 
@@ -72,7 +74,18 @@ public class NotificationService {
         String type = "GOAL_ACHIEVED";
         String title = "Goal Achieved!";
         String message = "You have achieved your goal!";
-        createNotification(event.getUserId(), type, title, message, "GOAL", event.getGoalId());
+        createNotification(event.getUserId(), type, title, message, "GOAL", event.getGoalId(), event.getCorrelationId());
+        emailNotificationService.sendEmailIfEnabled(event.getUserId(), type, title, message);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleStreakMilestone(StreakMilestoneEvent event) {
+        String type = "STREAK_MILESTONE";
+        String title = "Streak Milestone!";
+        String message = "Amazing! You've hit a " + event.getStreakDays() + " day streak!";
+        createNotification(event.getUserId(), type, title, message, "STREAK", null, event.getCorrelationId());
+        // Best effort email
         emailNotificationService.sendEmailIfEnabled(event.getUserId(), type, title, message);
     }
 

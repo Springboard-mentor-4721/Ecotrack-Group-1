@@ -62,11 +62,11 @@ public class EmailNotificationService {
     private String getTemplateName(String eventType) {
         if (eventType == null) return "default-notification";
         switch (eventType) {
-            case "BADGE":
+            case "BADGE_EARNED":
                 return "badge-unlocked";
-            case "GOAL":
+            case "GOAL_ACHIEVED":
                 return "goal-achieved";
-            case "CHALLENGE":
+            case "CHALLENGE_COMPLETED":
                 return "challenge-completed";
             default:
                 return "default-notification";

@@ -17,6 +17,7 @@ export class NotificationListPageComponent implements OnInit {
   isLoading = false;
   isMarkingAll = false;
   errorMessage = '';
+  filterType: 'ALL' | 'UNREAD' = 'ALL';
 
   // Pagination
   currentPage = 0;
@@ -45,7 +46,9 @@ export class NotificationListPageComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.notificationService.getNotifications(page, this.pageSize)
+    const unreadOnly = this.filterType === 'UNREAD';
+    
+    this.notificationService.getNotifications(page, this.pageSize, unreadOnly)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -69,6 +72,14 @@ export class NotificationListPageComponent implements OnInit {
   onPageChange(newPage: number): void {
     if (newPage >= 0 && newPage < this.totalPages) {
       this.loadNotifications(newPage);
+    }
+  }
+
+  setFilter(filter: 'ALL' | 'UNREAD'): void {
+    if (this.filterType !== filter) {
+      this.filterType = filter;
+      this.currentPage = 0;
+      this.loadNotifications(0);
     }
   }
 

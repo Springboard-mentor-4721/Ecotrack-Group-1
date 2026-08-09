@@ -111,7 +111,7 @@ public class AuthService {
         userRepository.save(user);
 
         // Publish event
-        eventPublisher.publishEvent(new DailyLoginEvent(user.getId()));
+        eventPublisher.publishEvent(new DailyLoginEvent(user.getId(), java.util.UUID.randomUUID().toString()));
 
         // Generate JWT token
         String jwtToken = jwtService.generateToken(user);

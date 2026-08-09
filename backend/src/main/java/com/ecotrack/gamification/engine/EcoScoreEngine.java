@@ -22,28 +22,48 @@ public class EcoScoreEngine {
     private final UserGamificationProfileRepository profileRepository;
     private final GamificationConfigService configService;
     private final jakarta.persistence.EntityManager entityManager;
+    private final com.ecotrack.gamification.repository.XpLedgerRepository xpLedgerRepo;
 
     @Transactional
     public void recalculateScore(Long userId) {
         profileRepository.findByUserId(userId).ifPresent(profile -> {
             
-            // Simplified Eco Score Calculation for Milestone 3
-            // Base Score = min((Streak * 1) + (XP / 100), 100)
+            // 4-component weighted formula
+            // 1. Reduction (40% weight) -> Carbon Entry XP / 20 (max 100)
+            // 2. Goal (30% weight) -> Goal XP / 10 (max 100)
+            // 3. Challenge (20% weight) -> Challenge XP / 10 (max 100)
+            // 4. Streak (10% weight) -> Streak * 5 (max 100)
             
-            long xp = profile.getLifetimeEcoXp() == null ? 0 : profile.getLifetimeEcoXp();
             int streak = profile.getCurrentStreak() == null ? 0 : profile.getCurrentStreak();
+                
+            long carbonXp = xpLedgerRepo.findSumByUserIdAndSourceType(userId, com.ecotrack.gamification.enums.XpSourceType.CARBON_ENTRY);
+            long goalXp = xpLedgerRepo.findSumByUserIdAndSourceType(userId, com.ecotrack.gamification.enums.XpSourceType.GOAL_COMPLETED);
+            long challengeXp = xpLedgerRepo.findSumByUserIdAndSourceType(userId, com.ecotrack.gamification.enums.XpSourceType.CHALLENGE_COMPLETED);
             
-            BigDecimal scoreFromXp = BigDecimal.valueOf(xp).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-            BigDecimal scoreFromStreak = BigDecimal.valueOf(streak);
+            BigDecimal reductionFactor = BigDecimal.valueOf(Math.min(carbonXp / 20.0, 100.0));
+            BigDecimal goalFactor = BigDecimal.valueOf(Math.min(goalXp / 10.0, 100.0));
+            BigDecimal challengeFactor = BigDecimal.valueOf(Math.min(challengeXp / 10.0, 100.0));
+            BigDecimal streakFactor = BigDecimal.valueOf(Math.min(streak * 5.0, 100.0));
             
-            // Decay recovery logic
+            BigDecimal wReduction = configService.getDecimal("ECO_SCORE_WEIGHT_REDUCTION", new BigDecimal("0.40"));
+            BigDecimal wGoal = configService.getDecimal("ECO_SCORE_WEIGHT_GOAL", new BigDecimal("0.30"));
+            BigDecimal wChallenge = configService.getDecimal("ECO_SCORE_WEIGHT_CHALLENGE", new BigDecimal("0.20"));
+            BigDecimal wStreak = configService.getDecimal("ECO_SCORE_WEIGHT_STREAK", new BigDecimal("0.10"));
+            
+            BigDecimal baseScore = reductionFactor.multiply(wReduction)
+                    .add(goalFactor.multiply(wGoal))
+                    .add(challengeFactor.multiply(wChallenge))
+                    .add(streakFactor.multiply(wStreak))
+                    .setScale(2, RoundingMode.HALF_UP);
+            
+            // Decay recovery logic (0.5 recovery per XP grant is too aggressive. Changed to 0.1)
             if (profile.getAccumulatedDecay().compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal finalDecay = profile.getAccumulatedDecay().subtract(new BigDecimal("0.5"));
+                BigDecimal finalDecay = profile.getAccumulatedDecay().subtract(new BigDecimal("0.1"));
                 profile.setAccumulatedDecay(finalDecay.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : finalDecay);
             }
             
             // Base score minus accumulated decay
-            BigDecimal totalScore = scoreFromXp.add(scoreFromStreak).subtract(profile.getAccumulatedDecay());
+            BigDecimal totalScore = baseScore.subtract(profile.getAccumulatedDecay());
             
             if (totalScore.compareTo(BigDecimal.valueOf(100)) > 0) {
                 totalScore = BigDecimal.valueOf(100);
@@ -101,5 +121,13 @@ public class EcoScoreEngine {
             entityManager.flush();
             entityManager.clear();
         }
+    }
+    public String calculateGrade(BigDecimal score) {
+        if (score == null) return "N/A";
+        double val = score.doubleValue();
+        if (val >= 80) return "A+";
+        if (val >= 60) return "A";
+        if (val >= 40) return "B";
+        return "C";
     }
 }

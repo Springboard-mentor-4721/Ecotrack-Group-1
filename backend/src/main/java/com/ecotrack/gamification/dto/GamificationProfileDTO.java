@@ -15,8 +15,14 @@ import java.time.LocalDateTime;
 public class GamificationProfileDTO {
     private Long userId;
     private BigDecimal currentEcoScore;
+    private String currentEcoGrade;
     private Long lifetimeEcoXp;
     private Integer currentLevel;
     private Integer currentStreak;
+    private Integer longestStreak;
+    private Long currentLevelBaseXp;
+    private Long nextLevelXp;
+    private Integer totalBadges;
+    private Integer earnedBadges;
     private LocalDateTime lastScoreUpdateAt;
 }

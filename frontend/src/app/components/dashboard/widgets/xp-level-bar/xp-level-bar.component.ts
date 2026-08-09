@@ -32,16 +32,16 @@ import { CommonModule } from '@angular/common';
 export class XpLevelBarComponent {
   @Input() level: number = 1;
   @Input() xp: number = 0;
-
-  get nextLevelXp(): number {
-    return this.level * 1000; // simplified leveling formula
-  }
+  @Input() currentLevelBaseXp: number = 0;
+  @Input() nextLevelXp: number = 1000;
 
   getProgress(): number {
-    const prevLevelXp = (this.level - 1) * 1000;
-    const currentLevelProgress = this.xp - prevLevelXp;
-    const required = this.nextLevelXp - prevLevelXp;
-    if (required <= 0) return 100;
-    return Math.min(100, Math.max(0, (currentLevelProgress / required) * 100));
+    if (this.nextLevelXp === null || this.nextLevelXp === undefined) return 100;
+    
+    const range = this.nextLevelXp - (this.currentLevelBaseXp || 0);
+    if (range <= 0 || this.xp >= this.nextLevelXp) return 100;
+    
+    const progressWithinLevel = this.xp - (this.currentLevelBaseXp || 0);
+    return Math.min(100, Math.max(0, (progressWithinLevel / range) * 100));
   }
 }

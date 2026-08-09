@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DailyLoginEvent {
     private Long userId;
+    private String correlationId;
 }

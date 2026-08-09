@@ -206,8 +206,8 @@ export class DashboardComponent implements OnInit {
           this.totalEmissions = dash.userSummary?.monthlyEmission || 0;
           this.totalEntries = dash.userSummary?.totalEntries || 0;
           this.recentEntries = dash.recentActivities || [];
-          this.ecoScore = dash.ecoScore?.score || 0;
-          this.ecoGrade = dash.ecoScore?.grade || 'N/A';
+          // Gamification data is now loaded from GamificationService to avoid conflicts
+          // this.ecoScore and this.ecoGrade are handled after GamificationProfile loads
           this.processCarbonSources(dash.categoryBreakdown);
           this.updateCharts(dash.monthlyTrend);
           this.processGoals(dash.goalSummary);
@@ -235,6 +235,8 @@ export class DashboardComponent implements OnInit {
         if (res.profile) {
           this.gamificationProfile = res.profile;
           this.streak = res.profile.currentStreak || 0;
+          this.ecoScore = res.profile.currentEcoScore || 0;
+          this.ecoGrade = res.profile.currentEcoGrade || 'C';
         }
         if (res.badges) {
           this.recentBadges = res.badges.filter(b => b.isEarned).slice(0, 5);

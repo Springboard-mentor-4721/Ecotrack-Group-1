@@ -77,7 +77,7 @@ public class CarbonEntryService {
         entity.setNotes(normalizeNotes(request.getNotes()));
 
         CarbonEntry savedEntity = carbonEntryRepository.save(entity);
-        eventPublisher.publishEvent(new CarbonEntryCreatedEvent(user.getId(), savedEntity.getId(), subCategory.getCategory().getCategoryId(), subCategory.getId(), request.getQuantity(), emissionKgco2e));
+        eventPublisher.publishEvent(new CarbonEntryCreatedEvent(user.getId(), savedEntity.getId(), subCategory.getCategory().getCategoryId(), subCategory.getId(), request.getQuantity(), emissionKgco2e, java.util.UUID.randomUUID().toString()));
         return carbonEntryMapper.toResponse(savedEntity);
     }
 

@@ -1,0 +1,46 @@
+.reward-toast {
+  background: transparent;
+  width: 350px;
+  max-width: 100%;
+}
+
+.icon-circle-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.bg-primary-soft { background-color: rgba(13, 110, 253, 0.2); }
+.bg-warning-soft { background-color: rgba(255, 193, 7, 0.2); }
+.bg-success-soft { background-color: rgba(25, 135, 84, 0.2); }
+.bg-info-soft { background-color: rgba(13, 202, 240, 0.2); }
+.bg-purple-soft { background-color: rgba(111, 66, 193, 0.2); }
+
+.celebration-glow {
+  background: radial-gradient(circle at center, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0) 70%);
+  animation: pulse 2s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.toast {
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

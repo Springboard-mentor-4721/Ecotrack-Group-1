@@ -11,4 +11,5 @@ public class XPGrantedEvent {
     private Long userId;
     private Integer xpAmount;
     private Long totalXp;
+    private String correlationId;
 }

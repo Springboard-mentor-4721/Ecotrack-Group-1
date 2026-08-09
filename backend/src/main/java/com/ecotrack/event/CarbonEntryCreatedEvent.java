@@ -16,4 +16,5 @@ public class CarbonEntryCreatedEvent {
     private Long subCategoryId;
     private BigDecimal amount;
     private BigDecimal carbonEmission;
+    private String correlationId;
 }

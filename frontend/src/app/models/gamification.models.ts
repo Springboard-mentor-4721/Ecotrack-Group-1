@@ -1,12 +1,18 @@
-export type BadgeRarity = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
+export type BadgeRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
 export type XpSourceType = 'CARBON_ENTRY' | 'GOAL_COMPLETED' | 'CHALLENGE_COMPLETED' | 'STREAK_BONUS' | 'DAILY_LOGIN' | 'BADGE_BONUS';
 
 export interface GamificationProfile {
   userId: number;
   currentEcoScore: number;         // BigDecimal → number
+  currentEcoGrade?: string;
   lifetimeEcoXp: number;           // Long → number
   currentLevel: number;
   currentStreak: number;
+  longestStreak: number;
+  currentLevelBaseXp?: number;
+  nextLevelXp: number;
+  totalBadges: number;
+  earnedBadges: number;
   lastScoreUpdateAt: string;       // LocalDateTime → ISO string
 }
 
@@ -18,6 +24,9 @@ export interface Badge {
   rarity: BadgeRarity;
   isEarned: boolean;
   awardedAt: string | null;        // null if not earned
+  currentValue?: number;
+  criteriaThreshold?: number;
+  xpReward?: number;
 }
 
 export interface XpLedgerEntry {

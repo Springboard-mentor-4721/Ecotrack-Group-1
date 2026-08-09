@@ -1,75 +1,101 @@
-<div class="container-fluid py-4">
+<div class="notifications-wrapper animate-page px-4 py-4 max-w-4xl mx-auto">
+  
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Notifications</h2>
-    <button class="btn btn-outline-primary" (click)="markAllAsRead()"
-      [disabled]="isMarkingAll || notifications.length === 0">
-      <span *ngIf="isMarkingAll" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-      Mark All as Read
+    <div>
+      <h1 class="fw-bold text-dark mb-1 fs-3">Notifications</h1>
+      <p class="desc-light mb-0">Stay updated on your sustainable journey.</p>
+    </div>
+    
+    <button class="btn btn-outline-primary d-flex align-items-center gap-2 rounded-pill px-4" 
+            (click)="markAllAsRead()"
+            [disabled]="isMarkingAll || notifications.length === 0">
+      <span *ngIf="isMarkingAll" class="spinner-border spinner-border-sm" role="status"></span>
+      <svg *ngIf="!isMarkingAll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Mark all read
+    </button>
+  </div>
+
+  <div class="card-premium p-3 mb-4 d-flex gap-2 bg-surface rounded-pill border w-max-content">
+    <button class="btn btn-sm rounded-pill px-4 fw-600" 
+            [class.btn-emerald]="filterType === 'ALL'" 
+            [class.text-muted]="filterType !== 'ALL'"
+            (click)="setFilter('ALL')">
+      All
+    </button>
+    <button class="btn btn-sm rounded-pill px-4 fw-600" 
+            [class.btn-emerald]="filterType === 'UNREAD'" 
+            [class.text-muted]="filterType !== 'UNREAD'"
+            (click)="setFilter('UNREAD')">
+      Unread
     </button>
   </div>
 
   <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
+    <div class="spinner-border text-emerald" role="status"></div>
   </div>
 
   <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
     {{ errorMessage }}
   </div>
 
-  <div *ngIf="!isLoading && !errorMessage && notifications.length === 0" class="text-center py-5 bg-light rounded">
-    <lucide-angular [img]="BellIcon" class="text-muted mb-3" style="width: 64px; height: 64px;"></lucide-angular>
-    <h4>No Notifications</h4>
-    <p class="text-muted">You're all caught up!</p>
+  <div *ngIf="!isLoading && !errorMessage && notifications.length === 0" class="text-center py-5 my-5 bg-surface rounded-4 border">
+    <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 shadow-sm text-muted">
+      <lucide-angular [img]="BellIcon" size="32"></lucide-angular>
+    </div>
+    <h4 class="fw-bold text-dark">No Notifications</h4>
+    <p class="desc-light">You're all caught up!</p>
   </div>
 
-  <div class="list-group shadow-sm" *ngIf="!isLoading && !errorMessage && notifications.length > 0">
+  <div class="d-flex flex-column gap-3" *ngIf="!isLoading && !errorMessage && notifications.length > 0">
     <div *ngFor="let notification of notifications"
-      class="list-group-item list-group-item-action d-flex gap-3 py-3 transition-all cursor-pointer"
-      [class.bg-light]="!notification.isRead" (click)="markAsRead(notification)">
+         class="card-premium d-flex gap-3 p-4 align-items-start transition-all position-relative"
+         [class.bg-surface]="notification.isRead"
+         [class.cursor-pointer]="!notification.isRead"
+         (click)="markAsRead(notification)">
+      
+      <!-- Unread dot -->
+      <div *ngIf="!notification.isRead" class="position-absolute top-0 end-0 m-3 rounded-circle bg-primary" style="width: 10px; height: 10px;"></div>
 
       <!-- Icon -->
-      <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 48px; height: 48px;"
-        [ngClass]="{
-             'bg-primary text-white': notification.type === 'CHALLENGE',
-             'bg-success text-white': notification.type === 'GOAL',
-             'bg-warning text-dark': notification.type === 'BADGE' || notification.type === 'LEVEL_UP',
-             'bg-secondary text-white': notification.type !== 'CHALLENGE' && notification.type !== 'GOAL' && notification.type !== 'BADGE' && notification.type !== 'LEVEL_UP'
+      <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 50px; height: 50px;"
+           [ngClass]="{
+             'bg-primary-light text-primary': notification.type === 'CHALLENGE',
+             'bg-emerald-light text-emerald': notification.type === 'GOAL',
+             'bg-orange-light text-orange': notification.type === 'STREAK_MILESTONE',
+             'bg-yellow-light text-yellow-600': notification.type === 'BADGE' || notification.type === 'LEVEL_UP',
+             'bg-slate-200 text-slate-700': notification.type !== 'CHALLENGE' && notification.type !== 'GOAL' && notification.type !== 'BADGE' && notification.type !== 'LEVEL_UP' && notification.type !== 'STREAK_MILESTONE'
            }">
-        <lucide-angular [img]="getIconForType(notification.type)" size="24"></lucide-angular>
+        <span *ngIf="notification.type === 'BADGE'" class="fs-4">🏆</span>
+        <span *ngIf="notification.type === 'LEVEL_UP'" class="fs-4">⬆️</span>
+        <span *ngIf="notification.type === 'CHALLENGE'" class="fs-4">🎯</span>
+        <span *ngIf="notification.type === 'GOAL'" class="fs-4">🌱</span>
+        <span *ngIf="notification.type === 'STREAK_MILESTONE'" class="fs-4">🔥</span>
+        <lucide-angular *ngIf="!['BADGE', 'LEVEL_UP', 'CHALLENGE', 'GOAL', 'STREAK_MILESTONE'].includes(notification.type)" [img]="getIconForType(notification.type)" size="24"></lucide-angular>
       </div>
 
       <!-- Content -->
-      <div class="d-flex gap-2 w-100 justify-content-between">
-        <div>
-          <h6 class="mb-1" [class.fw-bold]="!notification.isRead">{{ notification.title }}</h6>
-          <p class="mb-1 text-muted">{{ notification.message }}</p>
-          <small class="text-muted">{{ notification.createdAt | date:'medium' }}</small>
-        </div>
-
-        <!-- Status indicator -->
-        <div class="d-flex align-items-center">
-          <span *ngIf="!notification.isRead" class="badge bg-primary rounded-pill"
-            style="width: 10px; height: 10px; padding: 0;"></span>
-        </div>
+      <div class="w-100 pe-3">
+        <h6 class="mb-1 text-dark fs-6" [class.fw-bold]="!notification.isRead" [class.fw-600]="notification.isRead">{{ notification.title }}</h6>
+        <p class="mb-2 text-muted fs-7">{{ notification.message }}</p>
+        <small class="text-muted fs-xs fw-600">{{ notification.createdAt | date:'medium' }}</small>
       </div>
+
     </div>
   </div>
 
   <!-- Pagination -->
   <nav *ngIf="totalPages > 1 && !isLoading && !errorMessage" class="mt-4" aria-label="Notifications pagination">
-    <ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-center gap-2">
       <li class="page-item" [class.disabled]="currentPage === 0">
-        <button class="page-link" (click)="onPageChange(currentPage - 1)"
-          [disabled]="currentPage === 0">Previous</button>
+        <button class="page-link rounded-pill px-4" (click)="onPageChange(currentPage - 1)"
+                [disabled]="currentPage === 0">Previous</button>
       </li>
-      <li class="page-item disabled">
-        <span class="page-link">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <li class="page-item disabled d-none d-md-block">
+        <span class="page-link border-0 bg-transparent text-muted">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
       </li>
       <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
-        <button class="page-link" (click)="onPageChange(currentPage + 1)"
-          [disabled]="currentPage >= totalPages - 1">Next</button>
+        <button class="page-link rounded-pill px-4" (click)="onPageChange(currentPage + 1)"
+                [disabled]="currentPage >= totalPages - 1">Next</button>
       </li>
     </ul>
   </nav>

@@ -160,7 +160,7 @@ public class ChallengeService {
         
         if (newStatus == com.ecotrack.challenge.enums.ChallengeParticipantStatus.COMPLETED && !wasCompleted) {
             participant.setCompletedAt(LocalDateTime.now());
-            eventPublisher.publishEvent(new ChallengeCompletedEvent(userId, challenge.getId(), challenge.getTitle(), challenge.getRewardXp()));
+            eventPublisher.publishEvent(new ChallengeCompletedEvent(userId, challenge.getId(), challenge.getTitle(), challenge.getRewardXp(), java.util.UUID.randomUUID().toString()));
         }
         
         return mapToDTO(participantRepository.save(participant));

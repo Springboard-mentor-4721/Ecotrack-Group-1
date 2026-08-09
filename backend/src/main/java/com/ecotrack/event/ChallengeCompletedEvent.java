@@ -12,6 +12,7 @@ public class ChallengeCompletedEvent {
     private Long challengeId;
     private String title;
     private Integer rewardXp;
+    private String correlationId;
     
     // Backward compatibility for NotificationService
     public String getChallengeTitle() {

@@ -47,7 +47,7 @@
         <app-eco-score-card [score]="ecoScore" [grade]="ecoGrade"></app-eco-score-card>
       </div>
       <div class="col-md-4 animate-stagger-item">
-        <app-xp-level-bar [level]="gamificationProfile.currentLevel" [xp]="gamificationProfile.lifetimeEcoXp"></app-xp-level-bar>
+        <app-xp-level-bar [level]="gamificationProfile.currentLevel" [xp]="gamificationProfile.lifetimeEcoXp" [currentLevelBaseXp]="gamificationProfile.currentLevelBaseXp || 0" [nextLevelXp]="gamificationProfile.nextLevelXp"></app-xp-level-bar>
       </div>
       <div class="col-md-4 animate-stagger-item">
         <app-streak-tracker [streak]="streak"></app-streak-tracker>

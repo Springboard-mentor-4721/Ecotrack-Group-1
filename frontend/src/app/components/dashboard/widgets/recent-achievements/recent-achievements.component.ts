@@ -36,10 +36,10 @@ export class RecentAchievementsComponent {
 
   getBadgeClass(rarity: string): string {
     switch (rarity) {
-      case 'BRONZE': return 'bg-orange-light text-orange';
-      case 'SILVER': return 'bg-slate-200 text-slate-700';
-      case 'GOLD': return 'bg-yellow-light text-yellow-600';
-      case 'PLATINUM': return 'bg-cyan-light text-cyan-600';
+      case 'COMMON': return 'bg-orange-light text-orange';
+      case 'RARE': return 'bg-slate-200 text-slate-700';
+      case 'EPIC': return 'bg-yellow-light text-yellow-600';
+      case 'LEGENDARY': return 'bg-cyan-light text-cyan-600';
       default: return 'bg-light text-secondary';
     }
   }

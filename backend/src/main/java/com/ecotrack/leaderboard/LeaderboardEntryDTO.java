@@ -16,4 +16,6 @@ public class LeaderboardEntryDTO {
     private String username;
     private Long scoreValue; // Can be XP or EcoScore scaled
     private Integer rank;
+    private Integer level;
+    private Long xpToNextRank;
 }

@@ -12,6 +12,9 @@ import com.ecotrack.gamification.repository.UserBadgeRepository;
 import com.ecotrack.gamification.repository.UserGamificationProfileRepository;
 import com.ecotrack.gamification.repository.XpLedgerRepository;
 import com.ecotrack.user.repository.UserRepository;
+import com.ecotrack.gamification.config.GamificationConfigService;
+import com.ecotrack.gamification.repository.BadgeProgressRepository;
+import com.ecotrack.gamification.entity.BadgeProgress;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -34,19 +37,47 @@ public class GamificationController {
     private final UserBadgeRepository userBadgeRepository;
     private final XpLedgerRepository xpLedgerRepository;
     private final UserRepository userRepository;
+    private final GamificationConfigService configService;
+    private final BadgeProgressRepository badgeProgressRepository;
+    private final com.ecotrack.gamification.engine.EcoScoreEngine ecoScoreEngine;
 
     @GetMapping("/profile")
     public ResponseEntity<GamificationProfileDTO> getProfile(Authentication authentication) {
         Long userId = getUserId(authentication);
+        
+        int totalBadges = (int) badgeRepository.count();
+        int earnedBadges = userBadgeRepository.findByUserId(userId).size();
+        
         return profileRepository.findByUserId(userId)
-                .map(p -> ResponseEntity.ok(GamificationProfileDTO.builder()
+                .map(p -> {
+                    long currentXp = p.getLifetimeEcoXp();
+                    int nextLevel = p.getCurrentLevel() + 1;
+                    String configKey = "LEVEL_" + nextLevel + "_THRESHOLD";
+                    long nextLevelXpThreshold = 0;
+                    long currentLevelBaseXp = 0;
+                    try {
+                        nextLevelXpThreshold = configService.getInt(configKey, p.getCurrentLevel() * 1000);
+                        currentLevelBaseXp = configService.getInt("LEVEL_" + p.getCurrentLevel() + "_THRESHOLD", (p.getCurrentLevel() - 1) * 1000);
+                    } catch (Exception e) {
+                        nextLevelXpThreshold = p.getCurrentLevel() * 1000L;
+                        currentLevelBaseXp = (p.getCurrentLevel() - 1) * 1000L;
+                    }
+                    
+                    return ResponseEntity.ok(GamificationProfileDTO.builder()
                         .userId(p.getUserId())
                         .currentEcoScore(p.getCurrentEcoScore())
+                        .currentEcoGrade(ecoScoreEngine.calculateGrade(p.getCurrentEcoScore()))
                         .lifetimeEcoXp(p.getLifetimeEcoXp())
                         .currentLevel(p.getCurrentLevel())
                         .currentStreak(p.getCurrentStreak())
+                        .longestStreak(p.getLongestStreak())
+                        .currentLevelBaseXp(currentLevelBaseXp)
+                        .nextLevelXp(nextLevelXpThreshold)
+                        .totalBadges(totalBadges)
+                        .earnedBadges(earnedBadges)
                         .lastScoreUpdateAt(p.getLastScoreUpdateAt())
-                        .build()))
+                        .build());
+                })
                 .orElseGet(() -> {
                     UserGamificationProfile newProfile = UserGamificationProfile.builder()
                             .userId(userId)
@@ -54,14 +85,21 @@ public class GamificationController {
                             .lifetimeEcoXp(0L)
                             .currentLevel(1)
                             .currentStreak(0)
+                            .longestStreak(0)
                             .build();
                     profileRepository.save(newProfile);
                     return ResponseEntity.ok(GamificationProfileDTO.builder()
                             .userId(userId)
                             .currentEcoScore(java.math.BigDecimal.ZERO)
+                            .currentEcoGrade("C") // Score 0 -> C
                             .lifetimeEcoXp(0L)
                             .currentLevel(1)
                             .currentStreak(0)
+                            .longestStreak(0)
+                            .currentLevelBaseXp(0L)
+                            .nextLevelXp(1000L)
+                            .totalBadges(totalBadges)
+                            .earnedBadges(earnedBadges)
                             .build());
                 });
     }
@@ -72,14 +110,19 @@ public class GamificationController {
         
         List<Badge> allBadges = badgeRepository.findAll();
         List<UserBadge> userBadges = userBadgeRepository.findByUserId(userId);
+        List<BadgeProgress> userProgress = badgeProgressRepository.findByUserId(userId);
         
         Map<Long, UserBadge> userBadgeMap = userBadges.stream()
                 .collect(Collectors.toMap(ub -> ub.getBadge().getId(), ub -> ub));
+                
+        Map<Long, BadgeProgress> userProgressMap = userProgress.stream()
+                .collect(Collectors.toMap(BadgeProgress::getBadgeId, bp -> bp));
                 
         List<BadgeDTO> badgeDTOs = allBadges.stream()
                 .filter(b -> !b.getIsHidden() || userBadgeMap.containsKey(b.getId()))
                 .map(b -> {
                     UserBadge ub = userBadgeMap.get(b.getId());
+                    BadgeProgress bp = userProgressMap.get(b.getId());
                     return BadgeDTO.builder()
                             .id(b.getId())
                             .name(b.getName())
@@ -88,6 +131,9 @@ public class GamificationController {
                             .rarity(b.getRarity())
                             .isEarned(ub != null)
                             .awardedAt(ub != null ? ub.getAwardedAt() : null)
+                            .currentValue(bp != null ? bp.getCurrentValue() : 0)
+                            .criteriaThreshold(b.getCriteriaThreshold())
+                            .xpReward(com.ecotrack.gamification.enums.BadgeRarity.fromString(b.getRarity()).getXpReward())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -96,20 +142,22 @@ public class GamificationController {
     }
 
     @GetMapping("/xp-history")
-    public ResponseEntity<List<XpLedgerEntryDTO>> getXpHistory(Authentication authentication) {
+    public ResponseEntity<org.springframework.data.domain.Page<XpLedgerEntryDTO>> getXpHistory(
+            Authentication authentication,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size) {
         Long userId = getUserId(authentication);
-        List<XpLedger> ledgerEntries = xpLedgerRepository.findAll();
-        List<XpLedgerEntryDTO> dtos = ledgerEntries.stream()
-                .filter(x -> x.getUser().getId().equals(userId))
-                .map(x -> XpLedgerEntryDTO.builder()
-                        .id(x.getId())
-                        .userId(x.getUser().getId())
-                        .xpAwarded(x.getXpAwarded())
-                        .sourceType(x.getSourceType())
-                        .sourceId(x.getSourceId())
-                        .awardedAt(x.getAwardedAt())
-                        .build())
-                .collect(Collectors.toList());
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        org.springframework.data.domain.Page<XpLedger> ledgerPage = xpLedgerRepository.findByUser_IdOrderByAwardedAtDesc(userId, pageable);
+        
+        org.springframework.data.domain.Page<XpLedgerEntryDTO> dtos = ledgerPage.map(x -> XpLedgerEntryDTO.builder()
+                .id(x.getId())
+                .userId(x.getUser().getId())
+                .xpAwarded(x.getXpAwarded())
+                .sourceType(x.getSourceType())
+                .sourceId(x.getSourceId())
+                .awardedAt(x.getAwardedAt())
+                .build());
                 
         return ResponseEntity.ok(dtos);
     }

@@ -32,7 +32,7 @@ public class XpLedgerService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void awardXp(Long userId, Integer xpAmount, XpSourceType sourceType, Long sourceId) {
+    public void awardXp(Long userId, Integer xpAmount, XpSourceType sourceType, Long sourceId, String correlationId) {
         if (xpAmount <= 0) {
             return;
         }
@@ -50,16 +50,16 @@ public class XpLedgerService {
             Long totalXp = xpLedgerRepository.findSumByUserId(userId);
             log.info("Awarded {} XP to user {} for {}", xpAmount, userId, sourceType);
 
-            eventPublisher.publishEvent(new XPGrantedEvent(userId, xpAmount, totalXp));
+            eventPublisher.publishEvent(new XPGrantedEvent(userId, xpAmount, totalXp, correlationId));
         });
     }
 
-    private void awardXpWithCap(Long userId, Integer xpAmount, XpSourceType sourceType, Long sourceId, int dailyCap) {
+    private void awardXpWithCap(Long userId, Integer xpAmount, XpSourceType sourceType, Long sourceId, int dailyCap, String correlationId) {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         int countToday = xpLedgerRepository.countByUser_IdAndSourceTypeAndAwardedAtAfter(userId, sourceType, startOfDay);
 
         if (countToday < dailyCap) {
-            awardXp(userId, xpAmount, sourceType, sourceId);
+            awardXp(userId, xpAmount, sourceType, sourceId, correlationId);
         } else {
             log.info("Daily cap reached for user {} on {}", userId, sourceType);
         }
@@ -70,14 +70,18 @@ public class XpLedgerService {
         int cap = configService.getInt("MAX_DAILY_CARBON_ENTRY_CAP", 3);
         int xp = configService.getInt("CARBON_ENTRY_XP", 25);
         
-        awardXpWithCap(event.getUserId(), xp, XpSourceType.CARBON_ENTRY, event.getEntryId(), cap);
+        awardXpWithCap(event.getUserId(), xp, XpSourceType.CARBON_ENTRY, event.getEntryId(), cap, event.getCorrelationId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleGoalCompleted(GoalCompletedEvent event) {
+        if (xpLedgerRepository.existsByUser_IdAndSourceTypeAndSourceId(event.getUserId(), XpSourceType.GOAL_COMPLETED, event.getGoalId())) {
+            log.info("Goal {} already awarded XP to user {}", event.getGoalId(), event.getUserId());
+            return;
+        }
         int xp = configService.getInt("GOAL_COMPLETION_XP", 100);
         
-        awardXp(event.getUserId(), xp, XpSourceType.GOAL_COMPLETED, event.getGoalId());
+        awardXp(event.getUserId(), xp, XpSourceType.GOAL_COMPLETED, event.getGoalId(), event.getCorrelationId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -85,12 +89,19 @@ public class XpLedgerService {
         int cap = configService.getInt("MAX_DAILY_LOGIN_CAP", 1);
         int xp = configService.getInt("DAILY_LOGIN_XP", 10);
         
-        awardXpWithCap(event.getUserId(), xp, XpSourceType.DAILY_LOGIN, null, cap);
+        LocalDate today = LocalDate.now();
+        Long sourceId = (long) (today.getYear() * 10000 + today.getMonthValue() * 100 + today.getDayOfMonth());
+        
+        awardXpWithCap(event.getUserId(), xp, XpSourceType.DAILY_LOGIN, sourceId, cap, event.getCorrelationId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleChallengeCompleted(com.ecotrack.event.ChallengeCompletedEvent event) {
-        awardXp(event.getUserId(), event.getRewardXp(), XpSourceType.CHALLENGE_COMPLETED, event.getChallengeId());
+        if (xpLedgerRepository.existsByUser_IdAndSourceTypeAndSourceId(event.getUserId(), XpSourceType.CHALLENGE_COMPLETED, event.getChallengeId())) {
+            log.info("Challenge {} already awarded XP to user {}", event.getChallengeId(), event.getUserId());
+            return;
+        }
+        awardXp(event.getUserId(), event.getRewardXp(), XpSourceType.CHALLENGE_COMPLETED, event.getChallengeId(), event.getCorrelationId());
     }
 }
 

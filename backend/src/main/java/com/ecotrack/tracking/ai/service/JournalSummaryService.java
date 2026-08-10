@@ -7,6 +7,8 @@ import com.ecotrack.ai.parser.AiResponseValidator;
 import com.ecotrack.ai.parser.AiJsonCodec;
 import com.ecotrack.ai.cache.AiInsightCache;
 import com.ecotrack.ai.cache.AiInsightCacheRepository;
+import com.ecotrack.ai.history.AiGenerationHistory;
+import com.ecotrack.ai.history.AiGenerationHistoryRepository;
 import com.ecotrack.tracking.ai.dto.JournalSummaryContext;
 import com.ecotrack.tracking.ai.dto.JournalSummaryResponse;
 import com.ecotrack.tracking.ai.prompt.JournalSummaryPromptBuilder;
@@ -27,6 +29,7 @@ public class JournalSummaryService {
     private final JournalSummaryPromptBuilder summaryPromptBuilder;
     private final AiResponseValidator validator;
     private final AiInsightCacheRepository cacheRepository;
+    private final AiGenerationHistoryRepository historyRepository;
     private final AiJsonCodec codec;
 
     public JournalSummaryService(AiClientPort aiClientPort,
@@ -34,17 +37,27 @@ public class JournalSummaryService {
                                  JournalSummaryPromptBuilder summaryPromptBuilder,
                                  AiResponseValidator validator,
                                  AiInsightCacheRepository cacheRepository,
+                                 AiGenerationHistoryRepository historyRepository,
                                  AiJsonCodec codec) {
         this.aiClientPort = aiClientPort;
         this.aiProperties = aiProperties;
         this.summaryPromptBuilder = summaryPromptBuilder;
         this.validator = validator;
         this.cacheRepository = cacheRepository;
+        this.historyRepository = historyRepository;
         this.codec = codec;
     }
 
+    public Optional<JournalSummaryResponse> getLatestSummary(Long userId, String cacheKey) {
+        Optional<AiInsightCache> cached = cacheRepository.findFresh(userId, AiInsightCache.InsightType.JOURNAL_SUMMARY, cacheKey, LocalDateTime.now());
+        if (cached.isPresent()) {
+            return Optional.of(codec.deserialize(cached.get().getPayloadJson(), JournalSummaryResponse.class));
+        }
+        return Optional.empty();
+    }
+
     public JournalSummaryResponse generateJournalSummary(Long userId, String cacheKey, String timeframe, JournalSummaryContext context) {
-        if (!aiProperties.enabled()) {
+        if (!aiProperties.enabled() || !aiProperties.features().journalSummaryEnabled()) {
             return fallbackSummary();
         }
         
@@ -56,11 +69,6 @@ public class JournalSummaryService {
                 JournalSummaryResponse.OverallProgress.INSUFFICIENT_DATA,
                 List.of("Start logging your daily transport, meals, and home energy consumption.")
             );
-        }
-        
-        Optional<AiInsightCache> cached = cacheRepository.findFresh(userId, AiInsightCache.InsightType.JOURNAL_SUMMARY, cacheKey);
-        if (cached.isPresent()) {
-            return codec.deserialize(cached.get().getPayloadJson(), JournalSummaryResponse.class);
         }
 
         try {
@@ -79,12 +87,30 @@ public class JournalSummaryService {
                     : aiProperties.cache().journalSummaryWeeklyTtlDays();
             
             saveCacheEntry(userId, cacheKey, response, aiProperties.models().journalSummary(),
-                           LocalDateTime.now().plusDays(ttlDays), AiInsightCache.GenerationSource.LAZY);
+                           LocalDateTime.now().plusDays(ttlDays), AiInsightCache.GenerationSource.MANUAL);
+            saveHistoryEntry(userId, cacheKey, response, aiProperties.models().journalSummary());
             
             return response;
         } catch (Exception e) {
             log.warn("Journal summary generation failed for user {}: {}", userId, e.getMessage());
-            return fallbackSummary();
+            throw new RuntimeException("Failed to generate AI journal summary", e);
+        }
+    }
+
+    private void saveHistoryEntry(Long userId, String refKey, JournalSummaryResponse response, String model) {
+        try {
+            AiGenerationHistory history = new AiGenerationHistory();
+            history.setUserId(userId);
+            history.setContentType(AiGenerationHistory.ContentType.JOURNAL_SUMMARY);
+            history.setTitle("AI Journal");
+            history.setContentJson(codec.serialize(response));
+            history.setModelUsed(model);
+            history.setGenerationSource(AiInsightCache.GenerationSource.MANUAL.name());
+            history.setReferenceKey(refKey);
+            history.setGeneratedAt(LocalDateTime.now());
+            historyRepository.save(history);
+        } catch (Exception e) {
+            log.warn("Failed to persist AI history for user {}", userId, e);
         }
     }
 
@@ -112,8 +138,10 @@ public class JournalSummaryService {
             } else {
                 cacheRepository.save(cacheEntry);
             }
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.debug("Concurrent save constraint violation, ignoring: {}", e.getMessage());
         } catch (Exception e) {
-            // Ignore concurrent save constraint violation
+            log.error("Failed to save AI journal summary cache", e);
         }
     }
 

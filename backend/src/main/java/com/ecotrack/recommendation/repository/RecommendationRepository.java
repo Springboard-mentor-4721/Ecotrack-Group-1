@@ -17,4 +17,6 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
     // Finds users who haven't had recommendations generated since a specific date
     // Actually simpler to check the latest recommendation per user, or use a custom query
     List<Recommendation> findByUserIdAndCreatedAtAfter(Long userId, LocalDateTime date);
+    
+    void deleteByUserId(Long userId);
 }

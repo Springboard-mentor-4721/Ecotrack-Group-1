@@ -2,6 +2,7 @@ package com.ecotrack.gamification.service;
 
 import com.ecotrack.event.DailyLoginEvent;
 import com.ecotrack.event.StreakMilestoneEvent;
+import com.ecotrack.event.StreakUpdatedEvent;
 import com.ecotrack.gamification.config.GamificationConfigService;
 import com.ecotrack.gamification.enums.XpSourceType;
 import com.ecotrack.gamification.repository.UserGamificationProfileRepository;
@@ -26,7 +27,7 @@ public class StreakService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleDailyLogin(DailyLoginEvent event) {
+    public void handleCarbonEntryCreated(com.ecotrack.event.CarbonEntryCreatedEvent event) {
         profileRepository.findByUserId(event.getUserId()).ifPresent(profile -> {
             java.time.LocalDate today = java.time.LocalDate.now();
             java.time.LocalDate lastActivity = profile.getLastActivityDate();
@@ -52,6 +53,8 @@ public class StreakService {
             }
             
             profileRepository.save(profile);
+            
+            eventPublisher.publishEvent(new StreakUpdatedEvent(event.getUserId(), currentStreak, event.getCorrelationId()));
             
             checkMilestones(event.getUserId(), currentStreak, event.getCorrelationId());
         });

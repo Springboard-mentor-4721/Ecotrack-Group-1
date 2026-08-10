@@ -1,6 +1,7 @@
 package com.ecotrack.common.exception;
 
 import com.ecotrack.tracking.exception.CarbonEntryNotFoundException;
+import com.ecotrack.recommendation.exception.RecommendationCooldownException;
 import com.ecotrack.tracking.exception.CarbonTrackingException;
 import com.ecotrack.tracking.exception.EmissionFactorNotFoundException;
 import com.ecotrack.tracking.exception.EntryModificationNotAllowedException;
@@ -125,5 +126,13 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(RecommendationCooldownException.class)
+    public ResponseEntity<Map<String, Object>> handleRecommendationCooldownException(RecommendationCooldownException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("retryAfterSeconds", ex.getRetryAfterSeconds());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
     }
 }

@@ -7,9 +7,18 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.ecotrack.ai.interceptor.AiRateLimitInterceptor;
+import com.ecotrack.user.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Configuration
 @EnableConfigurationProperties(EcoTrackAiProperties.class)
 public class AiConfig {
+
+    @Bean
+    public AiRateLimitInterceptor aiRateLimitInterceptor(EcoTrackAiProperties aiProperties, UserRepository userRepository, ObjectMapper objectMapper) {
+        return new AiRateLimitInterceptor(aiProperties, userRepository, objectMapper);
+    }
 
     @Bean
     public ChatClient.Builder chatClientBuilder(ChatModel chatModel) {

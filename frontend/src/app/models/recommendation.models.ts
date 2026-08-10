@@ -3,7 +3,7 @@ export interface Recommendation {
   userId: number;
   category: string;
   recommendation: string;
-  estimatedReductionKgco2e: number; // BigDecimal → number
+  estimatedReductionKgco2e?: number; // Deprecated, ignore if present
   isRead: boolean;
   createdAt: string;
 }

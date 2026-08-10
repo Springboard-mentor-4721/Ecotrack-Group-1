@@ -47,18 +47,19 @@ public class DailyEcoTipService {
         if (!aiProperties.enabled()) return fallbackTip();
         
         String today = LocalDate.now().toString();
-        Optional<AiInsightCache> cached = cacheRepository.findFresh(userId, AiInsightCache.InsightType.DAILY_TIP, today);
+        Optional<AiInsightCache> cached = cacheRepository.findFresh(userId, AiInsightCache.InsightType.DAILY_TIP, today, LocalDateTime.now());
         if (cached.isPresent()) {
             return codec.deserialize(cached.get().getPayloadJson(), EcoTipResponse.class);
         }
 
+        // Trigger Gemini lazily from GET /api/dashboard/eco-tip
         return generateAndCache(userId, today, AiInsightCache.GenerationSource.LAZY, context);
     }
 
     public void scheduledGenerate(Long userId, EcoTipContext context) {
         if (!aiProperties.enabled()) return;
         String today = LocalDate.now().toString();
-        if (cacheRepository.findFresh(userId, AiInsightCache.InsightType.DAILY_TIP, today).isEmpty()) {
+        if (cacheRepository.findFresh(userId, AiInsightCache.InsightType.DAILY_TIP, today, LocalDateTime.now()).isEmpty()) {
             generateAndCache(userId, today, AiInsightCache.GenerationSource.SCHEDULED, context);
         }
     }

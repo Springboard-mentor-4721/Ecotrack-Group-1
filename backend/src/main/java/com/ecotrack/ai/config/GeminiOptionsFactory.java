@@ -10,7 +10,6 @@ public final class GeminiOptionsFactory {
     public static ChatOptions forFeature(String model, double temperature, int maxTokens) {
         return OpenAiChatOptions.builder()
                 .model(model)
-                .temperature(temperature)
                 .maxTokens(maxTokens)
                 .responseFormat(org.springframework.ai.openai.api.ResponseFormat.builder().type(org.springframework.ai.openai.api.ResponseFormat.Type.JSON_OBJECT).build())
                 .build();

@@ -47,6 +47,28 @@ public interface CarbonEntryRepository extends JpaRepository<CarbonEntry, Long> 
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
+    @Query("SELECT c.subCategory.category.code AS categoryCode, c.subCategory.name AS subCategoryName, SUM(c.emissionKgco2e) AS totalValue " +
+           "FROM CarbonEntry c " +
+           "WHERE c.user.id = :userId " +
+           "AND c.entryDate >= :startDate " +
+           "GROUP BY c.subCategory.category.code, c.subCategory.name " +
+           "ORDER BY totalValue DESC")
+    List<com.ecotrack.tracking.repository.projection.SubCategoryVolumeProjection> getTopSubCategoriesByVolume(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            Pageable pageable);
+
+    @Query("SELECT c.subCategory.category.code AS categoryCode, c.subCategory.name AS subCategoryName, COUNT(c.id) AS totalValue " +
+           "FROM CarbonEntry c " +
+           "WHERE c.user.id = :userId " +
+           "AND c.entryDate >= :startDate " +
+           "GROUP BY c.subCategory.category.code, c.subCategory.name " +
+           "ORDER BY totalValue DESC")
+    List<com.ecotrack.tracking.repository.projection.SubCategoryVolumeProjection> getTopSubCategoriesByFrequency(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            Pageable pageable);
+
     @Query("SELECT c FROM CarbonEntry c JOIN FETCH c.subCategory sc JOIN FETCH sc.category cat " +
            "WHERE c.user.id = :userId AND c.entryDate BETWEEN :startDate AND :endDate")
     List<CarbonEntry> findAllWithCategoriesByUserIdAndDateRange(

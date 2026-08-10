@@ -59,7 +59,7 @@ class DailyEcoTipServiceTest {
         AiInsightCache cacheEntry = new AiInsightCache();
         cacheEntry.setPayloadJson("{\"tip\":\"cached tip\"}");
         
-        when(cacheRepository.findFresh(1L, AiInsightCache.InsightType.DAILY_TIP, today))
+        when(cacheRepository.findFresh(eq(1L), eq(AiInsightCache.InsightType.DAILY_TIP), eq(today), any()))
                 .thenReturn(Optional.of(cacheEntry));
         when(codec.deserialize("{\"tip\":\"cached tip\"}", EcoTipResponse.class))
                 .thenReturn(new EcoTipResponse("cached tip", null));
@@ -80,7 +80,31 @@ class DailyEcoTipServiceTest {
         when(cache.dailyTipTtlHours()).thenReturn(24);
         
         String today = LocalDate.now().toString();
-        when(cacheRepository.findFresh(1L, AiInsightCache.InsightType.DAILY_TIP, today))
+        when(cacheRepository.findFresh(eq(1L), eq(AiInsightCache.InsightType.DAILY_TIP), eq(today), any()))
+                .thenReturn(Optional.empty());
+                
+        EcoTipResponse generated = new EcoTipResponse("generated tip", null);
+        when(promptBuilder.build(any())).thenReturn(new Prompt("prompt"));
+        when(aiClientPort.generateStructured(any(), eq(EcoTipResponse.class), any())).thenReturn(generated);
+        when(codec.serialize(generated)).thenReturn("{}");
+                
+        EcoTipResponse response = service.getOrGenerate(1L, new EcoTipContext(""));
+        assertEquals("generated tip", response.tipText());
+        verify(cacheRepository).save(any(AiInsightCache.class));
+    }
+
+    @Test
+    void scheduledGenerate_whenCacheMiss_thenGenerateAndCache() {
+        when(aiProperties.enabled()).thenReturn(true);
+        when(aiProperties.models()).thenReturn(models);
+        when(aiProperties.timeouts()).thenReturn(timeouts);
+        when(aiProperties.cache()).thenReturn(cache);
+        when(models.dailyTip()).thenReturn("gemini-flash");
+        when(timeouts.callSeconds()).thenReturn(5);
+        when(cache.dailyTipTtlHours()).thenReturn(24);
+        
+        String today = LocalDate.now().toString();
+        when(cacheRepository.findFresh(eq(1L), eq(AiInsightCache.InsightType.DAILY_TIP), eq(today), any()))
                 .thenReturn(Optional.empty());
                 
         EcoTipResponse generated = new EcoTipResponse("generated tip", null);
@@ -88,8 +112,7 @@ class DailyEcoTipServiceTest {
         when(aiClientPort.generateStructured(any(), eq(EcoTipResponse.class), any())).thenReturn(generated);
         when(codec.serialize(generated)).thenReturn("{}");
         
-        EcoTipResponse response = service.getOrGenerate(1L, new EcoTipContext(""));
-        assertEquals("generated tip", response.tipText());
+        service.scheduledGenerate(1L, new EcoTipContext(""));
         verify(cacheRepository).save(any(AiInsightCache.class));
     }
 }

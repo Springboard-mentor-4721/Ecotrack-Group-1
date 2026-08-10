@@ -20,10 +20,9 @@ import { XpLevelBarComponent } from './widgets/xp-level-bar/xp-level-bar.compone
 import { StreakTrackerComponent } from './widgets/streak-tracker/streak-tracker.component';
 import { RecentAchievementsComponent } from './widgets/recent-achievements/recent-achievements.component';
 import { EcoTipCardComponent } from './widgets/eco-tip-card/eco-tip-card.component';
-import { TrendPredictionPanelComponent } from './widgets/trend-prediction-panel/trend-prediction-panel.component';
-import { BehavioralInsightsPanelComponent } from './widgets/behavioral-insights-panel/behavioral-insights-panel.component';
+import { UnifiedInsightsPanelComponent } from './widgets/unified-insights-panel/unified-insights-panel.component';
 import { AiFeatureState } from '../../models/ai-feature-state.model';
-import { EcoTipResponse, TrendPredictionResponse, BehavioralInsightsResponse } from '../../models/ai-models';
+import { EcoTipResponse } from '../../models/ai-models';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,8 +37,7 @@ import { EcoTipResponse, TrendPredictionResponse, BehavioralInsightsResponse } f
     StreakTrackerComponent,
     RecentAchievementsComponent,
     EcoTipCardComponent,
-    TrendPredictionPanelComponent,
-    BehavioralInsightsPanelComponent
+    UnifiedInsightsPanelComponent
   ],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './dashboard.html',
@@ -71,9 +69,7 @@ export class DashboardComponent implements OnInit {
   recentBadges: Badge[] = [];
   
   // AI Feature States
-  ecoTipState: AiFeatureState<EcoTipResponse> = { loading: false, data: null, error: null };
-  trendPredictionState: AiFeatureState<TrendPredictionResponse> = { loading: false, data: null, error: null };
-  behavioralInsightsState: AiFeatureState<BehavioralInsightsResponse> = { loading: false, data: null, error: null };
+  ecoTipState: AiFeatureState<EcoTipResponse> = { loading: false, data: null, error: null, empty: true };
   
   // Storytelling Elements
   greeting = 'Good Day';
@@ -262,24 +258,10 @@ export class DashboardComponent implements OnInit {
 
   private loadAiFeatures(): void {
     // 1. Eco Tip
-    this.ecoTipState = { loading: true, data: null, error: null };
+    this.ecoTipState = { loading: true, data: null, error: null, empty: true };
     this.dashboardService.getEcoTip().subscribe({
-      next: (res) => this.ecoTipState = { loading: false, data: res, error: null },
-      error: (err) => this.ecoTipState = { loading: false, data: null, error: 'Failed to generate daily tip' }
-    });
-
-    // 2. Trend Prediction
-    this.trendPredictionState = { loading: true, data: null, error: null };
-    this.dashboardService.getTrendPrediction().subscribe({
-      next: (res) => this.trendPredictionState = { loading: false, data: res, error: null },
-      error: (err) => this.trendPredictionState = { loading: false, data: null, error: 'Failed to predict trends' }
-    });
-
-    // 3. Behavioral Insights
-    this.behavioralInsightsState = { loading: true, data: null, error: null };
-    this.dashboardService.getBehavioralInsights().subscribe({
-      next: (res) => this.behavioralInsightsState = { loading: false, data: res, error: null },
-      error: (err) => this.behavioralInsightsState = { loading: false, data: null, error: 'Failed to analyze behaviors' }
+      next: (res) => this.ecoTipState = { loading: false, data: res, error: null, empty: false },
+      error: (err) => this.ecoTipState = { loading: false, data: null, error: 'Failed to generate daily tip', empty: true }
     });
   }
 

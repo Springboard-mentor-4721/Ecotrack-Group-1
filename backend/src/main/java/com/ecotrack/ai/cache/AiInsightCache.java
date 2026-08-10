@@ -38,11 +38,12 @@ public class AiInsightCache {
     private GenerationSource generationSource;
 
     public enum InsightType {
-        SMART_SUGGESTION, DAILY_TIP, TREND_PREDICTION, JOURNAL_SUMMARY, BEHAVIORAL_INSIGHT
+        SMART_SUGGESTION, DAILY_TIP, TREND_PREDICTION, JOURNAL_SUMMARY, BEHAVIORAL_INSIGHT,
+        AI_SUSTAINABILITY_INSIGHTS
     }
 
     public enum GenerationSource {
-        SCHEDULED, LAZY
+        SCHEDULED, LAZY, MANUAL
     }
 
     public Long getId() { return id; }

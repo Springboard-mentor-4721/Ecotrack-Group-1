@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -126,6 +127,29 @@ public class CarbonEntryController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/journal-summary")
     public ResponseEntity<com.ecotrack.tracking.ai.dto.JournalSummaryResponse> getJournalSummary(
+            @RequestParam(defaultValue = "weekly") String timeframe,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Authentication authentication) {
+        Long userId = getUserId(authentication);
+        LocalDate start = startDate;
+        LocalDate end = endDate;
+        if (start == null || end == null) {
+            end = LocalDate.now();
+            start = timeframe.equalsIgnoreCase("monthly") ? end.minusDays(30) : end.minusDays(7);
+        }
+        
+        String journalData = carbonEntryService.getRawJournalDataStringForUser(userId, start, end);
+        String cacheKey = timeframe + "_" + start + "_" + end + "_" + journalData.hashCode();
+        
+        Optional<com.ecotrack.tracking.ai.dto.JournalSummaryResponse> response = trackingAiService.getLatestSummary(userId, cacheKey);
+        return response.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PostMapping("/ai/journal-summary")
+    public ResponseEntity<com.ecotrack.tracking.ai.dto.JournalSummaryResponse> generateJournalSummary(
             @RequestParam(defaultValue = "weekly") String timeframe,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,

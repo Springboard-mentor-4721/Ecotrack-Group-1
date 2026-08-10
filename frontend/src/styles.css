@@ -501,6 +501,27 @@ a:hover {
   color: var(--color-emerald) !important;
 }
 
+/* Teal Utilities */
+.bg-teal { background-color: var(--color-teal) !important; }
+.text-teal { color: var(--color-teal) !important; }
+.border-teal { border-color: var(--color-teal) !important; }
+.bg-teal-soft { background-color: rgba(20, 184, 166, 0.15) !important; }
+.btn-teal {
+  background-color: var(--color-teal) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--color-teal) !important;
+}
+.btn-teal:hover, .btn-teal:focus, .btn-teal:active {
+  background-color: #0d9488 !important; /* darker teal */
+  color: #ffffff !important;
+  border-color: #0d9488 !important;
+}
+
+/* Amber Utilities */
+.text-amber { color: var(--color-amber) !important; }
+.bg-amber { background-color: var(--color-amber) !important; }
+.bg-amber-soft { background-color: rgba(245, 158, 11, 0.15) !important; }
+
 .border-color, .border-bottom {
   border-color: var(--border-color) !important;
 }

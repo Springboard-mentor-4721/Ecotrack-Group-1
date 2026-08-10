@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +33,29 @@ public class AiRecommendationService {
     private final PromptBuilderService promptBuilderService;
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
+    private final com.ecotrack.ai.history.AiGenerationHistoryRepository historyRepository;
+
+    @Value("${app.ai.recommendation.cooldown-minutes:1}")
+    private int cooldownMinutes;
     
     // Check cooldown based on latest generated recommendation
     private void checkCooldown(Long userId) {
         List<Recommendation> recent = recommendationRepository.findByUserIdAndCreatedAtAfter(
-                userId, LocalDateTime.now().minusHours(24));
+                userId, LocalDateTime.now().minusMinutes(cooldownMinutes));
+                
         if (!recent.isEmpty()) {
-            throw new RecommendationCooldownException("You can only generate recommendations once every 24 hours.");
+            // Find the most recent one to calculate exact cooldown
+            Recommendation mostRecent = recent.stream()
+                .max((r1, r2) -> r1.getCreatedAt().compareTo(r2.getCreatedAt()))
+                .orElse(recent.get(0));
+                
+            LocalDateTime nextAllowedTime = mostRecent.getCreatedAt().plusMinutes(cooldownMinutes);
+            long secondsRemaining = java.time.Duration.between(LocalDateTime.now(), nextAllowedTime).getSeconds();
+            
+            // if somehow negative, let it pass or return 1
+            if (secondsRemaining <= 0) return;
+            
+            throw new RecommendationCooldownException("Recommendation generation is temporarily unavailable.", secondsRemaining);
         }
     }
 
@@ -46,7 +63,29 @@ public class AiRecommendationService {
     public List<RecommendationDTO> generateRecommendations(Long userId) {
         checkCooldown(userId);
         
-        UserContextDTO context = contextAssemblyService.assembleContext(userId);
+        List<com.ecotrack.ai.history.AiGenerationHistory> histories = historyRepository.findTop5ByUserIdAndContentTypeOrderByGeneratedAtDesc(userId, com.ecotrack.ai.history.AiGenerationHistory.ContentType.RECOMMENDATION);
+        List<String> previousRecommendations = new ArrayList<>();
+        for (com.ecotrack.ai.history.AiGenerationHistory history : histories) {
+            try {
+                List<RecommendationDTO> oldRecs = objectMapper.readValue(history.getContentJson(), new TypeReference<>() {});
+                for (RecommendationDTO rec : oldRecs) {
+                    previousRecommendations.add(rec.getRecommendation());
+                }
+            } catch (Exception e) {
+                log.warn("Failed to parse history JSON", e);
+            }
+        }
+        
+        UserContextDTO context = contextAssemblyService.assembleContext(userId, previousRecommendations);
+        
+        // Zero-data short circuit
+        if (context.getEligibleTargets() == null || context.getEligibleTargets().isEmpty()) {
+            log.info("No eligible targets for user {}, returning deterministic starter tips.", userId);
+            List<Recommendation> fallback = getFallbackRecommendations(userId);
+            recommendationRepository.deleteByUserId(userId);
+            return recommendationRepository.saveAll(fallback).stream().map(this::mapToDTO).collect(Collectors.toList());
+        }
+
         String prompt = promptBuilderService.buildPrompt(context);
         
         List<Recommendation> generated = new ArrayList<>();
@@ -64,11 +103,47 @@ public class AiRecommendationService {
             
             List<Map<String, Object>> responseList = objectMapper.readValue(aiResponse, new TypeReference<>() {});
             for (Map<String, Object> map : responseList) {
+                String catCode = (String) map.get("categoryCode");
+                String subCat = (String) map.get("subCategoryName");
+                String recommendation = (String) map.get("recommendation");
+                String rationale = (String) map.get("rationale");
+                
+                // Validate against eligible targets
+                boolean isValidTarget = context.getEligibleTargets().stream()
+                    .anyMatch(t -> t.getCategoryCode().equals(catCode) && t.getSubCategoryName().equals(subCat));
+                
+                if (!isValidTarget || recommendation == null || catCode == null) {
+                    log.warn("Discarding invalid or hallucinated recommendation target: {} / {}", catCode, subCat);
+                    continue;
+                }
+                
+                // Exact text duplicate check
+                boolean isDuplicate = previousRecommendations.stream()
+                    .anyMatch(prev -> prev.equalsIgnoreCase(recommendation));
+                
+                if (isDuplicate) {
+                    log.warn("Discarding exact duplicate recommendation: {}", recommendation);
+                    continue;
+                }
+                
+                // Same-response duplicate check
+                boolean isSameResponseDuplicate = generated.stream()
+                    .anyMatch(g -> g.getCategory().equals(catCode) && g.getRecommendation().contains(recommendation));
+                
+                if (isSameResponseDuplicate) {
+                    continue;
+                }
+                
+                String combinedRecommendation = recommendation;
+                if (rationale != null) {
+                    combinedRecommendation += "\n\nWhy this is recommended: " + rationale;
+                }
+
                 Recommendation rec = Recommendation.builder()
                         .userId(userId)
-                        .category((String) map.get("category"))
-                        .recommendation((String) map.get("recommendation"))
-                        .estimatedReductionKgco2e(new BigDecimal(map.get("estimatedReduction").toString()))
+                        .category(catCode)
+                        .recommendation(combinedRecommendation)
+                        .estimatedReductionKgco2e(null) // Deprecated AI generated CO2 estimates
                         .isRead(false)
                         .build();
                 generated.add(rec);
@@ -78,15 +153,36 @@ public class AiRecommendationService {
             generated = getFallbackRecommendations(userId);
         }
         
-        generated = recommendationRepository.saveAll(generated);
+        if (!generated.isEmpty()) {
+            recommendationRepository.deleteByUserId(userId);
+            generated = recommendationRepository.saveAll(generated);
+        }
+        
+        try {
+            com.ecotrack.ai.history.AiGenerationHistory history = new com.ecotrack.ai.history.AiGenerationHistory();
+            history.setUserId(userId);
+            history.setContentType(com.ecotrack.ai.history.AiGenerationHistory.ContentType.RECOMMENDATION);
+            history.setTitle("AI Recommendation");
+            
+            List<RecommendationDTO> dtoList = generated.stream().map(this::mapToDTO).collect(Collectors.toList());
+            history.setContentJson(objectMapper.writeValueAsString(dtoList));
+            
+            history.setModelUsed("spring.ai.openai.chat.options.model"); // since it's default chat client
+            history.setGenerationSource("MANUAL");
+            history.setGeneratedAt(LocalDateTime.now());
+            historyRepository.save(history);
+        } catch (Exception e) {
+            log.warn("Failed to persist AI history for recommendations, user {}", userId, e);
+        }
+
         return generated.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     private List<Recommendation> getFallbackRecommendations(Long userId) {
         return List.of(
-            Recommendation.builder().userId(userId).category("TRANSPORT").recommendation("Use public transit").estimatedReductionKgco2e(new BigDecimal("2.5")).isRead(false).build(),
-            Recommendation.builder().userId(userId).category("DIET").recommendation("Eat one plant-based meal").estimatedReductionKgco2e(new BigDecimal("1.2")).isRead(false).build(),
-            Recommendation.builder().userId(userId).category("ENERGY").recommendation("Turn off unused lights").estimatedReductionKgco2e(new BigDecimal("0.5")).isRead(false).build()
+            Recommendation.builder().userId(userId).category("TRANSPORTATION").recommendation("Use public transit").estimatedReductionKgco2e(null).isRead(false).build(),
+            Recommendation.builder().userId(userId).category("FOOD").recommendation("Eat one plant-based meal").estimatedReductionKgco2e(null).isRead(false).build(),
+            Recommendation.builder().userId(userId).category("ELECTRICITY").recommendation("Turn off unused lights").estimatedReductionKgco2e(null).isRead(false).build()
         );
     }
 

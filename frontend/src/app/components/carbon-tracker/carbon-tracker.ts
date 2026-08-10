@@ -529,8 +529,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (summary) => {
           this.distributionTotalEmission = summary.totalEmission || 0;
-          this.processCarbonSources(summary.categorySummaries);
-          this.loadJournalSummary(startDate, endDate);
+          this.loadJournalSummary();
         },
         error: (err) => console.error('Failed to load category distribution', err)
       });
@@ -844,12 +843,65 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadJournalSummary(startDate: string, endDate: string): void {
-    this.journalSummaryState = { loading: true, data: null, error: null };
-    this.carbonEntryService.getJournalSummary('custom', startDate, endDate).subscribe({
-      next: (res) => this.journalSummaryState = { loading: false, data: res, error: null },
-      error: (err) => this.journalSummaryState = { loading: false, data: null, error: 'Failed to generate summary' }
+  rateLimited = false;
+  retryAfterSeconds = 0;
+  private intervalId: any;
+
+  loadJournalSummary(): void {
+    this.journalSummaryState = { loading: true, data: null, error: null, empty: true };
+    this.carbonEntryService.getJournalSummary().subscribe({
+      next: (res) => {
+        if (res && res.summaryText) {
+          this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
+        } else {
+          this.journalSummaryState = { loading: false, data: null, error: null, empty: true };
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.journalSummaryState = { loading: false, data: null, error: 'AI Summary unavailable', empty: true };
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  generateJournalSummary(): void {
+    if (this.journalSummaryState.loading || this.rateLimited) return;
+    
+    this.journalSummaryState.loading = true;
+    this.journalSummaryState.error = null;
+    this.rateLimited = false;
+
+    this.carbonEntryService.generateJournalSummary().subscribe({
+      next: (res) => {
+        this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        if (err.status === 429) {
+          this.rateLimited = true;
+          this.retryAfterSeconds = err.error?.retryAfterSeconds || 60;
+          this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'AI request limit reached.', empty: this.journalSummaryState.data == null };
+          this.startCountdown();
+        } else {
+          this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'Failed to generate summary.', empty: this.journalSummaryState.data == null };
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private startCountdown(): void {
+    if (this.intervalId) clearInterval(this.intervalId);
+    
+    this.intervalId = setInterval(() => {
+      this.retryAfterSeconds--;
+      if (this.retryAfterSeconds <= 0) {
+        this.rateLimited = false;
+        clearInterval(this.intervalId);
+      }
+      this.cdr.detectChanges();
+    }, 1000);
   }
 
   closeViewModal(): void {

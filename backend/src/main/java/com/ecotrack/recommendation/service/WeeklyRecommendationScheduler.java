@@ -17,7 +17,7 @@ public class WeeklyRecommendationScheduler {
     private final UserRepository userRepository;
     private final AiRecommendationService recommendationService;
 
-    @Scheduled(cron = "0 0 8 * * MON") // Every Monday at 8 AM
+    // @Scheduled(cron = "0 0 8 * * MON") // Disabled per AI redesign to remove implicit Gemini calls
     public void generateWeeklyRecommendations() {
         log.info("Generating weekly recommendations");
         List<User> allUsers = userRepository.findAll();

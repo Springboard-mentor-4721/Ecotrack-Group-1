@@ -16,6 +16,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private SuspendedUserInterceptor suspendedUserInterceptor;
 
+    @Autowired(required = false)
+    private com.ecotrack.ai.interceptor.AiRateLimitInterceptor aiRateLimitInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(suspendedUserInterceptor)
@@ -25,6 +28,14 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/users/me",
                         "/api/profile/**"
                 );
+                
+        if (aiRateLimitInterceptor != null) {
+            registry.addInterceptor(aiRateLimitInterceptor)
+                    .addPathPatterns(
+                            "/api/dashboard/ai/insights/generate",
+                            "/api/carbon/ai/journal-summary"
+                    );
+        }
     }
 
     @Override

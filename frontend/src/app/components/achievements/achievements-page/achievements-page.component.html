@@ -163,7 +163,7 @@
       
       <!-- Modal Header / Banner -->
       <div class="position-relative p-4 text-center" [ngClass]="getBadgeIconClass(selectedBadge.rarity, selectedBadge.isEarned)">
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" (click)="closeBadgeModal()" style="filter: invert(1);"></button>
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" (click)="closeBadgeModal()"></button>
         
         <div class="badge-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow bg-white"
              [ngClass]="getBadgeIconClass(selectedBadge.rarity, selectedBadge.isEarned).split(' ')[1]" style="width: 80px; height: 80px;">

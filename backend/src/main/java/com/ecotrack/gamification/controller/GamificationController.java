@@ -63,13 +63,19 @@ public class GamificationController {
                         currentLevelBaseXp = (p.getCurrentLevel() - 1) * 1000L;
                     }
                     
+                    int effectiveStreak = p.getCurrentStreak() == null ? 0 : p.getCurrentStreak();
+                    java.time.LocalDate today = java.time.LocalDate.now();
+                    if (p.getLastActivityDate() != null && p.getLastActivityDate().isBefore(today.minusDays(1))) {
+                        effectiveStreak = 0;
+                    }
+                    
                     return ResponseEntity.ok(GamificationProfileDTO.builder()
                         .userId(p.getUserId())
                         .currentEcoScore(p.getCurrentEcoScore())
                         .currentEcoGrade(ecoScoreEngine.calculateGrade(p.getCurrentEcoScore()))
                         .lifetimeEcoXp(p.getLifetimeEcoXp())
                         .currentLevel(p.getCurrentLevel())
-                        .currentStreak(p.getCurrentStreak())
+                        .currentStreak(effectiveStreak)
                         .longestStreak(p.getLongestStreak())
                         .currentLevelBaseXp(currentLevelBaseXp)
                         .nextLevelXp(nextLevelXpThreshold)

@@ -5,53 +5,48 @@ import com.ecotrack.user.repository.UserRepository;
 import com.ecotrack.tracking.service.CarbonEntryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class DashboardAiSchedulerTest {
 
-    @Mock private DailyEcoTipService dailyEcoTipService;
-    @Mock private TrendPredictionService trendPredictionService;
-    @Mock private BehavioralInsightService behavioralInsightService;
-    @Mock private UserRepository userRepository;
-    @Mock private CarbonEntryService carbonEntryService;
-
     private DashboardAiScheduler scheduler;
+    private DailyEcoTipService dailyEcoTipService;
+    private UserRepository userRepository;
+    private CarbonEntryService carbonEntryService;
 
     @BeforeEach
     void setUp() {
-        scheduler = new DashboardAiScheduler(dailyEcoTipService, trendPredictionService, behavioralInsightService, userRepository, carbonEntryService);
+        dailyEcoTipService = mock(DailyEcoTipService.class);
+        userRepository = mock(UserRepository.class);
+        carbonEntryService = mock(CarbonEntryService.class);
+
+        scheduler = new DashboardAiScheduler(
+                dailyEcoTipService,
+                userRepository,
+                carbonEntryService
+        );
     }
 
     @Test
     void testGenerateDailyInsights() {
-        User user = new User();
-        user.setId(1L);
-        when(userRepository.findAll()).thenReturn(List.of(user));
-        when(carbonEntryService.getRawJournalDataStringForUser(any(), any())).thenReturn("data");
-        
-        scheduler.generateDailyInsights();
-        
-        verify(dailyEcoTipService).scheduledGenerate(eq(1L), any());
-        verify(trendPredictionService).scheduledGenerate(eq(1L), any());
-    }
+        User user1 = new User();
+        user1.setId(1L);
+        User user2 = new User();
+        user2.setId(2L);
 
-    @Test
-    void testGenerateWeeklyInsights() {
-        User user = new User();
-        user.setId(1L);
-        when(userRepository.findAll()).thenReturn(List.of(user));
-        when(carbonEntryService.getRawJournalDataStringForUser(any(), any())).thenReturn("data");
-        
-        scheduler.generateWeeklyInsights();
-        
-        verify(behavioralInsightService).scheduledGenerate(eq(1L), any());
+        when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+        when(carbonEntryService.getRawJournalDataStringForUser(any(), any())).thenReturn("Test Data");
+
+        // Use a background thread or similar to avoid sleep blocking test if it was real,
+        // but for now we just verify the call.
+        scheduler.generateDailyInsights();
+
+        verify(dailyEcoTipService, times(1)).scheduledGenerate(eq(1L), any());
+        verify(dailyEcoTipService, times(1)).scheduledGenerate(eq(2L), any());
     }
 }

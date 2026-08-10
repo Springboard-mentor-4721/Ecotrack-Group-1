@@ -8,10 +8,11 @@ import java.util.Optional;
 
 public interface AiInsightCacheRepository extends JpaRepository<AiInsightCache, Long> {
 
-    @Query("SELECT c FROM AiInsightCache c WHERE c.userId = :userId AND c.insightType = :type AND c.referenceKey = :refKey AND c.expiresAt > CURRENT_TIMESTAMP")
+    @Query("SELECT c FROM AiInsightCache c WHERE c.userId = :userId AND c.insightType = :type AND c.referenceKey = :refKey AND c.expiresAt > :now")
     Optional<AiInsightCache> findFresh(@Param("userId") Long userId,
                                        @Param("type") AiInsightCache.InsightType type,
-                                       @Param("refKey") String refKey);
+                                       @Param("refKey") String refKey,
+                                       @Param("now") java.time.LocalDateTime now);
 
     Optional<AiInsightCache> findByUserIdAndInsightTypeAndReferenceKey(Long userId, AiInsightCache.InsightType type, String refKey);
 

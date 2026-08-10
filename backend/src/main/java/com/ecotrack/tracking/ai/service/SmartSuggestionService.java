@@ -1,16 +1,11 @@
 package com.ecotrack.tracking.ai.service;
 
-import com.ecotrack.ai.client.AiClientPort;
-import com.ecotrack.ai.client.AiCallOptions;
 import com.ecotrack.ai.config.EcoTrackAiProperties;
-import com.ecotrack.ai.parser.AiResponseValidator;
 import com.ecotrack.ai.parser.AiJsonCodec;
 import com.ecotrack.ai.cache.AiInsightCache;
 import com.ecotrack.ai.cache.AiInsightCacheRepository;
 import com.ecotrack.tracking.ai.dto.SmartSuggestionContext;
 import com.ecotrack.tracking.ai.dto.SmartSuggestionResponse;
-import com.ecotrack.tracking.ai.prompt.SmartSuggestionPromptBuilder;
-import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Async;
 
@@ -23,45 +18,34 @@ public class SmartSuggestionService {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SmartSuggestionService.class);
 
-    private final AiClientPort aiClientPort;
     private final EcoTrackAiProperties aiProperties;
-    private final SmartSuggestionPromptBuilder suggestionPromptBuilder;
-    private final AiResponseValidator validator;
     private final AiInsightCacheRepository cacheRepository;
     private final AiJsonCodec codec;
 
-    public SmartSuggestionService(AiClientPort aiClientPort,
-                                  EcoTrackAiProperties aiProperties,
-                                  SmartSuggestionPromptBuilder suggestionPromptBuilder,
-                                  AiResponseValidator validator,
+    public SmartSuggestionService(EcoTrackAiProperties aiProperties,
                                   AiInsightCacheRepository cacheRepository,
                                   AiJsonCodec codec) {
-        this.aiClientPort = aiClientPort;
         this.aiProperties = aiProperties;
-        this.suggestionPromptBuilder = suggestionPromptBuilder;
-        this.validator = validator;
         this.cacheRepository = cacheRepository;
         this.codec = codec;
     }
 
     @Async("aiTaskExecutor")
     public CompletableFuture<Void> generateSmartSuggestionAsync(Long userId, Long entryId, SmartSuggestionContext context) {
-        if (!aiProperties.enabled()) {
-            return CompletableFuture.completedFuture(null);
-        }
         try {
-            Prompt prompt = suggestionPromptBuilder.build(context);
-            AiCallOptions options = new AiCallOptions(
-                    aiProperties.models().smartSuggestion(),
-                    0.3,
-                    150,
-                    aiProperties.timeouts().callSeconds()
-            );
-            SmartSuggestionResponse response = aiClientPort.generateStructured(prompt, SmartSuggestionResponse.class, options);
-            validator.validate(response);
+            SmartSuggestionResponse response;
+            if (context.category() != null && context.category().toLowerCase().contains("transport")) {
+                response = new SmartSuggestionResponse("Consider public transport or carpooling for similar trips.", SmartSuggestionResponse.ImpactLevel.HIGH, context.category());
+            } else if (context.category() != null && context.category().toLowerCase().contains("energy")) {
+                response = new SmartSuggestionResponse("Reducing high-energy appliance usage may lower your footprint.", SmartSuggestionResponse.ImpactLevel.MEDIUM, context.category());
+            } else if (context.category() != null && context.category().toLowerCase().contains("water")) {
+                response = new SmartSuggestionResponse("Shortening shower times can significantly reduce water and heating emissions.", SmartSuggestionResponse.ImpactLevel.MEDIUM, context.category());
+            } else {
+                response = new SmartSuggestionResponse("Small swaps add up. Try to find a greener alternative next time.", SmartSuggestionResponse.ImpactLevel.LOW, context.category());
+            }
             
             saveCacheEntry(userId, String.valueOf(entryId),
-                           response, aiProperties.models().smartSuggestion(),
+                           response, "deterministic-rule-engine",
                            LocalDateTime.now().plusYears(100), AiInsightCache.GenerationSource.LAZY);
             
         } catch (Exception e) {

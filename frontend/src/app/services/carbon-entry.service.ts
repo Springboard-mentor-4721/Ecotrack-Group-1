@@ -78,10 +78,11 @@ export class CarbonEntryService {
     return this.http.get<SmartSuggestionResponse>(`${this.apiUrl}/api/carbon/${entryId}/smart-suggestion`);
   }
 
-  getJournalSummary(timeframe: string = 'weekly', startDate?: string, endDate?: string): Observable<JournalSummaryResponse> {
-    let params = new HttpParams().set('timeframe', timeframe);
-    if (startDate) params = params.set('startDate', startDate);
-    if (endDate) params = params.set('endDate', endDate);
-    return this.http.get<JournalSummaryResponse>(`${this.apiUrl}/api/carbon/journal-summary`, { params });
+  getJournalSummary(): Observable<JournalSummaryResponse> {
+    return this.http.get<JournalSummaryResponse>(`${this.apiUrl}/api/carbon/journal-summary`);
+  }
+
+  generateJournalSummary(): Observable<JournalSummaryResponse> {
+    return this.http.post<JournalSummaryResponse>(`${this.apiUrl}/api/carbon/ai/journal-summary`, {});
   }
 }

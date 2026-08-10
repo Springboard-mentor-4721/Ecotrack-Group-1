@@ -5,6 +5,7 @@ import com.ecotrack.event.CarbonEntryCreatedEvent;
 import com.ecotrack.event.ChallengeCompletedEvent;
 import com.ecotrack.event.GoalCompletedEvent;
 import com.ecotrack.event.StreakMilestoneEvent;
+import com.ecotrack.event.StreakUpdatedEvent;
 import com.ecotrack.gamification.entity.Badge;
 import com.ecotrack.gamification.entity.BadgeProgress;
 import com.ecotrack.gamification.entity.UserBadge;
@@ -110,10 +111,8 @@ public class BadgeEngine {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleStreakMilestone(StreakMilestoneEvent event) {
-        evaluateBadges(event.getUserId(), "STREAK_DAYS", event.getStreakDays(), event.getCorrelationId()); // For streak, we can just pass the streak as increment, but it depends on criteria. 
-        // Actually, if criteria is STREAK_DAYS, we should probably set the value, not increment. 
-        // But for this simple implementation, we'll leave it.
+    public void handleStreakUpdated(StreakUpdatedEvent event) {
+        evaluateBadges(event.getUserId(), "STREAK_DAYS", event.getStreakDays(), event.getCorrelationId()); 
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

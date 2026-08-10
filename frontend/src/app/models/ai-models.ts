@@ -40,3 +40,12 @@ export interface BehavioralInsight {
 export interface BehavioralInsightsResponse {
   insights: BehavioralInsight[];
 }
+
+export interface AiInsightsResponse {
+  summary: string;
+  trendExplanation: string;
+  positiveObservations: string[];
+  areasForImprovement: string[];
+  recommendations: string[];
+  generationSource: 'MANUAL' | 'SCHEDULED' | 'EVENT_DRIVEN';
+}

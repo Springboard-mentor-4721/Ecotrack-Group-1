@@ -21,4 +21,7 @@ public class ChallengeParticipantDTO {
     private LocalDateTime joinedAt;
     private LocalDateTime completedAt;
     private String userName;
+    private String challengeTitle;
+    private Integer targetValue;
+    private com.ecotrack.challenge.enums.ProgressMetric progressMetric;
 }

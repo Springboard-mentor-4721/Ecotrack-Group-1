@@ -526,6 +526,9 @@ public class ChallengeService {
                 .joinedAt(p.getJoinedAt())
                 .completedAt(p.getCompletedAt())
                 .userName(userRepository.findById(p.getUserId()).map(u -> u.getName()).orElse("Unknown User"))
+                .challengeTitle(p.getChallenge().getTitle())
+                .targetValue(p.getChallenge().getTargetValue())
+                .progressMetric(p.getChallenge().getProgressMetric())
                 .build();
     }
 

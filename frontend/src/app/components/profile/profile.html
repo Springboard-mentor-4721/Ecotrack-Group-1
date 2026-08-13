@@ -155,17 +155,15 @@
         </div>
         
         <!-- ECO SCORE BOX -->
-        <div class="hero-ecoscore d-flex flex-column align-items-center justify-content-center text-center p-4 bg-surface rounded-4 border">
-          <h6 class="text-muted fw-bold mb-3 fs-7 text-uppercase tracking-tight">Eco Score</h6>
+        <div class="hero-ecoscore d-flex flex-column align-items-center justify-content-center text-center p-4 bg-surface rounded-4 border" [ngClass]="gamificationProfile.currentEcoScore | ecoScoreColor:'border'">
+          <h6 class="text-muted fw-bold mb-3 fs-7 text-uppercase tracking-tight" [ngClass]="gamificationProfile.currentEcoScore | ecoScoreColor:'text'">Eco Score</h6>
           <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
-            <h1 class="m-0 fw-black" style="font-size: 3rem; color: #10b981;">{{ gamificationProfile.currentEcoScore }}</h1>
+            <h1 class="m-0 fw-black" style="font-size: 3rem;" [ngClass]="gamificationProfile.currentEcoScore | ecoScoreColor:'primary'">{{ gamificationProfile.currentEcoScore }}</h1>
           </div>
           <span class="badge px-3 py-2 fs-6 fw-bold" 
-                [ngClass]="{'bg-emerald-light text-emerald': gamificationProfile.currentEcoGrade === 'A+' || gamificationProfile.currentEcoGrade === 'A',
-                            'bg-yellow-light text-yellow-600': gamificationProfile.currentEcoGrade === 'B',
-                            'bg-orange-light text-orange': gamificationProfile.currentEcoGrade === 'C'}"
-                title="Sustainability Grade">
-            Grade {{ gamificationProfile.currentEcoGrade }}
+                [ngClass]="gamificationProfile.currentEcoScore | ecoScoreColor:'primary'"
+                title="Sustainability Status">
+            {{ gamificationProfile.currentEcoScore | ecoScoreColor:'status' }}
           </span>
           <p class="fs-xs text-muted mt-3 m-0" style="max-width: 150px;">Reflects your sustainability activity across EcoTrack.</p>
         </div>

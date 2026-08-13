@@ -6,15 +6,13 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="card border-0 shadow-sm rounded-4 h-100">
-      <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center text-center">
-        <h6 class="text-muted fw-bold mb-3">EcoScore</h6>
-        <div class="eco-score-gauge position-relative d-flex align-items-center justify-content-center rounded-circle"
-             [style.background]="getConicGradient()">
-          <div class="inner-circle bg-white rounded-circle d-flex flex-column align-items-center justify-content-center shadow-sm">
-            <span class="fs-1 fw-bold text-dark lh-1">{{ score }}</span>
-            <span class="fs-7 text-muted fw-bold">{{ grade }}</span>
-          </div>
+    <div class="card-premium h-full p-6 flex flex-col items-center justify-center text-center bg-white rounded-xl shadow-sm border border-gray-100">
+      <h6 class="text-gray-500 font-bold mb-4 uppercase text-xs tracking-wider">EcoScore</h6>
+      <div class="eco-score-gauge relative flex items-center justify-center rounded-full"
+           [style.background]="getConicGradient()">
+        <div class="inner-circle bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
+          <span class="text-4xl font-black text-gray-900 leading-none mb-1">{{ score }}</span>
+          <span class="text-xs text-gray-500 font-bold">{{ grade }}</span>
         </div>
       </div>
     </div>

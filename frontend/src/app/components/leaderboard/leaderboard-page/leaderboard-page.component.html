@@ -1,163 +1,399 @@
 <div class="leaderboard-wrapper animate-page px-4 py-4 max-w-4xl mx-auto">
   
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-    <div>
-      <h1 class="fw-bold text-dark mb-1 fs-3">
-        <ng-container *ngIf="challengeId; else globalTitle">Leaderboard: {{ challengeTitle || 'Challenge' }}</ng-container>
-        <ng-template #globalTitle>Global Leaderboard</ng-template>
-      </h1>
-      <p class="desc-light mb-0">
-        <ng-container *ngIf="challengeId; else globalDesc">See the top participants in this challenge.</ng-container>
-        <ng-template #globalDesc>See how you stack up against the entire community.</ng-template>
-      </p>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="d-flex justify-content-center mb-5" *ngIf="!challengeId">
-    <div class="bg-surface p-1 rounded-pill d-inline-flex border shadow-sm">
-      <button class="btn rounded-pill px-4 fw-600 transition-all" 
-              [class.btn-emerald]="filterType === 'ALL_TIME'" 
-              [class.text-muted]="filterType !== 'ALL_TIME'"
-              (click)="setFilter('ALL_TIME')">
-        All Time
-      </button>
-      <button class="btn rounded-pill px-4 fw-600 transition-all" 
-              [class.btn-emerald]="filterType === 'MONTHLY'" 
-              [class.text-muted]="filterType !== 'MONTHLY'"
-              (click)="setFilter('MONTHLY')">
-        Monthly
-      </button>
-      <button class="btn rounded-pill px-4 fw-600 transition-all" 
-              [class.btn-emerald]="filterType === 'WEEKLY'" 
-              [class.text-muted]="filterType !== 'WEEKLY'"
-              (click)="setFilter('WEEKLY')">
-        Weekly
-      </button>
-    </div>
-  </div>
-
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="d-flex flex-column gap-3">
-    <app-loading-skeleton type="card" *ngFor="let i of [1,2,3,4,5]"></app-loading-skeleton>
-  </div>
-
-  <!-- Empty State -->
-  <div *ngIf="!isLoading && entries.length === 0" class="text-center py-5 my-5">
-    <div class="bg-surface rounded-circle d-inline-flex p-4 mb-3 shadow-sm">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-    </div>
-    <h4 class="fw-bold text-dark">No data available</h4>
-    <p class="desc-light">The leaderboard for this period is currently empty.</p>
-  </div>
-
-  <!-- List -->
-  <div *ngIf="!isLoading && entries.length > 0" class="d-flex flex-column gap-3">
+  <div class="d-flex flex-column align-items-center mb-5 text-center mt-3">
+    <h1 class="fw-bold text-dark mb-2 fs-2">Leaderboard</h1>
+    <p class="desc-light mb-4">See how you stack up against the EcoTrack community and your challenges.</p>
     
-    <!-- Top 3 Podium (Only for Global Leaderboard) -->
-    <div class="d-flex flex-wrap justify-content-center align-items-end gap-3 mb-4" *ngIf="topThree.length >= 3 && !challengeId">
-      
-      <!-- 2nd Place -->
-      <div class="card-premium d-flex flex-column align-items-center p-3 pb-4 text-center position-relative" style="width: 140px; border-bottom: 6px solid #94a3b8; margin-bottom: 20px;" [attr.aria-label]="topThree[1].username + ', rank 2, score ' + topThree[1].scoreValue">
-        <div class="badge bg-slate-200 text-slate-700 rounded-circle fw-bold fs-5 mb-2 d-flex align-items-center justify-content-center border border-slate-400" style="width: 48px; height: 48px; border-width: 2px !important;">2</div>
-        <div class="bg-surface rounded-circle d-flex align-items-center justify-content-center text-muted fw-bold shadow-sm border mb-2" style="width: 56px; height: 56px; font-size: 1.5rem;">
-          {{ topThree[1].username.charAt(0).toUpperCase() }}
-        </div>
-        <h6 class="fw-bold text-dark mb-0 text-truncate w-100 px-2">{{ topThree[1].username }}</h6>
-        <div class="fs-xs text-muted mb-1">Level {{ topThree[1].level || 1 }}</div>
-        <div class="fw-bold text-emerald">{{ topThree[1].scoreValue | number }} XP</div>
-      </div>
-      
-      <!-- 1st Place -->
-      <div class="card-premium d-flex flex-column align-items-center p-3 pb-5 text-center position-relative shadow-lg" style="width: 160px; border-bottom: 6px solid #eab308; z-index: 2;" [attr.aria-label]="topThree[0].username + ', rank 1, score ' + topThree[0].scoreValue">
-        <div class="badge bg-yellow-light text-yellow-600 rounded-circle fw-bold fs-4 mb-2 d-flex align-items-center justify-content-center border border-yellow-600 shadow-sm" style="width: 60px; height: 60px; border-width: 2px !important;">1</div>
-        <div class="bg-surface rounded-circle d-flex align-items-center justify-content-center text-muted fw-bold shadow-sm border mb-2" style="width: 72px; height: 72px; font-size: 2rem;">
-          {{ topThree[0].username.charAt(0).toUpperCase() }}
-        </div>
-        <h6 class="fw-bold text-dark mb-0 fs-5 text-truncate w-100 px-2">{{ topThree[0].username }}</h6>
-        <div class="fs-xs text-muted mb-1">Level {{ topThree[0].level || 1 }}</div>
-        <div class="fw-bold text-emerald fs-6">{{ topThree[0].scoreValue | number }} XP</div>
-      </div>
-      
-      <!-- 3rd Place -->
-      <div class="card-premium d-flex flex-column align-items-center p-3 pb-4 text-center position-relative" style="width: 140px; border-bottom: 6px solid #f97316; margin-bottom: 20px;" [attr.aria-label]="topThree[2].username + ', rank 3, score ' + topThree[2].scoreValue">
-        <div class="badge bg-orange-light text-orange rounded-circle fw-bold fs-5 mb-2 d-flex align-items-center justify-content-center border border-orange" style="width: 48px; height: 48px; border-width: 2px !important;">3</div>
-        <div class="bg-surface rounded-circle d-flex align-items-center justify-content-center text-muted fw-bold shadow-sm border mb-2" style="width: 56px; height: 56px; font-size: 1.5rem;">
-          {{ topThree[2].username.charAt(0).toUpperCase() }}
-        </div>
-        <h6 class="fw-bold text-dark mb-0 text-truncate w-100 px-2">{{ topThree[2].username }}</h6>
-        <div class="fs-xs text-muted mb-1">Level {{ topThree[2].level || 1 }}</div>
-        <div class="fw-bold text-emerald">{{ topThree[2].scoreValue | number }} XP</div>
-      </div>
-      
-    </div>
-
-    <!-- Current User Standout Block (Optional, if outside Top 3) -->
-    <div *ngIf="myRank && !challengeId" class="card-premium p-3 d-flex align-items-center gap-3 mb-3 border-emerald shadow bg-emerald-light bg-opacity-10" [attr.aria-label]="'Your rank: ' + myRank.rank + ', score: ' + myRank.scoreValue">
-      <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 fw-bold fs-5 border bg-emerald-light text-emerald border-emerald" style="width: 48px; height: 48px; border-width: 2px !important;">
-        {{ myRank.rank > 0 ? myRank.rank : '-' }}
-      </div>
-      <div class="d-flex align-items-center gap-3 flex-grow-1">
-        <div class="bg-surface rounded-circle d-flex align-items-center justify-content-center text-emerald fw-bold flex-shrink-0 shadow-sm border border-emerald" style="width: 48px; height: 48px;">
-          {{ (myRank.username || 'U').charAt(0).toUpperCase() }}
-        </div>
-        <div>
-          <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            You
-          </h6>
-          <span class="fs-xs text-muted">Level {{ myRank.level || 1 }}</span>
-          <div *ngIf="myRank.xpToNextRank && myRank.xpToNextRank > 0" class="fs-xs text-orange fw-600 mt-1">{{ myRank.xpToNextRank }} XP to overtake next rank</div>
-        </div>
-      </div>
-      <div class="text-end">
-        <div class="fw-bold text-emerald fs-5">{{ myRank.scoreValue | number }}</div>
-        <div class="fs-xs text-emerald opacity-75 text-uppercase tracking-wide">XP</div>
-      </div>
-    </div>
-
-    <!-- Remaining Leaderboard Rows -->
-    <div *ngFor="let entry of remainingEntries; let i = index" 
-         class="card-premium p-3 d-flex align-items-center gap-3 transition-all animate-stagger-item"
-         [class.border-emerald]="myRank?.userId === entry.userId"
-         [class.shadow-sm]="myRank?.userId === entry.userId"
-         [style.animation-delay]="(i * 50) + 'ms'"
-         [attr.aria-label]="entry.username + ', rank ' + entry.rank + ', score ' + entry.scoreValue">
-      
-      <!-- Rank Badge -->
-      <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 fw-bold fs-5 border"
-           [ngClass]="getRankClass(entry.rank)"
-           style="width: 48px; height: 48px; border-width: 2px !important;">
-        {{ entry.rank }}
-      </div>
-
-      <!-- User Info -->
-      <div class="d-flex align-items-center gap-3 flex-grow-1">
-        <div class="bg-surface rounded-circle d-flex align-items-center justify-content-center text-muted fw-bold flex-shrink-0 shadow-sm border" style="width: 48px; height: 48px;">
-          {{ entry.username.charAt(0).toUpperCase() }}
-        </div>
-        <div>
-          <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-            {{ entry.username }}
-            <span *ngIf="myRank?.userId === entry.userId" class="badge bg-emerald-light text-emerald fs-xs rounded-pill">You</span>
-          </h6>
-          <span class="fs-xs text-muted">Level {{ entry.level || 1 }}</span>
-          <span *ngIf="challengeId && entry.status === 'COMPLETED' && entry.completedAt" class="fs-xs text-emerald fw-600">Completed: {{ entry.completedAt | date:'mediumDate' }}</span>
-          <div *ngIf="challengeId && entry.exceededAverage" class="fs-xs text-danger fw-600 mt-1">Exceeded average budget of current days ({{ entry.currentDays }})</div>
-        </div>
-      </div>
-
-      <!-- Score or Progress -->
-      <div class="text-end" *ngIf="!challengeId">
-        <div class="fw-bold text-dark fs-5">{{ entry.scoreValue | number }}</div>
-        <div class="fs-xs text-muted text-uppercase tracking-wide">Score</div>
-      </div>
-      <div class="text-end d-flex flex-column align-items-end" *ngIf="challengeId">
-        <div class="fw-bold text-dark fs-5">{{ entry.scoreValue | number }}</div>
-        <div class="fs-xs text-muted tracking-wide mb-1">{{ challengeUnit }}</div>
-        <app-challenge-status-badge [status]="entry.status || 'ACTIVE'" size="sm"></app-challenge-status-badge>
-      </div>
-
+    <!-- Mode Toggle -->
+    <div class="bg-surface p-1 rounded-pill d-inline-flex border shadow-sm mb-2">
+      <button class="btn rounded-pill px-5 fw-600 transition-all" 
+              [class.btn-emerald]="mode === 'OVERALL'" 
+              [class.text-muted]="mode !== 'OVERALL'" [class.bg-transparent]="mode !== 'OVERALL'"
+              (click)="setMode('OVERALL')">
+        Overall Leaderboard
+      </button>
+      <button class="btn rounded-pill px-5 fw-600 transition-all" 
+              [class.btn-emerald]="mode === 'CHALLENGE'" 
+              [class.text-muted]="mode !== 'CHALLENGE'" [class.bg-transparent]="mode !== 'CHALLENGE'"
+              (click)="setMode('CHALLENGE')">
+        My Challenges
+      </button>
     </div>
   </div>
+
+  <!-- OVERALL MODE -->
+  <ng-container *ngIf="mode === 'OVERALL'">
+    <!-- Global Filters -->
+    <div class="d-flex justify-content-center mb-4">
+      <div class="bg-surface rounded-4 p-2 shadow-sm border d-inline-flex flex-column flex-md-row align-items-center gap-3">
+        
+        <!-- Score Type -->
+        <div class="bg-slate-100 p-1 rounded d-flex border">
+          <button class="btn btn-sm px-4 fw-bold transition-all" 
+                  [class.bg-white]="filterScore === 'XP'" [class.text-emerald]="filterScore === 'XP'" [class.shadow-sm]="filterScore === 'XP'"
+                  [class.text-muted]="filterScore !== 'XP'"
+                  (click)="setFilterScore('XP')">
+            XP
+          </button>
+          <button class="btn btn-sm px-4 fw-bold transition-all" 
+                  [class.bg-white]="filterScore === 'ECO_SCORE'" [class.text-emerald]="filterScore === 'ECO_SCORE'" [class.shadow-sm]="filterScore === 'ECO_SCORE'"
+                  [class.text-muted]="filterScore !== 'ECO_SCORE'"
+                  (click)="setFilterScore('ECO_SCORE')">
+            Eco Score
+          </button>
+        </div>
+        
+        <!-- Period -->
+        <div class="bg-slate-100 p-1 rounded d-flex border" *ngIf="filterScore === 'XP'">
+          <button class="btn btn-sm px-3 fw-bold transition-all" 
+                  [class.bg-white]="filterPeriod === 'ALL_TIME'" [class.text-dark]="filterPeriod === 'ALL_TIME'" [class.shadow-sm]="filterPeriod === 'ALL_TIME'"
+                  [class.text-muted]="filterPeriod !== 'ALL_TIME'"
+                  (click)="setFilterPeriod('ALL_TIME')">
+            All Time
+          </button>
+          <button class="btn btn-sm px-3 fw-bold transition-all" 
+                  [class.bg-white]="filterPeriod === 'MONTHLY'" [class.text-dark]="filterPeriod === 'MONTHLY'" [class.shadow-sm]="filterPeriod === 'MONTHLY'"
+                  [class.text-muted]="filterPeriod !== 'MONTHLY'"
+                  (click)="setFilterPeriod('MONTHLY')">
+            Monthly
+          </button>
+          <button class="btn btn-sm px-3 fw-bold transition-all" 
+                  [class.bg-white]="filterPeriod === 'WEEKLY'" [class.text-dark]="filterPeriod === 'WEEKLY'" [class.shadow-sm]="filterPeriod === 'WEEKLY'"
+                  [class.text-muted]="filterPeriod !== 'WEEKLY'"
+                  (click)="setFilterPeriod('WEEKLY')">
+            Weekly
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="text-center mb-4">
+      <h6 class="text-uppercase tracking-wide text-muted fw-bold">Top EcoTrack members by {{ filterScore === 'XP' ? 'XP' : 'Eco Score' }}</h6>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="d-flex flex-column gap-3">
+      <app-loading-skeleton type="card" *ngFor="let i of [1,2,3,4,5]"></app-loading-skeleton>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && (!globalPage || globalPage.content.length === 0)" class="text-center py-5 my-5 bg-surface rounded-4 border shadow-sm">
+      <div class="bg-slate-100 rounded-circle d-inline-flex p-4 mb-3 border">
+        <i class="lucide-award text-muted" style="width:48px;height:48px;"></i>
+      </div>
+      <h4 class="fw-bold text-dark">There's no leaderboard data yet.</h4>
+      <p class="desc-light">The leaderboard for this period is currently empty.</p>
+    </div>
+
+    <!-- Global List -->
+    <div *ngIf="!isLoading && globalPage && globalPage.content.length > 0" class="d-flex flex-column gap-2">
+      
+      <!-- Top 3 Podium -->
+      <div class="d-flex justify-content-center align-items-end gap-3 gap-md-4 mb-5 mt-4" *ngIf="topThree.length >= 3 && currentPage === 0">
+        
+        <!-- 2nd Place -->
+        <div class="card-premium d-flex flex-column align-items-center p-3 pb-4 text-center position-relative shadow-sm transition-all" 
+             [class.border-emerald]="currentUserId === topThree[1].userId"
+             [class.bg-emerald-light]="currentUserId === topThree[1].userId"
+             [class.bg-opacity-10]="currentUserId === topThree[1].userId"
+             style="width: 140px; border-bottom: 5px solid #94a3b8; margin-bottom: 10px; border-radius: 1rem;">
+          <div class="position-absolute top-0 start-50 translate-middle badge rounded-circle fw-bold fs-6 d-flex align-items-center justify-content-center border border-white shadow-sm" style="background-color: #94a3b8; color: white; width: 36px; height: 36px;">2</div>
+          <img [src]="resolveImageUrl(topThree[1].profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + topThree[1].username + '&background=random&color=fff')" 
+               class="bg-surface rounded-circle shadow-sm border mb-2 mt-3" 
+               [class.border-emerald]="currentUserId === topThree[1].userId"
+               style="width: 56px; height: 56px; object-fit: cover;" 
+               alt="User Avatar">
+          <h6 class="fw-bold text-dark mb-0 text-truncate w-100 px-1 d-flex flex-column align-items-center gap-1">
+            {{ topThree[1].username }}
+            <span *ngIf="currentUserId === topThree[1].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">You</span>
+          </h6>
+          <div class="fs-xs text-muted mb-2 mt-1">Level {{ topThree[1].level || 1 }}</div>
+          <div class="fw-bold text-emerald">{{ (filterScore === 'XP' ? topThree[1].scoreValue : topThree[1].metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore === 'XP' ? 'XP' : 'Eco Score' }}</span></div>
+        </div>
+        
+        <!-- 1st Place -->
+        <div class="card-premium d-flex flex-column align-items-center p-3 pb-5 text-center position-relative shadow-lg transition-all" 
+             [class.border-emerald]="currentUserId === topThree[0].userId"
+             [class.bg-emerald-light]="currentUserId === topThree[0].userId"
+             [class.bg-opacity-10]="currentUserId === topThree[0].userId"
+             style="width: 160px; border-bottom: 5px solid #eab308; z-index: 2; border-radius: 1rem;">
+          <div class="position-absolute top-0 start-50 translate-middle badge rounded-circle fw-bold fs-5 d-flex align-items-center justify-content-center border border-white shadow-sm" style="background-color: #eab308; color: white; width: 44px; height: 44px;">1</div>
+          <img [src]="resolveImageUrl(topThree[0].profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + topThree[0].username + '&background=random&color=fff')" 
+               class="bg-surface rounded-circle shadow-sm border mb-2 mt-3" 
+               [class.border-emerald]="currentUserId === topThree[0].userId"
+               style="width: 72px; height: 72px; object-fit: cover;" 
+               alt="User Avatar">
+          <h6 class="fw-bold text-dark mb-0 fs-5 text-truncate w-100 px-1 d-flex flex-column align-items-center gap-1">
+            {{ topThree[0].username }}
+            <span *ngIf="currentUserId === topThree[0].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">You</span>
+          </h6>
+          <div class="fs-xs text-muted mb-2 mt-1">Level {{ topThree[0].level || 1 }}</div>
+          <div class="fw-bold text-emerald fs-5">{{ (filterScore === 'XP' ? topThree[0].scoreValue : topThree[0].metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore === 'XP' ? 'XP' : 'Eco Score' }}</span></div>
+        </div>
+        
+        <!-- 3rd Place -->
+        <div class="card-premium d-flex flex-column align-items-center p-3 pb-4 text-center position-relative shadow-sm transition-all" 
+             [class.border-emerald]="currentUserId === topThree[2].userId"
+             [class.bg-emerald-light]="currentUserId === topThree[2].userId"
+             [class.bg-opacity-10]="currentUserId === topThree[2].userId"
+             style="width: 140px; border-bottom: 5px solid #f97316; margin-bottom: 10px; border-radius: 1rem;">
+          <div class="position-absolute top-0 start-50 translate-middle badge rounded-circle fw-bold fs-6 d-flex align-items-center justify-content-center border border-white shadow-sm" style="background-color: #f97316; color: white; width: 36px; height: 36px;">3</div>
+          <img [src]="resolveImageUrl(topThree[2].profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + topThree[2].username + '&background=random&color=fff')" 
+               class="bg-surface rounded-circle shadow-sm border mb-2 mt-3" 
+               [class.border-emerald]="currentUserId === topThree[2].userId"
+               style="width: 56px; height: 56px; object-fit: cover;" 
+               alt="User Avatar">
+          <h6 class="fw-bold text-dark mb-0 text-truncate w-100 px-1 d-flex flex-column align-items-center gap-1">
+            {{ topThree[2].username }}
+            <span *ngIf="currentUserId === topThree[2].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">You</span>
+          </h6>
+          <div class="fs-xs text-muted mb-2 mt-1">Level {{ topThree[2].level || 1 }}</div>
+          <div class="fw-bold text-emerald">{{ (filterScore === 'XP' ? topThree[2].scoreValue : topThree[2].metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore === 'XP' ? 'XP' : 'Eco Score' }}</span></div>
+        </div>
+      </div>
+
+      <!-- Current User Standout (Only if applicable and outside current view) -->
+      <div *ngIf="myRank && currentPage === 0 && filterScore === 'XP' && filterPeriod === 'ALL_TIME' && myRank.rank > 3" class="card-premium p-3 d-flex align-items-center gap-3 mb-3 border border-emerald shadow-sm bg-emerald-light bg-opacity-10 rounded-4">
+        <div class="d-flex align-items-center justify-content-center flex-shrink-0 fw-bold fs-5 text-emerald" style="width: 40px;">
+          {{ myRank.rank > 0 ? myRank.rank : '-' }}
+        </div>
+        <div class="d-flex align-items-center gap-3 flex-grow-1">
+          <img [src]="resolveImageUrl(myRank.profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + myRank.username + '&background=random&color=fff')" 
+               class="bg-surface rounded-circle shadow-sm border" 
+               style="width: 48px; height: 48px; object-fit: cover;" 
+               alt="User Avatar">
+          <div>
+            <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              You
+              <span class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">Current Rank</span>
+            </h6>
+            <span class="fs-xs text-muted">Level {{ myRank.level || 1 }}</span>
+          </div>
+        </div>
+        <div class="text-end">
+          <div class="fw-bold text-emerald fs-5">{{ myRank.scoreValue | number }} <span class="fs-xs text-muted">XP</span></div>
+        </div>
+      </div>
+
+      <!-- Remaining Rows -->
+      <div *ngFor="let entry of remainingEntries; let i = index" 
+           class="card-premium py-2 px-3 d-flex align-items-center gap-3 transition-all animate-stagger-item"
+           [class.border-emerald]="currentUserId === entry.userId"
+           [class.bg-emerald-light]="currentUserId === entry.userId"
+           [class.bg-opacity-10]="currentUserId === entry.userId">
+        
+        <div class="d-flex align-items-center justify-content-center flex-shrink-0 fw-bold fs-5 text-muted"
+             style="width: 40px;"
+             [class.text-emerald]="currentUserId === entry.userId">
+          {{ entry.rank }}
+        </div>
+
+        <div class="d-flex align-items-center gap-3 flex-grow-1">
+          <img [src]="resolveImageUrl(entry.profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + entry.username + '&background=random&color=fff')" 
+               class="bg-surface rounded-circle shadow-sm border" 
+               style="width: 40px; height: 40px; object-fit: cover;" 
+               alt="User Avatar">
+          <div>
+            <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              {{ entry.username }}
+              <span *ngIf="currentUserId === entry.userId" class="badge bg-emerald text-white fs-xs rounded-pill px-2">You</span>
+            </h6>
+            <span class="fs-xs text-muted">Level {{ entry.level || 1 }}</span>
+          </div>
+        </div>
+
+        <div class="text-end">
+          <div class="fw-bold text-dark fs-5" [class.text-emerald]="currentUserId === entry.userId">
+            {{ (filterScore === 'XP' ? entry.scoreValue : entry.metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore === 'XP' ? 'XP' : 'Eco Score' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pagination Controls -->
+      <div class="d-flex justify-content-between align-items-center mt-4" *ngIf="globalPage.totalPages > 1">
+        <button class="btn btn-outline-secondary rounded-pill px-4" [disabled]="globalPage.first" (click)="prevPage()">Previous</button>
+        <span class="text-muted fs-sm">Page {{ globalPage.number + 1 }} of {{ globalPage.totalPages }}</span>
+        <button class="btn btn-outline-secondary rounded-pill px-4" [disabled]="globalPage.last" (click)="nextPage()">Next</button>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- CHALLENGE MODE -->
+  <ng-container *ngIf="mode === 'CHALLENGE'">
+    
+    <!-- Empty State -->
+    <div *ngIf="myChallenges.length === 0 && !isLoading" class="text-center py-5 my-5 bg-surface rounded-4 border shadow-sm">
+      <div class="bg-emerald-light rounded-circle d-inline-flex p-4 mb-4">
+        <i class="lucide-target text-emerald" style="width:48px;height:48px;"></i>
+      </div>
+      <h3 class="fw-bold text-dark mb-3">You haven't joined any challenges yet.</h3>
+      <p class="desc-light mb-4">Join a sustainability challenge to compete with other EcoTrack users and track your progress.</p>
+      <a routerLink="/challenges" class="btn btn-emerald rounded-pill px-4 py-2 fw-bold">Explore Challenges</a>
+    </div>
+
+    <div *ngIf="myChallenges.length > 0">
+      
+      <!-- Challenge Selector (Custom Combobox style) -->
+      <div class="mb-4">
+        <label class="form-label fs-sm fw-bold text-dark mb-2">Select Challenge</label>
+        <div class="position-relative">
+          <select class="form-select form-select-lg rounded-3 shadow-sm border-gray-200 bg-surface pe-5 cursor-pointer appearance-none" 
+                  [ngModel]="selectedChallengeId" (change)="onChallengeSelect($event)"
+                  style="cursor: pointer;">
+            <option *ngFor="let userCh of myChallenges" [value]="userCh.challengeId">
+              {{ userCh.challengeTitle }}
+            </option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Challenge Summary & Leaderboard Card -->
+      <div class="card-premium border shadow-sm mb-4 bg-surface rounded-4 overflow-hidden" *ngIf="selectedChallengeParticipant">
+        
+        <!-- Identity Row -->
+        <div class="p-4 d-flex align-items-center gap-4">
+          <div class="bg-slate-100 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 72px; height: 72px; overflow: hidden;">
+            <img *ngIf="selectedChallengeDetail?.imageUrl" [src]="resolveImageUrl(selectedChallengeDetail.imageUrl)" class="w-100 h-100 object-fit-cover" alt="Challenge Image">
+            <i *ngIf="!selectedChallengeDetail?.imageUrl" class="lucide-leaf text-emerald" style="width:32px;height:32px;"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold text-dark mb-1">{{ selectedChallengeParticipant.challengeTitle }}</h4>
+            <p class="text-muted fs-sm mb-0">{{ selectedChallengeDetail?.description || 'Loading details...' }}</p>
+          </div>
+        </div>
+        
+        <hr class="m-0 text-muted opacity-10">
+        
+        <!-- Stats Grid -->
+        <div class="p-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 text-center">
+          
+          <!-- Rank -->
+          <div class="flex-grow-1 w-100 border-md-end border-gray-200 pe-md-4">
+            <div class="fs-xs fw-bold text-dark text-uppercase tracking-wide mb-2">Your Rank</div>
+            <div class="fw-bold text-dark fs-3 lh-1 mb-1">
+              {{ getMyChallengeRank() ? '#' + getMyChallengeRank() : '-' }}
+            </div>
+            <div class="fs-xs text-muted fw-500">
+              of {{ selectedChallengeDetail?.participantCount || challengePage?.totalElements || '?' }} 
+            </div>
+          </div>
+          
+          <!-- Progress -->
+          <div class="flex-grow-1 w-100 border-md-end border-gray-200 pe-md-4">
+            <div class="fs-xs fw-bold text-dark text-uppercase tracking-wide mb-2">Your Progress</div>
+            <div class="d-flex align-items-center gap-2 mb-2 w-100" style="max-width: 200px; margin: 0 auto;">
+              <div class="progress flex-grow-1 bg-slate-100 rounded-pill" style="height: 6px;">
+                <div class="progress-bar bg-emerald rounded-pill" role="progressbar" 
+                     [style.width]="getChallengeProgressPercentage() + '%'" 
+                     [attr.aria-valuenow]="getChallengeProgressPercentage()" 
+                     aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+            <div class="fs-sm fw-bold text-dark d-flex align-items-center justify-content-center gap-1">
+              {{ getChallengeProgressPercentage() }}% 
+              <span class="fs-xs text-muted fw-normal">({{ selectedChallengeParticipant.progress | number }} / {{ selectedChallengeParticipant.targetValue | number }} {{ selectedChallengeParticipant.progressMetric === 'CARBON_EMISSION' ? 'kg CO2e' : '' }})</span>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="flex-grow-1 w-100">
+            <div class="fs-xs fw-bold text-dark text-uppercase tracking-wide mb-2">Status</div>
+            <div class="d-flex justify-content-center">
+              <app-challenge-status-badge [status]="selectedChallengeParticipant.status || 'ACTIVE'" size="md"></app-challenge-status-badge>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="p-4 bg-slate-50 border-top d-flex flex-column gap-3">
+          <app-loading-skeleton type="card" *ngFor="let i of [1,2,3]"></app-loading-skeleton>
+        </div>
+        
+        <!-- Challenge 403 Error State -->
+        <div *ngIf="!isLoading && challengeErrorIs403" class="text-center py-5 bg-slate-50 border-top">
+          <div class="bg-red-50 rounded-circle d-inline-flex p-4 mb-3">
+            <i class="lucide-lock text-danger" style="width:48px;height:48px;"></i>
+          </div>
+          <h4 class="fw-bold text-dark mb-2">You haven't joined this challenge yet.</h4>
+          <p class="desc-light mb-4">Join the challenge to view its leaderboard.</p>
+          <a [routerLink]="['/challenges', selectedChallengeId]" class="btn btn-emerald rounded-pill px-4 py-2 fw-bold shadow-sm">Explore Challenges</a>
+        </div>
+
+        <!-- Challenge General Error State -->
+        <div *ngIf="!isLoading && challengeError && !challengeErrorIs403" class="p-4 bg-slate-50 border-top">
+          <div class="alert alert-danger rounded-3 m-0">
+            {{ challengeError }}
+          </div>
+        </div>
+
+        <!-- Challenge Leaderboard Table Layout -->
+        <div *ngIf="!isLoading && challengePage && challengePage.content.length > 0" id="challenge-leaderboard-section">
+          
+          <div class="table-responsive border-top">
+            <table class="table table-borderless mb-0 align-middle" role="grid">
+              <thead class="bg-slate-50 border-bottom">
+                <tr>
+                  <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 ps-4 text-center" style="width: 80px;">Rank</th>
+                  <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3">Participant</th>
+                  <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3">Progress <span class="fw-normal text-opacity-75" *ngIf="selectedChallengeParticipant?.progressMetric === 'CARBON_EMISSION'">(kg CO₂e)</span></th>
+                  <th class="text-muted fs-xs fw-bold text-uppercase tracking-wide py-3 pe-4">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let entry of challengePage.content; let i = index" 
+                    class="transition-all border-bottom"
+                    [class.bg-emerald-light]="currentUserId === entry.userId"
+                    [class.bg-opacity-10]="currentUserId === entry.userId">
+                  
+                  <td class="ps-4 text-center">
+                    <span class="fw-bold text-dark fs-6" [class.text-emerald]="currentUserId === entry.userId">{{ entry.rank }}</span>
+                  </td>
+                  
+                  <td>
+                    <div class="d-flex align-items-center gap-3 py-2">
+                      <img [src]="resolveImageUrl(entry.profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + entry.username + '&background=random&color=fff')" 
+                           class="bg-surface rounded-circle shadow-sm border" 
+                           style="width: 36px; height: 36px; object-fit: cover;" 
+                           alt="User Avatar">
+                      <span class="fw-bold text-dark fs-6" [class.text-emerald]="currentUserId === entry.userId">
+                        {{ currentUserId === entry.userId ? 'You' : entry.username }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <td>
+                    <span class="fw-bold text-dark fs-6" [class.text-emerald]="currentUserId === entry.userId">
+                      {{ entry.metricValue | number }}
+                    </span>
+                  </td>
+                  
+                  <td class="pe-4">
+                    <app-challenge-status-badge [status]="entry.status || 'ACTIVE'" size="sm"></app-challenge-status-badge>
+                  </td>
+                  
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination Controls -->
+          <div class="d-flex justify-content-between align-items-center p-3 border-top bg-slate-50" *ngIf="challengePage.totalPages > 1">
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-4" [disabled]="challengePage.first" (click)="prevPage()">Previous</button>
+            <span class="text-muted fs-sm fw-500">Page {{ challengePage.number + 1 }} of {{ challengePage.totalPages }}</span>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-4" [disabled]="challengePage.last" (click)="nextPage()">Next</button>
+          </div>
+        </div>
+        
+        <div *ngIf="!isLoading && challengePage && challengePage.content.length === 0 && !challengeError" class="text-center py-5 border-top bg-slate-50">
+          <h4 class="fw-bold text-dark">No participants yet</h4>
+          <p class="desc-light">Be the first to make progress in this challenge!</p>
+        </div>
+
+      </div>
+
+    </div>
+  </ng-container>
 
 </div>

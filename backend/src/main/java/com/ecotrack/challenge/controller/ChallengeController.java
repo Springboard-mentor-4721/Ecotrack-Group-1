@@ -69,7 +69,7 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.updateProgress(id, userId, request));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}/participants")
     public ResponseEntity<Page<ChallengeParticipantDTO>> getChallengeParticipants(
             @PathVariable Long id,

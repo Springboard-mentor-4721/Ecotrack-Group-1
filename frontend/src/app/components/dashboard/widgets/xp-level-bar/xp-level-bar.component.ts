@@ -6,25 +6,21 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="card border-0 shadow-sm rounded-4 h-100">
-      <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="d-flex align-items-center gap-2">
-            <div class="badge bg-emerald-light text-emerald rounded-pill px-3 py-2 fw-bold fs-6">
-              Level {{ level }}
-            </div>
+    <div class="card-premium h-full p-6 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center">
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-2">
+          <div class="bg-green-100 text-green-700 rounded-full px-4 py-2 font-bold text-sm">
+            Level {{ level }}
           </div>
-          <span class="text-muted fw-bold fs-7">{{ xp }} XP</span>
         </div>
-        <div class="progress" style="height: 12px; border-radius: 10px;">
-          <div class="progress-bar bg-emerald" role="progressbar" 
-               [style.width.%]="getProgress()" 
-               [attr.aria-valuenow]="getProgress()" 
-               aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <div class="text-end mt-2">
-          <span class="text-muted fs-xs fw-bold">{{ nextLevelXp - xp }} XP to Level {{ level + 1 }}</span>
-        </div>
+        <span class="text-gray-500 font-bold text-sm">{{ xp }} XP</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-3">
+        <div class="bg-primary h-3 rounded-full" 
+             [style.width.%]="getProgress()"></div>
+      </div>
+      <div class="text-right mt-3">
+        <span class="text-gray-400 text-xs font-bold">{{ nextLevelXp - xp }} XP to Level {{ level + 1 }}</span>
       </div>
     </div>
   `

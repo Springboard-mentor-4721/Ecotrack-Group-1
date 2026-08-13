@@ -2,183 +2,323 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeaderboardService } from '../../../services/leaderboard.service';
-import { LeaderboardEntry } from '../../../models/leaderboard.models';
+import { LeaderboardEntry, Page } from '../../../models/leaderboard.models';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { ChallengeService } from '../../../services/challenge.service';
-import { ActivatedRoute } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { finalize, catchError } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { forkJoin, of, throwError } from 'rxjs';
+import { finalize, catchError, tap } from 'rxjs/operators';
 import { ChallengeStatusBadgeComponent } from '../../challenges/shared/components/status-badge/challenge-status-badge.component';
 
+import { environment } from '../../../../environments/environment';
+
+type ModeType = 'OVERALL' | 'CHALLENGE';
 type FilterType = 'ALL_TIME' | 'MONTHLY' | 'WEEKLY';
+type ScoreType = 'XP' | 'ECO_SCORE';
 
 @Component({
   selector: 'app-leaderboard-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingSkeletonComponent, ChallengeStatusBadgeComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LoadingSkeletonComponent, ChallengeStatusBadgeComponent],
   templateUrl: './leaderboard-page.component.html',
   styleUrl: './leaderboard-page.component.css'
 })
 export class LeaderboardPageComponent implements OnInit {
   isLoading = true;
-  entries: LeaderboardEntry[] = [];
+  mode: ModeType = 'OVERALL';
+  
+  // Global
+  filterPeriod: FilterType = 'ALL_TIME';
+  filterScore: ScoreType = 'XP';
+  globalPage: Page<LeaderboardEntry> | null = null;
   topThree: LeaderboardEntry[] = [];
   remainingEntries: LeaderboardEntry[] = [];
-  myRank: LeaderboardEntry | null = null;
-  filterType: FilterType = 'ALL_TIME';
-  challengeId: number | null = null;
-  challengeTitle: string = '';
-  challengeUnit: string = 'PROGRESS';
+  
+  // Challenges
+  myChallenges: any[] = [];
+  selectedChallengeId: number | null = null;
+  challengePage: Page<LeaderboardEntry> | null = null;
+  challengeError: string | null = null;
+  challengeErrorIs403: boolean = false;
+  
+  get selectedChallengeParticipant(): any {
+    if (!this.myChallenges || !this.selectedChallengeId) return null;
+    return this.myChallenges.find(c => c.challengeId === this.selectedChallengeId);
+  }
 
-  // Math object for template
+  selectedChallengeDetail: any | null = null;
+  
+  currentUserId: number | null = null;
+  myRank: LeaderboardEntry | null = null;
+
+  // Pagination
+  currentPage = 0;
+  pageSize = 20;
+
   Math = Math;
 
   constructor(
     private leaderboardService: LeaderboardService,
     private challengeService: ChallengeService,
+    private authService: AuthService,
     private route: ActivatedRoute,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
+  resolveImageUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (url.startsWith('blob:')) return url;
+    if (url.startsWith('http')) return url;
+    const backendUrl = environment.apiUrl || 'http://localhost:8080';
+    return backendUrl + (url.startsWith('/') ? url : '/' + url);
+  }
+
   ngOnInit(): void {
+    const user = this.authService.getCurrentUserValue();
+    if (user) {
+       this.currentUserId = user.id;
+    }
+    
     this.route.queryParams.subscribe(params => {
       if (params['challengeId']) {
-        this.challengeId = Number(params['challengeId']);
-        this.loadChallengeData();
-      } else {
-        this.challengeId = null;
-        this.loadData();
+        this.mode = 'CHALLENGE';
+        this.selectedChallengeId = Number(params['challengeId']);
       }
+      if (params['mode']) {
+        this.mode = params['mode'].toUpperCase() as ModeType;
+      }
+      
+      this.loadInitialData();
     });
   }
 
-  setFilter(type: FilterType): void {
-    if (this.filterType === type) return;
-    this.filterType = type;
-    this.loadData();
+  loadInitialData() {
+    if (this.mode === 'CHALLENGE') {
+      this.loadMyChallenges().subscribe(() => {
+        if (this.selectedChallengeId) {
+          this.loadSelectedChallengeDetail();
+          this.loadChallengeLeaderboard();
+        } else if (this.myChallenges.length > 0) {
+          this.selectedChallengeId = this.myChallenges[0].challengeId;
+          this.loadSelectedChallengeDetail();
+          this.loadChallengeLeaderboard();
+        } else {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      this.loadGlobalLeaderboard();
+    }
   }
 
-  loadChallengeData(): void {
-    if (!this.challengeId) return;
+  loadMyChallenges() {
+    this.isLoading = true;
+    return this.challengeService.getMyChallenges(0, 100).pipe(
+      tap(res => {
+        if (res && res.content) {
+          this.myChallenges = res.content;
+        }
+      }),
+      catchError(err => of(null))
+    );
+  }
+
+  setMode(mode: ModeType) {
+    if (this.mode === mode) return;
+    this.mode = mode;
+    this.currentPage = 0;
+    
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { mode: this.mode.toLowerCase() },
+      queryParamsHandling: 'merge'
+    });
+
+    if (this.mode === 'CHALLENGE') {
+      if (this.myChallenges.length === 0) {
+         this.loadMyChallenges().subscribe(() => {
+            if (this.myChallenges.length > 0) {
+               this.selectedChallengeId = this.myChallenges[0].challengeId;
+               this.loadSelectedChallengeDetail();
+               this.loadChallengeLeaderboard();
+            } else {
+               this.isLoading = false;
+               this.cdr.detectChanges();
+            }
+         });
+      } else {
+         if (!this.selectedChallengeId && this.myChallenges.length > 0) {
+            this.selectedChallengeId = this.myChallenges[0].challengeId;
+         }
+         if (this.selectedChallengeId) {
+            this.loadSelectedChallengeDetail();
+            this.loadChallengeLeaderboard();
+         }
+      }
+    } else {
+      this.loadGlobalLeaderboard();
+    }
+  }
+
+  setFilterPeriod(period: FilterType) {
+    if (this.filterPeriod === period) return;
+    this.filterPeriod = period;
+    this.currentPage = 0;
+    
+    if (this.filterScore === 'ECO_SCORE' && period !== 'ALL_TIME') {
+       this.filterScore = 'XP';
+    }
+    
+    this.loadGlobalLeaderboard();
+  }
+
+  setFilterScore(score: ScoreType) {
+    if (this.filterScore === score) return;
+    this.filterScore = score;
+    this.currentPage = 0;
+    
+    if (score === 'ECO_SCORE') {
+       this.filterPeriod = 'ALL_TIME';
+    }
+    
+    this.loadGlobalLeaderboard();
+  }
+  
+  onChallengeSelect(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    if (target.value) {
+      this.selectedChallengeId = Number(target.value);
+      this.currentPage = 0;
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { challengeId: this.selectedChallengeId },
+        queryParamsHandling: 'merge'
+      });
+      this.loadSelectedChallengeDetail();
+      this.loadChallengeLeaderboard();
+    }
+  }
+
+  loadGlobalLeaderboard() {
     this.isLoading = true;
     
-    // Fetch challenge details to get the title, and participants for the list
-    forkJoin({
-      challenge: this.challengeService.getChallengeDetail(this.challengeId).pipe(catchError(() => of(null))),
-      participants: this.challengeService.getChallengeParticipants(this.challengeId, 0, 50, 'progress,desc').pipe(catchError(() => of(null)))
-    }).pipe(
+    // Fetch my rank if needed (fire and forget)
+    if (this.filterScore === 'XP' && this.filterPeriod === 'ALL_TIME' && !this.myRank) {
+       this.leaderboardService.getMyRank().subscribe({
+          next: (rank) => {
+            if (rank) this.myRank = rank;
+          },
+          error: (err) => console.error('Failed to load user rank', err)
+       });
+    }
+
+    // Fetch the global page independently
+    this.leaderboardService.getGlobalLeaderboard(
+      this.filterScore, 
+      this.filterPeriod, 
+      this.currentPage, 
+      this.pageSize
+    ).pipe(
       finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
       })
-    ).subscribe(result => {
-      if (result.challenge) {
-        this.challengeTitle = result.challenge.title;
-        let unit = result.challenge.derivedUnit || 
-          (result.challenge.progressMetric === 'ENTRY_COUNT' ? 'Entries' : 
-          (result.challenge.progressMetric === 'CARBON_EMISSION' ? 'kg CO₂' : 'Quantity'));
-        if (unit.toLowerCase() === 'kgco2e' || unit.toLowerCase() === 'kg co2e') {
-          unit = 'kg CO₂e';
-        } else if (unit.toLowerCase() === 'kgco2' || unit.toLowerCase() === 'kg co2') {
-          unit = 'kg CO₂';
+    ).subscribe({
+      next: (page) => {
+        if (page) {
+          this.globalPage = page;
+          this.updatePodium();
+        } else {
+          this.globalPage = null;
+          this.topThree = [];
+          this.remainingEntries = [];
         }
-        this.challengeUnit = unit;
+      },
+      error: () => {
+        this.globalPage = null;
+        this.topThree = [];
+        this.remainingEntries = [];
       }
-      if (result.participants && result.participants.content) {
-        let allParticipants = result.participants.content;
-        let isBudget = result.challenge?.challengeEvaluationType === 'BUDGET';
-        
-        let currentDays = 0;
-        let currentBudget = 0;
-        
-        if (isBudget && result.challenge) {
-          const start = new Date(result.challenge.startDate).getTime();
-          const end = new Date(result.challenge.endDate).getTime();
-          const now = Date.now();
-          const totalDays = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
-          currentDays = Math.max(1, Math.ceil((now - start) / (1000 * 60 * 60 * 24)));
-          if (currentDays > totalDays) currentDays = totalDays;
-          
-          const dailyAvg = result.challenge.targetValue / totalDays;
-          currentBudget = dailyAvg * currentDays;
-        }
+    });
+  }
 
-        allParticipants.sort((a, b) => {
-          if (isBudget) {
-            const aExceeded = a.progress > currentBudget;
-            const bExceeded = b.progress > currentBudget;
-            
-            if (aExceeded !== bExceeded) {
-              return aExceeded ? 1 : -1;
-            }
-            return a.progress - b.progress; // Lowest progress first
+  loadSelectedChallengeDetail() {
+    if (!this.selectedChallengeId) return;
+    this.selectedChallengeDetail = null;
+    this.challengeService.getChallengeDetail(this.selectedChallengeId).subscribe({
+      next: (detail) => {
+        this.selectedChallengeDetail = detail;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load challenge details', err);
+      }
+    });
+  }
+
+  getChallengeProgressPercentage(): number {
+    const participant = this.selectedChallengeParticipant;
+    if (!participant || !participant.targetValue) return 0;
+    const p = Math.min(Math.max((participant.progress / participant.targetValue) * 100, 0), 100);
+    return Math.round(p);
+  }
+
+  getMyChallengeRank(): number | null {
+    if (!this.currentUserId || !this.challengePage || !this.challengePage.content) return null;
+    const myEntry = this.challengePage.content.find(e => e.userId === this.currentUserId);
+    return myEntry ? myEntry.rank : null;
+  }
+  
+  scrollToLeaderboard() {
+    const el = document.getElementById('challenge-leaderboard-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  loadChallengeLeaderboard() {
+    if (!this.selectedChallengeId) return;
+    this.isLoading = true;
+    this.challengeError = null;
+    this.challengeErrorIs403 = false;
+
+    this.leaderboardService.getChallengeLeaderboard(this.selectedChallengeId, this.currentPage, this.pageSize)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (page) => {
+          this.challengePage = page;
+        },
+        error: (err) => {
+          if (err.status === 403) {
+            this.challengeErrorIs403 = true;
           } else {
-            if (a.status === 'COMPLETED' && b.status !== 'COMPLETED') return -1;
-            if (a.status !== 'COMPLETED' && b.status === 'COMPLETED') return 1;
-            
-            if (a.status === 'COMPLETED' && b.status === 'COMPLETED') {
-              const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
-              const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
-              return dateA - dateB;
-            }
-            
-            return b.progress - a.progress; // Highest progress first
+            this.challengeError = 'Failed to load challenge leaderboard. Please try again.';
           }
-        });
-
-        this.entries = allParticipants.map((p, index) => ({
-          userId: p.userId,
-          username: p.userName || 'User',
-          scoreValue: p.progress,
-          rank: index + 1,
-          status: p.status,
-          completedAt: p.completedAt,
-          exceededAverage: isBudget ? p.progress > currentBudget : false,
-          currentDays: isBudget ? currentDays : undefined
-        }));
-      } else {
-        this.entries = [];
-      }
-      this.myRank = null; // Optional: highlight current user if needed, could find in entries
-      this.updatePodium();
-      this.cdr.detectChanges();
-    });
-  }
-
-  loadData(): void {
-    this.isLoading = true;
-    
-    const request$ = this.filterType === 'ALL_TIME' 
-      ? this.leaderboardService.getAllTime()
-      : this.filterType === 'MONTHLY' 
-        ? this.leaderboardService.getMonthly()
-        : this.leaderboardService.getWeekly();
-
-    forkJoin({
-      entries: request$.pipe(catchError(() => of([]))),
-      myRank: this.myRank ? of(this.myRank) : this.leaderboardService.getMyRank().pipe(catchError(() => of(null)))
-    }).pipe(
-      finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      })
-    ).subscribe(result => {
-      this.entries = result.entries;
-      if (!this.myRank && result.myRank) {
-        this.myRank = result.myRank;
-      }
-      this.updatePodium();
-      this.cdr.detectChanges();
-    });
+          this.challengePage = null;
+        }
+      });
   }
 
   updatePodium(): void {
-    if (!this.challengeId && this.entries.length >= 3) {
-      this.topThree = this.entries.slice(0, 3);
-      this.remainingEntries = this.entries.slice(3);
+    if (this.globalPage && this.globalPage.content) {
+      if (this.currentPage === 0 && this.globalPage.content.length >= 3) {
+        this.topThree = this.globalPage.content.slice(0, 3);
+        this.remainingEntries = this.globalPage.content.slice(3);
+      } else {
+        this.topThree = [];
+        this.remainingEntries = this.globalPage.content;
+      }
     } else {
       this.topThree = [];
-      this.remainingEntries = this.entries;
+      this.remainingEntries = [];
     }
   }
 
@@ -187,5 +327,23 @@ export class LeaderboardPageComponent implements OnInit {
     if (rank === 2) return 'bg-slate-200 text-slate-700 border-slate-400';
     if (rank === 3) return 'bg-orange-light text-orange border-orange';
     return 'bg-surface text-secondary border-transparent';
+  }
+  
+  nextPage() {
+    if (this.mode === 'OVERALL' && this.globalPage && !this.globalPage.last) {
+       this.currentPage++;
+       this.loadGlobalLeaderboard();
+    } else if (this.mode === 'CHALLENGE' && this.challengePage && !this.challengePage.last) {
+       this.currentPage++;
+       this.loadChallengeLeaderboard();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+       this.currentPage--;
+       if (this.mode === 'OVERALL') this.loadGlobalLeaderboard();
+       else this.loadChallengeLeaderboard();
+    }
   }
 }

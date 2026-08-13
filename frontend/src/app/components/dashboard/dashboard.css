@@ -1,15 +1,186 @@
-/* DASHBOARD CSS - POLISHED */
+/* ECOTRACK PERSONAL SUSTAINABILITY COMMAND CENTER (V2) */
 
 .dashboard-wrapper {
-  padding-bottom: 3rem;
+  padding-bottom: 4rem;
+  background-color: #f8fafc; /* Very soft neutral background */
+  min-height: 100vh;
 }
 
-.hero-section {
-  min-height: 120px;
-  background-image: url('/Hero-Banner.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: 1rem;
-  padding: 2rem;
+/* Typography & Utilities */
+.tracking-tight { letter-spacing: -0.03em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.tracking-wide { letter-spacing: 0.025em; }
+.fs-xs { font-size: 0.75rem; }
+.fw-black { font-weight: 900; }
+.text-slate-muted { color: #64748b; }
+.text-teal { color: #0d9488; }
+.backdrop-blur { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+
+/* Section Headers */
+.section-header {
+  border-bottom: 2px solid rgba(0,0,0,0.03);
+  padding-bottom: 0.75rem;
+}
+
+/* 1. HERO: The Ecosystem */
+.ecosystem-hero {
+  background: var(--hero-gradient);
+  border-radius: 2.5rem;
+  padding: 4rem 3.5rem;
+  box-shadow: 0 10px 40px -10px rgba(13, 148, 136, 0.08);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.btn-ecosystem-primary {
+  background-color: #0f766e;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 3rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.3);
+}
+.btn-ecosystem-primary:hover {
+  background-color: #0d9488;
+  transform: translateY(-2px);
+  color: white;
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+}
+
+/* Refined EcoScore Visual */
+.ecoscore-refined-container {
+  width: 280px;
+  height: 280px;
+}
+
+.score-circle-border {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, currentColor 0%, rgba(255,255,255,0) 50%, currentColor 100%);
+  opacity: 0.15;
+  animation: slow-spin 15s linear infinite;
+}
+
+@keyframes slow-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ecoscore-ambient-glow {
+  filter: blur(40px);
+  animation: slow-breathe 8s ease-in-out infinite alternate;
+  width: 120%;
+  height: 120%;
+}
+
+@keyframes slow-breathe {
+  0% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.95); }
+  100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* Score Reveal Animation */
+.score-value-refined {
+  font-size: 4.5rem;
+  letter-spacing: -0.05em;
+  animation: score-reveal 1s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes score-reveal {
+  0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Hero Entrance Animations */
+.hero-text-reveal {
+  animation: hero-slide-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.hero-visual-reveal {
+  animation: hero-fade-in 1s ease-out backwards;
+  animation-delay: 0.1s;
+}
+@keyframes hero-slide-up {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-fade-in {
+  0% { opacity: 0; filter: blur(4px); transform: scale(0.98); }
+  100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+/* Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .score-circle-border,
+  .ecoscore-ambient-glow,
+  .score-value-refined,
+  .hero-text-reveal,
+  .hero-visual-reveal {
+    animation: none !important;
+  }
+}
+
+/* Horizontal Metrics Bar */
+.supporting-metrics-bar {
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.metric-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+}
+.metric-divider {
+  width: 1px;
+  height: 30px;
+  background-color: #e2e8f0;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* 2. IMPACT SECTION */
+.impact-feature-card {
+  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+  border: 1px solid #e2e8f0;
+}
+
+/* 3. LIST STYLES (History) */
+.history-list-item {
+  border-bottom: 1px solid #f1f5f9;
+  padding: 1rem 0;
+}
+.history-list-item:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 991px) {
+  .ecosystem-hero {
+    padding: 2rem;
+  }
+}
+@media (max-width: 576px) {
+  .ecosystem-hero {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+  }
+  .supporting-metrics-bar {
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
 }

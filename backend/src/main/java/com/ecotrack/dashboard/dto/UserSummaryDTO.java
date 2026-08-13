@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 public class UserSummaryDTO {
     private BigDecimal totalEmission;
     private BigDecimal monthlyEmission;
+    private BigDecimal previousMonthEmission;
     private BigDecimal weeklyEmission;
     private Long totalEntries;
+    private Long weeklyEntries;
 }

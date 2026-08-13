@@ -32,6 +32,16 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/api/users/me`, { responseType: 'text' });
   }
 
+  getCurrentUserValue(): any {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  }
+
   saveToken(token: string): void {
     localStorage.setItem('auth_token', token);
   }

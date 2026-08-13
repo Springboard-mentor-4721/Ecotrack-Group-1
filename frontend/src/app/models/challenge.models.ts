@@ -44,6 +44,9 @@ export interface ChallengeParticipant {
   status: ChallengeParticipantStatus;
   joinedAt: string;
   completedAt: string | null;
+  challengeTitle?: string;
+  targetValue?: number;
+  progressMetric?: ProgressMetric;
 }
 
 export interface MyChallengeEntry {

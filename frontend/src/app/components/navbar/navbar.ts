@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -25,7 +25,8 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private profileService: ProfileService,
-    private eRef: ElementRef
+    private eRef: ElementRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -41,7 +42,10 @@ export class NavbarComponent implements OnInit {
   loadUserProfile(): void {
     if (this.authService.isLoggedIn()) {
       this.profileService.getMyProfile().subscribe({
-        next: (profile) => this.userProfile = profile,
+        next: (profile) => {
+          this.userProfile = profile;
+          this.cdr.detectChanges();
+        },
         error: () => {
           console.warn('Failed to load profile for navbar, falling back to JWT');
           const token = this.authService.getToken();
@@ -58,6 +62,7 @@ export class NavbarComponent implements OnInit {
           } else {
             this.userProfile = { name: 'User', email: '' };
           }
+          this.cdr.detectChanges();
         }
       });
     }

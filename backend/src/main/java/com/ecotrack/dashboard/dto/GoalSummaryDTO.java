@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,4 +15,5 @@ public class GoalSummaryDTO {
     private long completedGoals;
     private long expiredGoals;
     private double completionPercentage;
+    private List<com.ecotrack.goal.dto.GoalResponse> activeGoalsList;
 }

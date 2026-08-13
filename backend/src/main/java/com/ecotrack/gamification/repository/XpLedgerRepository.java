@@ -29,4 +29,10 @@ public interface XpLedgerRepository extends JpaRepository<XpLedger, Long> {
            "FROM XpLedger x WHERE x.awardedAt >= :startDate " +
            "GROUP BY x.user.id, x.user.name ORDER BY totalXp DESC")
     java.util.List<Object[]> findTopUsersByXpSince(@Param("startDate") LocalDateTime startDate, org.springframework.data.domain.Pageable pageable);
+
+    @Query("SELECT COALESCE(SUM(x.xpAwarded), 0) FROM XpLedger x WHERE x.user.id = :userId AND x.awardedAt >= :startDate")
+    Long findSumByUserIdAndAwardedAtAfter(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
+
+    @Query(value = "SELECT COUNT(*) FROM (SELECT SUM(xp_awarded) as totalXp FROM xp_ledger WHERE awarded_at >= :startDate GROUP BY user_id HAVING SUM(xp_awarded) > :xp) as u", nativeQuery = true)
+    Long countUsersWithXpGreaterThanSince(@Param("xp") Long xp, @Param("startDate") LocalDateTime startDate);
 }

@@ -19,7 +19,7 @@ import { CarbonTrackerComponent } from './components/carbon-tracker/carbon-track
 import { GoalsComponent } from './components/goals/goals';
 import { ReportsComponent } from './components/reports/reports';
 import { ProfileComponent } from './components/profile/profile';
-import { SettingsComponent } from './components/settings/settings';
+
 import { OAuth2SuccessComponent } from './components/oauth2-success/oauth2-success';
 import { ResetPasswordComponent } from './components/reset-password/reset-password';
 import { authGuard } from './guards/auth.guard';
@@ -79,10 +79,7 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfileComponent
       },
-      {
-        path: 'settings',
-        component: SettingsComponent
-      },
+
       {
         path: 'admin/dashboard',
         component: AdminDashboardComponent,

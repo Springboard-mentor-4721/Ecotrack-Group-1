@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { DashboardResponse } from '../models/dashboard.models';
+import { DashboardSummaryDTO } from '../models/dashboard.models';
 import { EcoTipResponse, TrendPredictionResponse, BehavioralInsightsResponse } from '../models/ai-models';
 
 @Injectable({
@@ -13,8 +13,8 @@ export class DashboardService {
 
   constructor(private http: HttpClient) {}
 
-  getUserDashboard(): Observable<DashboardResponse> {
-    return this.http.get<DashboardResponse>(`${this.apiUrl}/api/dashboard/user`);
+  getDashboardSummary(): Observable<DashboardSummaryDTO> {
+    return this.http.get<DashboardSummaryDTO>(`${this.apiUrl}/api/dashboard/summary`);
   }
 
   getEcoTip(): Observable<EcoTipResponse> {

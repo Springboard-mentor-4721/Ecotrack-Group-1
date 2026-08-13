@@ -1,9 +1,12 @@
 <div class="card-premium h-100">
-  <div class="d-flex align-items-center mb-4">
-    <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 me-3">
-      <i class="lucide-trophy" style="width: 24px; height: 24px;"></i>
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+      <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 me-3">
+        <i class="lucide-trophy" style="width: 24px; height: 24px;"></i>
+      </div>
+      <h3 class="fs-4 fw-bold mb-0">Top Participants</h3>
     </div>
-    <h3 class="fs-4 fw-bold mb-0">Top Participants</h3>
+    <a [routerLink]="['/leaderboard']" [queryParams]="{mode: 'challenge', challengeId: challengeId}" class="btn btn-sm btn-outline-emerald rounded-pill">View All</a>
   </div>
 
   <div *ngIf="isLoading" class="d-flex flex-column gap-3">
@@ -16,27 +19,32 @@
     </div>
   </div>
 
-  <div *ngIf="hasError && !isLoading" class="text-center py-4 text-muted">
+  <div *ngIf="has403Error && !isLoading" class="text-center py-4 text-muted border rounded-3 bg-surface">
+    <i class="lucide-lock mb-2 text-danger" style="width: 24px; height: 24px;"></i>
+    <p class="mb-0 fs-sm fw-600">Join to see leaderboard</p>
+  </div>
+
+  <div *ngIf="hasError && !isLoading && !has403Error" class="text-center py-4 text-muted">
     <i class="lucide-alert-circle mb-2" style="width: 24px; height: 24px;"></i>
-    <p class="mb-0 fs-sm">Failed to load leaderboard. Please try again later.</p>
+    <p class="mb-0 fs-sm">Failed to load leaderboard.</p>
   </div>
 
-  <div *ngIf="!isLoading && !hasError && participants.length === 0" class="text-center py-4 text-muted">
+  <div *ngIf="!isLoading && !hasError && !has403Error && participants.length === 0" class="text-center py-4 text-muted">
     <i class="lucide-users mb-2" style="width: 24px; height: 24px;"></i>
-    <p class="mb-0 fs-sm">No participants yet. Be the first to join!</p>
+    <p class="mb-0 fs-sm">No participants yet.</p>
   </div>
 
-  <div *ngIf="!isLoading && !hasError && participants.length > 0" class="d-flex flex-column gap-3">
+  <div *ngIf="!isLoading && !hasError && !has403Error && participants.length > 0" class="d-flex flex-column gap-3">
     <div *ngFor="let p of participants; let i = index" class="d-flex align-items-center p-2 rounded transition-all hover-bg">
-      <div class="rank-badge fw-bold text-center me-3" [ngClass]="{'rank-1': i === 0, 'rank-2': i === 1, 'rank-3': i === 2}">
-        {{ i + 1 }}
+      <div class="rank-badge fw-bold text-center me-3" [ngClass]="{'rank-1': p.rank === 1, 'rank-2': p.rank === 2, 'rank-3': p.rank === 3}">
+        {{ p.rank }}
       </div>
       <div class="d-flex flex-column flex-grow-1">
-        <span class="fw-bold fs-sm">{{ p.userName || ('User #' + p.userId) }}</span>
-        <span class="text-muted fs-xs">{{ p.progress }} {{ challengeUnit }}</span>
+        <span class="fw-bold fs-sm">{{ p.username }}</span>
+        <span class="text-muted fs-xs">{{ p.metricValue }}</span>
         <span *ngIf="p.status === 'COMPLETED' && p.completedAt" class="text-muted fs-xs">Completed: {{ p.completedAt | date:'mediumDate' }}</span>
       </div>
-      <app-challenge-status-badge [status]="p.status" size="sm"></app-challenge-status-badge>
+      <app-challenge-status-badge [status]="p.status || 'ACTIVE'" size="sm"></app-challenge-status-badge>
     </div>
   </div>
 </div>

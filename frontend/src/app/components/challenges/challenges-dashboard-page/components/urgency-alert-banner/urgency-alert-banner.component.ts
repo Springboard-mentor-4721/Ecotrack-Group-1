@@ -28,7 +28,7 @@ export interface UrgencyAlert {
           <div class="d-flex align-items-center gap-3">
             <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"
                  [ngClass]="{'ch-bg-danger bg-opacity-10 ch-text-danger': alert.type === 'BUDGET_CRITICAL', 'ch-bg-warning bg-opacity-10 ch-text-warning': alert.type === 'EXPIRING_SOON'}">
-              <svg aria-hidden="true" *ngIf="alert.type === 'BUDGET_CRITICAL'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              <svg aria-hidden="true" *ngIf="alert.type === 'BUDGET_CRITICAL'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
               <svg aria-hidden="true" *ngIf="alert.type === 'EXPIRING_SOON'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </div>
             

@@ -15,10 +15,12 @@ import { ChallengeSearchInputComponent } from './components/challenge-search-inp
 import { ChallengeFilterBarComponent } from './components/challenge-filter-bar/challenge-filter-bar.component';
 import { getDaysRemaining } from '../shared/utils/date.utils';
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-challenge-list-page',
   standalone: true,
-  imports: [CommonModule, LoadingSkeletonComponent, ChallengeCardComponent, ExplorePageHeaderComponent, ResultsCountComponent, EmptyStateComponent, PaginationControlComponent, ChallengeSearchInputComponent, ChallengeFilterBarComponent],
+  imports: [CommonModule, RouterModule, LoadingSkeletonComponent, ChallengeCardComponent, ExplorePageHeaderComponent, ResultsCountComponent, EmptyStateComponent, PaginationControlComponent, ChallengeSearchInputComponent, ChallengeFilterBarComponent],
   templateUrl: './challenge-list-page.component.html',
   styleUrl: './challenge-list-page.component.css'
 })

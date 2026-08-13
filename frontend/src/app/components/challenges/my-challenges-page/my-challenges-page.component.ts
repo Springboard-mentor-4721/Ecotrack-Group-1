@@ -13,10 +13,12 @@ import { MyChallengesEmptyStateComponent } from './components/my-challenges-empt
 
 export type TabType = 'ACTIVE' | 'COMPLETED' | 'FAILED';
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-my-challenges-page',
   standalone: true,
-  imports: [CommonModule, MyChallengeCardComponent, LoadingSkeletonComponent, MyChallengesHeaderComponent, MyChallengesTabBarComponent, MyChallengesEmptyStateComponent],
+  imports: [CommonModule, RouterModule, MyChallengeCardComponent, LoadingSkeletonComponent, MyChallengesHeaderComponent, MyChallengesTabBarComponent, MyChallengesEmptyStateComponent],
   templateUrl: './my-challenges-page.component.html',
   styleUrls: ['./my-challenges-page.component.css']
 })

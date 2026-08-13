@@ -8,21 +8,33 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { AdminService } from '../../services/admin.service';
 import { AdminDashboardResponse } from '../../models/admin.models';
 import { DashboardService } from '../../services/dashboard.service';
-import { GamificationService } from '../../services/gamification.service';
-import { DashboardResponse, RecentActivityDTO } from '../../models/dashboard.models';
-import { GamificationProfile, Badge } from '../../models/gamification.models';
+import { 
+  DashboardSummaryDTO, 
+  RecentActivityDTO, 
+  GoalResponse,
+  ChallengeParticipantDTO,
+  BadgeDTO
+} from '../../models/dashboard.models';
 import { forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 
-import { EcoScoreCardComponent } from './widgets/eco-score-card/eco-score-card.component';
-import { XpLevelBarComponent } from './widgets/xp-level-bar/xp-level-bar.component';
-import { StreakTrackerComponent } from './widgets/streak-tracker/streak-tracker.component';
 import { RecentAchievementsComponent } from './widgets/recent-achievements/recent-achievements.component';
 import { EcoTipCardComponent } from './widgets/eco-tip-card/eco-tip-card.component';
 import { UnifiedInsightsPanelComponent } from './widgets/unified-insights-panel/unified-insights-panel.component';
 import { AiFeatureState } from '../../models/ai-feature-state.model';
 import { EcoTipResponse } from '../../models/ai-models';
+import { EcoScoreColorPipe } from '../../shared/pipes/eco-score-color.pipe';
+import { 
+  LucideAngularModule, 
+  Sparkles, 
+  Layers, 
+  Flame, 
+  Trophy, 
+  ArrowRight,
+  TrendingUp,
+  Activity
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,12 +44,11 @@ import { EcoTipResponse } from '../../models/ai-models';
     RouterModule, 
     LoadingSkeletonComponent, 
     BaseChartDirective,
-    EcoScoreCardComponent,
-    XpLevelBarComponent,
-    StreakTrackerComponent,
-    RecentAchievementsComponent,
     EcoTipCardComponent,
-    UnifiedInsightsPanelComponent
+    UnifiedInsightsPanelComponent,
+    RecentAchievementsComponent,
+    EcoScoreColorPipe,
+    LucideAngularModule
   ],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './dashboard.html',
@@ -46,43 +57,38 @@ import { EcoTipResponse } from '../../models/ai-models';
 export class DashboardComponent implements OnInit {
   @ViewChildren(BaseChartDirective) charts!: QueryList<BaseChartDirective>;
 
+  Math = Math;
+
+  // Icons
+  readonly SparklesIcon = Sparkles;
+  readonly LayersIcon = Layers;
+  readonly TrendingUpIcon = TrendingUp;
+  readonly FlameIcon = Flame;
+  readonly TrophyIcon = Trophy;
+  readonly ArrowRightIcon = ArrowRight;
+  readonly PlusIcon = Activity;
+
   // Core State
   isLoading = true;
+  apiError = false;
   isAdmin = false;
-  isLeaderboardLoading = false;
-  leaderboardError = '';
-
-  weeklyJourney: any[] = []; // Used for placeholder empty state logic
-  adminStatsLoading = false;
-  gamificationLoading = true;
   
   // Data
   user: any = null;
-  profileCompletion: number | null = null;
-  totalEmissions = 0; // Current 30 days
-  totalEntries = 0;
-  recentEntries: RecentActivityDTO[] = [];
+  dashboardSummary: DashboardSummaryDTO | null = null;
   adminStats: AdminDashboardResponse | null = null;
-  
-  // Gamification Data
-  gamificationProfile: GamificationProfile | null = null;
-  recentBadges: Badge[] = [];
   
   // AI Feature States
   ecoTipState: AiFeatureState<EcoTipResponse> = { loading: false, data: null, error: null, empty: true };
   
   // Storytelling Elements
   greeting = 'Good Day';
-  quote = '';
   today = new Date();
+  heroInsight: string = '';
   
   // Custom Data Structures for UI
-  ecoScore: number = 0;
-  ecoGrade: string = 'N/A';
-  streak: number = 0;
-  goalsHealth: string = 'Good';
-  achievements: number = 0;
   carbonSources: { name: string, percentage: number, value: number, color: string }[] = [];
+  emissionsChangePercent: number | null = null;
 
   // Charts
   public lineChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
@@ -140,7 +146,6 @@ export class DashboardComponent implements OnInit {
   constructor(
     private profileService: ProfileService,
     private dashboardService: DashboardService,
-    private gamificationService: GamificationService,
     private adminService: AdminService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
@@ -164,34 +169,15 @@ export class DashboardComponent implements OnInit {
     if (hour < 12) this.greeting = 'Good Morning';
     else if (hour < 18) this.greeting = 'Good Afternoon';
     else this.greeting = 'Good Evening';
-
-    const quotes = [
-      "There is no Planet B.",
-      "Every sustainable action ripples outward.",
-      "The greatest threat to our planet is the belief that someone else will save it.",
-      "Small habits transform the world.",
-      "Sustainability is a journey, not a destination."
-    ];
-    this.quote = quotes[Math.floor(Math.random() * quotes.length)];
-    
-    // Generate Weekly Journey (Last 7 Days)
-    this.weeklyJourney = [];
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    for(let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      this.weeklyJourney.push({
-        day: days[d.getDay()],
-        filled: false, // Will calculate after data loads
-        today: i === 0
-      });
-    }
   }
 
-  private loadDashboardData(): void {
+  loadDashboardData(): void {
+    this.isLoading = true;
+    this.apiError = false;
+
     forkJoin({
       profile: this.profileService.getMyProfile().pipe(catchError(() => of(null))),
-      dashboard: this.dashboardService.getUserDashboard().pipe(catchError(() => of(null)))
+      dashboard: this.dashboardService.getDashboardSummary().pipe(catchError(() => of(null)))
     }).pipe(
       finalize(() => {
         this.isLoading = false;
@@ -207,49 +193,24 @@ export class DashboardComponent implements OnInit {
       next: (results) => {
         if (results.profile) {
           this.user = results.profile;
-          this.profileCompletion = this.calculateProfileCompletion(results.profile);
         }
         
         if (results.dashboard) {
-          const dash = results.dashboard;
-          this.totalEmissions = dash.userSummary?.monthlyEmission || 0;
-          this.totalEntries = dash.userSummary?.totalEntries || 0;
-          this.recentEntries = dash.recentActivities || [];
-          // Gamification data is now loaded from GamificationService to avoid conflicts
-          // this.ecoScore and this.ecoGrade are handled after GamificationProfile loads
-          this.processCarbonSources(dash.categoryBreakdown);
-          this.updateCharts(dash.monthlyTrend);
-          this.processGoals(dash.goalSummary);
+          this.dashboardSummary = results.dashboard;
+          this.processCarbonSources(this.dashboardSummary?.categoryBreakdown);
+          this.updateCharts(this.dashboardSummary?.monthlyTrend);
+          this.calculateEmissionsChange();
+        } else {
+          this.apiError = true;
         }
 
         if (this.isAdmin) {
           this.loadAdminStats();
         }
       },
-      error: (err) => console.error('Failed to load dashboard data', err)
-    });
-
-    // Load Gamification separately
-    this.gamificationLoading = true;
-    forkJoin({
-      profile: this.gamificationService.getProfile().pipe(catchError(() => of(null))),
-      badges: this.gamificationService.getBadges().pipe(catchError(() => of(null)))
-    }).pipe(
-      finalize(() => {
-        this.gamificationLoading = false;
-        this.cdr.detectChanges();
-      })
-    ).subscribe({
-      next: (res) => {
-        if (res.profile) {
-          this.gamificationProfile = res.profile;
-          this.streak = res.profile.currentStreak || 0;
-          this.ecoScore = res.profile.currentEcoScore || 0;
-          this.ecoGrade = res.profile.currentEcoGrade || 'C';
-        }
-        if (res.badges) {
-          this.recentBadges = res.badges.filter(b => b.isEarned).slice(0, 5);
-        }
+      error: (err) => {
+        console.error('Failed to load dashboard data', err);
+        this.apiError = true;
       }
     });
 
@@ -263,6 +224,29 @@ export class DashboardComponent implements OnInit {
       next: (res) => this.ecoTipState = { loading: false, data: res, error: null, empty: false },
       error: (err) => this.ecoTipState = { loading: false, data: null, error: 'Failed to generate daily tip', empty: true }
     });
+  }
+
+  private calculateEmissionsChange(): void {
+    const current = this.dashboardSummary?.userSummary.monthlyEmission || 0;
+    const previous = this.dashboardSummary?.userSummary.previousMonthEmission || 0;
+    
+    if (previous === 0) {
+      this.emissionsChangePercent = null;
+    } else {
+      this.emissionsChangePercent = ((current - previous) / previous) * 100;
+    }
+
+    this.generateHeroInsight();
+  }
+
+  private generateHeroInsight(): void {
+    if (this.emissionsChangePercent !== null && this.emissionsChangePercent < 0) {
+      this.heroInsight = `Great job! Your emissions are down ${Math.abs(this.emissionsChangePercent).toFixed(1)}% this month.`;
+    } else if (this.dashboardSummary?.gamificationProfile.currentStreak && this.dashboardSummary.gamificationProfile.currentStreak >= 3) {
+      this.heroInsight = `You're on a ${this.dashboardSummary.gamificationProfile.currentStreak}-day sustainability streak. Keep it up!`;
+    } else {
+      this.heroInsight = 'Ready to make a positive impact today?';
+    }
   }
 
   private processCarbonSources(categorySummaries: any[] | undefined): void {
@@ -291,35 +275,6 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  private processGoals(goalSummary: any): void {
-    if (!goalSummary) {
-      this.achievements = 0;
-      this.goalsHealth = '0';
-      return;
-    }
-    
-    this.achievements = goalSummary.completedGoals || 0;
-    
-    const percentage = goalSummary.completionPercentage || 0;
-    
-    if (percentage >= 80) this.goalsHealth = 'Excellent';
-    else if (percentage >= 50) this.goalsHealth = 'Good';
-    else if (percentage >= 20) this.goalsHealth = 'Needs Attention';
-    else this.goalsHealth = 'Critical';
-  }
-
-  private calculateProfileCompletion(profile: any): number | null {
-    if (!profile) return 0;
-    const fields = ['name', 'email', 'bio', 'profilePictureUrl', 'location', 'lifestylePreferences'];
-    let filled = 0;
-    fields.forEach(f => {
-      if (profile[f] !== null && profile[f] !== undefined && String(profile[f]).trim() !== '') {
-        filled++;
-      }
-    });
-    return Math.round((filled / fields.length) * 100);
-  }
-
   private updateCharts(monthlyTrend: any): void {
     if (!monthlyTrend || monthlyTrend.length === 0) {
       this.lineChartData = { labels: [], datasets: [] };
@@ -345,15 +300,38 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadAdminStats(): void {
-    this.adminStatsLoading = true;
     this.adminService.getDashboardSummary()
-      .pipe(finalize(() => {
-        this.adminStatsLoading = false;
-        this.cdr.detectChanges();
-      }))
+      .pipe(catchError(() => of(null)))
       .subscribe({
-        next: (stats: any) => this.adminStats = stats,
-        error: (err: any) => console.error('Failed to load admin stats', err)
+        next: (stats: any) => this.adminStats = stats
       });
+  }
+
+  get trendInsight(): string {
+    if (!this.dashboardSummary?.monthlyTrend || this.dashboardSummary.monthlyTrend.length < 2) return 'Last 6 Months';
+    const len = this.dashboardSummary.monthlyTrend.length;
+    const last = this.dashboardSummary.monthlyTrend[len - 1].emission;
+    const prev = this.dashboardSummary.monthlyTrend[len - 2].emission;
+    if (last > prev) return 'Emissions increased this month.';
+    if (last < prev) return 'Your emissions are trending downward.';
+    return 'Last 6 Months';
+  }
+
+  get topSourceInsight(): string {
+    if (this.carbonSources.length > 0) {
+      const top = this.carbonSources[0];
+      return `Top source: ${top.name} \u00B7 ${top.percentage.toFixed(0)}%`;
+    }
+    return 'Last 30 Days';
+  }
+
+  getMetricUnit(metric: string | undefined): string {
+    if (!metric) return '';
+    switch (metric) {
+      case 'ENTRY_COUNT': return 'entries';
+      case 'QUANTITY': return 'kg';
+      case 'CARBON_EMISSION': return 'kgCO2e';
+      default: return '';
+    }
   }
 }

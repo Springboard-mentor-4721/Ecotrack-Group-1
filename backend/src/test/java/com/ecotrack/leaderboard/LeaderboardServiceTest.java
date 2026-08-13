@@ -30,6 +30,9 @@ public class LeaderboardServiceTest {
     @Mock
     private com.ecotrack.gamification.repository.XpLedgerRepository xpLedgerRepository;
 
+    @Mock
+    private com.ecotrack.user.repository.UserProfileRepository userProfileRepository;
+
     @InjectMocks
     private LeaderboardService leaderboardService;
 

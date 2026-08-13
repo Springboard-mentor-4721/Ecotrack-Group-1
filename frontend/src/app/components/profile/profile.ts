@@ -12,11 +12,12 @@ import { finalize, forkJoin } from 'rxjs';
 import { HttpEventType } from '@angular/common/http';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
+import { EcoScoreColorPipe } from '../../shared/pipes/eco-score-color.pipe';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LoadingSkeletonComponent, ImageCropperComponent],
+  imports: [CommonModule, ReactiveFormsModule, LoadingSkeletonComponent, ImageCropperComponent, EcoScoreColorPipe],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })
@@ -101,9 +102,9 @@ export class ProfileComponent implements OnInit {
         ];
         
         this.profileForm.patchValue({
-          bio: this.profile.bio || '',
-          location: this.profile.location || '',
-          lifestylePreferences: this.profile.lifestylePreferences || ''
+          bio: this.profile?.bio || '',
+          location: this.profile?.location || '',
+          lifestylePreferences: this.profile?.lifestylePreferences || ''
         });
       },
       error: (err) => {

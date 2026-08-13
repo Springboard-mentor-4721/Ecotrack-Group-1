@@ -60,7 +60,7 @@ public class UnifiedInsightsService {
     }
 
     public Optional<AiInsightsResponse> getLatestInsight(Long userId) {
-        String refKey = LocalDate.now().toString(); // simple daily cache key for insights
+        String refKey = LocalDate.now().toString() + "_v2"; // simple daily cache key for insights
         return cacheRepository.findFresh(userId, AiInsightCache.InsightType.AI_SUSTAINABILITY_INSIGHTS, refKey, LocalDateTime.now())
                 .map(cache -> codec.deserialize(cache.getPayloadJson(), AiInsightsResponse.class));
     }
@@ -70,7 +70,7 @@ public class UnifiedInsightsService {
             return fallbackInsight();
         }
 
-        String refKey = LocalDate.now().toString();
+        String refKey = LocalDate.now().toString() + "_v2";
 
         try {
             TrendMetrics trend = metricsService.calculateTrend(userId, LocalDate.now(), 30);

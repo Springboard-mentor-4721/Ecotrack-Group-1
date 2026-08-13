@@ -1,8 +1,7 @@
 <!-- Action Panel (If Not Joined) -->
 <div *ngIf="!challenge.userProgress" class="card-premium border-0 p-5 shadow-sm h-100 d-flex flex-column align-items-center justify-content-center text-center transition-all group position-relative overflow-hidden">
-  <div class="position-absolute top-0 end-0 bg-emerald opacity-10 rounded-circle translate-middle" style="width: 300px; height: 300px; pointer-events: none;"></div>
   
-  <div class="bg-emerald bg-opacity-10 text-emerald rounded-circle p-4 mb-4 position-relative z-1 border border-emerald border-opacity-25 shadow-sm transition-transform group-hover:scale-110" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+  <div class="bg-emerald-light text-emerald rounded-circle p-4 mb-4 position-relative z-1 border border-emerald border-opacity-25 shadow-sm transition-transform group-hover:scale-110" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
     <lucide-icon [img]="RocketIcon" size="48" strokeWidth="2"></lucide-icon>
   </div>
   <h3 class="fw-bolder text-primary mb-3 position-relative z-1">
@@ -17,13 +16,12 @@
     <ng-container *ngIf="!challenge.challengeEvaluationType">Join this challenge, log your actions daily, and earn rewards for your contribution to a better planet.</ng-container>
   </p>
   
-  <button class="btn rounded-pill py-3 px-5 fw-bold shadow-sm position-relative z-1 w-100 fs-5 transition-all group hover-translate-up"
-          style="background-color: var(--color-emerald); color: white;"
+  <button class="btn btn-emerald rounded-pill py-3 px-5 fw-bold shadow-sm position-relative z-1 w-100 fs-5 transition-all group hover-translate-up d-flex align-items-center justify-content-center gap-2"
           (click)="joinClicked.emit()"
           [disabled]="isActionLoading || challenge.status !== 'ACTIVE'">
-    <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm me-2"></span>
-    {{ challenge.status === 'ACTIVE' ? 'Accept Challenge' : 'Not Available' }}
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-2 transition-all group-hover-translate-x"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm"></span>
+    <span>{{ challenge.status === 'ACTIVE' ? 'Accept Challenge' : 'Not Available' }}</span>
+    <svg *ngIf="challenge.status === 'ACTIVE' && !isActionLoading" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="transition-transform group-hover:translate-x-1" style="transition: transform 0.2s ease;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
   </button>
 </div>
 
@@ -77,7 +75,7 @@
       Log Today's Impact
     </button>
     
-    <div *ngIf="challenge.trackingMethod === 'AUTOMATIC'" class="bg-emerald bg-opacity-10 text-emerald rounded-pill py-3 px-4 fw-bolder text-center w-100 mt-auto fs-sm border border-emerald border-opacity-25 d-flex align-items-center justify-content-center">
+    <div *ngIf="challenge.trackingMethod === 'AUTOMATIC'" class="bg-emerald-light text-emerald rounded-pill py-3 px-4 fw-bolder text-center w-100 mt-auto fs-sm border border-emerald border-opacity-25 d-flex align-items-center justify-content-center">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       Automatic Tracking Enabled
     </div>

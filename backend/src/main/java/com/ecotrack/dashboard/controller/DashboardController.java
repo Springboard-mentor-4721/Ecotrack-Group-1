@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final com.ecotrack.dashboard.service.DashboardSummaryService dashboardSummaryService;
     private final com.ecotrack.user.repository.UserRepository userRepository;
     private final com.ecotrack.dashboard.ai.service.DailyEcoTipService dailyEcoTipService;
     private final com.ecotrack.dashboard.ai.service.TrendPredictionService trendPredictionService;
@@ -30,6 +31,15 @@ public class DashboardController {
         log.info("Fetching user dashboard data");
         String userEmail = authentication.getName();
         DashboardResponse response = dashboardService.getDashboardData(userEmail);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/summary")
+    public ResponseEntity<com.ecotrack.dashboard.dto.DashboardSummaryDTO> getDashboardSummary(Authentication authentication) {
+        log.info("Fetching unified dashboard summary");
+        String userEmail = authentication.getName();
+        com.ecotrack.dashboard.dto.DashboardSummaryDTO response = dashboardSummaryService.getDashboardSummary(userEmail);
         return ResponseEntity.ok(response);
     }
 

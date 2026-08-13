@@ -12,7 +12,7 @@
       <div class="badge shadow-sm"
            style="backdrop-filter: blur(8px); background-color: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.3);"
            [ngClass]="challenge.challengeEvaluationType === 'ACHIEVEMENT' ? 'text-white' : 'text-warning'">
-        {{ challenge.challengeEvaluationType === 'ACHIEVEMENT' ? 'Target Goal' : (challenge.challengeEvaluationType === 'BUDGET' ? 'Budget Limit' : 'Challenge') }}
+        {{ challenge.challengeEvaluationType === 'ACHIEVEMENT' ? 'Achievement' : (challenge.challengeEvaluationType === 'BUDGET' ? 'Budget' : 'Challenge') }}
       </div>
     </div>
     <div class="position-absolute top-0 end-0 m-2">

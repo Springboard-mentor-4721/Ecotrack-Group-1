@@ -1,8 +1,25 @@
+import { BadgeRarity } from './gamification.models';
+
 export interface UserSummaryDTO {
   totalEmission: number;
   monthlyEmission: number;
+  previousMonthEmission: number;
   weeklyEmission: number;
   totalEntries: number;
+  weeklyEntries: number;
+}
+
+export interface GoalResponse {
+  id: number;
+  goalType: string;
+  title: string;
+  description: string;
+  targetValue: number;
+  currentValue: number;
+  unit: string;
+  targetDate: string;
+  status: string;
+  isAutomatic: boolean;
 }
 
 export interface GoalSummaryDTO {
@@ -10,6 +27,40 @@ export interface GoalSummaryDTO {
   completedGoals: number;
   expiredGoals: number;
   completionPercentage: number;
+  activeGoalsList: GoalResponse[];
+}
+
+export interface GamificationProfileDTO {
+  userId: number;
+  currentEcoScore: number;
+  currentEcoGrade: string;
+  lifetimeEcoXp: number;
+  currentLevel: number;
+  currentLevelBaseXp: number;
+  nextLevelXp: number;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface LeaderboardEntryDTO {
+  userId: number;
+  username: string;
+  scoreValue: number;
+  rank: number;
+  level: number;
+  xpToNextRank: number;
+}
+
+export interface ChallengeParticipantDTO {
+  id: number;
+  challengeId: number;
+  userId: number;
+  progress: number;
+  status: string;
+  joinedAt: string;
+  challengeTitle?: string;
+  targetValue?: number;
+  progressMetric?: string;
 }
 
 export interface CarbonTrendDTO {
@@ -30,16 +81,25 @@ export interface RecentActivityDTO {
   entryDate: string;
 }
 
-export interface EcoScoreDTO {
-  score: number;
-  grade: string;
+export interface BadgeDTO {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  rarity: BadgeRarity;
+  isEarned: boolean;
+  awardedAt: string;
 }
 
-export interface DashboardResponse {
+export interface DashboardSummaryDTO {
   userSummary: UserSummaryDTO;
   goalSummary: GoalSummaryDTO;
+  gamificationProfile: GamificationProfileDTO;
+  leaderboardRank: LeaderboardEntryDTO;
+  monthlyLeaderboardRank?: LeaderboardEntryDTO;
+  activeChallenges: ChallengeParticipantDTO[];
   monthlyTrend: CarbonTrendDTO[];
   categoryBreakdown: CategoryBreakdownDTO[];
   recentActivities: RecentActivityDTO[];
-  ecoScore: EcoScoreDTO;
+  recentBadges: BadgeDTO[];
 }

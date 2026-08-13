@@ -3,6 +3,8 @@ package com.ecotrack.dashboard.service;
 import com.ecotrack.dashboard.dto.*;
 import com.ecotrack.goal.entity.enums.GoalStatus;
 import com.ecotrack.goal.repository.GoalRepository;
+import com.ecotrack.gamification.repository.UserGamificationProfileRepository;
+import com.ecotrack.gamification.engine.EcoScoreEngine;
 import com.ecotrack.tracking.entity.CarbonEntry;
 import com.ecotrack.tracking.repository.CarbonEntryRepository;
 import com.ecotrack.tracking.repository.projection.CategoryEmissionProjection;
@@ -28,6 +30,8 @@ public class DashboardServiceImpl implements DashboardService {
     private final UserRepository userRepository;
     private final CarbonEntryRepository carbonEntryRepository;
     private final GoalRepository goalRepository;
+    private final UserGamificationProfileRepository gamificationProfileRepository;
+    private final EcoScoreEngine ecoScoreEngine;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,9 +50,11 @@ public class DashboardServiceImpl implements DashboardService {
                 .userSummary(buildUserSummary(userId, now, oneMonthAgo, oneWeekAgo, epoch))
                 .goalSummary(buildGoalSummary(userId))
                 .monthlyTrend(buildMonthlyTrend(userId, sixMonthsAgo, now))
-                .categoryBreakdown(buildCategoryBreakdown(userId, epoch, now))
+                // Fix: scope category breakdown to current monthly window (was all-time from epoch)
+                .categoryBreakdown(buildCategoryBreakdown(userId, oneMonthAgo, now))
                 .recentActivities(buildRecentActivities(userId))
-                .ecoScore(new EcoScoreDTO(0, "Pending"))
+                // Fix: populate real Eco Score from gamification profile (was hardcoded 0/Pending)
+                .ecoScore(buildEcoScore(userId))
                 .build();
     }
 
@@ -142,4 +148,22 @@ public class DashboardServiceImpl implements DashboardService {
                         entry.getEntryDate()
                 )).collect(Collectors.toList());
     }
+
+    /**
+     * Returns the real Eco Score from the user's gamification profile.
+     * Falls back to score=0/grade="N/A" for new users with no profile yet.
+     * Previously this method returned a hardcoded EcoScoreDTO(0, "Pending").
+     */
+    private EcoScoreDTO buildEcoScore(Long userId) {
+        return gamificationProfileRepository.findByUserId(userId)
+                .map(profile -> {
+                    int score = profile.getCurrentEcoScore() != null
+                            ? profile.getCurrentEcoScore().intValue()
+                            : 0;
+                    String grade = ecoScoreEngine.calculateGrade(profile.getCurrentEcoScore());
+                    return new EcoScoreDTO(score, grade);
+                })
+                .orElse(new EcoScoreDTO(0, "N/A"));
+    }
 }
+

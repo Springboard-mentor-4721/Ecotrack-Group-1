@@ -17,7 +17,7 @@
     <div *ngIf="riskLevel !== 'safe'" class="alert-row mb-3 p-2 rounded d-flex align-items-center" [ngClass]="'alert-bg-' + riskLevel">
       <span class="fw-bold fs-sm" [ngClass]="'text-' + riskLevel">
         <ng-container *ngIf="target > 0">
-          {{ riskLevel === 'caution' ? 'Caution: Approaching budget limit' : 'Critical: Budget limit exceeded, Challenge Failed' }}
+          {{ riskLevel === 'caution' ? 'Caution: Approaching Budget' : 'Critical: Budget exceeded, Challenge Failed' }}
         </ng-container>
         <ng-container *ngIf="target <= 0">
           Critical: Limit exceeded by {{ progress | number:'1.0-1' }} {{ unit }}

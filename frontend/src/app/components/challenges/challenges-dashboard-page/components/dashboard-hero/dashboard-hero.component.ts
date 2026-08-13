@@ -20,7 +20,7 @@ import { CommonModule } from '@angular/common';
           <div class="d-flex flex-column gap-0 rounded-4 text-start card-premium" style="padding: 1.5rem; min-width: 320px;">
             
             <div class="d-flex align-items-center gap-3 pb-3" style="border-bottom: 1px solid var(--border-color);">
-              <div class="rounded-circle d-flex align-items-center justify-content-center bg-emerald bg-opacity-10 text-emerald" style="width: 40px; height: 40px;">
+              <div class="rounded-circle d-flex align-items-center justify-content-center bg-emerald-light text-emerald" style="width: 40px; height: 40px;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
               </div>
               <div>

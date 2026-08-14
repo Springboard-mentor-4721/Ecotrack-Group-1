@@ -7,6 +7,16 @@
     </button>
   </div>
 
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link cursor-pointer" [class.active]="activeTab === 'GENERIC'" (click)="setTab('GENERIC')">Generic Badges</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link cursor-pointer" [class.active]="activeTab === 'CHALLENGE'" (click)="setTab('CHALLENGE')">Challenge Badges</a>
+    </li>
+  </ul>
+
   <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
     {{ successMessage }}
     <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
@@ -31,7 +41,7 @@
             <tr>
               <th class="border-0 px-4 py-3">Badge Info</th>
               <th class="border-0 py-3">Category</th>
-              <th class="border-0 py-3">Rarity</th>
+              <th class="border-0 py-3" *ngIf="activeTab === 'GENERIC'">Rarity</th>
               <th class="border-0 py-3">Criteria</th>
               <th class="border-0 py-3">Status</th>
               <th class="border-0 py-3 text-end px-4">Actions</th>
@@ -39,7 +49,7 @@
           </thead>
           <tbody>
             <tr *ngIf="badges.length === 0">
-              <td colspan="6" class="text-center py-4 text-muted">No badges found.</td>
+              <td [attr.colspan]="activeTab === 'GENERIC' ? 6 : 5" class="text-center py-4 text-muted">No badges found in this category.</td>
             </tr>
             <tr *ngFor="let badge of badges">
               <td class="px-4">
@@ -56,13 +66,16 @@
                 </div>
               </td>
               <td>{{ badge.category }}</td>
-              <td>
+              <td *ngIf="activeTab === 'GENERIC'">
                 <span [class]="getRarityClass(badge.rarity)">{{ badge.rarity }}</span>
               </td>
               <td>
-                <div class="small">
+                <div class="small" *ngIf="badge.type === 'GENERIC'">
                   <div class="fw-bold">{{ badge.criteriaType }}</div>
                   <div class="text-muted">Threshold: {{ badge.criteriaThreshold }}</div>
+                </div>
+                <div class="small" *ngIf="badge.type === 'CHALLENGE'">
+                  <span class="badge bg-secondary">Challenge Specific</span>
                 </div>
               </td>
               <td>
@@ -128,6 +141,16 @@
             </div>
 
             <div class="col-md-6">
+              <label class="form-label fw-bold">Badge Type</label>
+              <select class="form-select" formControlName="type"
+                      [ngClass]="{'is-invalid': badgeForm.get('type')?.invalid && badgeForm.get('type')?.touched}">
+                <option value="GENERIC">Generic Achievement</option>
+                <option value="CHALLENGE">Challenge Badge</option>
+              </select>
+              <div class="invalid-feedback">Type is required.</div>
+            </div>
+
+            <div class="col-md-6">
               <label class="form-label fw-bold">Category</label>
               <select class="form-select" formControlName="category"
                       [ngClass]="{'is-invalid': badgeForm.get('category')?.invalid && badgeForm.get('category')?.touched}">
@@ -135,6 +158,13 @@
                 <option value="TRACKING">TRACKING</option>
                 <option value="GOALS">GOALS</option>
                 <option value="ENGAGEMENT">ENGAGEMENT</option>
+                <!-- Extended categories for challenges -->
+                <option value="Transportation">Transportation</option>
+                <option value="Food">Food</option>
+                <option value="Waste">Waste</option>
+                <option value="Community">Community</option>
+                <option value="Energy">Energy</option>
+                <option value="Water">Water</option>
               </select>
               <div class="invalid-feedback">Category is required.</div>
             </div>
@@ -146,7 +176,7 @@
               <div class="invalid-feedback">Description is required.</div>
             </div>
             
-            <div class="col-md-4">
+            <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'GENERIC'">
               <label class="form-label fw-bold">Rarity</label>
               <select class="form-select" formControlName="rarity"
                       [ngClass]="{'is-invalid': badgeForm.get('rarity')?.invalid && badgeForm.get('rarity')?.touched}">
@@ -159,7 +189,7 @@
               <div class="invalid-feedback">Please select a rarity.</div>
             </div>
             
-            <div class="col-md-4">
+            <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'GENERIC'">
               <label class="form-label fw-bold">Criteria Type</label>
               <select class="form-select" formControlName="criteriaType"
                       [ngClass]="{'is-invalid': badgeForm.get('criteriaType')?.invalid && badgeForm.get('criteriaType')?.touched}">
@@ -173,11 +203,30 @@
               <div class="invalid-feedback">Criteria Type is required.</div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'GENERIC'">
               <label class="form-label fw-bold">Criteria Threshold</label>
               <input type="number" class="form-control" formControlName="criteriaThreshold" min="1"
                      [ngClass]="{'is-invalid': badgeForm.get('criteriaThreshold')?.invalid && badgeForm.get('criteriaThreshold')?.touched}">
               <div class="invalid-feedback">Target value must be at least 1.</div>
+            </div>
+
+            <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'CHALLENGE'">
+              <label class="form-label fw-bold">Icon Identifier</label>
+              <input type="text" class="form-control" formControlName="icon" placeholder="e.g. Bus, Leaf">
+            </div>
+
+            <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'CHALLENGE'">
+              <label class="form-label fw-bold">Semantic Color</label>
+              <select class="form-select" formControlName="color">
+                <option value="">Select Color</option>
+                <option value="blue">Blue</option>
+                <option value="teal">Teal</option>
+                <option value="green">Green</option>
+                <option value="emerald">Emerald</option>
+                <option value="amber">Amber</option>
+                <option value="orange">Orange</option>
+                <option value="violet">Violet</option>
+              </select>
             </div>
 
             <div class="col-12">

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserProfileMapper {
 
-    public UserProfileResponse toResponse(User user, UserProfile userProfile) {
+    public UserProfileResponse toResponse(User user, UserProfile userProfile, java.util.List<String> interests) {
         if (user == null || userProfile == null) {
             return null;
         }
@@ -24,6 +24,7 @@ public class UserProfileMapper {
                 .status(user.getStatus())
                 .profileCreatedAt(userProfile.getCreatedAt())
                 .profileUpdatedAt(userProfile.getUpdatedAt())
+                .interests(interests)
                 .build();
     }
 }

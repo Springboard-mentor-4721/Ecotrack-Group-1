@@ -4,7 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RecommendationService } from '../../../services/recommendation.service';
 import { AiService } from '../../../services/ai.service';
+import { CarbonEntryService } from '../../../services/carbon-entry.service';
 import { Recommendation } from '../../../models/recommendation.models';
+import { AiFeatureState } from '../../../models/ai-feature-state.model';
+import { JournalSummaryResponse } from '../../../models/ai-models';
 import { finalize } from 'rxjs/operators';
 import { LucideAngularModule, Lightbulb, Leaf, Zap, RefreshCw, History, FileText, Activity, AlertTriangle, Filter, Cpu, X } from 'lucide-angular';
 import { AiSkeletonLineComponent } from '../../../shared/components/ai-skeleton-line/ai-skeleton-line.component';
@@ -27,7 +30,13 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
   retryAfterSeconds = 0;
   private intervalId: any;
 
-  activeTab: 'recommendations' | 'history' = 'recommendations';
+  activeTab: 'journal_summary' | 'recommendations' | 'history' = 'journal_summary';
+
+  // Journal Summary State
+  journalSummaryState: AiFeatureState<JournalSummaryResponse> = { loading: false, data: null, error: null };
+  journalSummaryRateLimited = false;
+  journalSummaryRetryAfter = 0;
+  private journalIntervalId: any;
 
   // History State
   historyItems: any[] = [];
@@ -61,17 +70,22 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
   constructor(
     private recommendationService: RecommendationService,
     private aiService: AiService,
+    private carbonEntryService: CarbonEntryService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadRecommendations(this.currentPage);
+    this.loadJournalSummary();
   }
 
-  switchTab(tab: 'recommendations' | 'history'): void {
+  switchTab(tab: 'journal_summary' | 'recommendations' | 'history'): void {
     this.activeTab = tab;
     if (tab === 'history' && this.historyItems.length === 0) {
       this.loadHistory(0);
+    }
+    if (tab === 'journal_summary' && !this.journalSummaryState.data && !this.journalSummaryState.loading && !this.journalSummaryState.error) {
+      this.loadJournalSummary();
     }
   }
 
@@ -217,6 +231,70 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.intervalId) clearInterval(this.intervalId);
+    if (this.journalIntervalId) clearInterval(this.journalIntervalId);
+  }
+
+  loadJournalSummary(): void {
+    this.journalSummaryState = { loading: true, data: null, error: null, empty: true };
+    this.carbonEntryService.getJournalSummary().subscribe({
+      next: (res) => {
+        if (res && res.summaryText) {
+          this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
+        } else {
+          this.journalSummaryState = { loading: false, data: null, error: null, empty: true };
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.journalSummaryState = { loading: false, data: null, error: 'AI Summary unavailable', empty: true };
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  generateJournalSummary(): void {
+    if (this.journalSummaryState.loading || this.journalSummaryRateLimited) return;
+
+    this.journalSummaryState.loading = true;
+    this.journalSummaryState.error = null;
+    this.journalSummaryRateLimited = false;
+    
+    this.carbonEntryService.generateJournalSummary().subscribe({
+      next: (res) => {
+        this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
+        this.cdr.detectChanges();
+      },
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 429) {
+          const serverRetry = err.error?.retryAfterSeconds;
+          if (serverRetry) {
+            this.journalSummaryRateLimited = true;
+            this.journalSummaryRetryAfter = serverRetry;
+            this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'AI request limit reached.', empty: this.journalSummaryState.data == null };
+            this.startJournalCountdown();
+          } else {
+            this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'Failed to generate summary.', empty: this.journalSummaryState.data == null };
+          }
+        } else {
+          this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'Failed to generate summary.', empty: this.journalSummaryState.data == null };
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private startJournalCountdown(): void {
+    if (this.journalIntervalId) clearInterval(this.journalIntervalId);
+    
+    this.journalIntervalId = setInterval(() => {
+      this.journalSummaryRetryAfter--;
+      if (this.journalSummaryRetryAfter <= 0) {
+        this.journalSummaryRateLimited = false;
+        this.journalSummaryState.error = null;
+        clearInterval(this.journalIntervalId);
+      }
+      this.cdr.detectChanges();
+    }, 1000);
   }
 
   markAsRead(recommendation: Recommendation): void {

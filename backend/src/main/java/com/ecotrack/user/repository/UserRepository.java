@@ -10,8 +10,10 @@ import java.util.Optional;
 import com.ecotrack.common.enums.Status;
 import com.ecotrack.common.enums.Role;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     Optional<User> findByEmail(String email);
 

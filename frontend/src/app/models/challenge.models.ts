@@ -3,6 +3,8 @@ export type ChallengeParticipantStatus = 'ACTIVE' | 'COMPLETED' | 'DROPPED' | 'W
 export type ProgressMetric = 'CARBON_EMISSION' | 'QUANTITY' | 'ENTRY_COUNT';
 export type TrackingMethod = 'AUTOMATIC' | 'MANUAL';
 
+import { AdminBadge } from './gamification.models';
+
 export interface ChallengeRules {
   allowedSubcategoryIds?: number[];
   blockedSubcategoryIds?: number[];
@@ -28,6 +30,7 @@ export interface Challenge {
   derivedUnit?: string;
   participantCount?: number;
   imageUrl?: string;
+  badge?: AdminBadge;
 }
 
 export interface ChallengeDetail extends Challenge {
@@ -69,6 +72,7 @@ export interface ChallengeRequest {
   challengeEvaluationType?: 'ACHIEVEMENT' | 'BUDGET';
   rulesConfig?: ChallengeRules | null;
   imageUrl?: string;
+  badgeId?: number;
 }
 
 export interface ChallengeProgressUpdateRequest {

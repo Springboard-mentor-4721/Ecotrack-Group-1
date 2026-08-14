@@ -22,6 +22,10 @@ import com.ecotrack.challenge.repository.ChallengeSpecification;
 import com.ecotrack.tracking.repository.CarbonCategoryRepository;
 import com.ecotrack.user.repository.UserRepository;
 import com.ecotrack.user.util.FileUploadUtil;
+import com.ecotrack.gamification.repository.BadgeRepository;
+import com.ecotrack.gamification.entity.Badge;
+import com.ecotrack.gamification.dto.AdminBadgeDTO;
+import com.ecotrack.gamification.enums.BadgeType;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
@@ -50,6 +54,7 @@ public class ChallengeService {
     private final com.ecotrack.tracking.repository.CarbonSubCategoryRepository carbonSubCategoryRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final StrategyResolver strategyResolver;
+    private final BadgeRepository badgeRepository;
 
     @Transactional(readOnly = true)
     public Page<ChallengeDTO> getActiveChallenges(Long userId, String search, com.ecotrack.challenge.enums.ChallengeEvaluationType evaluationType, TrackingMethod trackingMethod, Pageable pageable) {
@@ -85,6 +90,10 @@ public class ChallengeService {
         detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
         detailDTO.setDerivedUnit(derivedUnit(challenge));
+        
+        if (challenge.getBadgeId() != null) {
+            badgeRepository.findById(challenge.getBadgeId()).ifPresent(b -> detailDTO.setBadge(mapToAdminBadgeDTO(b)));
+        }
         
         participantRepository.findByChallengeIdAndUserId(id, userId)
                 .ifPresent(p -> detailDTO.setUserProgress(mapToDTO(p)));
@@ -170,6 +179,7 @@ public class ChallengeService {
     @Transactional
     public ChallengeDTO createChallenge(ChallengeRequest request) {
         validateTrackingConfiguration(request);
+        validateBadgeAssignment(request.getBadgeId());
         
         if (request.getStartDate().toLocalDate().isBefore(java.time.LocalDate.now())) {
             throw new IllegalArgumentException("Start date cannot be in the past.");
@@ -200,6 +210,7 @@ public class ChallengeService {
                 .rulesConfig(request.getRulesConfig())
                 .status(ChallengeStatus.PENDING)
                 .imageUrl(request.getImageUrl())
+                .badgeId(request.getBadgeId())
                 .build();
                 
         return mapToDTO(challengeRepository.save(challenge));
@@ -208,6 +219,7 @@ public class ChallengeService {
     @Transactional
     public ChallengeDTO updateChallenge(Long id, ChallengeRequest request) {
         validateTrackingConfiguration(request);
+        validateBadgeAssignment(request.getBadgeId());
         
         if (request.getStartDate().toLocalDate().isBefore(java.time.LocalDate.now())) {
             throw new IllegalArgumentException("Start date cannot be in the past.");
@@ -238,6 +250,7 @@ public class ChallengeService {
         if (request.getChallengeEvaluationType() != null) challenge.setChallengeEvaluationType(request.getChallengeEvaluationType());
         challenge.setRulesConfig(request.getRulesConfig());
         challenge.setImageUrl(request.getImageUrl());
+        challenge.setBadgeId(request.getBadgeId());
         
         return mapToDTO(challengeRepository.save(challenge));
     }
@@ -355,6 +368,11 @@ public class ChallengeService {
         detailDTO.setChallengeEvaluationType(challenge.getChallengeEvaluationType());
         detailDTO.setImageUrl(challenge.getImageUrl());
         detailDTO.setDerivedUnit(derivedUnit(challenge));
+        
+        if (challenge.getBadgeId() != null) {
+            badgeRepository.findById(challenge.getBadgeId()).ifPresent(b -> detailDTO.setBadge(mapToAdminBadgeDTO(b)));
+        }
+        
         return detailDTO;
     }
     
@@ -493,6 +511,7 @@ public class ChallengeService {
                 .derivedUnit(derivedUnit(c))
                 .participantCount(participantCount)
                 .imageUrl(c.getImageUrl())
+                .badge(c.getBadgeId() != null ? badgeRepository.findById(c.getBadgeId()).map(this::mapToAdminBadgeDTO).orElse(null) : null)
                 .build();
     }
     
@@ -581,5 +600,36 @@ public class ChallengeService {
             && !request.getRulesConfig().allowedSubcategoryIds().isEmpty();
             
         return hasLinkedCategory || hasCarbonCode || hasMultiSource;
+    }
+
+    private void validateBadgeAssignment(Long badgeId) {
+        if (badgeId != null) {
+            Badge badge = badgeRepository.findById(badgeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Selected badge not found"));
+            if (badge.getIsHidden()) {
+                throw new IllegalArgumentException("Selected badge is disabled/hidden");
+            }
+            if (badge.getType() != BadgeType.CHALLENGE) {
+                throw new IllegalArgumentException("Only CHALLENGE badges can be assigned to challenges");
+            }
+        }
+    }
+
+    private AdminBadgeDTO mapToAdminBadgeDTO(Badge badge) {
+        return AdminBadgeDTO.builder()
+                .id(badge.getId())
+                .name(badge.getName())
+                .category(badge.getCategory())
+                .description(badge.getDescription())
+                .rarity(badge.getRarity())
+                .type(badge.getType())
+                .icon(badge.getIcon())
+                .color(badge.getColor())
+                .isHidden(badge.getIsHidden())
+                .isRepeatable(badge.getIsRepeatable())
+                .criteriaType(badge.getCriteriaType())
+                .criteriaThreshold(badge.getCriteriaThreshold())
+                .createdAt(badge.getCreatedAt())
+                .build();
     }
 }

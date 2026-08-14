@@ -87,6 +87,9 @@ export interface BadgeDTO {
   category: string;
   description: string;
   rarity: BadgeRarity;
+  type: string;
+  icon?: string;
+  color?: string;
   isEarned: boolean;
   awardedAt: string;
 }

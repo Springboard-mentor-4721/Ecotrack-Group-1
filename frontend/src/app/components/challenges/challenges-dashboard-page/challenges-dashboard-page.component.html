@@ -55,7 +55,13 @@
     <!-- Recommended Challenges Placeholder -->
     <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4 fw-bold mb-0">Recommended For You</h2>
+        <h2 class="h4 fw-bold mb-0 d-flex align-items-center gap-2">
+          Recommended For You
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill fs-xs px-2 py-1 d-flex align-items-center">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+            AI Pick
+          </span>
+        </h2>
         <a [routerLink]="['/challenges/explore']" class="text-primary text-decoration-none fw-bold fs-sm d-inline-flex align-items-center group">
           Explore All 
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ms-1 transition-transform group-hover:translate-x-1" style="transition: transform 0.2s ease;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>

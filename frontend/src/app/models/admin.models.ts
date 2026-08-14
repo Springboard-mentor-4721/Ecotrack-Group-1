@@ -39,4 +39,4 @@ export interface AdminDashboardResponse {
 }
 
 export type { AdminBadge, BadgeDefinitionRequest } from './gamification.models';
-export type { ChallengeRequest } from './challenge.models';
+export type { ChallengeRequest, Challenge, ChallengeDetail } from './challenge.models';

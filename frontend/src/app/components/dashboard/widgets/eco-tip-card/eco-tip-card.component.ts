@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AiFeatureState } from '../../../../models/ai-feature-state.model';
 import { EcoTipResponse } from '../../../../models/ai-models';
 import { AiSkeletonLineComponent } from '../../../../shared/components/ai-skeleton-line/ai-skeleton-line.component';
@@ -9,36 +10,48 @@ import { LucideAngularModule, Lightbulb, Zap } from 'lucide-angular';
 @Component({
   selector: 'app-eco-tip-card',
   standalone: true,
-  imports: [CommonModule, AiSkeletonLineComponent, AiEmptyHintComponent, LucideAngularModule],
+  imports: [CommonModule, RouterModule, AiSkeletonLineComponent, AiEmptyHintComponent, LucideAngularModule],
   template: `
-    <div class="card-premium p-5 h-full bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col">
-       <div class="flex items-center mb-4">
-          <div class="rounded-full bg-green-100 text-green-600 mr-3 flex items-center justify-center flex-shrink-0" style="width: 36px; height: 36px;">
-             <lucide-angular [img]="LightbulbIcon" size="18"></lucide-angular>
-          </div>
-          <h5 class="font-bold text-gray-900 mb-0 text-lg">Daily Eco Tip</h5>
-       </div>
+    <div class="card-premium h-100 bg-white border border-gray-100 rounded-4 shadow-sm d-flex flex-column overflow-hidden position-relative group">
+      
+      <!-- Decorative background accent -->
+      <div class="position-absolute top-0 end-0 p-4 opacity-5">
+        <lucide-angular [img]="LightbulbIcon" size="100" class="text-teal"></lucide-angular>
+      </div>
 
-       <div *ngIf="state.loading" class="relative z-10 flex-grow">
-          <app-ai-skeleton-line [lines]="2"></app-ai-skeleton-line>
-       </div>
-       
-       <div *ngIf="state.error" class="relative z-10 flex-grow text-center py-2">
+      <div class="p-4 d-flex flex-column h-100 position-relative z-1">
+        <div class="d-flex align-items-center mb-3">
+          <h6 class="fw-bold text-muted text-uppercase tracking-wider fs-xs mb-0">Today's Eco Tip</h6>
+        </div>
+
+        <div *ngIf="state.loading" class="flex-grow-1">
+          <app-ai-skeleton-line [lines]="3"></app-ai-skeleton-line>
+        </div>
+        
+        <div *ngIf="state.error" class="flex-grow-1 text-center py-2">
           <app-ai-empty-hint title="AI Tip Unavailable" [message]="state.error"></app-ai-empty-hint>
-       </div>
-       
-       <div *ngIf="state.data" class="relative z-10 flex-grow flex flex-col">
-          <p class="text-base text-gray-900 mt-2 mb-4 leading-tight italic">"{{ state.data.tipText }}"</p>
-          <div class="mt-auto flex justify-between items-center">
-             <span class="bg-gray-50 border border-gray-200 text-gray-900 text-xs px-3 py-1 rounded-full shadow-sm" *ngIf="state.data.relatedCategory">
-               Focus: {{ state.data.relatedCategory }}
-             </span>
-             <span class="text-green-600 text-xs font-bold flex items-center">
-               <lucide-angular [img]="ZapIcon" size="14" class="mr-1"></lucide-angular>
+        </div>
+        
+        <div *ngIf="state.data" class="flex-grow-1 d-flex flex-column">
+          
+          <div *ngIf="state.data.relatedCategory" class="d-flex align-items-center gap-2 mb-2">
+            <span class="fs-6">💡</span>
+            <span class="fw-bold text-teal text-uppercase fs-7">{{ state.data.relatedCategory }}</span>
+          </div>
+
+          <p class="fs-5 text-dark fw-medium lh-sm mb-3">"{{ state.data.tipText }}"</p>
+          
+          <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
+             <span class="text-teal fs-xs fw-bold d-flex align-items-center gap-1">
+               <lucide-angular [img]="ZapIcon" size="14"></lucide-angular>
                AI Generated
              </span>
+             <a routerLink="/carbon-tracker" class="btn btn-sm btn-light text-teal fw-bold rounded-pill px-3 transition-all hover-teal">
+               Log Activity
+             </a>
           </div>
-       </div>
+        </div>
+      </div>
     </div>
   `
 })

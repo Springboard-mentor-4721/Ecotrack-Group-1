@@ -1,13 +1,49 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0">Analytics & Reports</h2>
-    <button class="btn btn-outline-primary d-flex align-items-center gap-2" 
-            (click)="exportReport()" 
-            [disabled]="isLoading || !summary || summary.categorySummaries.length === 0">
-      <lucide-angular [img]="DownloadIcon" size="18"></lucide-angular>
-      Export CSV
-    </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-danger d-flex align-items-center gap-2" 
+              (click)="exportReport('PDF')" 
+              [disabled]="isLoading || !reportData">
+        <lucide-angular [img]="DownloadIcon" size="18"></lucide-angular>
+        Export PDF
+      </button>
+      <button class="btn btn-outline-success d-flex align-items-center gap-2" 
+              (click)="exportReport('EXCEL')" 
+              [disabled]="isLoading || !reportData">
+        <lucide-angular [img]="DownloadIcon" size="18"></lucide-angular>
+        Export Excel
+      </button>
+    </div>
   </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4 border-bottom">
+    <li class="nav-item">
+      <a class="nav-link cursor-pointer d-flex align-items-center gap-2" [class.active]="currentTab === 'carbon'" (click)="setTab('carbon')">
+        <lucide-angular [img]="FileTextIcon" size="18"></lucide-angular>
+        Carbon Footprint
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link cursor-pointer d-flex align-items-center gap-2" [class.active]="currentTab === 'goals'" (click)="setTab('goals')">
+        <lucide-angular [img]="TargetIcon" size="18"></lucide-angular>
+        Goals
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link cursor-pointer d-flex align-items-center gap-2" [class.active]="currentTab === 'challenges'" (click)="setTab('challenges')">
+        <lucide-angular [img]="AwardIcon" size="18"></lucide-angular>
+        Challenges
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link cursor-pointer d-flex align-items-center gap-2" [class.active]="currentTab === 'sustainability'" (click)="setTab('sustainability')">
+        <lucide-angular [img]="LeafIcon" size="18"></lucide-angular>
+        Sustainability
+      </a>
+    </li>
+  </ul>
 
   <!-- Filters -->
   <div class="card shadow-sm border-0 mb-4">
@@ -47,72 +83,187 @@
     </div>
   </div>
 
-  <div *ngIf="!isLoading && summary">
+  <div *ngIf="!isLoading && reportData">
     
-    <!-- Summary Cards -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm bg-primary text-white h-100">
-          <div class="card-body">
-            <h6 class="text-uppercase text-white-50 mb-2">Total Carbon Emission</h6>
-            <h2 class="display-5 fw-bold mb-0">{{ summary.totalEmission | number:'1.0-2' }} <span class="fs-4">kg CO2e</span></h2>
+    <!-- Carbon Tab -->
+    <ng-container *ngIf="currentTab === 'carbon'">
+      <div class="row g-4 mb-4">
+        <div class="col-md-12">
+          <div class="card border-0 shadow-sm bg-primary text-white h-100">
+            <div class="card-body">
+              <h6 class="text-uppercase text-white-50 mb-2">Total Carbon Emission</h6>
+              <h2 class="display-5 fw-bold mb-0">{{ reportData.totalEmissions | number:'1.0-2' }} <span class="fs-4">kg CO2e</span></h2>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm bg-success text-white h-100">
-          <div class="card-body">
-            <h6 class="text-uppercase text-white-50 mb-2">Total Activities Logged</h6>
-            <h2 class="display-5 fw-bold mb-0">{{ summary.totalEntriesCount }} <span class="fs-4">entries</span></h2>
+      <div class="row g-4 mb-4" *ngIf="reportData.emissionsByCategory">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white pt-4 pb-2 border-0">
+              <h5 class="fw-bold mb-0">Emissions Breakdown</h5>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
+              <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white pt-4 pb-2 border-0">
+              <h5 class="fw-bold mb-0">Emissions by Category</h5>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
+              <canvas baseChart [data]="barChartData" [type]="barChartType" [options]="barChartOptions"></canvas>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-0">
+          <h5 class="mb-0 fw-bold">Recent Entries</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Emission (kg)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entry of reportData.entries">
+                <td>{{ entry.date }}</td>
+                <td>{{ entry.category }}</td>
+                <td>{{ entry.subCategory }}</td>
+                <td><span class="badge bg-danger rounded-pill px-3">{{ entry.emission | number:'1.0-2' }}</span></td>
+              </tr>
+              <tr *ngIf="!reportData.entries || reportData.entries.length === 0">
+                <td colspan="4" class="text-center text-muted py-4">No entries found for this period.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-container>
 
-    <!-- Charts -->
-    <div class="row g-4 mb-4" *ngIf="summary.categorySummaries.length > 0">
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-white pt-4 pb-2 border-0">
-            <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
-              <lucide-angular [img]="PieChartIcon" size="20" class="text-primary"></lucide-angular>
-              Emissions Breakdown
-            </h5>
-          </div>
-          <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
-            <canvas baseChart
-              [data]="pieChartData"
-              [type]="pieChartType"
-              [options]="pieChartOptions">
-            </canvas>
-          </div>
+    <!-- Goals Tab -->
+    <ng-container *ngIf="currentTab === 'goals'">
+      <div class="row g-4 mb-4">
+        <div class="col-md-3"><div class="card shadow-sm text-center py-3"><h6 class="text-muted">Total Goals</h6><h3 class="mb-0">{{reportData.totalGoals}}</h3></div></div>
+        <div class="col-md-3"><div class="card shadow-sm text-center py-3"><h6 class="text-muted">Active</h6><h3 class="mb-0 text-primary">{{reportData.activeGoals}}</h3></div></div>
+        <div class="col-md-3"><div class="card shadow-sm text-center py-3"><h6 class="text-muted">Completed</h6><h3 class="mb-0 text-success">{{reportData.completedGoals}}</h3></div></div>
+        <div class="col-md-3"><div class="card shadow-sm text-center py-3"><h6 class="text-muted">Failed/Abandoned</h6><h3 class="mb-0 text-danger">{{reportData.failedGoals}}</h3></div></div>
+      </div>
+      <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Target Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let goal of reportData.goals">
+                <td class="fw-bold">{{ goal.title }}</td>
+                <td>{{ goal.type }}</td>
+                <td><span class="badge bg-primary">{{ goal.status }}</span></td>
+                <td>
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar" role="progressbar" [style.width]="goal.progressPercentage + '%'"></div>
+                  </div>
+                  <small class="text-muted mt-1 d-block">{{ goal.progressPercentage | number:'1.0-1' }}%</small>
+                </td>
+                <td>{{ goal.targetDate }}</td>
+              </tr>
+              <tr *ngIf="!reportData.goals || reportData.goals.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">No goals found for this period.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-white pt-4 pb-2 border-0">
-            <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
-              <lucide-angular [img]="BarChartIcon" size="20" class="text-primary"></lucide-angular>
-              Emissions by Category
-            </h5>
-          </div>
-          <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
-            <canvas baseChart
-              [data]="barChartData"
-              [type]="barChartType"
-              [options]="barChartOptions">
-            </canvas>
-          </div>
-        </div>
-      </div>
-    </div>
+    </ng-container>
 
-    <div *ngIf="summary.categorySummaries.length === 0" class="text-center py-5 bg-light rounded shadow-sm">
-      <lucide-angular [img]="PieChartIcon" class="text-muted mb-3" style="width: 64px; height: 64px;"></lucide-angular>
-      <h4>No Data Available</h4>
-      <p class="text-muted">There are no carbon entries logged for the selected date range.</p>
-    </div>
+    <!-- Challenges Tab -->
+    <ng-container *ngIf="currentTab === 'challenges'">
+      <div class="row g-4 mb-4">
+        <div class="col-md-4"><div class="card shadow-sm text-center py-3"><h6 class="text-muted">Participated</h6><h3 class="mb-0">{{reportData.totalParticipated}}</h3></div></div>
+        <div class="col-md-4"><div class="card shadow-sm text-center py-3"><h6 class="text-muted">Completed</h6><h3 class="mb-0 text-success">{{reportData.completedChallenges}}</h3></div></div>
+        <div class="col-md-4"><div class="card shadow-sm text-center py-3"><h6 class="text-muted">XP Earned</h6><h3 class="mb-0 text-warning">{{reportData.totalXpEarned}}</h3></div></div>
+      </div>
+      <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>XP Earned</th>
+                <th>Completed Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let challenge of reportData.challenges">
+                <td class="fw-bold">{{ challenge.title }}</td>
+                <td>{{ challenge.category }}</td>
+                <td><span class="badge bg-info">{{ challenge.status }}</span></td>
+                <td><span class="text-warning fw-bold">+{{ challenge.xpEarned }} XP</span></td>
+                <td>{{ challenge.completedDate || '-' }}</td>
+              </tr>
+              <tr *ngIf="!reportData.challenges || reportData.challenges.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">No challenges found for this period.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Sustainability Tab -->
+    <ng-container *ngIf="currentTab === 'sustainability'">
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="fw-bold mb-4 d-flex align-items-center gap-2 text-primary">
+                <lucide-angular [img]="LeafIcon" size="24"></lucide-angular> Overall Impact
+              </h5>
+              <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                <span class="text-muted">Total Emissions</span>
+                <span class="fw-bold fs-5 text-danger">{{reportData.totalEmissions | number:'1.0-2'}} kg CO2e</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                <span class="text-muted">Completed Goals</span>
+                <span class="fw-bold fs-5 text-success">{{reportData.completedGoals}} / {{reportData.totalGoals}}</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Completed Challenges</span>
+                <span class="fw-bold fs-5 text-info">{{reportData.completedChallenges}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100 bg-light">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+              <lucide-angular [img]="AwardIcon" size="48" class="text-warning mb-3"></lucide-angular>
+              <h6 class="text-uppercase text-muted">Current Gamification Status</h6>
+              <h2 class="fw-bold text-success mb-0">{{reportData.currentRank}}</h2>
+              <p class="text-muted mt-2 mb-0">EcoScore: <strong class="text-dark">{{reportData.currentEcoScore}}</strong></p>
+              <p class="text-muted mb-0">Period XP Earned: <strong class="text-warning">+{{reportData.xpEarned}}</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
 
   </div>
 </div>

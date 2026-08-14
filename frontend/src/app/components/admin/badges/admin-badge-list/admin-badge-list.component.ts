@@ -29,6 +29,9 @@ export class AdminBadgeListComponent implements OnInit {
   totalPages = 0;
   totalElements = 0;
 
+  // Tabs
+  activeTab: 'GENERIC' | 'CHALLENGE' = 'GENERIC';
+
   // Icons
   EditIcon = Edit;
   DisableIcon = EyeOff;
@@ -49,14 +52,45 @@ export class AdminBadgeListComponent implements OnInit {
   ) {
     this.badgeForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
+      type: ['GENERIC', [Validators.required]],
       category: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', [Validators.required]],
-      rarity: ['', [Validators.required, Validators.maxLength(20)]],
+      rarity: [''], // Rarity is not required globally anymore since CHALLENGE badges don't need it
+      icon: [''],
+      color: [''],
       isHidden: [false],
       isRepeatable: [false],
-      criteriaType: ['', [Validators.required, Validators.maxLength(50)]],
-      criteriaThreshold: [1, [Validators.required, Validators.min(1)]]
+      criteriaType: [''],
+      criteriaThreshold: [1]
     });
+    
+    // Listen for type changes to update validators
+    this.badgeForm.get('type')?.valueChanges.subscribe(type => {
+      this.updateValidators(type);
+    });
+  }
+  
+  private updateValidators(type: string): void {
+    const criteriaTypeControl = this.badgeForm.get('criteriaType');
+    const criteriaThresholdControl = this.badgeForm.get('criteriaThreshold');
+    const rarityControl = this.badgeForm.get('rarity');
+    
+    if (type === 'GENERIC') {
+      criteriaTypeControl?.setValidators([Validators.required, Validators.maxLength(50)]);
+      criteriaThresholdControl?.setValidators([Validators.required, Validators.min(1)]);
+      rarityControl?.setValidators([Validators.required, Validators.maxLength(20)]);
+    } else {
+      criteriaTypeControl?.clearValidators();
+      criteriaThresholdControl?.clearValidators();
+      rarityControl?.clearValidators();
+      criteriaTypeControl?.setValue('');
+      criteriaThresholdControl?.setValue(null);
+      rarityControl?.setValue(null);
+    }
+    
+    criteriaTypeControl?.updateValueAndValidity();
+    criteriaThresholdControl?.updateValueAndValidity();
+    rarityControl?.updateValueAndValidity();
   }
 
   ngOnInit(): void {
@@ -70,11 +104,17 @@ export class AdminBadgeListComponent implements OnInit {
     }
   }
 
+  setTab(tab: 'GENERIC' | 'CHALLENGE'): void {
+    this.activeTab = tab;
+    this.currentPage = 0;
+    this.loadBadges(this.currentPage);
+  }
+
   loadBadges(page: number): void {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.adminService.getAdminBadges(page, this.pageSize)
+    this.adminService.getAdminBadges(page, this.pageSize, this.activeTab)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -104,7 +144,8 @@ export class AdminBadgeListComponent implements OnInit {
   openCreateModal(): void {
     this.isEditing = false;
     this.currentBadgeId = null;
-    this.badgeForm.reset({ isHidden: false, isRepeatable: false, criteriaThreshold: 1 });
+    this.badgeForm.reset({ type: this.activeTab, isHidden: false, isRepeatable: false, criteriaThreshold: 1 });
+    this.updateValidators(this.activeTab);
     this.badgeModal.show();
   }
 
@@ -114,14 +155,18 @@ export class AdminBadgeListComponent implements OnInit {
     
     this.badgeForm.patchValue({
       name: badge.name,
+      type: badge.type,
       category: badge.category,
       description: badge.description,
       rarity: badge.rarity,
+      icon: badge.icon,
+      color: badge.color,
       isHidden: badge.isHidden,
       isRepeatable: badge.isRepeatable,
       criteriaType: badge.criteriaType,
       criteriaThreshold: badge.criteriaThreshold
     });
+    this.updateValidators(badge.type);
     
     this.badgeModal.show();
   }

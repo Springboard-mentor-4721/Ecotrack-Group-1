@@ -19,7 +19,15 @@ import org.springframework.web.bind.annotation.*;
 public class ChallengeController {
 
     private final ChallengeService challengeService;
+    private final com.ecotrack.recommendation.service.ChallengeRecommendationService recommendationService;
     private final UserRepository userRepository;
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/recommended")
+    public ResponseEntity<java.util.List<ChallengeDTO>> getRecommendedChallenges(Authentication authentication) {
+        Long userId = getUserId(authentication);
+        return ResponseEntity.ok(recommendationService.getRecommendedChallenges(userId));
+    }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping

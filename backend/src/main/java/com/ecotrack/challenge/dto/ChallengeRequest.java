@@ -43,4 +43,6 @@ public class ChallengeRequest {
     private com.ecotrack.challenge.enums.ChallengeEvaluationType challengeEvaluationType;
     private RulesConfig rulesConfig;
     private String imageUrl;
+    
+    private Long badgeId;
 }

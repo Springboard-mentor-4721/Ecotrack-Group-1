@@ -135,11 +135,15 @@ public class GamificationController {
                             .category(b.getCategory())
                             .description(b.getDescription())
                             .rarity(b.getRarity())
+                            .type(b.getType())
+                            .icon(b.getIcon())
+                            .color(b.getColor())
                             .isEarned(ub != null)
                             .awardedAt(ub != null ? ub.getAwardedAt() : null)
+                            .criteriaType(b.getCriteriaType())
                             .currentValue(bp != null ? bp.getCurrentValue() : 0)
                             .criteriaThreshold(b.getCriteriaThreshold())
-                            .xpReward(com.ecotrack.gamification.enums.BadgeRarity.fromString(b.getRarity()).getXpReward())
+                            .xpReward(b.getType() == com.ecotrack.gamification.enums.BadgeType.CHALLENGE ? 0 : com.ecotrack.gamification.enums.BadgeRarity.fromString(b.getRarity()).getXpReward())
                             .build();
                 })
                 .collect(Collectors.toList());

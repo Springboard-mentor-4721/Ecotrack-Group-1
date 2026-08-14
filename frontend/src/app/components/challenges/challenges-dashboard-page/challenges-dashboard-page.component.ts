@@ -87,6 +87,9 @@ export class ChallengesDashboardPageComponent implements OnInit {
       explore: this.challengeService.getChallenges(0, 20).pipe(
         map(res => res.content),
         catchError(() => of([]))
+      ),
+      recommended: this.challengeService.getRecommendedChallenges().pipe(
+        catchError(() => of([]))
       )
     }).pipe(
       finalize(() => {
@@ -105,9 +108,8 @@ export class ChallengesDashboardPageComponent implements OnInit {
         // The backend now natively filters out challenges we've already joined
         this.exploreChallenges = data.explore;
         
-        this.recommendedChallenges = this.exploreChallenges
-          .filter(c => c.status === 'ACTIVE')
-          .slice(0, 3); // top 3 recommended
+        // Load AI Recommended Challenges
+        this.recommendedChallenges = data.recommended;
           
         // Compute Alerts
         const alerts: UrgencyAlert[] = [];

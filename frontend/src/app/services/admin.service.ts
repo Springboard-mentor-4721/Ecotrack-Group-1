@@ -56,14 +56,16 @@ export class AdminService {
   moderateChallenge(id: number, action: string): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/api/admin/challenges/${id}/moderate`, { action });
   }
-
   archiveChallenge(id: number): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/api/admin/challenges/${id}/archive`, {});
   }
 
   // Badge Admin
-  getAdminBadges(page: number = 0, size: number = 10): Observable<PageableResponse<AdminBadge>> {
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+  getAdminBadges(page: number = 0, size: number = 10, type?: string): Observable<PageableResponse<AdminBadge>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    if (type) {
+      params = params.set('type', type);
+    }
     return this.http.get<PageableResponse<AdminBadge>>(`${this.apiUrl}/api/admin/badges`, { params });
   }
 

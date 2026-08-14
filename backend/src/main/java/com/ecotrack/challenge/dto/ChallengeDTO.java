@@ -3,6 +3,7 @@ package com.ecotrack.challenge.dto;
 import com.ecotrack.challenge.enums.ChallengeStatus;
 import com.ecotrack.challenge.enums.TrackingMethod;
 import com.ecotrack.challenge.entity.RulesConfig;
+import com.ecotrack.gamification.dto.AdminBadgeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,4 +39,6 @@ public class ChallengeDTO {
     private String derivedUnit;
     private Long participantCount;
     private String imageUrl;
+    
+    private AdminBadgeDTO badge;
 }

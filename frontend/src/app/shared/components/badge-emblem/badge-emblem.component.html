@@ -1,0 +1,63 @@
+<div class="badge-emblem-container position-relative d-inline-flex justify-content-center align-items-center"
+     [style.width.px]="size" [style.height.px]="size"
+     [ngClass]="{'is-locked': badge && !badge.isEarned}">
+     
+  <!-- Background Hexagon SVG (Only shown if NO artwork PNG is present) -->
+  <svg *ngIf="!artworkUrl" viewBox="0 0 100 100" class="badge-bg w-100 h-100 position-absolute top-0 start-0"
+       [style.filter]="badge?.isEarned ? 'none' : 'grayscale(100%) brightness(0.9)'">
+    <defs>
+      <linearGradient [id]="'bgGrad-' + (badge?.id || 'default')" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" [attr.stop-color]="rarityGradientStart" />
+        <stop offset="100%" [attr.stop-color]="rarityGradientEnd" />
+      </linearGradient>
+      
+      <!-- Subtle shadow for the badge base -->
+      <filter [id]="'shadow-' + (badge?.id || 'default')" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.15" />
+      </filter>
+    </defs>
+    
+    <!-- Outer Border Hexagon -->
+    <polygon points="50,2 93,25 93,75 50,98 7,75 7,25" 
+             [attr.fill]="'url(#bgGrad-' + (badge?.id || 'default') + ')'"
+             [attr.stroke]="rarityColor"
+             stroke-width="4"
+             [attr.filter]="'url(#shadow-' + (badge?.id || 'default') + ')'" />
+             
+    <!-- Inner Highlight Hexagon -->
+    <polygon points="50,8 87,28 87,72 50,92 13,72 13,28" 
+             fill="none" 
+             stroke="#ffffff" 
+             stroke-width="2" 
+             stroke-opacity="0.6" />
+  </svg>
+
+  <!-- The Artwork / Icon -->
+  <div class="badge-icon-wrapper position-relative z-1 d-flex align-items-center justify-content-center w-100 h-100"
+       [style.color]="iconColor">
+    
+    <!-- PNG Artwork -->
+    <img *ngIf="artworkUrl" 
+         [src]="artworkUrl" 
+         [attr.alt]="badge?.name" 
+         class="badge-artwork" 
+         [style.width.px]="size" 
+         [style.height.px]="size" 
+         style="object-fit: contain; transition: all 0.3s ease;" 
+         [style.opacity]="badge?.isEarned ? '1' : '0.6'"
+         [style.filter]="badge?.isEarned ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.15))' : 'grayscale(100%) brightness(80%) drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'"
+         />
+         
+    <!-- Fallback Bootstrap Icon -->
+    <i *ngIf="!artworkUrl" class="bi" [ngClass]="iconClass" [style.font-size.px]="size * 0.45" 
+       [style.filter]="badge?.isEarned ? 'drop-shadow(0px 2px 3px rgba(0,0,0,0.3))' : 'grayscale(100%) brightness(0.7) drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'"></i>
+  </div>
+  
+  <!-- Status Overlay (Lock) -->
+  <div *ngIf="showStatusOverlay && badge && !badge.isEarned" class="position-absolute bottom-0 end-0 bg-white rounded-circle shadow d-flex justify-content-center align-items-center z-2" [style.width.px]="size * 0.32" [style.height.px]="size * 0.32" style="transform: translate(10%, 10%);">
+    <svg [style.width.px]="size * 0.16" [style.height.px]="size * 0.16" class="text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+  </div>
+</div>

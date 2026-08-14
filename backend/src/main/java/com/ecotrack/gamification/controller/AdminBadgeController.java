@@ -39,7 +39,9 @@ public class AdminBadgeController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<AdminBadgeDTO>> getAdminBadges(Pageable pageable) {
-        return ResponseEntity.ok(badgeService.getAllBadges(pageable));
+    public ResponseEntity<Page<AdminBadgeDTO>> getAdminBadges(
+            @RequestParam(required = false) com.ecotrack.gamification.enums.BadgeType type,
+            Pageable pageable) {
+        return ResponseEntity.ok(badgeService.getAllBadges(type, pageable));
     }
 }

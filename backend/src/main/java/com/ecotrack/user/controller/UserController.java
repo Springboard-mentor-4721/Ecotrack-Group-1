@@ -46,6 +46,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+
     /**
      * Helper method to extract the userId from the authentication principal.
      */

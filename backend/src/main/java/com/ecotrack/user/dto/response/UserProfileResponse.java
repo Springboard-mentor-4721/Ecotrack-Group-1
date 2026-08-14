@@ -25,4 +25,5 @@ public class UserProfileResponse {
     private com.ecotrack.common.enums.Status status;
     private LocalDateTime profileCreatedAt;
     private LocalDateTime profileUpdatedAt;
+    private java.util.List<String> interests;
 }

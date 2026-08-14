@@ -2,13 +2,14 @@ import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { GoalService } from '../../services/goal.service';
-import { GoalResponse, GoalAnalyticsResponse, GoalType } from '../../models/goal.models';
+import { GoalResponse, GoalAnalyticsResponse, GoalType, GoalOptimizationResponse } from '../../models/goal.models';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { EmptyStateComponent } from '../../shared/ui/empty-state/empty-state.component';
 import { finalize } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-goals',
@@ -101,6 +102,8 @@ export class GoalsComponent implements OnInit {
   }
   
   isSubmitting = false;
+  isOptimizing = false;
+  aiOptimization: GoalOptimizationResponse | null = null;
   createForm: FormGroup;
   modalErrorMessage = '';
   GoalTypes = [
@@ -117,7 +120,8 @@ export class GoalsComponent implements OnInit {
     private goalService: GoalService, 
     private fb: FormBuilder, 
     private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.createForm = this.fb.group({
       goalType: ['', [Validators.required]],
@@ -631,6 +635,7 @@ export class GoalsComponent implements OnInit {
     this.selectedGoalId = null;
     this.showCreateModal = true;
     this.modalErrorMessage = '';
+    this.aiOptimization = null;
     this.createForm.reset();
     document.body.style.overflow = 'hidden';
   }
@@ -657,7 +662,41 @@ export class GoalsComponent implements OnInit {
 
   closeCreateModal(): void {
     this.showCreateModal = false;
+    this.aiOptimization = null;
     document.body.style.overflow = '';
+  }
+
+  optimizeGoal(): void {
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
+      this.modalErrorMessage = 'Please fill out all required fields before requesting optimization.';
+      return;
+    }
+    this.isOptimizing = true;
+    this.modalErrorMessage = '';
+    this.aiOptimization = null;
+    
+    this.goalService.optimizeGoal(this.createForm.getRawValue())
+      .pipe(finalize(() => {
+        this.isOptimizing = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.aiOptimization = res;
+        },
+        error: (err) => {
+          this.modalErrorMessage = err.error?.message || 'AI optimization is temporarily unavailable. You can still save your goal manually.';
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  acceptAiSuggestion(): void {
+    if (this.aiOptimization && this.aiOptimization.suggestedTarget) {
+      this.createForm.patchValue({ targetValue: this.aiOptimization.suggestedTarget });
+      this.aiOptimization = null; // Dismiss after accepting
+    }
   }
 
   submitCreateGoal(): void {
@@ -842,62 +881,11 @@ export class GoalsComponent implements OnInit {
   }
 
   openAchievementsModal(): void {
-    this.showAchievementsModal = true;
-    this.isAchievementsLoading = true;
-    this.achievementAnalyticsMap = {};
-    this.achievementsPage = 0;
-    this.expandedAchievementId = null;
-    document.body.style.overflow = 'hidden';
-
-    // Achievements = completed manual goals + within-budget automatic goals (only after target date fully passed)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    this.achievements = this.goals.filter(g => {
-      if (!g.isAutomatic) {
-        return (g.status as string) === 'ACHIEVED' || (g.status as string) === 'COMPLETED';
-      } else {
-        const targetDate = new Date(g.targetDate);
-        targetDate.setHours(23, 59, 59, 999);
-        return targetDate < today && g.currentValue <= g.targetValue;
-      }
-    });
-
-    // Fetch analytics/history for each achievement
-    if (this.achievements.length === 0) {
-      this.isAchievementsLoading = false;
-      this.cdr.detectChanges();
-      return;
-    }
-
-    let loaded = 0;
-    this.achievements.forEach(goal => {
-      this.goalService.getAnalytics(goal.id).subscribe({
-        next: (data) => {
-          this.achievementAnalyticsMap[goal.id] = data;
-          loaded++;
-          if (loaded >= this.achievements.length) {
-            this.isAchievementsLoading = false;
-            this.cdr.detectChanges();
-          }
-        },
-        error: () => {
-          loaded++;
-          if (loaded >= this.achievements.length) {
-            this.isAchievementsLoading = false;
-            this.cdr.detectChanges();
-          }
-        }
-      });
-    });
+    this.router.navigate(['/gamification/achievements'], { queryParams: { tab: 'GOAL' } });
   }
 
   closeAchievementsModal(): void {
-    this.showAchievementsModal = false;
-    this.achievements = [];
-    this.achievementAnalyticsMap = {};
-    this.expandedAchievementId = null;
-    this.achievementsPage = 0;
-    document.body.style.overflow = '';
+    // Deprecated
   }
 
   toggleAchievementHistory(goalId: number): void {

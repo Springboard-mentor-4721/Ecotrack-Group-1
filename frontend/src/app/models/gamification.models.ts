@@ -22,8 +22,12 @@ export interface Badge {
   category: string;
   description: string;
   rarity: BadgeRarity;
+  type: string;
+  icon?: string;
+  color?: string;
   isEarned: boolean;
   awardedAt: string | null;        // null if not earned
+  criteriaType?: string;
   currentValue?: number;
   criteriaThreshold?: number;
   xpReward?: number;
@@ -44,6 +48,9 @@ export interface AdminBadge {
   category: string;
   description: string;
   rarity: BadgeRarity;
+  type: string;
+  icon?: string;
+  color?: string;
   isHidden: boolean;
   isRepeatable: boolean;
   criteriaType: string;
@@ -56,8 +63,11 @@ export interface BadgeDefinitionRequest {
   category: string;                // max 50 chars
   description: string;
   rarity: string;                  // max 20 chars
+  type: string;
+  icon?: string;
+  color?: string;
   isHidden: boolean;
   isRepeatable: boolean;
-  criteriaType: string;            // max 50 chars
-  criteriaThreshold: number;       // min 1
+  criteriaType?: string;            // max 50 chars, optional for challenges
+  criteriaThreshold?: number;       // min 1, optional for challenges
 }

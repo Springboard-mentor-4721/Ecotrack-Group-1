@@ -8,7 +8,8 @@ import {
   GoalRequest, 
   GoalProgressResponse, 
   GoalProgressRequest, 
-  GoalAnalyticsResponse 
+  GoalAnalyticsResponse,
+  GoalOptimizationResponse
 } from '../models/goal.models';
 
 @Injectable({
@@ -53,5 +54,9 @@ export class GoalService {
 
   getAnalytics(id: number): Observable<GoalAnalyticsResponse> {
     return this.http.get<GoalAnalyticsResponse>(`${this.apiUrl}/api/goals/${id}/analytics`);
+  }
+
+  optimizeGoal(data: GoalRequest): Observable<GoalOptimizationResponse> {
+    return this.http.post<GoalOptimizationResponse>(`${this.apiUrl}/api/goals/optimize`, data);
   }
 }

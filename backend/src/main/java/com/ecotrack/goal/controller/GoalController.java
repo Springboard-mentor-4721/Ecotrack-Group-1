@@ -19,6 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import com.ecotrack.goal.dto.GoalOptimizationResponse;
+import com.ecotrack.goal.service.GoalOptimizationService;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/goals")
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class GoalController {
 
     private final GoalService goalService;
+    private final GoalOptimizationService goalOptimizationService;
     private final UserRepository userRepository;
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
@@ -37,6 +41,17 @@ public class GoalController {
         Long userId = getUserId(authentication);
         GoalResponse response = goalService.createGoal(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PostMapping("/optimize")
+    public ResponseEntity<GoalOptimizationResponse> optimizeGoal(
+            @Valid @RequestBody GoalRequest request,
+            Authentication authentication) {
+        log.info("Requesting AI optimization for goal");
+        Long userId = getUserId(authentication);
+        GoalOptimizationResponse response = goalOptimizationService.optimizeGoal(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

@@ -23,7 +23,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/assets"
             ],
             "polyfills": [
               "zone.js"

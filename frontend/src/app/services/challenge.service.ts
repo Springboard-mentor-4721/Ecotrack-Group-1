@@ -62,4 +62,8 @@ export class ChallengeService {
     
     return this.http.get<PageableResponse<ChallengeParticipant>>(`${this.apiUrl}/api/challenges/${id}/participants`, { params });
   }
+
+  getRecommendedChallenges(): Observable<Challenge[]> {
+    return this.http.get<Challenge[]>(`${this.apiUrl}/api/challenges/recommended`);
+  }
 }

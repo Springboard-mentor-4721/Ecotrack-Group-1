@@ -25,4 +25,6 @@ public class UpdateUserProfileRequest {
 
     @Size(max = 255, message = "FCM token must be less than 255 characters")
     private String fcmToken;
+
+    private java.util.List<String> interests;
 }

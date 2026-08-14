@@ -3,6 +3,7 @@ package com.ecotrack.gamification.service;
 import com.ecotrack.gamification.dto.AdminBadgeDTO;
 import com.ecotrack.gamification.dto.BadgeDefinitionRequest;
 import com.ecotrack.gamification.entity.Badge;
+import com.ecotrack.gamification.enums.BadgeType;
 import com.ecotrack.gamification.repository.BadgeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,9 @@ public class BadgeService {
                 .category(request.getCategory())
                 .description(request.getDescription())
                 .rarity(request.getRarity())
+                .type(request.getType())
+                .icon(request.getIcon())
+                .color(request.getColor())
                 .isHidden(request.getIsHidden())
                 .isRepeatable(request.getIsRepeatable())
                 .criteriaType(request.getCriteriaType())
@@ -63,6 +67,9 @@ public class BadgeService {
         badge.setCategory(request.getCategory());
         badge.setDescription(request.getDescription());
         badge.setRarity(request.getRarity());
+        badge.setType(request.getType());
+        badge.setIcon(request.getIcon());
+        badge.setColor(request.getColor());
         badge.setIsHidden(request.getIsHidden());
         badge.setIsRepeatable(request.getIsRepeatable());
         badge.setCriteriaType(request.getCriteriaType());
@@ -72,11 +79,19 @@ public class BadgeService {
     }
 
     private void validateBadgeRequest(BadgeDefinitionRequest request) {
-        if (!VALID_CRITERIA_TYPES.contains(request.getCriteriaType())) {
-            throw new IllegalArgumentException("Unsupported criteriaType: " + request.getCriteriaType());
-        }
-        if (!VALID_RARITIES.contains(request.getRarity())) {
-            throw new IllegalArgumentException("Unsupported rarity: " + request.getRarity());
+        if (request.getType() == BadgeType.GENERIC) {
+            if (request.getCriteriaType() == null || request.getCriteriaThreshold() == null) {
+                throw new IllegalArgumentException("Generic badges require criteriaType and criteriaThreshold");
+            }
+            if (!VALID_CRITERIA_TYPES.contains(request.getCriteriaType())) {
+                throw new IllegalArgumentException("Unsupported criteriaType: " + request.getCriteriaType());
+            }
+            if (request.getRarity() == null || !VALID_RARITIES.contains(request.getRarity())) {
+                throw new IllegalArgumentException("Generic badges require valid rarity. Unsupported rarity: " + request.getRarity());
+            }
+        } else if (request.getType() == BadgeType.CHALLENGE) {
+            // Challenge badges should ignore any provided rarity
+            request.setRarity(null);
         }
     }
 
@@ -89,7 +104,10 @@ public class BadgeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminBadgeDTO> getAllBadges(Pageable pageable) {
+    public Page<AdminBadgeDTO> getAllBadges(BadgeType type, Pageable pageable) {
+        if (type != null) {
+            return badgeRepository.findByType(type, pageable).map(this::mapToAdminDTO);
+        }
         return badgeRepository.findAll(pageable).map(this::mapToAdminDTO);
     }
 
@@ -100,6 +118,9 @@ public class BadgeService {
                 .category(badge.getCategory())
                 .description(badge.getDescription())
                 .rarity(badge.getRarity())
+                .type(badge.getType())
+                .icon(badge.getIcon())
+                .color(badge.getColor())
                 .isHidden(badge.getIsHidden())
                 .isRepeatable(badge.getIsRepeatable())
                 .criteriaType(badge.getCriteriaType())

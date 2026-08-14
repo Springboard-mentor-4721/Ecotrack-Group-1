@@ -80,4 +80,7 @@ public class Challenge {
 
     @Column(name = "image_url", columnDefinition = "LONGTEXT")
     private String imageUrl;
+
+    @Column(name = "badge_id")
+    private Long badgeId;
 }

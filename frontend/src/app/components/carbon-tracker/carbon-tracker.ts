@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { AiFeatureState } from '../../models/ai-feature-state.model';
-import { SmartSuggestionResponse, JournalSummaryResponse } from '../../models/ai-models';
+import { SmartSuggestionResponse } from '../../models/ai-models';
 import { AiSkeletonLineComponent } from '../../shared/components/ai-skeleton-line/ai-skeleton-line.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
@@ -39,7 +39,6 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   
   // AI Features
   smartSuggestionState: AiFeatureState<SmartSuggestionResponse> = { loading: false, data: null, error: null };
-  journalSummaryState: AiFeatureState<JournalSummaryResponse> = { loading: false, data: null, error: null };
   
   entryForm: FormGroup;
   isEditing = false;
@@ -483,8 +482,6 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Failed to load summary', err)
     });
 
-    // Removed extra getEntries call
-
     const todayStr = endDate;
     this.carbonEntryService.getDashboardSummary(todayStr, todayStr)
       .subscribe({
@@ -501,8 +498,6 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Failed to load today summary', err)
     });
-    
-    // Removed extra getEntries call for today
   }
 
   onDistributionMonthChange(): void {
@@ -529,7 +524,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (summary) => {
           this.distributionTotalEmission = summary.totalEmission || 0;
-          this.loadJournalSummary();
+          this.processCarbonSources(summary.categorySummaries);
         },
         error: (err) => console.error('Failed to load category distribution', err)
       });
@@ -843,66 +838,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     });
   }
 
-  rateLimited = false;
-  retryAfterSeconds = 0;
-  private intervalId: any;
 
-  loadJournalSummary(): void {
-    this.journalSummaryState = { loading: true, data: null, error: null, empty: true };
-    this.carbonEntryService.getJournalSummary().subscribe({
-      next: (res) => {
-        if (res && res.summaryText) {
-          this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
-        } else {
-          this.journalSummaryState = { loading: false, data: null, error: null, empty: true };
-        }
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.journalSummaryState = { loading: false, data: null, error: 'AI Summary unavailable', empty: true };
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  generateJournalSummary(): void {
-    if (this.journalSummaryState.loading || this.rateLimited) return;
-    
-    this.journalSummaryState.loading = true;
-    this.journalSummaryState.error = null;
-    this.rateLimited = false;
-
-    this.carbonEntryService.generateJournalSummary().subscribe({
-      next: (res) => {
-        this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        if (err.status === 429) {
-          this.rateLimited = true;
-          this.retryAfterSeconds = err.error?.retryAfterSeconds || 60;
-          this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'AI request limit reached.', empty: this.journalSummaryState.data == null };
-          this.startCountdown();
-        } else {
-          this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'Failed to generate summary.', empty: this.journalSummaryState.data == null };
-        }
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  private startCountdown(): void {
-    if (this.intervalId) clearInterval(this.intervalId);
-    
-    this.intervalId = setInterval(() => {
-      this.retryAfterSeconds--;
-      if (this.retryAfterSeconds <= 0) {
-        this.rateLimited = false;
-        clearInterval(this.intervalId);
-      }
-      this.cdr.detectChanges();
-    }, 1000);
-  }
 
   closeViewModal(): void {
     this.viewEntry = null;
@@ -1043,6 +979,57 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     this.pageSize = size;
     this.currentPage = 0;
     this.loadEntries();
+  }
+
+  get quickShortcuts(): CarbonEntryResponse[] {
+    const seen = new Set<string>();
+    const shortcuts: CarbonEntryResponse[] = [];
+    for (const entry of this.entries) {
+      const key = `${entry.categoryId}-${entry.subCategoryId}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        shortcuts.push(entry);
+        if (shortcuts.length >= 4) break; // Limit to 4 shortcuts
+      }
+    }
+    return shortcuts;
+  }
+
+  quickLog(entry: CarbonEntryResponse): void {
+    if (this.isSubmitting) return;
+    
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    // Format: YYYY-MM-DDTHH:mm
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    
+    const formData = {
+      categoryId: entry.categoryId,
+      subCategoryId: entry.subCategoryId,
+      quantity: entry.quantity,
+      unit: entry.unit,
+      entryDate: dateStr,
+      notes: ''
+    };
+    
+    this.isSubmitting = true;
+    this.carbonEntryService.createEntry(formData)
+      .pipe(finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          this.showToast(`Quick Logged: ${entry.subType} (${entry.quantity} ${entry.unit})`, 'success');
+          this.loadEntries();
+          this.loadSummary();
+          this.loadCategoryDistribution();
+        },
+        error: (err) => {
+          this.showToast('Failed to Save Quick Entry', 'error');
+          this.handleBackendErrors(err, 'Failed to log quick entry.');
+        }
+      });
   }
 
   showToast(message: string, type: 'success' | 'error'): void {

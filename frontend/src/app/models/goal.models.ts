@@ -57,3 +57,9 @@ export interface GoalAnalyticsResponse {
   projectedCompletionDate?: string;
   history: GoalHistoryItem[];
 }
+
+export interface GoalOptimizationResponse {
+  feasibility: 'ACHIEVABLE' | 'CONSERVATIVE' | 'AGGRESSIVE';
+  suggestedTarget: number;
+  explanation: string;
+}

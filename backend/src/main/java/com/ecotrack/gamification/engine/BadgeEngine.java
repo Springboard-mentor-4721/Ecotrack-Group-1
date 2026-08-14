@@ -25,6 +25,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.Optional;
+import com.ecotrack.gamification.enums.BadgeType;
+import com.ecotrack.challenge.repository.ChallengeRepository;
+import com.ecotrack.challenge.entity.Challenge;
 
 @Slf4j
 @Service
@@ -36,6 +39,7 @@ public class BadgeEngine {
     private final BadgeProgressRepository badgeProgressRepository;
     private final XpLedgerService xpLedgerService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ChallengeRepository challengeRepository;
 
     @Transactional
     public void evaluateBadges(Long userId, String triggerType, int increment, String correlationId) {
@@ -83,9 +87,11 @@ public class BadgeEngine {
                 .build();
         userBadgeRepository.save(userBadge);
 
-        // Standard XP for a badge award
-        int xpReward = com.ecotrack.gamification.enums.BadgeRarity.fromString(badge.getRarity()).getXpReward();
-        xpLedgerService.awardXp(userId, xpReward, XpSourceType.BADGE_BONUS, badge.getId(), correlationId);
+        // Standard XP for a badge award (Only for GENERIC badges, Challenge XP is awarded by the Challenge)
+        if (badge.getType() == com.ecotrack.gamification.enums.BadgeType.GENERIC) {
+            int xpReward = com.ecotrack.gamification.enums.BadgeRarity.fromString(badge.getRarity()).getXpReward();
+            xpLedgerService.awardXp(userId, xpReward, XpSourceType.BADGE_BONUS, badge.getId(), correlationId);
+        }
         
         eventPublisher.publishEvent(new BadgeUnlockedEvent(userId, badge.getId(), correlationId));
         log.info("Awarded badge '{}' to user {}", badge.getName(), userId);
@@ -119,5 +125,19 @@ public class BadgeEngine {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleChallengeCompleted(ChallengeCompletedEvent event) {
         evaluateBadges(event.getUserId(), "CHALLENGE_COMPLETED_COUNT", 1, event.getCorrelationId());
+        
+        try {
+            challengeRepository.findById(event.getChallengeId()).ifPresent(challenge -> {
+                if (challenge.getBadgeId() != null) {
+                    badgeRepository.findById(challenge.getBadgeId()).ifPresent(badge -> {
+                        if (badge.getType() == BadgeType.CHALLENGE) {
+                            awardBadge(event.getUserId(), badge, event.getCorrelationId());
+                        }
+                    });
+                }
+            });
+        } catch (Exception e) {
+            log.error("Failed to award challenge badge for ChallengeCompletedEvent: ", e);
+        }
     }
 }

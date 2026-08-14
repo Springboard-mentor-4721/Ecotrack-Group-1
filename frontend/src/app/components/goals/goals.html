@@ -748,12 +748,31 @@
             <div *ngIf="createForm.get('targetDate')?.touched && createForm.get('targetDate')?.errors?.['futureDate']" class="text-danger fs-8 mt-1">Date must be in the future.</div>
           </div>
           
-          <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top border-color">
-            <button type="button" class="premium-btn btn-light" (click)="closeCreateModal()">Cancel</button>
-            <button type="submit" class="premium-btn premium-btn-primary" [disabled]="isSubmitting">
-              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              {{ isEditMode ? 'Update Goal' : 'Create Goal' }}
+          <div *ngIf="aiOptimization" class="mb-4 p-3 rounded-3 border" [ngClass]="{'border-success bg-success-subtle': aiOptimization.feasibility === 'ACHIEVABLE', 'border-warning bg-warning-subtle': aiOptimization.feasibility === 'CONSERVATIVE', 'border-danger bg-danger-subtle': aiOptimization.feasibility === 'AGGRESSIVE'}">
+            <h6 class="fw-bold mb-2 d-flex align-items-center gap-2" [ngClass]="{'text-success': aiOptimization.feasibility === 'ACHIEVABLE', 'text-warning': aiOptimization.feasibility === 'CONSERVATIVE', 'text-danger': aiOptimization.feasibility === 'AGGRESSIVE'}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="m4.93 4.93 2.83 2.83"></path><path d="m16.24 16.24 2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="m4.93 19.07 2.83-2.83"></path><path d="m16.24 7.76 2.83-2.83"></path></svg>
+              AI Optimization: {{ aiOptimization.feasibility }}
+            </h6>
+            <p class="fs-7 text-dark mb-3">{{ aiOptimization.explanation }}</p>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="fs-7 fw-bold">Suggested Target: {{ aiOptimization.suggestedTarget }} {{ createForm.get('unit')?.value }}</span>
+              <button type="button" class="btn btn-sm btn-dark px-3 fw-bold rounded-pill" (click)="acceptAiSuggestion()">Accept Suggestion</button>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-color flex-wrap gap-3">
+            <button type="button" class="btn btn-light border d-flex align-items-center gap-2 fw-bold fs-7 rounded-pill px-3" (click)="optimizeGoal()" [disabled]="isOptimizing || !createForm.get('goalType')?.value || !createForm.get('targetValue')?.value || !createForm.get('targetDate')?.value" style="color: var(--color-leaf);">
+              <span *ngIf="isOptimizing" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <svg *ngIf="!isOptimizing" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="m4.93 4.93 2.83 2.83"></path><path d="m16.24 16.24 2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="m4.93 19.07 2.83-2.83"></path><path d="m16.24 7.76 2.83-2.83"></path></svg>
+              AI Optimize
             </button>
+            <div class="d-flex gap-2">
+              <button type="button" class="premium-btn btn-light" (click)="closeCreateModal()">Cancel</button>
+              <button type="submit" class="premium-btn premium-btn-primary" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {{ isEditMode ? 'Update Goal' : 'Create Goal' }}
+              </button>
+            </div>
           </div>
         </form>
       </div>

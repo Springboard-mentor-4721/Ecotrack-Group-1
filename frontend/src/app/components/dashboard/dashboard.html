@@ -147,7 +147,7 @@
       
       <!-- Trend Chart -->
       <div class="col-lg-8">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border border-light d-flex flex-column">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-3">
              <div class="fw-bold fs-5 text-dark">Emissions Trend</div>
              <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ trendInsight }}</div>
@@ -177,7 +177,7 @@
     <div class="row g-4 mb-5 animate-stagger-item">
       <!-- Source Distribution -->
       <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border border-light d-flex flex-column">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="fw-bold fs-5 text-dark">Source Distribution</div>
             <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ topSourceInsight }}</div>
@@ -244,7 +244,7 @@
     <div class="row g-4 mb-5 animate-stagger-item">
       <!-- Goals -->
       <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border border-light d-flex flex-column">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <div class="fw-bold text-dark fs-5 mb-0">Goals</div>
@@ -254,10 +254,10 @@
           </div>
           
           <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary.goalSummary.activeGoalsList.length > 0">
-            <div class="p-3 rounded-3 bg-light border border-light" *ngFor="let goal of dashboardSummary.goalSummary.activeGoalsList">
+            <div class="p-3 rounded-3 bg-light" *ngFor="let goal of dashboardSummary.goalSummary.activeGoalsList">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="fw-bold text-dark fs-xs">{{ goal.title }}</span>
-                <span class="bg-white text-slate-muted border border-light px-2 py-1 rounded fs-xs fw-medium shadow-sm">{{ goal.targetDate | date:'MMM d' }}</span>
+                <span class="bg-white text-slate-muted px-2 py-1 rounded fs-xs fw-medium shadow-sm">{{ goal.targetDate | date:'MMM d' }}</span>
               </div>
               <div class="d-flex justify-content-between align-items-end mb-2">
                 <span class="fs-xs fw-medium text-slate-muted">Progress</span>
@@ -269,7 +269,7 @@
             </div>
           </div>
           
-          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto bg-light rounded-3 border border-light border-dashed" *ngIf="dashboardSummary.goalSummary.activeGoalsList.length === 0">
+          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto bg-light rounded-3 border-dashed" *ngIf="dashboardSummary.goalSummary.activeGoalsList.length === 0">
             <span class="text-dark fw-bold mb-1">Set your first sustainability goal</span>
             <span class="text-slate-muted fs-xs mb-3 px-3">Track something meaningful like water, energy, transport, or waste.</span>
             <a routerLink="/goals" class="btn btn-teal btn-sm rounded-pill px-4 fw-bold text-white no-underline text-decoration-none shadow-sm">Create Goal</a>
@@ -279,17 +279,17 @@
       
       <!-- Challenges -->
       <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border border-light d-flex flex-column">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <div class="fw-bold text-dark fs-5 mb-0">Challenges</div>
-              <div class="text-muted fs-xs">Community initiatives</div>
+              <div class="text-muted fs-xs">Active initiatives</div>
             </div>
             <a routerLink="/challenges" class="text-teal text-decoration-none fw-bold fs-xs hover-teal">View All</a>
           </div>
           
           <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary.activeChallenges.length > 0">
-            <div class="p-3 rounded-3 bg-light border border-light" *ngFor="let cp of dashboardSummary.activeChallenges">
+            <div class="p-3 rounded-3 bg-light" *ngFor="let cp of dashboardSummary.activeChallenges">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="d-flex align-items-center gap-2">
                    <div class="bg-teal bg-opacity-10 text-teal rounded p-1">
@@ -311,7 +311,7 @@
           
           <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto" *ngIf="dashboardSummary.activeChallenges.length === 0">
             <span class="text-dark fw-bold mb-1">No active challenges.</span>
-            <span class="text-slate-muted fs-xs mb-3 px-3">Join a community challenge to boost your impact.</span>
+            <span class="text-slate-muted fs-xs mb-3 px-3">Join a challenge to boost your impact.</span>
             <a routerLink="/challenges" class="btn btn-outline-teal btn-sm rounded-pill px-4 fw-bold">Find Challenges</a>
           </div>
         </div>
@@ -319,7 +319,7 @@
 
       <!-- Quick Actions -->
       <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border border-light d-flex flex-column">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="fw-bold text-dark fs-5 mb-4">Quick Actions</div>
           
           <div class="d-flex flex-column gap-3 flex-grow-1">
@@ -330,7 +330,7 @@
             
             <div class="row g-3 mt-1 flex-grow-1">
                <div class="col-6">
-                 <a routerLink="/goals" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 border border-light bg-light text-decoration-none transition-all hover:-translate-y-0.5 h-100 hover-shadow">
+                 <a routerLink="/goals" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 bg-light text-decoration-none transition-all hover:-translate-y-0.5 h-100 hover-shadow">
                    <div class="text-primary bg-primary bg-opacity-10 p-2 rounded-circle">
                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
                    </div>
@@ -338,7 +338,7 @@
                  </a>
                </div>
                <div class="col-6">
-                 <a routerLink="/challenges" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 border border-light bg-light text-decoration-none transition-all hover:-translate-y-0.5 h-100 hover-shadow">
+                 <a routerLink="/challenges" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 bg-light text-decoration-none transition-all hover:-translate-y-0.5 h-100 hover-shadow">
                    <div class="text-warning bg-warning bg-opacity-10 p-2 rounded-circle">
                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                    </div>
@@ -347,7 +347,7 @@
                </div>
             </div>
 
-            <a routerLink="/recommendations" class="d-flex align-items-center justify-content-center gap-2 p-3 mt-1 rounded-4 bg-light text-dark text-decoration-none fw-bold fs-xs transition-all border border-light hover-shadow">
+            <a routerLink="/recommendations" class="d-flex align-items-center justify-content-center gap-2 p-3 mt-1 rounded-4 bg-light text-dark text-decoration-none fw-bold fs-xs transition-all hover-shadow">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
               View Full Reports
             </a>
@@ -365,7 +365,7 @@
     <div class="row g-4 mb-5 animate-stagger-item">
       <!-- Recent Activity -->
       <div class="col-lg-6">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 border border-light d-flex flex-column">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="fw-bold text-dark fs-5 mb-0">Recent Activity</div>
             <a routerLink="/carbon-tracker" class="text-teal text-decoration-none fw-bold fs-xs hover-teal">View Journal</a>

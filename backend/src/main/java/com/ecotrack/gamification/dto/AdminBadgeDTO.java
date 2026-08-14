@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.ecotrack.gamification.enums.BadgeType;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,9 @@ public class AdminBadgeDTO {
     private String category;
     private String description;
     private String rarity;
+    private BadgeType type;
+    private String icon;
+    private String color;
     private Boolean isHidden;
     private Boolean isRepeatable;
     private String criteriaType;

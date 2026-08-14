@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CarbonEntryService } from '../../services/carbon-entry.service';
-import { CarbonSummaryResponse } from '../../models/carbon.models';
+import { ReportService } from '../../services/report.service';
 import { finalize } from 'rxjs/operators';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { LucideAngularModule, PieChart, BarChart2, Calendar, Download } from 'lucide-angular';
+import { LucideAngularModule, PieChart, BarChart2, Calendar, Download, FileText, Target, Award, Leaf } from 'lucide-angular';
 
 @Component({
   selector: 'app-reports',
@@ -17,9 +16,14 @@ import { LucideAngularModule, PieChart, BarChart2, Calendar, Download } from 'lu
   styleUrl: './reports.css',
 })
 export class ReportsComponent implements OnInit {
-  summary: CarbonSummaryResponse | null = null;
   isLoading = false;
   errorMessage = '';
+
+  // Tabs
+  currentTab: 'carbon' | 'goals' | 'challenges' | 'sustainability' = 'carbon';
+
+  // Data
+  reportData: any = null;
 
   // Filters
   startDate: string = '';
@@ -31,6 +35,10 @@ export class ReportsComponent implements OnInit {
   BarChartIcon = BarChart2;
   CalendarIcon = Calendar;
   DownloadIcon = Download;
+  FileTextIcon = FileText;
+  TargetIcon = Target;
+  AwardIcon = Award;
+  LeafIcon = Leaf;
 
   // Chart config
   pieChartType: ChartType = 'pie';
@@ -58,12 +66,17 @@ export class ReportsComponent implements OnInit {
   };
 
   constructor(
-    private carbonService: CarbonEntryService,
+    private reportService: ReportService,
     private datePipe: DatePipe
   ) {}
 
   ngOnInit(): void {
     this.updateDateRange();
+  }
+
+  setTab(tab: 'carbon' | 'goals' | 'challenges' | 'sustainability') {
+    this.currentTab = tab;
+    this.loadReport();
   }
 
   onDateRangeChange(): void {
@@ -106,27 +119,38 @@ export class ReportsComponent implements OnInit {
 
     this.isLoading = true;
     this.errorMessage = '';
-    this.summary = null;
+    this.reportData = null;
 
-    this.carbonService.getDashboardSummary(this.startDate, this.endDate)
-      .pipe(finalize(() => this.isLoading = false))
-      .subscribe({
-        next: (data) => {
-          this.summary = data;
+    let request;
+    if (this.currentTab === 'carbon') {
+      request = this.reportService.getCarbonReport(this.startDate, this.endDate);
+    } else if (this.currentTab === 'goals') {
+      request = this.reportService.getGoalReport(this.startDate, this.endDate);
+    } else if (this.currentTab === 'challenges') {
+      request = this.reportService.getChallengeReport(this.startDate, this.endDate);
+    } else {
+      request = this.reportService.getSustainabilityReport(this.startDate, this.endDate);
+    }
+
+    request.pipe(finalize(() => this.isLoading = false)).subscribe({
+      next: (data) => {
+        this.reportData = data;
+        if (this.currentTab === 'carbon') {
           this.updateCharts(data);
-        },
-        error: (err) => {
-          console.error('Error fetching report:', err);
-          this.errorMessage = 'Failed to load report data. Please try again.';
         }
-      });
+      },
+      error: (err) => {
+        console.error('Error fetching report:', err);
+        this.errorMessage = 'Failed to load report data. Please try again.';
+      }
+    });
   }
 
-  updateCharts(data: CarbonSummaryResponse): void {
-    const labels = data.categorySummaries.map(c => c.categoryName);
-    const emissions = data.categorySummaries.map(c => c.totalEmission);
+  updateCharts(data: any): void {
+    if (!data.emissionsByCategory) return;
+    const labels = Object.keys(data.emissionsByCategory);
+    const emissions = Object.values(data.emissionsByCategory) as number[];
 
-    // Update Pie Chart
     this.pieChartData = {
       labels: labels,
       datasets: [{
@@ -135,7 +159,6 @@ export class ReportsComponent implements OnInit {
       }]
     };
 
-    // Update Bar Chart
     this.barChartData = {
       labels: labels,
       datasets: [{
@@ -146,21 +169,25 @@ export class ReportsComponent implements OnInit {
     };
   }
 
-  exportReport(): void {
-    // Basic CSV export of the summary data
-    if (!this.summary || this.summary.categorySummaries.length === 0) return;
-    
-    let csv = 'Category,Total Emission (kg CO2e),Percentage\n';
-    this.summary.categorySummaries.forEach(c => {
-      csv += `"${c.categoryName}",${c.totalEmission},${c.percentage}%\n`;
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `emission-report-${this.startDate}-to-${this.endDate}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  exportReport(format: 'PDF' | 'EXCEL'): void {
+    if (!this.reportData) return;
+    this.isLoading = true;
+    this.reportService.exportReportBlob(this.currentTab, format, this.startDate, this.endDate)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const ext = format === 'PDF' ? 'pdf' : 'xlsx';
+          a.download = `ecotrack-${this.currentTab}-report-${this.startDate}-to-${this.endDate}.${ext}`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => {
+          console.error('Export failed', err);
+          this.errorMessage = `Failed to generate ${format} report.`;
+        }
+      });
   }
 }

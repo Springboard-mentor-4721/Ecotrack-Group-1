@@ -13,11 +13,12 @@ import { HttpEventType } from '@angular/common/http';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 import { EcoScoreColorPipe } from '../../shared/pipes/eco-score-color.pipe';
+import { BadgeEmblemComponent } from '../../shared/components/badge-emblem/badge-emblem.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LoadingSkeletonComponent, ImageCropperComponent, EcoScoreColorPipe],
+  imports: [CommonModule, ReactiveFormsModule, LoadingSkeletonComponent, ImageCropperComponent, EcoScoreColorPipe, BadgeEmblemComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })

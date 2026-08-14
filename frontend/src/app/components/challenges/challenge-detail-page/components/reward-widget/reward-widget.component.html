@@ -19,13 +19,13 @@
     </div>
     
     <!-- Badge Card -->
-    <div class="bg-light rounded-4 p-3 border border-color d-flex align-items-center gap-4 transition-all hover-shadow-lg group-hover">
-      <div class="bg-orange bg-opacity-10 text-orange rounded-3 p-3">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5-9-5 5-9 5 2"></path></svg>
+    <div *ngIf="challenge?.badge" class="bg-light rounded-4 p-3 border border-color d-flex align-items-center gap-4 transition-all hover-shadow-lg group-hover">
+      <div>
+        <app-badge-emblem [badge]="challenge.badge" [size]="60"></app-badge-emblem>
       </div>
       <div>
-        <span class="fs-xs fw-bold text-orange d-block text-uppercase tracking-wide mb-1">Exclusive Badge</span>
-        <span class="fw-bolder fs-4">Eco Champion</span>
+        <span [ngClass]="'text-' + challenge.badge.color" class="fs-xs fw-bold d-block text-uppercase tracking-wide mb-1">Exclusive Badge</span>
+        <span class="fw-bolder fs-4">{{ challenge.badge.name }}</span>
       </div>
     </div>
   </div>

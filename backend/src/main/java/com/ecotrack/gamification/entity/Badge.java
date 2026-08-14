@@ -1,5 +1,7 @@
 package com.ecotrack.gamification.entity;
 
+import com.ecotrack.gamification.enums.BadgeType;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +32,7 @@ public class Badge {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private String rarity;
 
     @Column(name = "is_hidden", nullable = false)
@@ -41,11 +43,22 @@ public class Badge {
     @Builder.Default
     private Boolean isRepeatable = false;
 
-    @Column(name = "criteria_type", nullable = false, length = 50)
+    @Column(name = "criteria_type", length = 50)
     private String criteriaType;
 
-    @Column(name = "criteria_threshold", nullable = false)
+    @Column(name = "criteria_threshold")
     private Integer criteriaThreshold;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 20)
+    @Builder.Default
+    private BadgeType type = BadgeType.GENERIC;
+
+    @Column(length = 50)
+    private String icon;
+
+    @Column(length = 20)
+    private String color;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp

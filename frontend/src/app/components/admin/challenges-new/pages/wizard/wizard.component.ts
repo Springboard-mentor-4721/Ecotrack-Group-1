@@ -4,8 +4,10 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AdminChallengeService } from '../../services/admin-challenge.service';
+import { AdminService } from '../../../../../services/admin.service';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { ChallengeRequest } from '../../../../../models/challenge.models';
+import { AdminBadge } from '../../../../../models/gamification.models';
 import { CanComponentDeactivate } from '../../guards/unsaved-changes.guard';
 
 import { CarbonCategory, CarbonSubcategory } from '../../../../../models/carbon-category.models';
@@ -290,6 +292,19 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 </div>
               </div>
 
+              <div style="margin-bottom: 2rem;">
+                <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Challenge Badge (Optional)</label>
+                <select class="premium-input" formControlName="badgeId">
+                  <option [ngValue]="null">No Badge</option>
+                  <option *ngFor="let badge of challengeBadges" [ngValue]="badge.id">
+                    {{ badge.name }} ({{ badge.rarity }})
+                  </option>
+                </select>
+                <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                  Select a Challenge-specific badge to award upon completion. Generic milestone badges are not available here.
+                </div>
+              </div>
+
               <div style="padding: 1rem; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; color: #0369a1; font-size: 0.875rem;">
                 <span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.25rem;">info</span>
                 <span *ngIf="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'">
@@ -409,6 +424,13 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   <div>
                     <small>XP Reward</small>
                     <strong>{{ wizardForm.value.rewardXp || 0 }} XP</strong>
+                  </div>
+                </div>
+                <div class="review-row" *ngIf="wizardForm.value.badgeId">
+                  <span class="material-icons review-icon">military_tech</span>
+                  <div>
+                    <small>Awarded Badge</small>
+                    <strong>{{ getBadgeName(wizardForm.value.badgeId) }}</strong>
                   </div>
                 </div>
                   </div>
@@ -583,6 +605,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 export class WizardComponent implements OnInit, CanComponentDeactivate {
   private fb = inject(FormBuilder);
   private challengeService = inject(AdminChallengeService);
+  private adminService = inject(AdminService);
   private toast = inject(ToastService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -606,6 +629,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   
   automaticCategories = signal<CarbonCategory[]>([]);
   allSubcategories: CarbonSubcategory[] = [];
+  challengeBadges: AdminBadge[] = [];
   
   multiSourceFilterCategoryId: number | 'ALL' = 'ALL';
 
@@ -623,7 +647,8 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     startDate: ['', [Validators.required]],
     durationDays: [null, [Validators.min(1)]],
     endDate: ['', [Validators.required]],
-    maxParticipants: ['']
+    maxParticipants: [''],
+    badgeId: [null]
   });
 
   constructor() {
@@ -778,6 +803,15 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
         // Create mode: blank tracking sources
         this.resolvedSubcategoryIds = [];
       }
+      this.cdr.markForCheck();
+    });
+
+    // Fetch challenge badges
+    this.adminService.getAdminBadges(0, 100).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (response) => {
+        this.challengeBadges = response.content.filter((b: AdminBadge) => b.type === 'CHALLENGE' && !b.isHidden);
+        this.cdr.markForCheck();
+      }
     });
 
     // Check for edit mode
@@ -820,7 +854,8 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
           targetValue: challenge.targetValue,
           startDate: challenge.startDate ? challenge.startDate.split('T')[0] : '',
           endDate: challenge.endDate ? challenge.endDate.split('T')[0] : '',
-          maxParticipants: challenge.participantCount || ''
+          maxParticipants: challenge.participantCount || '',
+          badgeId: challenge.badge?.id || null
         };
         this.wizardForm.patchValue(formData);
         this.wizardForm.markAllAsTouched();
@@ -1039,7 +1074,8 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
         ...(this.templateDataRef?.rulesConfig || {}),
         allowedSubcategoryIds: this.resolvedSubcategoryIds
       },
-      imageUrl: this.templateDataRef?.imageUrl || null
+      imageUrl: this.templateDataRef?.imageUrl || null,
+      badgeId: formValue.badgeId || null
     };
 
     if (this.isEditMode && this.editChallengeId) {
@@ -1102,5 +1138,10 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   private formatStartDate(dateStr: string): string {
     if (dateStr.includes('T')) return dateStr;
     return `${dateStr}T00:00:00`;
+  }
+
+  getBadgeName(badgeId: number): string {
+    const badge = this.challengeBadges.find(b => b.id === badgeId);
+    return badge ? `${badge.name} (${badge.rarity})` : 'Unknown Badge';
   }
 }

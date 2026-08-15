@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AdminService } from '../../../services/admin.service';
 import { UserDetailResponse } from '../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
-import { ChangeDetectorRef } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -16,17 +15,16 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./user-details.css']
 })
 export class AdminUserDetailsComponent implements OnInit {
-  user: UserDetailResponse | null = null;
-  isLoading = true;
-  errorMessage = '';
-  imgFailed = false;
-  showStatusConfirm = false;
+  user = signal<UserDetailResponse | null>(null);
+  isLoading = signal(true);
+  errorMessage = signal('');
+  imgFailed = signal(false);
+  showStatusConfirm = signal(false);
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private adminService: AdminService,
-    private cdr: ChangeDetectorRef
+    private adminService: AdminService
   ) {}
 
   ngOnInit(): void {
@@ -39,49 +37,47 @@ export class AdminUserDetailsComponent implements OnInit {
   }
 
   loadUserDetails(id: number): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     this.adminService.getUserById(id)
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       }))
       .subscribe({
         next: (data) => {
-          this.user = data;
+          this.user.set(data);
         },
         error: (err) => {
-          this.errorMessage = 'Failed to load user details.';
+          this.errorMessage.set('Failed to load user details.');
         }
       });
   }
 
   initiateToggleStatus(): void {
-    this.showStatusConfirm = true;
+    this.showStatusConfirm.set(true);
   }
 
   cancelStatusToggle(): void {
-    this.showStatusConfirm = false;
+    this.showStatusConfirm.set(false);
   }
 
   confirmToggleStatus(): void {
-    if (!this.user) return;
+    const currentUser = this.user();
+    if (!currentUser) return;
     
-    const newStatus = this.user.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    const newStatus = currentUser.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
     
-    this.adminService.updateUserStatus(this.user.id, newStatus)
-      .pipe(finalize(() => {
-        this.cdr.detectChanges();
-      }))
+    this.adminService.updateUserStatus(currentUser.id, newStatus)
+      .pipe(finalize(() => {}))
       .subscribe({
         next: () => {
-          this.errorMessage = '';
-          this.showStatusConfirm = false;
-          this.loadUserDetails(this.user!.id);
+          this.errorMessage.set('');
+          this.showStatusConfirm.set(false);
+          this.loadUserDetails(currentUser.id);
         },
         error: (err) => {
-          this.showStatusConfirm = false;
-          this.errorMessage = err.error?.message || 'Failed to update user status.';
+          this.showStatusConfirm.set(false);
+          this.errorMessage.set(err.error?.message || 'Failed to update user status.');
         }
       });
   }

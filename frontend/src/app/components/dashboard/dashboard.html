@@ -3,7 +3,7 @@
   <!-- ===============================
        LOADING STATE 
        =============================== -->
-  <div *ngIf="isLoading" class="animate-page">
+  <div *ngIf="isLoading()" class="animate-page">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="md:col-span-4"><app-loading-skeleton type="card"></app-loading-skeleton></div>
       <div class="md:col-span-1"><app-loading-skeleton type="card"></app-loading-skeleton></div>
@@ -15,7 +15,7 @@
   <!-- ===============================
        ERROR STATE
        =============================== -->
-  <div *ngIf="apiError && !isLoading" class="flex flex-col items-center justify-center py-12 text-center">
+  <div *ngIf="apiError() && !isLoading()" class="flex flex-col items-center justify-center py-12 text-center">
     <svg class="text-red-500 mb-3 opacity-75" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
     </svg>
@@ -24,13 +24,13 @@
     <button class="bg-primary text-white px-6 py-2 rounded-full hover:bg-primary-dark transition-colors" (click)="loadDashboardData()">Retry</button>
   </div>
 
-  <ng-container *ngIf="!isLoading && !apiError && dashboardSummary">
+  <ng-container *ngIf="!isLoading() && !apiError() && dashboardSummary">
 
     <!-- 1. PERSONAL CONTEXT (HERO) -->
     <div class="ecosystem-hero mb-5 animate-stagger-item">
       <!-- Ambient Background Glow -->
       <div class="hero-bg-glow position-absolute top-0 start-0 w-100 h-100 opacity-50 pointer-events-none" 
-           [ngClass]="dashboardSummary.gamificationProfile.currentEcoScore | ecoScoreColor:'background'"></div>
+           [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'background'"></div>
            
       <div class="row align-items-center justify-content-between position-relative z-1">
         
@@ -40,10 +40,10 @@
             {{ today | date:'EEEE, MMMM d, y' }}
           </span>
           <h1 class="display-4 fw-black text-dark tracking-tight mb-3 lh-1">
-            {{ greeting }}<ng-container *ngIf="user?.name">, <br/><span class="text-teal">{{ user.name.split(' ')[0] }}</span></ng-container>
+            {{ greeting }}<ng-container *ngIf="user()?.name">, <br/><span class="text-teal">{{ user().name.split(' ')[0] }}</span></ng-container>
           </h1>
-          <p class="fs-5 text-slate-muted fw-medium mb-5 max-w-lg mx-auto mx-lg-0 lh-base" *ngIf="heroInsight">
-            {{ heroInsight }}
+          <p class="fs-5 text-slate-muted fw-medium mb-5 max-w-lg mx-auto mx-lg-0 lh-base" *ngIf="heroInsight()">
+            {{ heroInsight() }}
           </p>
           <a routerLink="/carbon-tracker" class="btn-ecosystem-primary text-decoration-none hero-cta">
             <lucide-angular [img]="PlusIcon" size="18" class="me-1"></lucide-angular>
@@ -55,29 +55,29 @@
         <div class="col-lg-6 d-flex flex-column align-items-center hero-visual-reveal">
            <!-- Refined EcoScore Visual -->
            <div class="ecoscore-refined-container position-relative mb-4 d-flex flex-column align-items-center justify-content-center text-center"
-                [attr.aria-label]="'Eco Score: ' + dashboardSummary.gamificationProfile.currentEcoScore">
+                [attr.aria-label]="'Eco Score: ' + dashboardSummary()!.gamificationProfile.currentEcoScore">
               
               <!-- Subtle atmospheric glow -->
               <div class="ecoscore-ambient-glow position-absolute top-50 start-50 translate-middle rounded-circle"
-                   [ngClass]="dashboardSummary.gamificationProfile.currentEcoScore | ecoScoreColor:'background'"></div>
+                   [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'background'"></div>
                    
               <!-- Gradient Outline Border -->
-              <div class="score-circle-border" [ngClass]="dashboardSummary.gamificationProfile.currentEcoScore | ecoScoreColor:'text'"></div>
+              <div class="score-circle-border" [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'text'"></div>
               
               <!-- Typography Inner Circle -->
               <div class="position-relative z-1 d-flex flex-column align-items-center bg-white bg-opacity-75 rounded-circle justify-content-center shadow-sm backdrop-blur" style="width: 240px; height: 240px; border: 4px solid rgba(255,255,255,0.8);">
-                 <div class="text-uppercase fw-bold tracking-widest fs-xs mb-1" [ngClass]="dashboardSummary.gamificationProfile.currentEcoScore | ecoScoreColor:'text'">
+                 <div class="text-uppercase fw-bold tracking-widest fs-xs mb-1" [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'text'">
                     ECO SCORE
                  </div>
                  
                  <div class="fw-black lh-1 score-value-refined mb-2" 
-                      [ngClass]="dashboardSummary.gamificationProfile.currentEcoScore | ecoScoreColor:'primary'">
-                    {{ dashboardSummary.gamificationProfile.currentEcoScore }}
+                      [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'primary'">
+                    {{ dashboardSummary()!.gamificationProfile.currentEcoScore }}
                  </div>
                  
                  <div class="status-text fw-bold fs-6"
-                      [ngClass]="dashboardSummary.gamificationProfile.currentEcoScore | ecoScoreColor:'text'">
-                    {{ dashboardSummary.gamificationProfile.currentEcoScore | ecoScoreColor:'status' }}
+                      [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'text'">
+                    {{ dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'status' }}
                  </div>
               </div>
            </div>
@@ -89,7 +89,7 @@
                     <lucide-angular [img]="TrendingUpIcon" size="18" class="text-slate-muted"></lucide-angular>
                     <div class="metric-label m-0">Level</div>
                  </div>
-                 <div class="metric-value">{{ dashboardSummary.gamificationProfile.currentLevel }}</div>
+                 <div class="metric-value">{{ dashboardSummary()!.gamificationProfile.currentLevel }}</div>
               </div>
               <div class="metric-divider"></div>
               <div class="metric-item text-center flex-grow-1">
@@ -97,7 +97,7 @@
                     <lucide-angular [img]="FlameIcon" size="18" class="text-orange"></lucide-angular>
                     <div class="metric-label m-0">Streak</div>
                  </div>
-                 <div class="metric-value">{{ dashboardSummary.gamificationProfile.currentStreak }}<span class="fs-xs fw-normal text-muted ms-1">d</span></div>
+                 <div class="metric-value">{{ dashboardSummary()!.gamificationProfile.currentStreak }}<span class="fs-xs fw-normal text-muted ms-1">d</span></div>
               </div>
               <div class="metric-divider"></div>
               <div class="metric-item text-center flex-grow-1">
@@ -105,7 +105,7 @@
                     <lucide-angular [img]="TrophyIcon" size="18" class="text-yellow-600"></lucide-angular>
                     <div class="metric-label text-nowrap m-0">Monthly Rank</div>
                  </div>
-                 <div class="metric-value"><span class="fs-xs fw-normal text-muted me-1">#</span>{{ (dashboardSummary.monthlyLeaderboardRank?.rank || 0) > 0 ? dashboardSummary.monthlyLeaderboardRank?.rank : '&mdash;' }}</div>
+                 <div class="metric-value"><span class="fs-xs fw-normal text-muted me-1">#</span>{{ (dashboardSummary()!.monthlyLeaderboardRank?.rank || 0) > 0 ? dashboardSummary()!.monthlyLeaderboardRank?.rank : '&mdash;' }}</div>
               </div>
            </div>
         </div>
@@ -125,18 +125,18 @@
           <div class="position-relative z-1 text-center text-lg-start">
             <span class="text-uppercase fw-bold tracking-wider fs-xs mb-3 d-block text-muted">Current Month</span>
             <div class="d-flex align-items-baseline justify-content-center justify-content-lg-start gap-2 mb-4">
-              <span class="display-3 fw-black text-dark lh-1" style="letter-spacing: -0.04em;">{{ dashboardSummary.userSummary.monthlyEmission > 0 ? (dashboardSummary.userSummary.monthlyEmission | number:'1.0-1') : '0' }}</span>
+              <span class="display-3 fw-black text-dark lh-1" style="letter-spacing: -0.04em;">{{ dashboardSummary()!.userSummary.monthlyEmission > 0 ? (dashboardSummary()!.userSummary.monthlyEmission | number:'1.0-1') : '0' }}</span>
               <span class="fw-bold fs-6 text-muted">kgCO2e</span>
             </div>
             
             <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill fw-bold fs-xs bg-white shadow-sm"
-                 [ngClass]="{'text-success': emissionsChangePercent <= 0, 'text-danger': emissionsChangePercent > 0}"
-                 *ngIf="emissionsChangePercent !== null">
-               <svg *ngIf="emissionsChangePercent <= 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-               <svg *ngIf="emissionsChangePercent > 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-               {{ Math.abs(emissionsChangePercent) | number:'1.0-1' }}% vs last month
+                 [ngClass]="{'text-success': emissionsChangePercent()! <= 0, 'text-danger': emissionsChangePercent()! > 0}"
+                 *ngIf="emissionsChangePercent() !== null">
+               <svg *ngIf="emissionsChangePercent()! <= 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+               <svg *ngIf="emissionsChangePercent()! > 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+               {{ Math.abs(emissionsChangePercent() || 0) | number:'1.0-1' }}% vs last month
             </div>
-            <div class="fs-xs text-muted mt-2" *ngIf="emissionsChangePercent === null">
+            <div class="fs-xs text-muted mt-2" *ngIf="emissionsChangePercent() === null">
               Keep logging to unlock month-over-month insights.
             </div>
           </div>
@@ -150,9 +150,9 @@
         <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-3">
              <div class="fw-bold fs-5 text-dark">Emissions Trend</div>
-             <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ trendInsight }}</div>
+             <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ trendInsight() }}</div>
           </div>
-          <ng-container *ngIf="dashboardSummary.monthlyTrend.length > 0; else emptyChart">
+          <ng-container *ngIf="dashboardSummary()!.monthlyTrend.length > 0; else emptyChart">
             <div class="position-relative w-100 flex-grow-1" style="min-height: 180px;">
               <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
             </div>
@@ -180,20 +180,20 @@
         <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="fw-bold fs-5 text-dark">Source Distribution</div>
-            <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ topSourceInsight }}</div>
+            <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ topSourceInsight() }}</div>
           </div>
           
-          <ng-container *ngIf="carbonSources.length > 1; else singleDoughnut">
+          <ng-container *ngIf="carbonSources().length > 1; else singleDoughnut">
             <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
               <div class="position-relative mb-4" style="height: 140px; width: 140px;">
                 <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" [type]="doughnutChartType"></canvas>
                 <div class="position-absolute top-50 start-50 translate-middle text-center">
-                  <span class="fw-bold text-dark d-block lh-1 fs-4">{{ dashboardSummary.userSummary.monthlyEmission | number:'1.0-0' }}</span>
+                  <span class="fw-bold text-dark d-block lh-1 fs-4">{{ dashboardSummary()!.userSummary.monthlyEmission | number:'1.0-0' }}</span>
                   <span class="fs-xs text-muted" style="font-size: 0.65rem;">kgCO2e</span>
                 </div>
               </div>
               <div class="w-100 px-2">
-                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-light" *ngFor="let source of carbonSources">
+                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-light" *ngFor="let source of carbonSources()">
                   <div class="d-flex align-items-center gap-2">
                     <span class="rounded-circle d-inline-block" [style.backgroundColor]="source.color" style="width: 8px; height: 8px;"></span>
                     <span class="fw-bold text-dark fs-xs text-truncate" style="max-width: 100px;">{{ source.name }}</span>
@@ -208,14 +208,14 @@
           </ng-container>
 
           <ng-template #singleDoughnut>
-            <div *ngIf="carbonSources.length === 1; else emptyDoughnut" class="d-flex flex-column h-100 justify-content-center pb-4">
+            <div *ngIf="carbonSources().length === 1; else emptyDoughnut" class="d-flex flex-column h-100 justify-content-center pb-4">
                <div class="bg-light rounded-4 p-4 text-center">
                  <div class="bg-teal bg-opacity-10 text-teal rounded-circle d-inline-flex p-3 mb-3">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                  </div>
-                 <div class="fw-bold text-dark fs-5 mb-1">{{ carbonSources[0].name }}</div>
+                 <div class="fw-bold text-dark fs-5 mb-1">{{ carbonSources()[0].name }}</div>
                  <div class="text-muted fs-xs mb-3">100% of emissions</div>
-                 <div class="fw-black fs-2 text-dark">{{ carbonSources[0].value | number:'1.0-1' }} <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">kgCO2e</span></div>
+                 <div class="fw-black fs-2 text-dark">{{ carbonSources()[0].value | number:'1.0-1' }} <span class="fs-xs fw-bold text-muted text-uppercase tracking-wide">kgCO2e</span></div>
                </div>
             </div>
           </ng-template>
@@ -231,7 +231,7 @@
       <!-- Unified Insights & AI Eco Tip -->
       <div class="col-lg-8 d-flex flex-column justify-content-between gap-4">
          <app-unified-insights-panel class="flex-grow-1"></app-unified-insights-panel>
-         <app-eco-tip-card [state]="ecoTipState"></app-eco-tip-card>
+         <app-eco-tip-card [state]="ecoTipState()"></app-eco-tip-card>
       </div>
     </div>
 
@@ -248,13 +248,13 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <div class="fw-bold text-dark fs-5 mb-0">Goals</div>
-              <div class="text-muted fs-xs" *ngIf="dashboardSummary.goalSummary.activeGoals > 0">{{ dashboardSummary.goalSummary.activeGoals }} active</div>
+              <div class="text-muted fs-xs" *ngIf="dashboardSummary()!.goalSummary.activeGoals > 0">{{ dashboardSummary()!.goalSummary.activeGoals }} active</div>
             </div>
             <a routerLink="/goals" class="text-teal text-decoration-none fw-bold fs-xs hover-teal">View All</a>
           </div>
           
-          <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary.goalSummary.activeGoalsList.length > 0">
-            <div class="p-3 rounded-3 bg-light" *ngFor="let goal of dashboardSummary.goalSummary.activeGoalsList">
+          <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary()!.goalSummary.activeGoalsList.length > 0">
+            <div class="p-3 rounded-3 bg-light" *ngFor="let goal of dashboardSummary()!.goalSummary.activeGoalsList">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="fw-bold text-dark fs-xs">{{ goal.title }}</span>
                 <span class="bg-white text-slate-muted px-2 py-1 rounded fs-xs fw-medium shadow-sm">{{ goal.targetDate | date:'MMM d' }}</span>
@@ -269,7 +269,7 @@
             </div>
           </div>
           
-          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto bg-light rounded-3 border-dashed" *ngIf="dashboardSummary.goalSummary.activeGoalsList.length === 0">
+          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto bg-light rounded-3 border-dashed" *ngIf="dashboardSummary()!.goalSummary.activeGoalsList.length === 0">
             <span class="text-dark fw-bold mb-1">Set your first sustainability goal</span>
             <span class="text-slate-muted fs-xs mb-3 px-3">Track something meaningful like water, energy, transport, or waste.</span>
             <a routerLink="/goals" class="btn btn-teal btn-sm rounded-pill px-4 fw-bold text-white no-underline text-decoration-none shadow-sm">Create Goal</a>
@@ -288,8 +288,8 @@
             <a routerLink="/challenges" class="text-teal text-decoration-none fw-bold fs-xs hover-teal">View All</a>
           </div>
           
-          <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary.activeChallenges.length > 0">
-            <div class="p-3 rounded-3 bg-light" *ngFor="let cp of dashboardSummary.activeChallenges">
+          <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary()!.activeChallenges.length > 0">
+            <div class="p-3 rounded-3 bg-light" *ngFor="let cp of dashboardSummary()!.activeChallenges">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="d-flex align-items-center gap-2">
                    <div class="bg-teal bg-opacity-10 text-teal rounded p-1">
@@ -309,7 +309,7 @@
             </div>
           </div>
           
-          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto" *ngIf="dashboardSummary.activeChallenges.length === 0">
+          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto" *ngIf="dashboardSummary()!.activeChallenges.length === 0">
             <span class="text-dark fw-bold mb-1">No active challenges.</span>
             <span class="text-slate-muted fs-xs mb-3 px-3">Join a challenge to boost your impact.</span>
             <a routerLink="/challenges" class="btn btn-outline-teal btn-sm rounded-pill px-4 fw-bold">Find Challenges</a>
@@ -372,7 +372,7 @@
           </div>
           
           <div class="d-flex flex-column flex-grow-1">
-            <div class="history-list-item d-flex align-items-center justify-content-between py-3 border-bottom border-light" *ngFor="let entry of dashboardSummary.recentActivities; let last = last" [class.border-bottom-0]="last">
+            <div class="history-list-item d-flex align-items-center justify-content-between py-3 border-bottom border-light" *ngFor="let entry of dashboardSummary()!.recentActivities; let last = last" [class.border-bottom-0]="last">
               <div class="d-flex align-items-center gap-3">
                 <div class="bg-light rounded-circle p-2 text-slate-muted shadow-sm">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
@@ -387,7 +387,7 @@
               </div>
             </div>
             
-            <div class="text-center py-5 my-auto" *ngIf="dashboardSummary.recentActivities.length === 0">
+            <div class="text-center py-5 my-auto" *ngIf="dashboardSummary()!.recentActivities.length === 0">
               <span class="text-muted fs-xs">Your recent activity will appear here.</span>
             </div>
           </div>
@@ -396,7 +396,7 @@
       
       <!-- Achievements -->
       <div class="col-lg-6">
-        <app-recent-achievements [badges]="dashboardSummary.recentBadges"></app-recent-achievements>
+        <app-recent-achievements [badges]="dashboardSummary()!.recentBadges || []"></app-recent-achievements>
       </div>
     </div>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +6,7 @@ import { AdminService } from '../../../services/admin.service';
 import { UserSummaryResponse } from '../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
-import { ChangeDetectorRef } from '@angular/core';
+
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -17,23 +17,22 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./users-list.css']
 })
 export class AdminUsersListComponent implements OnInit {
-  users: (UserSummaryResponse & { _imgFailed?: boolean })[] = [];
-  searchQuery = '';
+  users = signal<(UserSummaryResponse & { _imgFailed?: boolean })[]>([]);
+  searchQuery = signal('');
   
-  currentPage = 0;
-  pageSize = 10;
-  totalPages = 0;
-  totalElements = 0;
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalPages = signal(0);
+  totalElements = signal(0);
   
-  showStatusConfirm = false;
-  userToUpdate: (UserSummaryResponse & { _imgFailed?: boolean }) | null = null;
+  showStatusConfirm = signal(false);
+  userToUpdate = signal<(UserSummaryResponse & { _imgFailed?: boolean }) | null>(null);
   
-  isLoading = false;
-  errorMessage = '';
+  isLoading = signal(false);
+  errorMessage = signal('');
 
   constructor(
-    private adminService: AdminService,
-    private cdr: ChangeDetectorRef
+    private adminService: AdminService
   ) {}
 
   ngOnInit(): void {
@@ -41,17 +40,16 @@ export class AdminUsersListComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.isLoading = true;
-    this.adminService.getUsers(this.currentPage, this.pageSize, this.searchQuery)
+    this.isLoading.set(true);
+    this.adminService.getUsers(this.currentPage(), this.pageSize(), this.searchQuery())
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       }))
       .subscribe({
         next: (response) => {
-          this.users = response.content;
-          this.totalPages = response.totalPages;
-          this.totalElements = response.totalElements;
+          this.users.set(response.content);
+          this.totalPages.set(response.totalPages);
+          this.totalElements.set(response.totalElements);
         },
         error: (err) => {
           console.error('Failed to load users', err);
@@ -60,43 +58,43 @@ export class AdminUsersListComponent implements OnInit {
   }
 
   onSearch(): void {
-    this.currentPage = 0;
+    this.currentPage.set(0);
     this.loadUsers();
   }
 
   changePage(page: number): void {
-    if (page >= 0 && page < this.totalPages) {
-      this.currentPage = page;
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
       this.loadUsers();
     }
   }
 
   initiateToggleStatus(user: any): void {
-    this.userToUpdate = user;
-    this.showStatusConfirm = true;
+    this.userToUpdate.set(user);
+    this.showStatusConfirm.set(true);
   }
 
   cancelStatusToggle(): void {
-    this.showStatusConfirm = false;
-    this.userToUpdate = null;
+    this.showStatusConfirm.set(false);
+    this.userToUpdate.set(null);
   }
 
   confirmToggleStatus(): void {
-    if (!this.userToUpdate) return;
+    if (!this.userToUpdate()) return;
     
-    const newStatus = this.userToUpdate.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-    this.adminService.updateUserStatus(this.userToUpdate.id, newStatus).subscribe({
+    const newStatus = this.userToUpdate()!.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    this.adminService.updateUserStatus(this.userToUpdate()!.id, newStatus).subscribe({
       next: () => {
-        this.showStatusConfirm = false;
-        this.userToUpdate = null;
+        this.showStatusConfirm.set(false);
+        this.userToUpdate.set(null);
         this.loadUsers();
       },
       error: (err) => {
         console.error('Failed to update status', err);
-        this.errorMessage = err.error?.message || 'Failed to update user status';
-        this.showStatusConfirm = false;
-        this.userToUpdate = null;
-        setTimeout(() => this.errorMessage = '', 5000);
+        this.errorMessage.set(err.error?.message || 'Failed to update user status');
+        this.showStatusConfirm.set(false);
+        this.userToUpdate.set(null);
+        setTimeout(() => this.errorMessage.set(''), 5000);
       }
     });
   }

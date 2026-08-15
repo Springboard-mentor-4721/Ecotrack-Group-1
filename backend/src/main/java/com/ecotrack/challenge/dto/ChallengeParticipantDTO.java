@@ -24,4 +24,5 @@ public class ChallengeParticipantDTO {
     private String challengeTitle;
     private Integer targetValue;
     private com.ecotrack.challenge.enums.ProgressMetric progressMetric;
+    private ChallengeDTO challenge;
 }

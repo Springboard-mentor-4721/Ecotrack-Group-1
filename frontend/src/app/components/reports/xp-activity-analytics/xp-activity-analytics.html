@@ -1,0 +1,116 @@
+
+<div class="space-y-6">
+
+  <!-- Header Section -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold text-gray-900">XP Activity</h2>
+    <p class="text-gray-500 mt-1">Track how you've earned XP between {{ startDate }} and {{ endDate }}.</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMsg()" class="bg-red-50 border border-red-100 rounded-xl p-4 flex items-center justify-between text-red-600">
+    <div class="flex items-start">
+      <lucide-icon [img]="InfoIcon" size="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
+      <p>{{ errorMsg() }}</p>
+    </div>
+    <button (click)="loadData()" class="px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors flex items-center">
+      <lucide-icon [img]="RefreshCwIcon" size="16" class="mr-2"></lucide-icon> Retry
+    </button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card-premium p-6 bg-gradient-to-br from-amber-50 to-orange-50 border-none relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-200 rounded-full blur-2xl opacity-50"></div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 rounded-xl bg-white text-amber-500 flex items-center justify-center shadow-sm">
+          <lucide-icon [img]="FlameIcon" size="20"></lucide-icon>
+        </div>
+        <h3 class="font-semibold text-gray-900">Total XP Earned</h3>
+      </div>
+      <div class="mt-4">
+        <h2 class="text-4xl font-bold text-amber-600" *ngIf="!isLoading()">{{ data()?.periodXpEarned || 0 }}</h2>
+        <div *ngIf="isLoading()" class="h-10 w-24 bg-amber-200/50 rounded animate-pulse"></div>
+      </div>
+    </div>
+    
+    <div class="card-premium p-6">
+      <h3 class="font-semibold text-gray-900 mb-2">Transaction Count</h3>
+      <div class="mt-4 flex items-center">
+        <h2 class="text-4xl font-bold text-gray-900" *ngIf="!isLoading()">{{ data()?.totalElements || 0 }}</h2>
+        <span class="ml-2 text-gray-500 font-medium" *ngIf="!isLoading()">transactions</span>
+        <div *ngIf="isLoading()" class="h-10 w-24 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Section -->
+  <div class="card-premium overflow-hidden">
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="font-semibold text-gray-900">XP History</h3>
+    </div>
+    
+    <!-- Empty State -->
+    <div *ngIf="!isLoading() && (!data()?.transactions || data()!.transactions.length === 0)" class="p-12 text-center flex flex-col items-center">
+      <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 mb-4">
+        <lucide-icon [img]="InfoIcon" size="32"></lucide-icon>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No XP activity in this period</h3>
+      <p class="text-gray-500 max-w-sm">Try a broader reporting period to see your XP history.</p>
+    </div>
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="divide-y divide-gray-100">
+      <div *ngFor="let i of [1,2,3,4,5]" class="p-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+          <div>
+            <div class="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div class="w-24 h-3 bg-gray-100 rounded animate-pulse"></div>
+          </div>
+        </div>
+        <div class="w-16 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+      </div>
+    </div>
+
+    <!-- Data State: Desktop Table & Mobile Cards -->
+    <div *ngIf="!isLoading() && data()?.transactions && data()!.transactions.length > 0">
+      <div class="divide-y divide-gray-100">
+        <div *ngFor="let tx of data()?.transactions" class="p-4 sm:px-6 hover:bg-gray-50 transition-colors flex items-center justify-between group">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" [ngClass]="getColorForSource(tx.source)">
+              <lucide-icon [img]="getIconForSource(tx.source)" size="18"></lucide-icon>
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">{{ tx.description }}</p>
+              <p class="text-xs text-gray-500 mt-0.5">{{ tx.timestamp | date:'medium' }}</p>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-bold bg-amber-50 text-amber-600 border border-amber-100 shadow-sm">
+              +{{ tx.amount }} XP
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="p-4 sm:px-6 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+        <p class="text-sm text-gray-500">
+          Showing page <span class="font-medium text-gray-900">{{ currentPage() + 1 }}</span> of <span class="font-medium text-gray-900">{{ data()?.totalPages || 1 }}</span>
+        </p>
+        <div class="flex gap-2">
+          <button (click)="prevPage()" [disabled]="currentPage() === 0" 
+            class="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+            <lucide-icon [img]="ChevronLeftIcon" size="18"></lucide-icon>
+          </button>
+          <button (click)="nextPage()" [disabled]="!data()?.hasNext" 
+            class="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+            <lucide-icon [img]="ChevronRightIcon" size="18"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

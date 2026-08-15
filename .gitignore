@@ -36,3 +36,16 @@ M5_Leaderboard_Frontend_Implementation_Report.md
 M5_Leaderboard_UI_Fix_Report.md
 pdf_text_clean.txt
 pdf_text.txt
+frontend/analyze.js
+frontend/fix-build.js
+frontend/fix-user-html-proper.js
+frontend/fix-user-html.js
+frontend/migrate-achievements.js
+frontend/migrate1a.js
+frontend/PROJECT_WIDE_SIGNAL_MIGRATION_INVENTORY.md
+frontend/update-ts.js
+frontend/update2.js
+frontend/update3.js
+frontend/update4.js
+frontend/fix-ts-2.js
+frontend/migrate-achievements-ts-only.js

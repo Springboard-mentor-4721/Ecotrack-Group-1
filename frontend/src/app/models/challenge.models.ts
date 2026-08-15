@@ -50,6 +50,7 @@ export interface ChallengeParticipant {
   challengeTitle?: string;
   targetValue?: number;
   progressMetric?: ProgressMetric;
+  challenge?: ChallengeDetail;
 }
 
 export interface MyChallengeEntry {

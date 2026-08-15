@@ -1,44 +1,44 @@
 <div class="notifications-wrapper animate-page px-4 py-4 max-w-4xl mx-auto">
-  
+
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1 class="fw-bold text-dark mb-1 fs-3">Notifications</h1>
       <p class="desc-light mb-0">Stay updated on your sustainable journey.</p>
     </div>
-    
-    <button class="btn btn-outline-primary d-flex align-items-center gap-2 rounded-pill px-4" 
+
+    <button class="btn btn-outline-primary d-flex align-items-center gap-2 rounded-pill px-4"
             (click)="markAllAsRead()"
-            [disabled]="isMarkingAll || notifications.length === 0">
-      <span *ngIf="isMarkingAll" class="spinner-border spinner-border-sm" role="status"></span>
-      <svg *ngIf="!isMarkingAll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            [disabled]="isMarkingAll() || notifications().length === 0">
+      <span *ngIf="isMarkingAll()" class="spinner-border spinner-border-sm" role="status"></span>
+      <svg *ngIf="!isMarkingAll()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
       Mark all read
     </button>
   </div>
 
   <div class="card-premium p-3 mb-4 d-flex gap-2 bg-surface rounded-pill border w-max-content">
-    <button class="btn btn-sm rounded-pill px-4 fw-600" 
-            [class.btn-emerald]="filterType === 'ALL'" 
-            [class.text-muted]="filterType !== 'ALL'"
+    <button class="btn btn-sm rounded-pill px-4 fw-600"
+            [class.btn-emerald]="filterType() === 'ALL'"
+            [class.text-muted]="filterType() !== 'ALL'"
             (click)="setFilter('ALL')">
       All
     </button>
-    <button class="btn btn-sm rounded-pill px-4 fw-600" 
-            [class.btn-emerald]="filterType === 'UNREAD'" 
-            [class.text-muted]="filterType !== 'UNREAD'"
+    <button class="btn btn-sm rounded-pill px-4 fw-600"
+            [class.btn-emerald]="filterType() === 'UNREAD'"
+            [class.text-muted]="filterType() !== 'UNREAD'"
             (click)="setFilter('UNREAD')">
       Unread
     </button>
   </div>
 
-  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+  <div *ngIf="isLoading()" class="d-flex justify-content-center py-5">
     <div class="spinner-border text-emerald" role="status"></div>
   </div>
 
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
+  <div *ngIf="errorMessage()" class="alert alert-danger" role="alert">
+    {{ errorMessage() }}
   </div>
 
-  <div *ngIf="!isLoading && !errorMessage && notifications.length === 0" class="text-center py-5 my-5 bg-surface rounded-4 border">
+  <div *ngIf="!isLoading() && !errorMessage() && notifications().length === 0" class="text-center py-5 my-5 bg-surface rounded-4 border">
     <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 shadow-sm text-muted">
       <lucide-angular [img]="BellIcon" size="32"></lucide-angular>
     </div>
@@ -46,13 +46,13 @@
     <p class="desc-light">You're all caught up!</p>
   </div>
 
-  <div class="d-flex flex-column gap-3" *ngIf="!isLoading && !errorMessage && notifications.length > 0">
-    <div *ngFor="let notification of notifications"
+  <div class="d-flex flex-column gap-3" *ngIf="!isLoading() && !errorMessage() && notifications().length > 0">
+    <div *ngFor="let notification of notifications()"
          class="card-premium d-flex gap-3 p-4 align-items-start transition-all position-relative"
          [class.bg-surface]="notification.isRead"
          [class.cursor-pointer]="!notification.isRead"
          (click)="markAsRead(notification)">
-      
+
       <!-- Unread dot -->
       <div *ngIf="!notification.isRead" class="position-absolute top-0 end-0 m-3 rounded-circle bg-primary" style="width: 10px; height: 10px;"></div>
 
@@ -84,18 +84,18 @@
   </div>
 
   <!-- Pagination -->
-  <nav *ngIf="totalPages > 1 && !isLoading && !errorMessage" class="mt-4" aria-label="Notifications pagination">
+  <nav *ngIf="totalPages() > 1 && !isLoading() && !errorMessage()" class="mt-4" aria-label="Notifications pagination">
     <ul class="pagination justify-content-center gap-2">
-      <li class="page-item" [class.disabled]="currentPage === 0">
-        <button class="page-link rounded-pill px-4" (click)="onPageChange(currentPage - 1)"
-                [disabled]="currentPage === 0">Previous</button>
+      <li class="page-item" [class.disabled]="currentPage() === 0">
+        <button class="page-link rounded-pill px-4" (click)="onPageChange(currentPage() - 1)"
+                [disabled]="currentPage() === 0">Previous</button>
       </li>
       <li class="page-item disabled d-none d-md-block">
-        <span class="page-link border-0 bg-transparent text-muted">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <span class="page-link border-0 bg-transparent text-muted">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
       </li>
-      <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
-        <button class="page-link rounded-pill px-4" (click)="onPageChange(currentPage + 1)"
-                [disabled]="currentPage >= totalPages - 1">Next</button>
+      <li class="page-item" [class.disabled]="currentPage() >= totalPages() - 1">
+        <button class="page-link rounded-pill px-4" (click)="onPageChange(currentPage() + 1)"
+                [disabled]="currentPage() >= totalPages() - 1">Next</button>
       </li>
     </ul>
   </nav>

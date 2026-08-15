@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
@@ -55,10 +55,10 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
         <div class="status-banner" [ngClass]="'banner-' + c.status">
           <span class="fw-bold">{{ c.status === 'PENDING' ? 'Draft' : (c.status | titlecase) }}</span>
         </div>
-        
+
         <div class="challenge-image-banner" [style.background]="c.imageUrl ? 'url(' + resolveImageUrl(c.imageUrl) + ') center/cover no-repeat' : 'linear-gradient(135deg, #10b981 0%, #047857 100%)'">
         </div>
-        
+
         <div class="p-4 p-md-5">
           <div class="row mb-4">
             <div class="col-12 col-md-8">
@@ -73,7 +73,7 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
               </div>
             </div>
           </div>
-          
+
           <div class="row g-4 mb-4">
             <div class="col-6 col-md-3">
               <div class="info-block border rounded p-3 h-100">
@@ -100,7 +100,7 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
               </div>
             </div>
           </div>
-          
+
           <div class="row g-4">
             <div class="col-12">
                <div class="info-block border rounded p-4 h-100 bg-light">
@@ -130,7 +130,7 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
                </div>
             </div>
           </div>
-          
+
         </div>
       </div>
     </div>
@@ -143,7 +143,7 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
     .btn-outline { background: white; border: 1px solid #cbd5e1; color: #334155; }
     .btn-outline:hover:not([disabled]) { background: #f1f5f9; }
     .btn-outline[disabled] { opacity: 0.5; cursor: not-allowed; }
-    
+
     .detail-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     .status-banner { padding: 0.5rem 1.5rem; color: white; text-align: center; letter-spacing: 1px; font-size: 0.85rem; }
     .banner-ACTIVE { background: #10b981; }
@@ -163,7 +163,7 @@ export class DetailComponent implements OnInit {
   private toast = inject(ToastService);
   private dialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
-  private cdr = inject(ChangeDetectorRef);
+
 
   challenge = signal<ChallengeDetail | null>(null);
   loading = signal<boolean>(true);
@@ -251,7 +251,7 @@ export class DetailComponent implements OnInit {
       .subscribe(res => {
         if (res) {
           this.challenge.set(res);
-          this.cdr.markForCheck();
+
         }
       });
   }
@@ -269,7 +269,7 @@ export class DetailComponent implements OnInit {
   duplicateChallenge(c: ChallengeDetail) {
     this.toast.info('Preparing duplicate...');
     const duplicateData = this.challengeService.buildDuplicatePayload(c);
-    this.router.navigate(['/admin/challenges/create/wizard'], { 
+    this.router.navigate(['/admin/challenges/create/wizard'], {
       state: { duplicateData, originalName: c.title }
     });
   }
@@ -281,12 +281,12 @@ export class DetailComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge approved.`);
             this.loadChallenge(c.id);
-            this.cdr.markForCheck();
+
           },
           error: (err) => {
             const msg = err.error?.message || 'Failed to approve challenge.';
             this.toast.error(msg);
-            this.cdr.markForCheck();
+
           }
         });
       }
@@ -304,7 +304,7 @@ export class DetailComponent implements OnInit {
           error: (err) => {
             const msg = err.error?.message || 'Failed to reject challenge.';
             this.toast.error(msg);
-            this.cdr.markForCheck();
+
           }
         });
       }
@@ -318,11 +318,11 @@ export class DetailComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge archived.`);
             this.loadChallenge(c.id);
-            this.cdr.markForCheck();
+
           },
           error: () => {
             this.toast.error('Failed to archive challenge.');
-            this.cdr.markForCheck();
+
           }
         });
       }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
@@ -24,45 +24,44 @@ import { BadgeEmblemComponent } from '../../shared/components/badge-emblem/badge
 })
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
-  profile: UserProfileResponse | null = null;
-  gamificationProfile: GamificationProfile | null = null;
-  recentBadges: Badge[] = [];
-  recentActivity: XpLedgerEntry[] = [];
-  
-  notificationPrefs: NotificationPreference[] = [];
-  prefSuccessMessage = '';
-  prefErrorMessage = '';
-  isSavingPrefs = false;
-  
-  isLoading = false;
-  successMessage = '';
-  errorMessage = '';
-  
-  uploadProgress = 0;
-  timestamp = Date.now();
+  profile = signal<UserProfileResponse | null>(null);
+  gamificationProfile = signal<GamificationProfile | null>(null);
+  recentBadges = signal<Badge[]>([]);
+  recentActivity = signal<XpLedgerEntry[]>([]);
+
+  notificationPrefs = signal<NotificationPreference[]>([]);
+  prefSuccessMessage = signal('');
+  prefErrorMessage = signal('');
+  isSavingPrefs = signal(false);
+
+  isLoading = signal(false);
+  successMessage = signal('');
+  errorMessage = signal('');
+
+  uploadProgress = signal(0);
+  timestamp = signal(Date.now());
   selectedImageFile: File | null = null;
   imagePreviewUrl: string | null = null;
-  isUploading = false;
-  
+  isUploading = signal(false);
+
   // Cropper State
   imageChangedEvent: any = '';
   croppedImage: any = '';
   showCropper = false;
-  
+
   // Delete Modal
   showDeleteConfirm = false;
-  
+
   // Drag and Drop
-  isDragging = false;
-  
+  isDragging = signal(false);
+
   apiUrl = environment.apiUrl;
 
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
     private gamificationService: GamificationService,
-    private notificationService: NotificationService,
-    private cdr: ChangeDetectorRef
+    private notificationService: NotificationService
   ) {
     this.profileForm = this.fb.group({
       bio: ['', [Validators.maxLength(500)]],
@@ -76,8 +75,8 @@ export class ProfileComponent implements OnInit {
   }
 
   loadProfile(): void {
-    this.isLoading = true;
-    
+    this.isLoading.set(true);
+
     forkJoin({
       profile: this.profileService.getMyProfile(),
       gamification: this.gamificationService.getProfile(),
@@ -89,27 +88,26 @@ export class ProfileComponent implements OnInit {
       prefLevel: this.notificationService.getPreference('LEVEL_UP'),
       prefStreak: this.notificationService.getPreference('STREAK_MILESTONE')
     }).pipe(finalize(() => {
-      this.isLoading = false;
-      this.cdr.detectChanges();
+      this.isLoading.set(false);
     })).subscribe({
       next: (data) => {
-        this.profile = data.profile;
-        this.gamificationProfile = data.gamification;
-        this.recentBadges = data.badges.filter(b => b.isEarned).slice(0, 4);
-        this.recentActivity = data.xpHistory.content;
-        
-        this.notificationPrefs = [
+        this.profile.set(data.profile);
+        this.gamificationProfile.set(data.gamification);
+        this.recentBadges.set(data.badges.filter(b => b.isEarned).slice(0, 4));
+        this.recentActivity.set(data.xpHistory.content);
+
+        this.notificationPrefs.set([
           data.prefBadge, data.prefChallenge, data.prefGoal, data.prefLevel, data.prefStreak
-        ];
-        
+        ]);
+
         this.profileForm.patchValue({
-          bio: this.profile?.bio || '',
-          location: this.profile?.location || '',
-          lifestylePreferences: this.profile?.lifestylePreferences || ''
+          bio: this.profile()?.bio || '',
+          location: this.profile()?.location || '',
+          lifestylePreferences: this.profile()?.lifestylePreferences || ''
         });
       },
       error: (err) => {
-        this.errorMessage = 'Failed to load profile. Please try again later.';
+        this.errorMessage.set('Failed to load profile. Please try again later.');
         console.error('Error fetching profile:', err);
       }
     });
@@ -118,17 +116,17 @@ export class ProfileComponent implements OnInit {
   // Drag and Drop
   onDragOver(event: any): void {
     event.preventDefault();
-    this.isDragging = true;
+    this.isDragging.set(true);
   }
-  
+
   onDragLeave(event: any): void {
     event.preventDefault();
-    this.isDragging = false;
+    this.isDragging.set(false);
   }
-  
+
   onDrop(event: any): void {
     event.preventDefault();
-    this.isDragging = false;
+    this.isDragging.set(false);
     if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
       const file = event.dataTransfer.files[0];
       this.handleFile(file, event);
@@ -146,17 +144,17 @@ export class ProfileComponent implements OnInit {
     // Validate format
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      this.errorMessage = 'Invalid file format. Only JPG, JPEG, PNG, WEBP are allowed.';
+      this.errorMessage.set('Invalid file format. Only JPG, JPEG, PNG, WEBP are allowed.');
       return;
     }
-    
+
     // Validate size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      this.errorMessage = 'File size exceeds 5MB limit.';
+      this.errorMessage.set('File size exceeds 5MB limit.');
       return;
     }
-    
-    this.errorMessage = '';
+
+    this.errorMessage.set('');
     this.imageChangedEvent = event;
     this.showCropper = true;
     document.body.style.overflow = 'hidden';
@@ -178,7 +176,7 @@ export class ProfileComponent implements OnInit {
   }
 
   loadImageFailed(): void {
-    this.errorMessage = 'Failed to load image. Please try another file.';
+    this.errorMessage.set('Failed to load image. Please try another file.');
     this.showCropper = false;
     document.body.style.overflow = '';
   }
@@ -201,41 +199,38 @@ export class ProfileComponent implements OnInit {
 
   uploadImage(): void {
     if (!this.selectedImageFile) return;
-    
-    this.isUploading = true;
-    this.uploadProgress = 0;
+
+    this.isUploading.set(true);
+    this.uploadProgress.set(0);
 
     this.profileService.uploadAvatar(this.selectedImageFile)
       .subscribe({
         next: (event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
             if (event.total) {
-              this.uploadProgress = Math.round(100 * event.loaded / event.total);
-              this.cdr.detectChanges();
+              this.uploadProgress.set(Math.round(100 * event.loaded / event.total));
             }
           } else if (event.type === HttpEventType.Response) {
-            this.uploadProgress = 100;
-            this.successMessage = 'Profile picture updated successfully!';
+            this.uploadProgress.set(100);
+            this.successMessage.set('Profile picture updated successfully!');
             this.selectedImageFile = null;
             this.imagePreviewUrl = null;
-            this.isUploading = false;
-            if (this.profile) {
-              this.profile.profilePictureUrl = event.body.imageUrl;
-              this.timestamp = Date.now();
+            this.isUploading.set(false);
+            const p = this.profile();
+            if (p) {
+              this.profile.update(current => ({ ...current!, profilePictureUrl: event.body.imageUrl }));
+              this.timestamp.set(Date.now());
             }
             setTimeout(() => {
-              this.successMessage = '';
-              this.cdr.detectChanges();
+              this.successMessage.set('');
             }, 3000);
-            this.cdr.detectChanges();
           }
         },
         error: (err) => {
-          this.isUploading = false;
-          this.uploadProgress = 0;
-          this.errorMessage = err.error?.message || 'Failed to upload profile picture.';
+          this.isUploading.set(false);
+          this.uploadProgress.set(0);
+          this.errorMessage.set(err.error?.message || 'Failed to upload profile picture.');
           console.error('Error uploading avatar:', err);
-          this.cdr.detectChanges();
         }
       });
   }
@@ -253,33 +248,33 @@ export class ProfileComponent implements OnInit {
   resolveImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
     if (url.startsWith('blob:')) return url;
-    if (url.startsWith('http')) return url + '?v=' + this.timestamp;
-    
+    if (url.startsWith('http')) return url + '?v=' + this.timestamp();
+
     // Fallback to explicit localhost if environment fails
     const backendUrl = environment.apiUrl || 'http://localhost:8080';
     const basePath = url.startsWith('/') ? url : '/' + url;
-    return backendUrl + basePath + '?v=' + this.timestamp;
+    return backendUrl + basePath + '?v=' + this.timestamp();
   }
 
   removeImage(): void {
-    this.isUploading = true;
+    this.isUploading.set(true);
     this.profileService.deleteAvatar()
       .pipe(finalize(() => {
-        this.isUploading = false;
-        this.cdr.detectChanges();
+        this.isUploading.set(false);
       }))
       .subscribe({
         next: () => {
-          this.successMessage = 'Profile picture removed.';
+          this.successMessage.set('Profile picture removed.');
           this.selectedImageFile = null;
           this.imagePreviewUrl = null;
-          if (this.profile) {
-            this.profile.profilePictureUrl = undefined;
+          const p = this.profile();
+          if (p) {
+            this.profile.update(current => ({ ...current!, profilePictureUrl: undefined }));
           }
-          setTimeout(() => this.successMessage = '', 3000);
+          setTimeout(() => this.successMessage.set(''), 3000);
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Failed to remove profile picture.';
+          this.errorMessage.set(err.error?.message || 'Failed to remove profile picture.');
           console.error('Error removing avatar:', err);
         }
       });
@@ -288,54 +283,54 @@ export class ProfileComponent implements OnInit {
   onSubmit(): void {
     if (this.profileForm.invalid) return;
 
-    this.isLoading = true;
-    this.successMessage = '';
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.successMessage.set('');
+    this.errorMessage.set('');
 
     this.profileService.updateMyProfile(this.profileForm.value)
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       }))
       .subscribe({
         next: (data) => {
-          this.profile = data;
-          this.successMessage = 'Profile updated successfully!';
+          this.profile.set(data);
+          this.successMessage.set('Profile updated successfully!');
           setTimeout(() => {
-            this.successMessage = '';
-            this.cdr.detectChanges();
+            this.successMessage.set('');
           }, 3000);
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Failed to update profile. Please verify your inputs.';
+          this.errorMessage.set(err.error?.message || 'Failed to update profile. Please verify your inputs.');
           console.error('Error updating profile:', err);
         }
       });
   }
 
   cancelChanges(): void {
-    if (this.profile) {
+    const p = this.profile();
+    if (p) {
       this.profileForm.patchValue({
-        bio: this.profile.bio || '',
-        location: this.profile.location || '',
-        lifestylePreferences: this.profile.lifestylePreferences || ''
+        bio: p.bio || '',
+        location: p.location || '',
+        lifestylePreferences: p.lifestylePreferences || ''
       });
       this.profileForm.markAsPristine();
     }
   }
 
-  get profileCompletion(): number {
-    if (!this.profile) return 0;
+  profileCompletion = computed(() => {
+    const p = this.profile();
+    if (!p) return 0;
     let completedFields = 0;
     const totalFields = 4;
-    
-    if (this.profile.bio && this.profile.bio.trim().length > 0) completedFields++;
-    if (this.profile.location && this.profile.location.trim().length > 0) completedFields++;
-    if (this.profile.profilePictureUrl && this.profile.profilePictureUrl.trim().length > 0) completedFields++;
-    if (this.profile.lifestylePreferences && this.profile.lifestylePreferences.trim().length > 0) completedFields++;
-    
+
+    if (p.bio && p.bio.trim().length > 0) completedFields++;
+    if (p.location && p.location.trim().length > 0) completedFields++;
+    if (p.profilePictureUrl && p.profilePictureUrl.trim().length > 0) completedFields++;
+    if (p.lifestylePreferences && p.lifestylePreferences.trim().length > 0) completedFields++;
+
     return Math.round((completedFields / totalFields) * 100);
-  }
+  });
 
   get bioLength(): number {
     return this.profileForm.get('bio')?.value?.length || 0;
@@ -345,47 +340,49 @@ export class ProfileComponent implements OnInit {
     return this.profileForm.get('location')?.value?.length || 0;
   }
 
-  get missingFields(): string[] {
+  missingFields = computed(() => {
     const missing = [];
-    if (!this.profile?.profilePictureUrl) missing.push('Profile Picture');
-    if (!this.profile?.bio) missing.push('Bio');
-    if (!this.profile?.location) missing.push('Location');
-    if (!this.profile?.lifestylePreferences) missing.push('Lifestyle Preferences');
+    const p = this.profile();
+    if (!p?.profilePictureUrl) missing.push('Profile Picture');
+    if (!p?.bio) missing.push('Bio');
+    if (!p?.location) missing.push('Location');
+    if (!p?.lifestylePreferences) missing.push('Lifestyle Preferences');
     return missing;
-  }
-  
+  });
+
   togglePref(index: number, type: 'inApp' | 'email'): void {
-    const pref = this.notificationPrefs[index];
+    const prefs = [...this.notificationPrefs()];
+    const pref = prefs[index];
     if (type === 'inApp') {
       pref.inAppEnabled = !pref.inAppEnabled;
     } else {
       pref.emailEnabled = !pref.emailEnabled;
     }
+    this.notificationPrefs.set(prefs);
   }
 
   savePreferences(): void {
-    this.isSavingPrefs = true;
-    this.prefSuccessMessage = '';
-    this.prefErrorMessage = '';
-    
-    const updates = this.notificationPrefs.map(pref => this.notificationService.updatePreference(pref));
+    this.isSavingPrefs.set(true);
+    this.prefSuccessMessage.set('');
+    this.prefErrorMessage.set('');
+
+    const updates = this.notificationPrefs().map(pref => this.notificationService.updatePreference(pref));
     forkJoin(updates)
       .pipe(finalize(() => {
-        this.isSavingPrefs = false;
-        this.cdr.detectChanges();
+        this.isSavingPrefs.set(false);
       }))
       .subscribe({
         next: () => {
-          this.prefSuccessMessage = 'Notification preferences updated.';
-          setTimeout(() => { this.prefSuccessMessage = ''; this.cdr.detectChanges(); }, 3000);
+          this.prefSuccessMessage.set('Notification preferences updated.');
+          setTimeout(() => { this.prefSuccessMessage.set(''); }, 3000);
         },
         error: (err) => {
-          this.prefErrorMessage = 'Failed to update preferences.';
+          this.prefErrorMessage.set('Failed to update preferences.');
           console.error(err);
         }
       });
   }
-  
+
   getPrefLabel(eventType: string): string {
     switch(eventType) {
       case 'BADGE_EARNED': return 'Badge achievements';
@@ -396,24 +393,26 @@ export class ProfileComponent implements OnInit {
       default: return eventType;
     }
   }
-  
-  getLevelProgress(): number {
-    if (!this.gamificationProfile) return 0;
-    const currentXp = this.gamificationProfile.lifetimeEcoXp;
-    const currentLevelThreshold = this.gamificationProfile.currentLevelBaseXp || 0; 
-    const nextLevelThreshold = this.gamificationProfile.nextLevelXp;
-    
+
+  getLevelProgress = computed(() => {
+    const gp = this.gamificationProfile();
+    if (!gp) return 0;
+    const currentXp = gp.lifetimeEcoXp;
+    const currentLevelThreshold = gp.currentLevelBaseXp || 0;
+    const nextLevelThreshold = gp.nextLevelXp;
+
     if (nextLevelThreshold <= currentLevelThreshold) return 100;
-    
+
     const progress = ((currentXp - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)) * 100;
     return Math.min(Math.max(progress, 0), 100);
-  }
-  
-  getXpToNextLevel(): number {
-    if (!this.gamificationProfile) return 0;
-    return Math.max(this.gamificationProfile.nextLevelXp - this.gamificationProfile.lifetimeEcoXp, 0);
-  }
-  
+  });
+
+  getXpToNextLevel = computed(() => {
+    const gp = this.gamificationProfile();
+    if (!gp) return 0;
+    return Math.max(gp.nextLevelXp - gp.lifetimeEcoXp, 0);
+  });
+
   getBadgeClass(rarity: string): string {
     switch (rarity) {
       case 'COMMON': return 'bg-orange-light text-orange';
@@ -423,7 +422,7 @@ export class ProfileComponent implements OnInit {
       default: return 'bg-light text-secondary';
     }
   }
-  
+
   formatSourceType(type: string): string {
     return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }

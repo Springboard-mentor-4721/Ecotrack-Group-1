@@ -118,24 +118,24 @@
       <div class="auth-form-container animate-fade-in">
         <div class="text-center mb-4">
           <h2 class="auth-heading">
-            <ng-container *ngIf="forgotPasswordMode">Reset Password</ng-container>
-            <ng-container *ngIf="!forgotPasswordMode">Welcome back!</ng-container>
+            <ng-container *ngIf="forgotPasswordMode()">Reset Password</ng-container>
+            <ng-container *ngIf="!forgotPasswordMode()">Welcome back!</ng-container>
           </h2>
           <p class="auth-subheading">
-            {{ forgotPasswordMode ? 'Enter your email to receive a reset link' : 'Sign in to continue your
+            {{ forgotPasswordMode() ? 'Enter your email to receive a reset link' : 'Sign in to continue your
             sustainability
             journey' }}
           </p>
         </div>
 
         <!-- Alerts -->
-        <div class="alert alert-danger mb-3 text-center animate-fade-in" *ngIf="errorMessage"
+        <div class="alert alert-danger mb-3 text-center animate-fade-in" *ngIf="errorMessage()"
           style="border-radius: var(--radius-sm); font-size: 0.9rem;">
-          {{ errorMessage }}
+          {{ errorMessage() }}
         </div>
-        <div class="alert alert-success mb-3 text-center animate-fade-in" *ngIf="forgotPasswordMessage"
+        <div class="alert alert-success mb-3 text-center animate-fade-in" *ngIf="forgotPasswordMessage()"
           style="border-radius: var(--radius-sm); font-size: 0.9rem;">
-          {{ forgotPasswordMessage }}
+          {{ forgotPasswordMessage() }}
         </div>
 
         <form [formGroup]="loginForm" (ngSubmit)="login()">
@@ -160,7 +160,7 @@
           </div>
 
           <!-- Password Input -->
-          <div class="form-group" style="margin-bottom: clamp(1rem, 2.5vh, 1.5rem);" *ngIf="!forgotPasswordMode">
+          <div class="form-group" style="margin-bottom: clamp(1rem, 2.5vh, 1.5rem);" *ngIf="!forgotPasswordMode()">
             <label class="form-label">Password</label>
             <div class="position-relative">
               <svg class="position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"
@@ -169,19 +169,19 @@
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <input [type]="showPassword ? 'text' : 'password'" class="premium-input"
+              <input [type]="showPassword() ? 'text' : 'password'" class="premium-input"
                 style="padding-left: 2.8rem; padding-right: 2.8rem;"
                 [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
                 placeholder="Enter your password" formControlName="password">
               <button type="button" class="btn btn-link p-0 text-muted"
                 style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); border: none; background: transparent; display: flex; align-items: center; cursor: pointer;"
                 tabindex="-1" (click)="togglePasswordVisibility($event)">
-                <svg *ngIf="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <svg *ngIf="!showPassword()" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                <svg *ngIf="showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <svg *ngIf="showPassword()" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path
                     d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
@@ -199,7 +199,7 @@
 
           <!-- Options -->
           <div class="d-flex justify-content-between align-items-center"
-            style="margin-bottom: clamp(1.2rem, 3vh, 2rem);" *ngIf="!forgotPasswordMode">
+            style="margin-bottom: clamp(1.2rem, 3vh, 2rem);" *ngIf="!forgotPasswordMode()">
             <div class="d-flex align-items-center gap-2">
               <input type="checkbox" id="rememberMe" class="custom-checkbox">
               <label for="rememberMe"
@@ -210,20 +210,20 @@
           </div>
 
           <div class="d-flex justify-content-end" style="margin-bottom: clamp(1.2rem, 3vh, 2rem);"
-            *ngIf="forgotPasswordMode">
+            *ngIf="forgotPasswordMode()">
             <a href="#" class="auth-action-link" (click)="toggleForgotPassword($event)">Back to Login</a>
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" class="premium-btn premium-btn-primary w-100" [disabled]="loginForm.invalid || loading">
-            <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+          <button type="submit" class="premium-btn premium-btn-primary w-100" [disabled]="loginForm.invalid || loading()">
+            <span *ngIf="loading()" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
               style="margin-right: 8px;"></span>
-            {{ loading ? 'Please wait...' : (forgotPasswordMode ? 'Send Reset Link' : 'Sign in') }}
+            {{ loading() ? 'Please wait...' : (forgotPasswordMode() ? 'Send Reset Link' : 'Sign in') }}
           </button>
         </form>
 
         <!-- Google Login -->
-        <div *ngIf="!forgotPasswordMode">
+        <div *ngIf="!forgotPasswordMode()">
           <div class="divider-wrapper">
             <span class="divider-text">or continue with</span>
           </div>

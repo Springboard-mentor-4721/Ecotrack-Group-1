@@ -1,38 +1,44 @@
 <div class="challenge-detail-wrapper animate-page mx-auto pb-5">
-  
+
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="d-flex justify-content-center py-5 my-5">
+  <div *ngIf="isLoading()" class="d-flex justify-content-center py-5 my-5">
     <div class="spinner-border text-emerald" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="!isLoading && error" class="text-center py-5 my-5">
+  <div *ngIf="!isLoading() && error()" class="text-center py-5 my-5">
     <h3 class="fw-bold text-danger mb-3">Challenge Not Found</h3>
-    <button class="btn btn-outline-dark rounded-pill px-4" [routerLink]="isAdminUser ? '/admin/challenges' : '/challenges'">Back to Dashboard</button>
+    <button class="btn btn-outline-dark rounded-pill px-4" [routerLink]="isAdminUser() ? '/admin/challenges' : '/challenges'">Back to Dashboard</button>
   </div>
 
   <!-- Detail Content -->
-  <div *ngIf="!isLoading && challenge" class="animate-stagger-item">
-    
+  <div *ngIf="!isLoading() && challenge()" class="animate-stagger-item">
+
+    <!-- Action Error State -->
+    <div *ngIf="actionError()" class="alert alert-danger alert-dismissible fade show mx-auto" style="max-width: 800px; margin-bottom: 2rem;" role="alert">
+      {{ actionError() }}
+      <button type="button" class="btn-close" (click)="actionError.set(null)" aria-label="Close"></button>
+    </div>
+
     <!-- Hero Banner (Extracted Component) -->
-    <app-challenge-hero 
-      [challenge]="challenge" 
-      [daysRemaining]="getDaysRemaining()"
+    <app-challenge-hero
+      [challenge]="challenge()!"
+      [daysRemaining]="daysRemaining()"
       (backClicked)="navigateBack()">
     </app-challenge-hero>
 
     <!-- Quick Stats Row (Premium Cards) -->
-    <app-challenge-quick-stats-widget [challenge]="challenge"></app-challenge-quick-stats-widget>
+    <app-challenge-quick-stats-widget [challenge]="challenge()!"></app-challenge-quick-stats-widget>
 
     <!-- Progress Row -->
     <div class="row justify-content-center mb-5">
       <!-- Your Progress or Join Action -->
       <div class="col-12 col-md-8">
         <app-challenge-actions-panel
-          [challenge]="challenge"
-          [isActionLoading]="isActionLoading"
+          [challenge]="challenge()!"
+          [isActionLoading]="isActionLoading()"
           (joinClicked)="joinChallenge()"
           (logProgressClicked)="openProgressModal()"
           (milestoneReached)="onMilestoneReached($event)">
@@ -43,23 +49,23 @@
     <div class="row g-4 mb-5">
       <!-- Challenge Rules & Guidelines -->
       <div class="col-12 col-md-7">
-        <app-challenge-rules-widget [challenge]="challenge"></app-challenge-rules-widget>
+        <app-challenge-rules-widget [challenge]="challenge()!"></app-challenge-rules-widget>
       </div>
 
       <!-- Rewards and Leaderboard (Sidebar) -->
       <div class="col-12 col-md-5 d-flex flex-column gap-4">
-        <app-reward-widget [challenge]="challenge"></app-reward-widget>
+        <app-reward-widget [challenge]="challenge()!"></app-reward-widget>
       </div>
     </div>
     <!-- Related Challenges Row -->
-    <div class="mb-5 px-4 max-w-7xl mx-auto" *ngIf="relatedChallenges && relatedChallenges.length > 0">
+    <div class="mb-5 px-4 max-w-7xl mx-auto" *ngIf="relatedChallenges() && relatedChallenges().length > 0">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-dark mb-0 fs-3">Related Challenges</h3>
-        <a [routerLink]="isAdminUser ? '/admin/challenges' : '/challenges'" class="text-emerald text-decoration-none fw-bold fs-sm">View All</a>
+        <a [routerLink]="isAdminUser() ? '/admin/challenges' : '/challenges'" class="text-emerald text-decoration-none fw-bold fs-sm">View All</a>
       </div>
-      
+
       <div class="row g-4">
-        <div class="col-12 col-md-3" *ngFor="let rel of relatedChallenges">
+        <div class="col-12 col-md-3" *ngFor="let rel of relatedChallenges()">
           <app-challenge-card [challenge]="rel"></app-challenge-card>
         </div>
       </div>
@@ -70,11 +76,11 @@
 
 <!-- Add Progress Modal (Extracted Component) -->
 <app-manual-progress-modal
-  [isVisible]="showProgressModal"
-  [challenge]="challenge"
-  [participant]="challenge?.userProgress"
-  [isValid]="isModalAmountValid"
-  [isActionLoading]="isActionLoading"
+  [isVisible]="showProgressModal()"
+  [challenge]="challenge()!"
+  [participant]="challenge()?.userProgress"
+  [isValid]="isModalAmountValid()"
+  [isActionLoading]="isActionLoading()"
   [(customAmount)]="customAmount"
   (submitProgress)="submitProgress($event); closeProgressModal()"
   (close)="closeProgressModal()"
@@ -83,20 +89,20 @@
 
 <!-- Gamification Toast -->
 <app-milestone-toast
-  [milestone]="currentMilestone"
+  [milestone]="currentMilestone()"
   (dismissed)="onToastDismissed()">
 </app-milestone-toast>
 
 <!-- Mobile Sticky Action Bar -->
 <div class="mobile-sticky-action-bar d-md-none position-fixed bottom-0 start-0 w-100 bg-white p-3 border-top shadow-lg z-3">
-  <button *ngIf="!challenge?.userProgress" 
+  <button *ngIf="!challenge()?.userProgress"
           class="btn btn-emerald rounded-pill py-3 px-4 fw-bold w-100 shadow-sm"
           (click)="joinChallenge()"
-          [disabled]="isActionLoading || challenge?.status !== 'ACTIVE'">
-    <span *ngIf="isActionLoading" class="spinner-border spinner-border-sm me-2"></span>
-    {{ challenge?.status === 'ACTIVE' ? 'Accept Challenge' : 'Not Available' }}
+          [disabled]="isActionLoading() || challenge()?.status !== 'ACTIVE'">
+    <span *ngIf="isActionLoading()" class="spinner-border spinner-border-sm me-2"></span>
+    {{ challenge()?.status === 'ACTIVE' ? 'Accept Challenge' : 'Not Available' }}
   </button>
-  <button *ngIf="challenge?.userProgress && challenge?.trackingMethod !== 'AUTOMATIC'" 
+  <button *ngIf="challenge()?.userProgress && challenge()?.trackingMethod !== 'AUTOMATIC'"
           class="btn btn-emerald rounded-pill py-3 px-4 fw-bold w-100 shadow-sm"
           (click)="openProgressModal()">
     Log Today's Impact

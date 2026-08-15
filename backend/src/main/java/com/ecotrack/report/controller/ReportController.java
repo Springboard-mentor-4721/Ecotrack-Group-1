@@ -35,6 +35,33 @@ public class ReportController {
     private final ExcelExportService excelExportService;
     private final UserRepository userRepository;
 
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/carbon/analytics")
+    public ResponseEntity<?> getCarbonAnalyticsReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.CarbonAnalyticsDTO report = reportService.getCarbonAnalytics(userId, startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/carbon/entries")
+    public ResponseEntity<?> getCarbonEntriesReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.CarbonEntryPageDTO report = reportService.getCarbonEntries(userId, startDate, endDate, page, size);
+        return ResponseEntity.ok(report);
+    }
+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/carbon")
     public ResponseEntity<?> getCarbonReport(
@@ -42,7 +69,7 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
             Authentication authentication) {
-        
+
         Long userId = getUserId(authentication);
         CarbonReportDTO report = reportService.getCarbonReport(userId, startDate, endDate);
 
@@ -57,6 +84,33 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/goals/analytics")
+    public ResponseEntity<?> getGoalAnalyticsReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.GoalAnalyticsDTO report = reportService.getGoalAnalytics(userId, startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/goals/performance")
+    public ResponseEntity<?> getGoalPerformanceReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.GoalPerformancePageDTO report = reportService.getGoalPerformance(userId, startDate, endDate, page, size);
+        return ResponseEntity.ok(report);
+    }
+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/goals")
     public ResponseEntity<?> getGoalReport(
@@ -64,7 +118,7 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
             Authentication authentication) {
-        
+
         Long userId = getUserId(authentication);
         GoalReportDTO report = reportService.getGoalReport(userId, startDate, endDate);
 
@@ -79,6 +133,33 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/challenges/analytics")
+    public ResponseEntity<?> getChallengeAnalyticsReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.ChallengeAnalyticsDTO report = reportService.getChallengeAnalytics(userId, startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/challenges/performance")
+    public ResponseEntity<?> getChallengePerformanceReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.ChallengePerformancePageDTO report = reportService.getChallengePerformance(userId, startDate, endDate, page, size);
+        return ResponseEntity.ok(report);
+    }
+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/challenges")
     public ResponseEntity<?> getChallengeReport(
@@ -86,7 +167,7 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
             Authentication authentication) {
-        
+
         Long userId = getUserId(authentication);
         ChallengeReportDTO report = reportService.getChallengeReport(userId, startDate, endDate);
 
@@ -101,6 +182,19 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/sustainability/analytics")
+    public ResponseEntity<?> getSustainabilityAnalyticsReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.SustainabilityAnalyticsDTO report = reportService.getSustainabilityAnalytics(userId, startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/sustainability")
     public ResponseEntity<?> getSustainabilityReport(
@@ -108,7 +202,7 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
             Authentication authentication) {
-        
+
         Long userId = getUserId(authentication);
         SustainabilityReportDTO report = reportService.getSustainabilityReport(userId, startDate, endDate);
 
@@ -120,6 +214,33 @@ public class ReportController {
             return createFileResponse(excel, "ecotrack-sustainability-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         }
 
+        return ResponseEntity.ok(report);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/overview")
+    public ResponseEntity<?> getOverviewReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        com.ecotrack.report.dto.OverviewReportDTO report = reportService.getOverviewReport(userId, startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/xp")
+    public ResponseEntity<?> getXpActivityReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+
+        Long userId = getUserId(authentication);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        com.ecotrack.report.dto.XpActivityPageDTO report = reportService.getXpActivityReport(userId, startDate, endDate, pageable);
         return ResponseEntity.ok(report);
     }
 

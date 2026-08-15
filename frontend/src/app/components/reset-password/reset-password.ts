@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -14,19 +14,18 @@ import { finalize } from 'rxjs/operators';
 })
 export class ResetPasswordComponent implements OnInit {
   resetForm: FormGroup;
-  token: string = '';
-  errorMessage = '';
-  successMessage = '';
-  loading = false;
-  showPassword = false;
-  showConfirmPassword = false;
+  token = signal('');
+  errorMessage = signal('');
+  successMessage = signal('');
+  loading = signal(false);
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private authService: AuthService
   ) {
     this.resetForm = this.fb.group({
       newPassword: ['', [
@@ -46,59 +45,58 @@ export class ResetPasswordComponent implements OnInit {
 
   togglePasswordVisibility(event: Event) {
     event.preventDefault();
-    this.showPassword = !this.showPassword;
+    this.showPassword.set(!this.showPassword());
   }
 
   toggleConfirmPasswordVisibility(event: Event) {
     event.preventDefault();
-    this.showConfirmPassword = !this.showConfirmPassword;
+    this.showConfirmPassword.set(!this.showConfirmPassword());
   }
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      this.token = params['token'];
-      if (!this.token) {
-        this.errorMessage = 'Invalid password reset link.';
+      this.token.set(params['token'] || '');
+      if (!this.token()) {
+        this.errorMessage.set('Invalid password reset link.');
       }
     });
   }
 
   resetPassword() {
     this.resetForm.markAllAsTouched();
-    if (this.resetForm.invalid || !this.token) return;
+    if (this.resetForm.invalid || !this.token()) return;
 
-    this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     const payload = {
-      token: this.token,
+      token: this.token(),
       newPassword: this.resetForm.get('newPassword')?.value
     };
 
     this.authService.resetPassword(payload)
       .pipe(
         finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
+          this.loading.set(false);
         })
       )
       .subscribe({
         next: (res) => {
-          this.successMessage = res.message || 'Password successfully reset!';
+          this.successMessage.set(res.message || 'Password successfully reset!');
           setTimeout(() => {
             this.router.navigate(['/']);
           }, 2000);
         },
         error: (err) => {
           if (err.status === 0) {
-            this.errorMessage = 'Network error. Please check your internet connection.';
+            this.errorMessage.set('Network error. Please check your internet connection.');
           } else if (err.status === 400) {
-            this.errorMessage = err.error?.message || 'Invalid or expired reset token.';
+            this.errorMessage.set(err.error?.message || 'Invalid or expired reset token.');
           } else if (err.status === 500) {
-            this.errorMessage = 'Unexpected server error. Please try again later.';
+            this.errorMessage.set('Unexpected server error. Please try again later.');
           } else {
-            this.errorMessage = err.error?.message || 'Failed to reset password.';
+            this.errorMessage.set(err.error?.message || 'Failed to reset password.');
           }
         }
       });

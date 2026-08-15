@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, Output, EventEmitter, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -15,9 +15,9 @@ import { NotificationBellComponent } from './notification-bell/notification-bell
   styleUrl: './navbar.css',
 })
 export class NavbarComponent implements OnInit {
-  isDark = false;
-  isMenuOpen = false;
-  userProfile: any = null;
+  isDark = signal(false);
+  isMenuOpen = signal(false);
+  userProfile = signal<any>(null);
 
   @Output() toggleSidebar = new EventEmitter<void>();
 
@@ -25,15 +25,14 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private profileService: ProfileService,
-    private eRef: ElementRef,
-    private cdr: ChangeDetectorRef
+    private eRef: ElementRef
   ) {}
 
   ngOnInit(): void {
     // Check saved theme or system preference
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      this.isDark = true;
+      this.isDark.set(true);
       document.documentElement.setAttribute('data-theme', 'dark');
     }
     this.loadUserProfile();
@@ -43,8 +42,7 @@ export class NavbarComponent implements OnInit {
     if (this.authService.isLoggedIn()) {
       this.profileService.getMyProfile().subscribe({
         next: (profile) => {
-          this.userProfile = profile;
-          this.cdr.detectChanges();
+          this.userProfile.set(profile);
         },
         error: () => {
           console.warn('Failed to load profile for navbar, falling back to JWT');
@@ -52,17 +50,16 @@ export class NavbarComponent implements OnInit {
           if (token) {
             try {
               const payload = JSON.parse(atob(token.split('.')[1]));
-              this.userProfile = {
+              this.userProfile.set({
                 name: payload.name || 'User',
                 email: payload.sub || ''
-              };
+              });
             } catch(e) {
-              this.userProfile = { name: 'User', email: '' };
+              this.userProfile.set({ name: 'User', email: '' });
             }
           } else {
-            this.userProfile = { name: 'User', email: '' };
+            this.userProfile.set({ name: 'User', email: '' });
           }
-          this.cdr.detectChanges();
         }
       });
     }
@@ -80,12 +77,12 @@ export class NavbarComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   clickout(event: Event) {
     if(!this.eRef.nativeElement.contains(event.target)) {
-      this.isMenuOpen = false;
+      this.isMenuOpen.set(false);
     }
   }
 
   toggleMenu(): void {
-    this.isMenuOpen = !this.isMenuOpen;
+    this.isMenuOpen.set(!this.isMenuOpen());
   }
 
   logout(): void {
@@ -95,8 +92,8 @@ export class NavbarComponent implements OnInit {
   }
 
   toggleTheme(): void {
-    this.isDark = !this.isDark;
-    if (this.isDark) {
+    this.isDark.set(!this.isDark());
+    if (this.isDark()) {
       document.documentElement.setAttribute('data-theme', 'dark');
       localStorage.setItem('theme', 'dark');
     } else {

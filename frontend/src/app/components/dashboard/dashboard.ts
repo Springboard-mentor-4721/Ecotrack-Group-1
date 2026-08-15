@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LoadingSkeletonComponent } from '../../shared/ui/loading-skeleton/loading-skeleton.component';
@@ -69,26 +69,26 @@ export class DashboardComponent implements OnInit {
   readonly PlusIcon = Activity;
 
   // Core State
-  isLoading = true;
-  apiError = false;
+  isLoading = signal(true);
+  apiError = signal(false);
   isAdmin = false;
   
   // Data
-  user: any = null;
-  dashboardSummary: DashboardSummaryDTO | null = null;
-  adminStats: AdminDashboardResponse | null = null;
+  user = signal<any>(null);
+  dashboardSummary = signal<DashboardSummaryDTO | null>(null);
+  adminStats = signal<AdminDashboardResponse | null>(null);
   
   // AI Feature States
-  ecoTipState: AiFeatureState<EcoTipResponse> = { loading: false, data: null, error: null, empty: true };
+  ecoTipState = signal<AiFeatureState<EcoTipResponse>>({ loading: false, data: null, error: null, empty: true });
   
   // Storytelling Elements
   greeting = 'Good Day';
   today = new Date();
-  heroInsight: string = '';
+  heroInsight = signal<string>('');
   
   // Custom Data Structures for UI
-  carbonSources: { name: string, percentage: number, value: number, color: string }[] = [];
-  emissionsChangePercent: number | null = null;
+  carbonSources = signal<{ name: string, percentage: number, value: number, color: string }[]>([]);
+  emissionsChangePercent = signal<number | null>(null);
 
   // Charts
   public lineChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
@@ -147,8 +147,7 @@ export class DashboardComponent implements OnInit {
     private profileService: ProfileService,
     private dashboardService: DashboardService,
     private adminService: AdminService,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -172,16 +171,15 @@ export class DashboardComponent implements OnInit {
   }
 
   loadDashboardData(): void {
-    this.isLoading = true;
-    this.apiError = false;
+    this.isLoading.set(true);
+    this.apiError.set(false);
 
     forkJoin({
       profile: this.profileService.getMyProfile().pipe(catchError(() => of(null))),
       dashboard: this.dashboardService.getDashboardSummary().pipe(catchError(() => of(null)))
     }).pipe(
       finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
         // Force chart update after change detection
         setTimeout(() => {
           if (this.charts) {
@@ -192,16 +190,16 @@ export class DashboardComponent implements OnInit {
     ).subscribe({
       next: (results) => {
         if (results.profile) {
-          this.user = results.profile;
+          this.user.set(results.profile);
         }
         
         if (results.dashboard) {
-          this.dashboardSummary = results.dashboard;
-          this.processCarbonSources(this.dashboardSummary?.categoryBreakdown);
-          this.updateCharts(this.dashboardSummary?.monthlyTrend);
+          this.dashboardSummary.set(results.dashboard);
+          this.processCarbonSources(this.dashboardSummary()?.categoryBreakdown);
+          this.updateCharts(this.dashboardSummary()?.monthlyTrend);
           this.calculateEmissionsChange();
         } else {
-          this.apiError = true;
+          this.apiError.set(true);
         }
 
         if (this.isAdmin) {
@@ -210,7 +208,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load dashboard data', err);
-        this.apiError = true;
+        this.apiError.set(true);
       }
     });
 
@@ -219,33 +217,33 @@ export class DashboardComponent implements OnInit {
 
   private loadAiFeatures(): void {
     // 1. Eco Tip
-    this.ecoTipState = { loading: true, data: null, error: null, empty: true };
+    this.ecoTipState.set({ loading: true, data: null, error: null, empty: true });
     this.dashboardService.getEcoTip().subscribe({
-      next: (res) => this.ecoTipState = { loading: false, data: res, error: null, empty: false },
-      error: (err) => this.ecoTipState = { loading: false, data: null, error: 'Failed to generate daily tip', empty: true }
+      next: (res) => this.ecoTipState.set({ loading: false, data: res, error: null, empty: false }),
+      error: (err) => this.ecoTipState.set({ loading: false, data: null, error: 'Failed to generate daily tip', empty: true })
     });
   }
 
   private calculateEmissionsChange(): void {
-    const current = this.dashboardSummary?.userSummary.monthlyEmission || 0;
-    const previous = this.dashboardSummary?.userSummary.previousMonthEmission || 0;
+    const current = this.dashboardSummary()?.userSummary.monthlyEmission || 0;
+    const previous = this.dashboardSummary()?.userSummary.previousMonthEmission || 0;
     
     if (previous === 0) {
-      this.emissionsChangePercent = null;
+      this.emissionsChangePercent.set(null);
     } else {
-      this.emissionsChangePercent = ((current - previous) / previous) * 100;
+      this.emissionsChangePercent.set(((current - previous) / previous) * 100);
     }
 
     this.generateHeroInsight();
   }
 
   private generateHeroInsight(): void {
-    if (this.emissionsChangePercent !== null && this.emissionsChangePercent < 0) {
-      this.heroInsight = `Great job! Your emissions are down ${Math.abs(this.emissionsChangePercent).toFixed(1)}% this month.`;
-    } else if (this.dashboardSummary?.gamificationProfile.currentStreak && this.dashboardSummary.gamificationProfile.currentStreak >= 3) {
-      this.heroInsight = `You're on a ${this.dashboardSummary.gamificationProfile.currentStreak}-day sustainability streak. Keep it up!`;
+    if (this.emissionsChangePercent() !== null && this.emissionsChangePercent()! < 0) {
+      this.heroInsight.set(`Great job! Your emissions are down ${Math.abs(this.emissionsChangePercent()!).toFixed(1)}% this month.`);
+    } else if (this.dashboardSummary()?.gamificationProfile.currentStreak && this.dashboardSummary()!.gamificationProfile.currentStreak >= 3) {
+      this.heroInsight.set(`You're on a ${this.dashboardSummary()!.gamificationProfile.currentStreak}-day sustainability streak. Keep it up!`);
     } else {
-      this.heroInsight = 'Ready to make a positive impact today?';
+      this.heroInsight.set('Ready to make a positive impact today?');
     }
   }
 
@@ -254,7 +252,7 @@ export class DashboardComponent implements OnInit {
     
     const colors = ['#10b981', '#0ea5e9', '#8b5cf6', '#94a3b8', '#f59e0b'];
     
-    this.carbonSources = categorySummaries
+    const sources = categorySummaries
       .map((s, i) => ({
         name: s.categoryName,
         value: s.emission,
@@ -262,13 +260,14 @@ export class DashboardComponent implements OnInit {
         color: colors[i % colors.length]
       }))
       .sort((a,b) => b.percentage - a.percentage);
+    this.carbonSources.set(sources);
       
     // Update doughnut chart
     this.doughnutChartData = {
-      labels: this.carbonSources.map(s => s.name),
+      labels: sources.map(s => s.name),
       datasets: [{
-        data: this.carbonSources.map(s => s.value),
-        backgroundColor: this.carbonSources.map(s => s.color),
+        data: sources.map(s => s.value),
+        backgroundColor: sources.map(s => s.color),
         borderWidth: 0,
         hoverOffset: 4
       }]
@@ -303,27 +302,27 @@ export class DashboardComponent implements OnInit {
     this.adminService.getDashboardSummary()
       .pipe(catchError(() => of(null)))
       .subscribe({
-        next: (stats: any) => this.adminStats = stats
+        next: (stats: any) => this.adminStats.set(stats)
       });
   }
 
-  get trendInsight(): string {
-    if (!this.dashboardSummary?.monthlyTrend || this.dashboardSummary.monthlyTrend.length < 2) return 'Last 6 Months';
-    const len = this.dashboardSummary.monthlyTrend.length;
-    const last = this.dashboardSummary.monthlyTrend[len - 1].emission;
-    const prev = this.dashboardSummary.monthlyTrend[len - 2].emission;
+  trendInsight = computed(() => {
+    if (!this.dashboardSummary()?.monthlyTrend || this.dashboardSummary()!.monthlyTrend.length < 2) return 'Last 6 Months';
+    const len = this.dashboardSummary()!.monthlyTrend.length;
+    const last = this.dashboardSummary()!.monthlyTrend[len - 1].emission;
+    const prev = this.dashboardSummary()!.monthlyTrend[len - 2].emission;
     if (last > prev) return 'Emissions increased this month.';
     if (last < prev) return 'Your emissions are trending downward.';
     return 'Last 6 Months';
-  }
+  });
 
-  get topSourceInsight(): string {
-    if (this.carbonSources.length > 0) {
-      const top = this.carbonSources[0];
+  topSourceInsight = computed(() => {
+    if (this.carbonSources().length > 0) {
+      const top = this.carbonSources()[0];
       return `Top source: ${top.name} \u00B7 ${top.percentage.toFixed(0)}%`;
     }
     return 'Last 30 Days';
-  }
+  });
 
   getMetricUnit(metric: string | undefined): string {
     if (!metric) return '';

@@ -15,7 +15,8 @@ public interface ChallengeParticipantRepository extends JpaRepository<ChallengeP
     Optional<ChallengeParticipant> findByChallengeIdAndUserId(Long challengeId, Long userId);
     
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
-    @org.springframework.data.jpa.repository.QueryHints({@jakarta.persistence.QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
+    @org.springframework.data.jpa.repository.QueryHints({@jakarta.persistence.QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")
+})
     @org.springframework.data.jpa.repository.Query("SELECT cp FROM ChallengeParticipant cp WHERE cp.challenge.id = :challengeId AND cp.userId = :userId")
     Optional<ChallengeParticipant> findByChallengeIdAndUserIdForUpdate(@org.springframework.data.repository.query.Param("challengeId") Long challengeId, @org.springframework.data.repository.query.Param("userId") Long userId);
 
@@ -43,4 +44,38 @@ public interface ChallengeParticipantRepository extends JpaRepository<ChallengeP
         nativeQuery = true
     )
     List<Object[]> countParticipationByMonth();
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(cp) FROM ChallengeParticipant cp WHERE cp.userId = :userId AND cp.joinedAt BETWEEN :startDate AND :endDate")
+    long countParticipatedByUserIdAndDateRange(@org.springframework.data.repository.query.Param("userId") Long userId, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate, @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(cp) FROM ChallengeParticipant cp WHERE cp.userId = :userId AND cp.status = com.ecotrack.challenge.enums.ChallengeParticipantStatus.COMPLETED AND cp.completedAt BETWEEN :startDate AND :endDate")
+    long countCompletedByUserIdAndDateRange(@org.springframework.data.repository.query.Param("userId") Long userId, @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate, @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate);
+
+    @org.springframework.data.jpa.repository.Query("SELECT cp.status, COUNT(cp) FROM ChallengeParticipant cp WHERE cp.userId = :userId GROUP BY cp.status")
+    java.util.List<Object[]> getParticipantStatusDistribution(@org.springframework.data.repository.query.Param("userId") Long userId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT DATE(cp.completedAt) AS date, COUNT(cp) AS count " +
+           "FROM ChallengeParticipant cp " +
+           "WHERE cp.userId = :userId " +
+           "AND cp.status = com.ecotrack.challenge.enums.ChallengeParticipantStatus.COMPLETED " +
+           "AND cp.completedAt BETWEEN :startDate AND :endDate " +
+           "GROUP BY DATE(cp.completedAt) " +
+           "ORDER BY DATE(cp.completedAt) ASC")
+    java.util.List<com.ecotrack.challenge.repository.projection.DailyCompletionProjection> getDailyCompletionTrend(
+            @org.springframework.data.repository.query.Param("userId") Long userId,
+            @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate,
+            @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate);
+
+    @org.springframework.data.jpa.repository.Query("SELECT YEAR(cp.completedAt) AS year, MONTH(cp.completedAt) AS month, COUNT(cp) AS count " +
+           "FROM ChallengeParticipant cp " +
+           "WHERE cp.userId = :userId " +
+           "AND cp.status = com.ecotrack.challenge.enums.ChallengeParticipantStatus.COMPLETED " +
+           "AND cp.completedAt BETWEEN :startDate AND :endDate " +
+           "GROUP BY YEAR(cp.completedAt), MONTH(cp.completedAt) " +
+           "ORDER BY YEAR(cp.completedAt) ASC, MONTH(cp.completedAt) ASC")
+    java.util.List<com.ecotrack.challenge.repository.projection.MonthlyCompletionProjection> getMonthlyCompletionTrend(
+            @org.springframework.data.repository.query.Param("userId") Long userId,
+            @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate,
+            @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate);
+
 }

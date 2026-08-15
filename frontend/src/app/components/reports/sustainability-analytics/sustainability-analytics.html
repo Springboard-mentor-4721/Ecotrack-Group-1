@@ -1,0 +1,179 @@
+
+<div class="space-y-6">
+
+  <!-- Error State -->
+  <div *ngIf="errorMsg()" class="bg-red-50 border border-red-100 rounded-xl p-4 flex items-start text-red-600">
+    <lucide-icon [img]="InfoIcon" size="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
+    <p>{{ errorMsg() }}</p>
+  </div>
+
+  <!-- Hero Summary Row (Current Gamification State) -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- EcoScore -->
+    <div class="card-premium p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-none relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-24 h-24 bg-green-200 rounded-full blur-2xl opacity-50"></div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 rounded-xl bg-white text-green-600 flex items-center justify-center shadow-sm">
+          <lucide-icon [img]="LeafIcon" size="20"></lucide-icon>
+        </div>
+        <h3 class="font-semibold text-gray-900">Current EcoScore</h3>
+      </div>
+      <div class="mt-4">
+        <h2 class="text-4xl font-bold text-green-700" *ngIf="!isLoading()">{{ analyticsData()?.currentEcoScore }}</h2>
+        <div *ngIf="isLoading()" class="h-10 w-24 bg-green-200/50 rounded animate-pulse"></div>
+      </div>
+    </div>
+
+    <!-- Level -->
+    <div class="card-premium p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-none relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-200 rounded-full blur-2xl opacity-50"></div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 rounded-xl bg-white text-blue-600 flex items-center justify-center shadow-sm">
+          <lucide-icon [img]="TrophyIcon" size="20"></lucide-icon>
+        </div>
+        <h3 class="font-semibold text-gray-900">Current Level</h3>
+      </div>
+      <div class="mt-4">
+        <h2 class="text-4xl font-bold text-blue-700" *ngIf="!isLoading()">Lv. {{ analyticsData()?.currentLevel }}</h2>
+        <div *ngIf="isLoading()" class="h-10 w-24 bg-blue-200/50 rounded animate-pulse"></div>
+      </div>
+    </div>
+
+    <!-- Period XP -->
+    <div class="card-premium p-6 bg-gradient-to-br from-amber-50 to-orange-50 border-none relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-200 rounded-full blur-2xl opacity-50"></div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 rounded-xl bg-white text-amber-500 flex items-center justify-center shadow-sm">
+          <lucide-icon [img]="FlameIcon" size="20"></lucide-icon>
+        </div>
+        <h3 class="font-semibold text-gray-900">XP Earned (Period)</h3>
+      </div>
+      <div class="mt-4">
+        <h2 class="text-4xl font-bold text-amber-600" *ngIf="!isLoading()">{{ analyticsData()?.periodXpEarned }}</h2>
+        <div *ngIf="isLoading()" class="h-10 w-24 bg-amber-200/50 rounded animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- Left Column: Impact KPIs -->
+    <div class="lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- Environmental Impact -->
+      <div class="card-premium p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-semibold text-gray-900">Environmental Impact</h3>
+          <a routerLink="../carbon" class="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center">
+            Details <lucide-icon [img]="ArrowRightIcon" size="16" class="ml-1"></lucide-icon>
+          </a>
+        </div>
+        
+        <div class="flex flex-col gap-4">
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Total Emissions (kg CO₂e)</p>
+            <div class="flex items-baseline gap-3">
+              <h4 class="text-3xl font-bold text-gray-900" *ngIf="!isLoading()">{{ analyticsData()?.totalEmissions || 0 | number:'1.0-2' }}</h4>
+              <div *ngIf="isLoading()" class="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
+              
+              <ng-container *ngIf="!isLoading()">
+                <span *ngIf="analyticsData()?.emissionDirection === 'IMPROVED'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                  <lucide-icon [img]="ArrowDownRightIcon" size="14" class="mr-1"></lucide-icon>
+                  {{ analyticsData()?.emissionChangePercentage }}%
+                </span>
+                <span *ngIf="analyticsData()?.emissionDirection === 'INCREASED'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700">
+                  <lucide-icon [img]="ArrowUpRightIcon" size="14" class="mr-1"></lucide-icon>
+                  {{ analyticsData()?.emissionChangePercentage }}%
+                </span>
+                <span *ngIf="analyticsData()?.emissionDirection === 'NO_CHANGE'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                  <lucide-icon [img]="MinusIcon" size="14" class="mr-1"></lucide-icon>
+                  0%
+                </span>
+              </ng-container>
+            </div>
+          </div>
+          
+          <div class="pt-4 border-t border-gray-100">
+            <p class="text-sm text-gray-500 mb-1">Previous Period</p>
+            <h4 class="text-lg font-semibold text-gray-600" *ngIf="!isLoading()">{{ analyticsData()?.previousPeriodEmissions || 0 | number:'1.0-2' }}</h4>
+            <div *ngIf="isLoading()" class="h-6 w-16 bg-gray-200 rounded animate-pulse mt-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sustainability Activity -->
+      <div class="card-premium p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Activity Impact</h3>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Goals -->
+          <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 relative group cursor-pointer" routerLink="../goals">
+            <div class="flex items-center justify-between mb-2">
+              <lucide-icon [img]="TargetIcon" size="20" class="text-blue-500"></lucide-icon>
+              <lucide-icon [img]="ArrowRightIcon" size="16" class="text-gray-400 group-hover:text-blue-500 transition-colors"></lucide-icon>
+            </div>
+            <p class="text-sm text-gray-500 font-medium">Goals Met</p>
+            <h4 class="text-2xl font-bold text-gray-900 mt-1" *ngIf="!isLoading()">{{ analyticsData()?.completedGoals || 0 }}</h4>
+            <div *ngIf="isLoading()" class="h-8 w-12 bg-gray-200 rounded animate-pulse mt-1"></div>
+          </div>
+          
+          <!-- Challenges -->
+          <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 relative group cursor-pointer" routerLink="../challenges">
+            <div class="flex items-center justify-between mb-2">
+              <lucide-icon [img]="ActivityIcon" size="20" class="text-purple-500"></lucide-icon>
+              <lucide-icon [img]="ArrowRightIcon" size="16" class="text-gray-400 group-hover:text-purple-500 transition-colors"></lucide-icon>
+            </div>
+            <p class="text-sm text-gray-500 font-medium">Challenges Won</p>
+            <h4 class="text-2xl font-bold text-gray-900 mt-1" *ngIf="!isLoading()">{{ analyticsData()?.completedChallenges || 0 }}</h4>
+            <div *ngIf="isLoading()" class="h-8 w-12 bg-gray-200 rounded animate-pulse mt-1"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Chart & Insights -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+      
+      <!-- Chart -->
+      <div class="card-premium p-6 flex-1 flex flex-col">
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">Period Comparison</h3>
+        <p class="text-sm text-gray-500 mb-6">Your activity compared to the previous equivalent period.</p>
+        
+        <div class="flex-1 w-full min-h-[250px] relative">
+          <canvas #comparisonChart></canvas>
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div class="card-premium p-6 border-l-4 border-l-blue-500 bg-blue-50/30">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <lucide-icon [img]="InfoIcon" size="20" class="text-blue-600 mr-2"></lucide-icon>
+          Executive Insights
+        </h3>
+        
+        <ul class="space-y-3 mb-6" *ngIf="!isLoading()">
+          <li *ngFor="let insight of analyticsData()?.insights" class="flex items-start">
+            <lucide-icon [img]="CircleDotIcon" size="16" class="text-blue-400 mr-2 mt-1 flex-shrink-0"></lucide-icon>
+            <span class="text-gray-700 leading-relaxed">{{ insight }}</span>
+          </li>
+        </ul>
+        
+        <div *ngIf="isLoading()" class="space-y-3 mb-6">
+          <div class="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+          <div class="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm" *ngIf="!isLoading() && analyticsData()?.recommendedFocus">
+          <p class="text-xs font-bold tracking-wider text-gray-400 uppercase mb-1">Recommended Focus</p>
+          <p class="text-gray-900 font-medium">{{ analyticsData()?.recommendedFocus }}</p>
+        </div>
+        <div *ngIf="isLoading()" class="h-16 bg-white rounded-lg border border-gray-100 animate-pulse"></div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

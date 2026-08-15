@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ChallengeService } from '../../../services/challenge.service';
@@ -24,20 +24,19 @@ import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/lo
   styleUrls: ['./challenge-history-page.component.css']
 })
 export class ChallengeHistoryPageComponent implements OnInit {
-  isLoading = true;
-  historyEntries: MyChallengeEntry[] = [];
+  isLoading = signal(true);
+  historyEntries = signal<MyChallengeEntry[]>([]);
   
   // Tab State
-  activeTab: 'all' | 'completed' | 'failed' = 'all';
+  activeTab = signal<'all' | 'completed' | 'failed'>('all');
 
   // Summary Stats
-  totalCompleted = 0;
-  totalXpEarned = 0;
-  totalFailed = 0;
+  totalCompleted = signal(0);
+  totalXpEarned = signal(0);
+  totalFailed = signal(0);
 
   constructor(
     private challengeService: ChallengeService,
-    private cdr: ChangeDetectorRef,
     private router: Router
   ) {}
 
@@ -46,7 +45,7 @@ export class ChallengeHistoryPageComponent implements OnInit {
   }
 
   loadHistory(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     
     // N+1 Fetch Strategy with limit of 100
     this.challengeService.getMyChallenges(0, 100).pipe(
@@ -70,17 +69,16 @@ export class ChallengeHistoryPageComponent implements OnInit {
       }),
       map(results => results.filter(r => r !== null) as MyChallengeEntry[]),
       finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      })
+        this.isLoading.set(false);
+        })
     ).subscribe({
       next: (entries) => {
         // Sort by completedAt descending
-        this.historyEntries = entries.sort((a, b) => {
+        this.historyEntries.set(entries.sort((a, b) => {
           const dateA = new Date(a.participant.completedAt || a.challenge.endDate || 0).getTime();
           const dateB = new Date(b.participant.completedAt || b.challenge.endDate || 0).getTime();
           return dateB - dateA;
-        });
+        }));
         
         this.calculateStats();
       },
@@ -91,27 +89,19 @@ export class ChallengeHistoryPageComponent implements OnInit {
   }
 
   calculateStats(): void {
-    this.totalCompleted = this.historyEntries.filter(e => e.participant.status === 'COMPLETED').length;
-    this.totalFailed = this.historyEntries.filter(e => e.participant.status === 'FAILED' || e.participant.status === 'DROPPED').length;
+    this.totalCompleted.set(this.historyEntries().filter(e => e.participant.status === 'COMPLETED').length);
+    this.totalFailed.set(this.historyEntries().filter(e => e.participant.status === 'FAILED' || e.participant.status === 'DROPPED').length);
     
-    this.totalXpEarned = this.historyEntries
+    this.totalXpEarned.set(this.historyEntries()
       .filter(e => e.participant.status === 'COMPLETED')
-      .reduce((sum, e) => sum + (e.challenge.rewardXp || 0), 0);
+      .reduce((sum, e) => sum + (e.challenge.rewardXp || 0), 0));
   }
 
   setTab(tab: 'all' | 'completed' | 'failed'): void {
-    this.activeTab = tab;
+    this.activeTab.set(tab);
   }
 
-  get filteredEntries(): MyChallengeEntry[] {
-    if (this.activeTab === 'all') {
-      return this.historyEntries;
-    } else if (this.activeTab === 'completed') {
-      return this.historyEntries.filter(e => e.participant.status === 'COMPLETED');
-    } else {
-      return this.historyEntries.filter(e => e.participant.status === 'FAILED' || e.participant.status === 'DROPPED');
-    }
-  }
+  filteredEntries = computed(() => { if (this.activeTab() === 'all') { return this.historyEntries(); } else if (this.activeTab() === 'completed') { return this.historyEntries().filter(e => e.participant.status === 'COMPLETED'); } else { return this.historyEntries().filter(e => e.participant.status === 'FAILED' || e.participant.status === 'DROPPED'); } });
 
   viewChallenge(id: number): void {
     this.router.navigate(['/challenges', id]);

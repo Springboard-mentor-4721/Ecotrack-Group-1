@@ -9,7 +9,7 @@
     <a [routerLink]="['/leaderboard']" [queryParams]="{mode: 'challenge', challengeId: challengeId}" class="btn btn-sm btn-outline-emerald rounded-pill">View All</a>
   </div>
 
-  <div *ngIf="isLoading" class="d-flex flex-column gap-3">
+  <div *ngIf="isLoading()" class="d-flex flex-column gap-3">
     <div *ngFor="let i of [1,2,3,4,5]" class="d-flex align-items-center skeleton-row">
       <div class="skeleton-avatar rounded-circle me-3"></div>
       <div class="flex-grow-1">
@@ -19,23 +19,23 @@
     </div>
   </div>
 
-  <div *ngIf="has403Error && !isLoading" class="text-center py-4 text-muted border rounded-3 bg-surface">
+  <div *ngIf="has403Error() && !isLoading()" class="text-center py-4 text-muted border rounded-3 bg-surface">
     <i class="lucide-lock mb-2 text-danger" style="width: 24px; height: 24px;"></i>
     <p class="mb-0 fs-sm fw-600">Join to see leaderboard</p>
   </div>
 
-  <div *ngIf="hasError && !isLoading && !has403Error" class="text-center py-4 text-muted">
+  <div *ngIf="hasError() && !isLoading() && !has403Error()" class="text-center py-4 text-muted">
     <i class="lucide-alert-circle mb-2" style="width: 24px; height: 24px;"></i>
     <p class="mb-0 fs-sm">Failed to load leaderboard.</p>
   </div>
 
-  <div *ngIf="!isLoading && !hasError && !has403Error && participants.length === 0" class="text-center py-4 text-muted">
+  <div *ngIf="!isLoading() && !hasError() && !has403Error() && participants().length === 0" class="text-center py-4 text-muted">
     <i class="lucide-users mb-2" style="width: 24px; height: 24px;"></i>
     <p class="mb-0 fs-sm">No participants yet.</p>
   </div>
 
-  <div *ngIf="!isLoading && !hasError && !has403Error && participants.length > 0" class="d-flex flex-column gap-3">
-    <div *ngFor="let p of participants; let i = index" class="d-flex align-items-center p-2 rounded transition-all hover-bg">
+  <div *ngIf="!isLoading() && !hasError() && !has403Error() && participants().length > 0" class="d-flex flex-column gap-3">
+    <div *ngFor="let p of participants(); let i = index" class="d-flex align-items-center p-2 rounded transition-all hover-bg">
       <div class="rank-badge fw-bold text-center me-3" [ngClass]="{'rank-1': p.rank === 1, 'rank-2': p.rank === 2, 'rank-3': p.rank === 3}">
         {{ p.rank }}
       </div>

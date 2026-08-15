@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CarbonEntryService } from '../../services/carbon-entry.service';
@@ -34,26 +34,26 @@ function pastOrPresentValidator(control: AbstractControl): ValidationErrors | nu
 })
 export class CarbonTrackerComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  entries: CarbonEntryResponse[] = [];
-  summary: CarbonSummaryResponse | null = null;
-  
+  entries = signal<CarbonEntryResponse[]>([]);
+  summary = signal<CarbonSummaryResponse | null>(null);
+
   // AI Features
-  smartSuggestionState: AiFeatureState<SmartSuggestionResponse> = { loading: false, data: null, error: null };
-  
+  smartSuggestionState = signal<AiFeatureState<SmartSuggestionResponse>>({ loading: false, data: null, error: null });
+
   entryForm: FormGroup;
   isEditing = false;
   currentEditingId: number | null = null;
   pendingDeleteId: number | null = null;
-  
-  errorMessage = '';
-  isSubmitting = false;
-  
+
+  errorMessage = signal('');
+  isSubmitting = signal(false);
+
   showAddEntryCard = false;
   showDateDropdown = false;
   showCategoryDropdown = false;
   showSubCategoryDropdown = false;
   showSortDropdown = false;
-  
+
   // Custom Form Dropdowns
   showFormCategoryDropdown = false;
   showFormSubCategoryDropdown = false;
@@ -64,7 +64,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   calendarDays: {date: Date, day: number, isCurrentMonth: boolean}[] = [];
   weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   activeDateField: 'start' | 'end' | 'formDate' | null = null;
-  
+
   // Custom Time state
   activeTimeField: 'formTime' | null = null;
   hours = Array.from({length: 12}, (_, i) => String(i + 1).padStart(2, '0'));
@@ -98,13 +98,13 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   // Modals & Toasts
   viewEntry: CarbonEntryResponse | null = null;
   entryToDeleteId: number | null = null;
-  isDeleting = false;
+  isDeleting = signal(false);
 
   toasts: { id: number, message: string, type: 'success' | 'error' }[] = [];
   private toastIdCounter = 0;
 
   // State
-  loadError = false;
+  loadError = signal(false);
 
   filterCategory: number | undefined = undefined;
   filterSubCategory: number | undefined = undefined;
@@ -120,36 +120,36 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   // Category Distribution
   distributionMonth: string = '';
   availableMonths: { label: string, value: string }[] = [];
-  distributionTotalEmission: number = 0;
+  distributionTotalEmission = signal<number>(0);
   showDistributionDropdown: boolean = false;
 
-  highestCategory: string | null = null;
-  carbonSources: { name: string, percentage: number, value: number, color: string }[] = [];
+  highestCategory = signal<string | null>(null);
+  carbonSources = signal<{ name: string, percentage: number, value: number, color: string }[]>([]);
 
   // Charts
-  public lineChartData: ChartConfiguration['data'] = { datasets: [], labels: [] };
+  public lineChartData = signal<ChartConfiguration['data']>({ datasets: [], labels: [] });
   public lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     elements: { line: { tension: 0.4 } },
-    scales: { 
-      y: { 
-        beginAtZero: true, 
+    scales: {
+      y: {
+        beginAtZero: true,
         display: true,
         grid: { color: 'rgba(0,0,0,0.05)' },
         border: { display: false }
-      }, 
-      x: { 
+      },
+      x: {
         display: true,
         grid: { display: false },
         border: { display: false }
-      } 
+      }
     },
     plugins: { legend: { display: false } }
   };
   public lineChartType: ChartType = 'line';
 
-  public doughnutChartData: ChartData<'doughnut'> = { datasets: [] };
+  public doughnutChartData = signal<ChartData<'doughnut'>>({ datasets: [] });
   public doughnutChartOptions: ChartConfiguration<'doughnut'>['options'] | any = {
     responsive: true,
     maintainAspectRatio: false,
@@ -165,14 +165,13 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   currentPage = 0;
   pageSize = 10;
   totalPages = 0;
-  isLoading = true;
+  isLoading = signal(true);
   today = new Date();
 
   constructor(
     private fb: FormBuilder,
     private carbonEntryService: CarbonEntryService,
-    private dashboardService: DashboardService,
-    private cdr: ChangeDetectorRef
+    private dashboardService: DashboardService
   ) {
     this.entryForm = this.fb.group({
       categoryId: ['', Validators.required],
@@ -250,29 +249,28 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   }
 
   loadEntries(): void {
-    this.isLoading = true;
-    this.loadError = false;
+    this.isLoading.set(true);
+    this.loadError.set(false);
     this.carbonEntryService.getEntries(
-      this.currentPage, this.pageSize, 
-      this.filterCategory, this.filterSubCategory, 
-      this.filterSearch, 
-      this.filterStartDate, this.filterEndDate, 
+      this.currentPage, this.pageSize,
+      this.filterCategory, this.filterSubCategory,
+      this.filterSearch,
+      this.filterStartDate, this.filterEndDate,
       this.filterEmissionMin, this.filterEmissionMax,
       this.filterQuantityMin, this.filterQuantityMax,
       this.filterSort
     )
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       }))
       .subscribe({
       next: (response) => {
-        this.entries = response.content;
+        this.entries.set(response.content);
         this.totalPages = response.totalPages;
       },
       error: (err) => {
         console.error('Failed to load entries', err);
-        this.loadError = true;
+        this.loadError.set(true);
       }
     });
   }
@@ -343,7 +341,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     if (field === 'start') currentVal = this.filterStartDate || '';
     if (field === 'end') currentVal = this.filterEndDate || '';
     if (field === 'formDate') currentVal = this.entryForm.get('entryDateDate')?.value || '';
-    
+
     this.currentMonthDate = currentVal ? new Date(currentVal) : new Date();
     this.generateCalendar(this.currentMonthDate);
   }
@@ -354,7 +352,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
-    
+
     this.calendarDays = [];
     for (let i = firstDay - 1; i >= 0; i--) {
       this.calendarDays.push({ date: new Date(year, month - 1, daysInPrevMonth - i), day: daysInPrevMonth - i, isCurrentMonth: false });
@@ -448,34 +446,38 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     this.activeTimeField = null;
   }
 
-  avgDailyEmission = 0;
-  todayEmission = 0;
-  todayEntriesCount = 0;
-  todayHighestCategory = 'N/A';
-  monthEntriesCount = 0;
+  avgDailyEmission = signal<number>(0);
+  todayEmission = signal<number>(0);
+  todayEntriesCount = signal<number>(0);
+  todayHighestCategory = signal<string>('N/A');
+  monthEntriesCount = signal<number>(0);
 
   loadSummary(): void {
     const end = new Date();
     const start = new Date(end.getFullYear(), end.getMonth(), 1); // Current Month
-    
+
     const pad = (n: number) => String(n).padStart(2, '0');
     const getLocalISODate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    
+
     const startDate = getLocalISODate(start);
     const endDate = getLocalISODate(end);
 
+    const sDate = new Date(startDate);
+    const eDate = new Date(endDate);
+    const diffTime = Math.abs(eDate.getTime() - sDate.getTime());
+    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+
     this.carbonEntryService.getDashboardSummary(startDate, endDate)
-      .pipe(finalize(() => this.cdr.detectChanges()))
       .subscribe({
       next: (summary) => {
-        this.summary = summary;
-        this.monthEntriesCount = summary.totalEntriesCount || 0;
-        this.avgDailyEmission = summary.totalEmission / 30;
+        this.summary.set(summary);
+        this.monthEntriesCount.set(summary.totalEntriesCount || 0);
+        this.avgDailyEmission.set(summary.totalEmission / diffDays);
         if (summary.categorySummaries && summary.categorySummaries.length > 0) {
           const sorted = [...summary.categorySummaries].sort((a,b) => b.percentage - a.percentage);
-          this.highestCategory = sorted[0].categoryName;
+          this.highestCategory.set(sorted[0].categoryName);
         } else {
-          this.highestCategory = 'N/A';
+          this.highestCategory.set('N/A');
         }
         this.loadTrendData();
       },
@@ -486,15 +488,14 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     this.carbonEntryService.getDashboardSummary(todayStr, todayStr)
       .subscribe({
       next: (summary) => {
-        this.todayEmission = summary.totalEmission || 0;
-        this.todayEntriesCount = summary.totalEntriesCount || 0;
+        this.todayEmission.set(summary.totalEmission || 0);
+        this.todayEntriesCount.set(summary.totalEntriesCount || 0);
         if (summary.categorySummaries && summary.categorySummaries.length > 0) {
           const sorted = [...summary.categorySummaries].sort((a,b) => b.percentage - a.percentage);
-          this.todayHighestCategory = sorted[0].categoryName;
+          this.todayHighestCategory.set(sorted[0].categoryName);
         } else {
-          this.todayHighestCategory = 'N/A';
+          this.todayHighestCategory.set('N/A');
         }
-        this.cdr.detectChanges();
       },
       error: (err) => console.error('Failed to load today summary', err)
     });
@@ -520,10 +521,9 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     const endDate = `${end.getFullYear()}-${(end.getMonth() + 1).toString().padStart(2, '0')}-${end.getDate().toString().padStart(2, '0')}`;
 
     this.carbonEntryService.getDashboardSummary(startDate, endDate)
-      .pipe(finalize(() => this.cdr.detectChanges()))
       .subscribe({
         next: (summary) => {
-          this.distributionTotalEmission = summary.totalEmission || 0;
+          this.distributionTotalEmission.set(summary.totalEmission || 0);
           this.processCarbonSources(summary.categorySummaries);
         },
         error: (err) => console.error('Failed to load category distribution', err)
@@ -532,14 +532,14 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
 
   private processCarbonSources(categorySummaries: any[] | undefined): void {
     if (!categorySummaries || categorySummaries.length === 0) {
-      this.carbonSources = [];
-      this.doughnutChartData = { labels: [], datasets: [] };
+      this.carbonSources.set([]);
+      this.doughnutChartData.set({ labels: [], datasets: [] });
       return;
     }
-    
+
     const colors = ['#10b981', '#0ea5e9', '#8b5cf6', '#94a3b8', '#f59e0b'];
-    
-    this.carbonSources = categorySummaries
+
+    this.carbonSources.set(categorySummaries
       .map((s, i) => {
         const cat = this.categories.find(c => c.name === s.categoryName);
         return {
@@ -549,17 +549,17 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
           color: cat && cat.color ? cat.color : colors[i % colors.length]
         };
       })
-      .sort((a,b) => b.percentage - a.percentage);
+      .sort((a,b) => b.percentage - a.percentage));
 
-    this.doughnutChartData = {
-      labels: this.carbonSources.map(s => s.name),
+    this.doughnutChartData.set({
+      labels: this.carbonSources().map(s => s.name),
       datasets: [{
-        data: this.carbonSources.map(s => s.value),
-        backgroundColor: this.carbonSources.map(s => s.color),
+        data: this.carbonSources().map(s => s.value),
+        backgroundColor: this.carbonSources().map(s => s.color),
         borderWidth: 0,
         hoverOffset: 4
       }]
-    };
+    });
   }
 
   getCategoryColorStyle(categoryName: string): any {
@@ -587,7 +587,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       case '14days': return 'Bi-Weekly Trend';
       case '1month': return 'Monthly Trend';
       case '3months': return 'Quarterly Trend';
-      case 'custom-month': 
+      case 'custom-month':
          const m = this.availableMonths.find(x => x.value === this.trendMonth);
          return m ? `${m.label} Trend` : 'Monthly Trend';
       default: return 'Trend';
@@ -647,7 +647,6 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (response) => {
         this.processTrendData(response.content, daysToGenerate, endDate);
-        this.cdr.detectChanges();
       },
       error: (err) => console.error('Failed to load trend data', err)
     });
@@ -656,19 +655,19 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   private processTrendData(entries: CarbonEntryResponse[], days: number, endDate: Date): void {
     const dataMap = new Map<string, number>();
     const labels = [];
-    
+
     // Initialize map with 0 for all days in range
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date(endDate);
       d.setDate(d.getDate() - i);
-      
+
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       const dd = String(d.getDate()).padStart(2, '0');
       const dateStr = `${yyyy}-${mm}-${dd}`;
-      
+
       dataMap.set(dateStr, 0);
-      
+
       if (this.trendPeriod === '7days') {
         labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
       } else {
@@ -688,7 +687,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
 
     const data = Array.from(dataMap.values());
 
-    this.lineChartData = {
+    this.lineChartData.set({
       labels: labels,
       datasets: [
         {
@@ -705,28 +704,28 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
           tension: 0.4
         }
       ]
-    };
+    });
   }
 
   onSubmit(): void {
     if (this.entryForm.invalid) return;
 
-    this.errorMessage = '';
+    this.errorMessage.set('');
 
     // Get raw value to include disabled 'unit' field
     const formData = this.entryForm.getRawValue();
     const entryDateStr = `${formData.entryDateDate}T${formData.entryDateTime}`;
-    
+
     // Prevent future dates
     const selectedDate = new Date(entryDateStr);
     if (selectedDate > new Date()) {
       this.entryForm.get('entryDateDate')?.setErrors({ serverError: 'Entry date cannot be in the future' });
       this.entryForm.get('entryDateTime')?.setErrors({ serverError: 'Entry date cannot be in the future' });
-      this.errorMessage = 'Please correct the highlighted fields.';
+      this.errorMessage.set('Please correct the highlighted fields.');
       return;
     }
 
-    this.isSubmitting = true;
+    this.isSubmitting.set(true);
     formData.entryDate = entryDateStr;
     delete formData.entryDateDate;
     delete formData.entryDateTime;
@@ -734,8 +733,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     if (this.isEditing && this.currentEditingId) {
       this.carbonEntryService.updateEntry(this.currentEditingId, formData)
         .pipe(finalize(() => {
-          this.isSubmitting = false;
-          this.cdr.detectChanges();
+          this.isSubmitting.set(false);
         }))
         .subscribe({
         next: () => {
@@ -753,8 +751,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     } else {
       this.carbonEntryService.createEntry(formData)
         .pipe(finalize(() => {
-          this.isSubmitting = false;
-          this.cdr.detectChanges();
+          this.isSubmitting.set(false);
         }))
         .subscribe({
         next: () => {
@@ -778,7 +775,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       Object.keys(err.error.errors).forEach(key => {
         let formKey = key;
         if (key === 'entryDate') formKey = 'entryDateDate'; // Map backend field to frontend control
-        
+
         const control = this.entryForm.get(formKey);
         if (control) {
           control.setErrors({ serverError: err.error.errors[key] });
@@ -786,15 +783,19 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
           hasFieldErrors = true;
         }
       });
-      this.errorMessage = hasFieldErrors ? 'Please correct the highlighted fields.' : (err.error?.message || defaultMessage);
+      this.errorMessage.set(hasFieldErrors ? 'Please correct the highlighted fields.' : (err.error?.message || defaultMessage));
     } else {
-      this.errorMessage = err.error?.message || err.error?.errors?.error || defaultMessage;
+      this.errorMessage.set(err.error?.message || err.error?.errors?.error || defaultMessage);
     }
   }
 
   openAddEntry(): void {
     this.showAddEntryCard = true;
     document.body.style.overflow = 'hidden';
+    this.entryForm.reset({ categoryId: 1, quantity: 0, unit: 'km', entryDateDate: '', entryDateTime: '' });
+    this.isEditing = false;
+    this.currentEditingId = null;
+    this.errorMessage.set('');
   }
 
   editEntry(entry: CarbonEntryResponse): void {
@@ -802,10 +803,10 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     this.showAddEntryCard = true;
     document.body.style.overflow = 'hidden';
     this.currentEditingId = entry.id;
-    
+
     // Set category first without emitting events to prevent overriding subCategoryId
     this.entryForm.get('categoryId')?.setValue(entry.categoryId, { emitEvent: false });
-    
+
     // Manually update the available subcategories
     const category = this.categories.find(c => c.id === entry.categoryId);
     this.availableSubTypes = category?.subCategories || [];
@@ -831,10 +832,10 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   }
 
   loadSmartSuggestion(entryId: number): void {
-    this.smartSuggestionState = { loading: true, data: null, error: null };
+    this.smartSuggestionState.set({ loading: true, data: null, error: null });
     this.carbonEntryService.getSmartSuggestions(entryId).subscribe({
-      next: (res) => this.smartSuggestionState = { loading: false, data: res, error: null },
-      error: (err) => this.smartSuggestionState = { loading: false, data: null, error: 'Failed to generate suggestion' }
+      next: (res) => this.smartSuggestionState.set({ loading: false, data: res, error: null }),
+      error: (err) => this.smartSuggestionState.set({ loading: false, data: null, error: 'Failed to generate suggestion' })
     });
   }
 
@@ -874,7 +875,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   bulkDelete() {
     if (this.selectedEntries.size === 0) return;
     if (confirm(`Are you sure you want to delete ${this.selectedEntries.size} entries?`)) {
-      // In a real app with bulk delete API, call it here. 
+      // In a real app with bulk delete API, call it here.
       // For now, simulating success since bulk delete API was noted missing or just front-end simulation.
       this.toasts.push({ id: this.toastIdCounter++, message: `Deleted ${this.selectedEntries.size} entries successfully (Simulated)`, type: 'success' });
       this.selectedEntries.clear();
@@ -883,12 +884,12 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   }
 
   exportToCsv() {
-    if (this.entries.length === 0) {
+    if (this.entries().length === 0) {
        this.toasts.push({ id: this.toastIdCounter++, message: 'No entries to export', type: 'error' });
        return;
     }
     const headers = ['Date', 'Category', 'Sub Category', 'Quantity', 'Unit', 'Emission (kg CO2e)'];
-    const rows = this.entries.map(e => [
+    const rows = this.entries().map(e => [
       new Date(e.entryDate).toLocaleDateString(),
       e.categoryName,
       e.subType,
@@ -907,12 +908,12 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
 
   exportToExcel() {
     // Basic Excel fallback using CSV but with xls extension
-    if (this.entries.length === 0) {
+    if (this.entries().length === 0) {
        this.toasts.push({ id: this.toastIdCounter++, message: 'No entries to export', type: 'error' });
        return;
     }
     const headers = ['Date', 'Category', 'Sub Category', 'Quantity', 'Unit', 'Emission (kg CO2e)'];
-    const rows = this.entries.map(e => [
+    const rows = this.entries().map(e => [
       new Date(e.entryDate).toLocaleDateString(),
       e.categoryName,
       e.subType,
@@ -931,14 +932,13 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
 
   confirmDelete(): void {
     if (this.entryToDeleteId === null) return;
-    
-    this.isDeleting = true;
-    
+
+    this.isDeleting.set(true);
+
     this.carbonEntryService.deleteEntry(this.entryToDeleteId)
       .pipe(finalize(() => {
-        this.isDeleting = false;
+        this.isDeleting.set(false);
         this.entryToDeleteId = null;
-        this.cdr.detectChanges();
       }))
       .subscribe({
       next: () => {
@@ -957,7 +957,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     this.showAddEntryCard = false;
     document.body.style.overflow = '';
     this.currentEditingId = null;
-    this.errorMessage = '';
+    this.errorMessage.set('');
     this.entryForm.reset({ categoryId: 1, quantity: 0, unit: 'km', entryDateDate: '', entryDateTime: '' });
     this.updateCategoryDependencies(1);
   }
@@ -984,7 +984,7 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   get quickShortcuts(): CarbonEntryResponse[] {
     const seen = new Set<string>();
     const shortcuts: CarbonEntryResponse[] = [];
-    for (const entry of this.entries) {
+    for (const entry of this.entries()) {
       const key = `${entry.categoryId}-${entry.subCategoryId}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -996,13 +996,13 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   }
 
   quickLog(entry: CarbonEntryResponse): void {
-    if (this.isSubmitting) return;
-    
+    if (this.isSubmitting()) return;
+
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
     // Format: YYYY-MM-DDTHH:mm
     const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    
+
     const formData = {
       categoryId: entry.categoryId,
       subCategoryId: entry.subCategoryId,
@@ -1011,12 +1011,11 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
       entryDate: dateStr,
       notes: ''
     };
-    
-    this.isSubmitting = true;
+
+    this.isSubmitting.set(true);
     this.carbonEntryService.createEntry(formData)
       .pipe(finalize(() => {
-        this.isSubmitting = false;
-        this.cdr.detectChanges();
+        this.isSubmitting.set(false);
       }))
       .subscribe({
         next: () => {

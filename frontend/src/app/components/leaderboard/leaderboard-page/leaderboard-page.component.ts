@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeaderboardService } from '../../../services/leaderboard.service';
@@ -25,36 +25,38 @@ type ScoreType = 'XP' | 'ECO_SCORE';
   styleUrl: './leaderboard-page.component.css'
 })
 export class LeaderboardPageComponent implements OnInit {
-  isLoading = true;
-  mode: ModeType = 'OVERALL';
-  
-  // Global
-  filterPeriod: FilterType = 'ALL_TIME';
-  filterScore: ScoreType = 'XP';
-  globalPage: Page<LeaderboardEntry> | null = null;
-  topThree: LeaderboardEntry[] = [];
-  remainingEntries: LeaderboardEntry[] = [];
-  
-  // Challenges
-  myChallenges: any[] = [];
-  selectedChallengeId: number | null = null;
-  challengePage: Page<LeaderboardEntry> | null = null;
-  challengeError: string | null = null;
-  challengeErrorIs403: boolean = false;
-  
-  get selectedChallengeParticipant(): any {
-    if (!this.myChallenges || !this.selectedChallengeId) return null;
-    return this.myChallenges.find(c => c.challengeId === this.selectedChallengeId);
-  }
+  isLoading = signal(true);
+  mode = signal<ModeType>('OVERALL');
 
-  selectedChallengeDetail: any | null = null;
-  
-  currentUserId: number | null = null;
-  myRank: LeaderboardEntry | null = null;
+  // Global
+  filterPeriod = signal<FilterType>('ALL_TIME');
+  filterScore = signal<ScoreType>('XP');
+  globalPage = signal<Page<LeaderboardEntry> | null>(null);
+  topThree = signal<LeaderboardEntry[]>([]);
+  remainingEntries = signal<LeaderboardEntry[]>([]);
+
+  // Challenges
+  myChallenges = signal<any[]>([]);
+  selectedChallengeId = signal<number | null>(null);
+  challengePage = signal<Page<LeaderboardEntry> | null>(null);
+  challengeError = signal<string | null>(null);
+  challengeErrorIs403 = signal(false);
+
+  selectedChallengeParticipant = computed(() => {
+    const challenges = this.myChallenges();
+    const id = this.selectedChallengeId();
+    if (!challenges || !id) return null;
+    return challenges.find(c => c.challengeId === id);
+  });
+
+  selectedChallengeDetail = signal<any | null>(null);
+
+  currentUserId = signal<number | null>(null);
+  myRank = signal<LeaderboardEntry | null>(null);
 
   // Pagination
-  currentPage = 0;
-  pageSize = 20;
+  currentPage = signal(0);
+  pageSize = signal(20);
 
   Math = Math;
 
@@ -63,8 +65,7 @@ export class LeaderboardPageComponent implements OnInit {
     private challengeService: ChallengeService,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private router: Router
   ) {}
 
   resolveImageUrl(url: string | null | undefined): string | null {
@@ -78,35 +79,34 @@ export class LeaderboardPageComponent implements OnInit {
   ngOnInit(): void {
     const user = this.authService.getCurrentUserValue();
     if (user) {
-       this.currentUserId = user.id;
+       this.currentUserId.set(user.id);
     }
-    
+
     this.route.queryParams.subscribe(params => {
       if (params['challengeId']) {
-        this.mode = 'CHALLENGE';
-        this.selectedChallengeId = Number(params['challengeId']);
+        this.mode.set('CHALLENGE');
+        this.selectedChallengeId.set(Number(params['challengeId']));
       }
       if (params['mode']) {
-        this.mode = params['mode'].toUpperCase() as ModeType;
+        this.mode.set(params['mode'].toUpperCase() as ModeType);
       }
-      
+
       this.loadInitialData();
     });
   }
 
   loadInitialData() {
-    if (this.mode === 'CHALLENGE') {
+    if (this.mode() === 'CHALLENGE') {
       this.loadMyChallenges().subscribe(() => {
-        if (this.selectedChallengeId) {
+        if (this.selectedChallengeId()) {
           this.loadSelectedChallengeDetail();
           this.loadChallengeLeaderboard();
-        } else if (this.myChallenges.length > 0) {
-          this.selectedChallengeId = this.myChallenges[0].challengeId;
+        } else if (this.myChallenges().length > 0) {
+          this.selectedChallengeId.set(this.myChallenges()[0].challengeId);
           this.loadSelectedChallengeDetail();
           this.loadChallengeLeaderboard();
         } else {
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          this.isLoading.set(false);
         }
       });
     } else {
@@ -115,11 +115,11 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   loadMyChallenges() {
-    this.isLoading = true;
+    this.isLoading.set(true);
     return this.challengeService.getMyChallenges(0, 100).pipe(
       tap(res => {
         if (res && res.content) {
-          this.myChallenges = res.content;
+          this.myChallenges.set(res.content);
         }
       }),
       catchError(err => of(null))
@@ -127,33 +127,32 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   setMode(mode: ModeType) {
-    if (this.mode === mode) return;
-    this.mode = mode;
-    this.currentPage = 0;
-    
+    if (this.mode() === mode) return;
+    this.mode.set(mode);
+    this.currentPage.set(0);
+
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { mode: this.mode.toLowerCase() },
+      queryParams: { mode: this.mode().toLowerCase() },
       queryParamsHandling: 'merge'
     });
 
-    if (this.mode === 'CHALLENGE') {
-      if (this.myChallenges.length === 0) {
+    if (this.mode() === 'CHALLENGE') {
+      if (this.myChallenges().length === 0) {
          this.loadMyChallenges().subscribe(() => {
-            if (this.myChallenges.length > 0) {
-               this.selectedChallengeId = this.myChallenges[0].challengeId;
+            if (this.myChallenges().length > 0) {
+               this.selectedChallengeId.set(this.myChallenges()[0].challengeId);
                this.loadSelectedChallengeDetail();
                this.loadChallengeLeaderboard();
             } else {
-               this.isLoading = false;
-               this.cdr.detectChanges();
+               this.isLoading.set(false);
             }
          });
       } else {
-         if (!this.selectedChallengeId && this.myChallenges.length > 0) {
-            this.selectedChallengeId = this.myChallenges[0].challengeId;
+         if (!this.selectedChallengeId() && this.myChallenges().length > 0) {
+            this.selectedChallengeId.set(this.myChallenges()[0].challengeId);
          }
-         if (this.selectedChallengeId) {
+         if (this.selectedChallengeId()) {
             this.loadSelectedChallengeDetail();
             this.loadChallengeLeaderboard();
          }
@@ -164,37 +163,37 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   setFilterPeriod(period: FilterType) {
-    if (this.filterPeriod === period) return;
-    this.filterPeriod = period;
-    this.currentPage = 0;
-    
-    if (this.filterScore === 'ECO_SCORE' && period !== 'ALL_TIME') {
-       this.filterScore = 'XP';
+    if (this.filterPeriod() === period) return;
+    this.filterPeriod.set(period);
+    this.currentPage.set(0);
+
+    if (this.filterScore() === 'ECO_SCORE' && period !== 'ALL_TIME') {
+       this.filterScore.set('XP');
     }
-    
+
     this.loadGlobalLeaderboard();
   }
 
   setFilterScore(score: ScoreType) {
-    if (this.filterScore === score) return;
-    this.filterScore = score;
-    this.currentPage = 0;
-    
+    if (this.filterScore() === score) return;
+    this.filterScore.set(score);
+    this.currentPage.set(0);
+
     if (score === 'ECO_SCORE') {
-       this.filterPeriod = 'ALL_TIME';
+       this.filterPeriod.set('ALL_TIME');
     }
-    
+
     this.loadGlobalLeaderboard();
   }
-  
+
   onChallengeSelect(event: Event) {
     const target = event.target as HTMLSelectElement;
     if (target.value) {
-      this.selectedChallengeId = Number(target.value);
-      this.currentPage = 0;
+      this.selectedChallengeId.set(Number(target.value));
+      this.currentPage.set(0);
       this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { challengeId: this.selectedChallengeId },
+        queryParams: { challengeId: this.selectedChallengeId() },
         queryParamsHandling: 'merge'
       });
       this.loadSelectedChallengeDetail();
@@ -203,13 +202,13 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   loadGlobalLeaderboard() {
-    this.isLoading = true;
-    
+    this.isLoading.set(true);
+
     // Fetch my rank if needed (fire and forget)
-    if (this.filterScore === 'XP' && this.filterPeriod === 'ALL_TIME' && !this.myRank) {
+    if (this.filterScore() === 'XP' && this.filterPeriod() === 'ALL_TIME' && !this.myRank()) {
        this.leaderboardService.getMyRank().subscribe({
           next: (rank) => {
-            if (rank) this.myRank = rank;
+            if (rank) this.myRank.set(rank);
           },
           error: (err) => console.error('Failed to load user rank', err)
        });
@@ -217,41 +216,39 @@ export class LeaderboardPageComponent implements OnInit {
 
     // Fetch the global page independently
     this.leaderboardService.getGlobalLeaderboard(
-      this.filterScore, 
-      this.filterPeriod, 
-      this.currentPage, 
-      this.pageSize
+      this.filterScore(),
+      this.filterPeriod(),
+      this.currentPage(),
+      this.pageSize()
     ).pipe(
       finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       })
     ).subscribe({
       next: (page) => {
         if (page) {
-          this.globalPage = page;
+          this.globalPage.set(page);
           this.updatePodium();
         } else {
-          this.globalPage = null;
-          this.topThree = [];
-          this.remainingEntries = [];
+          this.globalPage.set(null);
+          this.topThree.set([]);
+          this.remainingEntries.set([]);
         }
       },
       error: () => {
-        this.globalPage = null;
-        this.topThree = [];
-        this.remainingEntries = [];
+        this.globalPage.set(null);
+        this.topThree.set([]);
+        this.remainingEntries.set([]);
       }
     });
   }
 
   loadSelectedChallengeDetail() {
-    if (!this.selectedChallengeId) return;
-    this.selectedChallengeDetail = null;
-    this.challengeService.getChallengeDetail(this.selectedChallengeId).subscribe({
+    if (!this.selectedChallengeId()) return;
+    this.selectedChallengeDetail.set(null);
+    this.challengeService.getChallengeDetail(this.selectedChallengeId()!).subscribe({
       next: (detail) => {
-        this.selectedChallengeDetail = detail;
-        this.cdr.detectChanges();
+        this.selectedChallengeDetail.set(detail);
       },
       error: (err) => {
         console.error('Failed to load challenge details', err);
@@ -260,18 +257,18 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   getChallengeProgressPercentage(): number {
-    const participant = this.selectedChallengeParticipant;
+    const participant = this.selectedChallengeParticipant();
     if (!participant || !participant.targetValue) return 0;
     const p = Math.min(Math.max((participant.progress / participant.targetValue) * 100, 0), 100);
     return Math.round(p);
   }
 
   getMyChallengeRank(): number | null {
-    if (!this.currentUserId || !this.challengePage || !this.challengePage.content) return null;
-    const myEntry = this.challengePage.content.find(e => e.userId === this.currentUserId);
+    if (!this.currentUserId() || !this.challengePage() || !this.challengePage()!.content) return null;
+    const myEntry = this.challengePage()!.content.find(e => e.userId === this.currentUserId());
     return myEntry ? myEntry.rank : null;
   }
-  
+
   scrollToLeaderboard() {
     const el = document.getElementById('challenge-leaderboard-section');
     if (el) {
@@ -280,45 +277,45 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   loadChallengeLeaderboard() {
-    if (!this.selectedChallengeId) return;
-    this.isLoading = true;
-    this.challengeError = null;
-    this.challengeErrorIs403 = false;
+    if (!this.selectedChallengeId()) return;
+    this.isLoading.set(true);
+    this.challengeError.set(null);
+    this.challengeErrorIs403.set(false);
 
-    this.leaderboardService.getChallengeLeaderboard(this.selectedChallengeId, this.currentPage, this.pageSize)
+    this.leaderboardService.getChallengeLeaderboard(this.selectedChallengeId()!, this.currentPage(), this.pageSize())
       .pipe(
         finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          this.isLoading.set(false);
         })
       )
       .subscribe({
         next: (page) => {
-          this.challengePage = page;
+          this.challengePage.set(page);
         },
         error: (err) => {
           if (err.status === 403) {
-            this.challengeErrorIs403 = true;
+            this.challengeErrorIs403.set(true);
           } else {
-            this.challengeError = 'Failed to load challenge leaderboard. Please try again.';
+            this.challengeError.set('Failed to load challenge leaderboard. Please try again.');
           }
-          this.challengePage = null;
+          this.challengePage.set(null);
         }
       });
   }
 
   updatePodium(): void {
-    if (this.globalPage && this.globalPage.content) {
-      if (this.currentPage === 0 && this.globalPage.content.length >= 3) {
-        this.topThree = this.globalPage.content.slice(0, 3);
-        this.remainingEntries = this.globalPage.content.slice(3);
+    const globalPage = this.globalPage();
+    if (globalPage && globalPage.content) {
+      if (this.currentPage() === 0 && globalPage.content.length >= 3) {
+        this.topThree.set(globalPage.content.slice(0, 3));
+        this.remainingEntries.set(globalPage.content.slice(3));
       } else {
-        this.topThree = [];
-        this.remainingEntries = this.globalPage.content;
+        this.topThree.set([]);
+        this.remainingEntries.set(globalPage.content);
       }
     } else {
-      this.topThree = [];
-      this.remainingEntries = [];
+      this.topThree.set([]);
+      this.remainingEntries.set([]);
     }
   }
 
@@ -328,21 +325,21 @@ export class LeaderboardPageComponent implements OnInit {
     if (rank === 3) return 'bg-orange-light text-orange border-orange';
     return 'bg-surface text-secondary border-transparent';
   }
-  
+
   nextPage() {
-    if (this.mode === 'OVERALL' && this.globalPage && !this.globalPage.last) {
-       this.currentPage++;
+    if (this.mode() === 'OVERALL' && this.globalPage() && !this.globalPage()!.last) {
+       this.currentPage.update(p => p + 1);
        this.loadGlobalLeaderboard();
-    } else if (this.mode === 'CHALLENGE' && this.challengePage && !this.challengePage.last) {
-       this.currentPage++;
+    } else if (this.mode() === 'CHALLENGE' && this.challengePage() && !this.challengePage()!.last) {
+       this.currentPage.update(p => p + 1);
        this.loadChallengeLeaderboard();
     }
   }
-  
+
   prevPage() {
-    if (this.currentPage > 0) {
-       this.currentPage--;
-       if (this.mode === 'OVERALL') this.loadGlobalLeaderboard();
+    if (this.currentPage() > 0) {
+       this.currentPage.update(p => p - 1);
+       if (this.mode() === 'OVERALL') this.loadGlobalLeaderboard();
        else this.loadChallengeLeaderboard();
     }
   }

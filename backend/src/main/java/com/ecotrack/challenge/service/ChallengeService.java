@@ -548,6 +548,7 @@ public class ChallengeService {
                 .challengeTitle(p.getChallenge().getTitle())
                 .targetValue(p.getChallenge().getTargetValue())
                 .progressMetric(p.getChallenge().getProgressMetric())
+                .challenge(mapToDTO(p.getChallenge()))
                 .build();
     }
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LeaderboardService } from '../../../../../services/leaderboard.service';
 import { LeaderboardEntry } from '../../../../../models/leaderboard.models';
@@ -17,12 +17,12 @@ import { RouterModule } from '@angular/router';
 export class LeaderboardWidgetComponent implements OnInit, OnChanges {
   @Input() challengeId!: number;
 
-  participants: LeaderboardEntry[] = [];
-  isLoading: boolean = true;
-  hasError: boolean = false;
-  has403Error: boolean = false;
+  participants = signal<LeaderboardEntry[]>([]);
+  isLoading = signal(true);
+  hasError = signal(false);
+  has403Error = signal(false);
 
-  constructor(private leaderboardService: LeaderboardService, private cdr: ChangeDetectorRef) {}
+  constructor(private leaderboardService: LeaderboardService) {}
 
   ngOnInit(): void {
     if (this.challengeId) {
@@ -37,25 +37,23 @@ export class LeaderboardWidgetComponent implements OnInit, OnChanges {
   }
 
   private loadLeaderboard(): void {
-    this.isLoading = true;
-    this.hasError = false;
-    this.has403Error = false;
+    this.isLoading.set(true);
+    this.hasError.set(false);
+    this.has403Error.set(false);
     
     this.leaderboardService.getChallengeLeaderboard(this.challengeId, 0, 5).subscribe({
       next: (page) => {
-        this.participants = page.content;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
+        this.participants.set(page.content);
+        this.isLoading.set(false);
+        },
       error: (err) => {
         if (err.status === 403) {
-           this.has403Error = true;
+           this.has403Error.set(true);
         } else {
-           this.hasError = true;
+           this.hasError.set(true);
         }
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      }
+        this.isLoading.set(false);
+        }
     });
   }
 }

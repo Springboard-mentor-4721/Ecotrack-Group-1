@@ -1,5 +1,5 @@
 <div class="achievements-wrapper animate-page px-4 py-4 max-w-7xl mx-auto">
-  
+
   <!-- Banner replacing the page title -->
   <div class="rounded-4 border-0 p-0 mb-4 overflow-hidden shadow-sm">
     <div class="p-4 position-relative text-center" style="background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 50%, #fde68a 100%); color: #111827;">
@@ -9,9 +9,9 @@
         </div>
         <div>
           <h1 class="fw-bold fs-3 mb-1" style="color: #111827;">Achievements</h1>
-          <p *ngIf="primaryCategory === 'GENERAL'" class="mb-0 fs-7" style="color: #4b5563;">Track your sustainability journey and unlock milestones along the way.</p>
-          <p *ngIf="primaryCategory === 'CHALLENGE'" class="mb-0 fs-7" style="color: #4b5563;">Complete challenges to unlock exclusive badges.</p>
-          <p *ngIf="primaryCategory === 'GOAL'" class="mb-0 fs-7" style="color: #4b5563;">Celebrate your completed goals and successful budgets.</p>
+          <p *ngIf="primaryCategory() === 'GENERAL'" class="mb-0 fs-7" style="color: #4b5563;">Track your sustainability journey and unlock milestones along the way.</p>
+          <p *ngIf="primaryCategory() === 'CHALLENGE'" class="mb-0 fs-7" style="color: #4b5563;">Complete challenges to unlock exclusive badges.</p>
+          <p *ngIf="primaryCategory() === 'GOAL'" class="mb-0 fs-7" style="color: #4b5563;">Celebrate your completed goals and successful budgets.</p>
         </div>
       </div>
     </div>
@@ -19,24 +19,24 @@
 
   <!-- Primary Navigation Tabs -->
   <div class="d-flex justify-content-center gap-2 mb-4 border-bottom pb-3">
-    <button class="btn px-4 py-2 fw-600 rounded-pill" 
-            [class.btn-emerald]="primaryCategory === 'GENERAL'" 
-            [class.btn-light]="primaryCategory !== 'GENERAL'"
-            [class.text-muted]="primaryCategory !== 'GENERAL'"
+    <button class="btn px-4 py-2 fw-600 rounded-pill"
+            [class.btn-emerald]="primaryCategory() === 'GENERAL'"
+            [class.btn-light]="primaryCategory() !== 'GENERAL'"
+            [class.text-muted]="primaryCategory() !== 'GENERAL'"
             (click)="setPrimaryCategory('GENERAL')">
       General Achievements
     </button>
-    <button class="btn px-4 py-2 fw-600 rounded-pill" 
-            [class.btn-emerald]="primaryCategory === 'CHALLENGE'" 
-            [class.btn-light]="primaryCategory !== 'CHALLENGE'"
-            [class.text-muted]="primaryCategory !== 'CHALLENGE'"
+    <button class="btn px-4 py-2 fw-600 rounded-pill"
+            [class.btn-emerald]="primaryCategory() === 'CHALLENGE'"
+            [class.btn-light]="primaryCategory() !== 'CHALLENGE'"
+            [class.text-muted]="primaryCategory() !== 'CHALLENGE'"
             (click)="setPrimaryCategory('CHALLENGE')">
       Challenge Achievements
     </button>
-    <button class="btn px-4 py-2 fw-600 rounded-pill" 
-            [class.btn-emerald]="primaryCategory === 'GOAL'" 
-            [class.btn-light]="primaryCategory !== 'GOAL'"
-            [class.text-muted]="primaryCategory !== 'GOAL'"
+    <button class="btn px-4 py-2 fw-600 rounded-pill"
+            [class.btn-emerald]="primaryCategory() === 'GOAL'"
+            [class.btn-light]="primaryCategory() !== 'GOAL'"
+            [class.text-muted]="primaryCategory() !== 'GOAL'"
             (click)="setPrimaryCategory('GOAL')">
       Goal Achievements
     </button>
@@ -45,51 +45,51 @@
 
 
   <!-- Filters & Search -->
-  <div *ngIf="primaryCategory !== 'GOAL'" class="card-premium p-3 mb-4 d-flex flex-column flex-md-row gap-3 justify-content-between align-items-center">
+  <div *ngIf="primaryCategory() !== 'GOAL'" class="card-premium p-3 mb-4 d-flex flex-column flex-md-row gap-3 justify-content-between align-items-center">
     <!-- Filter Pills -->
     <div class="d-flex flex-wrap gap-2 bg-surface p-1 rounded-4 border">
-      <button class="btn btn-sm rounded-pill px-3 fw-600" 
-              [class.bg-white]="filterType === 'ALL'" [class.shadow-sm]="filterType === 'ALL'"
-              [class.text-dark]="filterType === 'ALL'" [class.text-muted]="filterType !== 'ALL'"
-              (click)="filterType = 'ALL'">
+      <button class="btn btn-sm rounded-pill px-3 fw-600"
+              [class.bg-white]="filterType() === 'ALL'" [class.shadow-sm]="filterType() === 'ALL'"
+              [class.text-dark]="filterType() === 'ALL'" [class.text-muted]="filterType() !== 'ALL'"
+              (click)="filterType.set('ALL')">
         All
       </button>
-      <button class="btn btn-sm rounded-pill px-3 fw-600" 
-              [class.bg-white]="filterType === 'EARNED'" [class.shadow-sm]="filterType === 'EARNED'"
-              [class.text-dark]="filterType === 'EARNED'" [class.text-muted]="filterType !== 'EARNED'"
-              (click)="filterType = 'EARNED'">
+      <button class="btn btn-sm rounded-pill px-3 fw-600"
+              [class.bg-white]="filterType() === 'EARNED'" [class.shadow-sm]="filterType() === 'EARNED'"
+              [class.text-dark]="filterType() === 'EARNED'" [class.text-muted]="filterType() !== 'EARNED'"
+              (click)="filterType.set('EARNED')">
         Earned
       </button>
-      <button class="btn btn-sm rounded-pill px-3 fw-600" 
-              [class.bg-white]="filterType === 'LOCKED'" [class.shadow-sm]="filterType === 'LOCKED'"
-              [class.text-dark]="filterType === 'LOCKED'" [class.text-muted]="filterType !== 'LOCKED'"
-              (click)="filterType = 'LOCKED'">
+      <button class="btn btn-sm rounded-pill px-3 fw-600"
+              [class.bg-white]="filterType() === 'LOCKED'" [class.shadow-sm]="filterType() === 'LOCKED'"
+              [class.text-dark]="filterType() === 'LOCKED'" [class.text-muted]="filterType() !== 'LOCKED'"
+              (click)="filterType.set('LOCKED')">
         Locked
       </button>
-      <ng-container *ngIf="primaryCategory === 'GENERAL'">
+      <ng-container *ngIf="primaryCategory() === 'GENERAL'">
         <div class="vr mx-1 my-1"></div>
-        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1" 
-                [class.bg-white]="filterType === 'COMMON'" [class.shadow-sm]="filterType === 'COMMON'"
-                [class.text-dark]="filterType === 'COMMON'" [class.text-muted]="filterType !== 'COMMON'"
-                (click)="filterType = 'COMMON'">
+        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1"
+                [class.bg-white]="filterType() === 'COMMON'" [class.shadow-sm]="filterType() === 'COMMON'"
+                [class.text-dark]="filterType() === 'COMMON'" [class.text-muted]="filterType() !== 'COMMON'"
+                (click)="filterType.set('COMMON')">
           <span class="bg-orange rounded-circle d-inline-block" style="width:8px;height:8px;"></span> Common
         </button>
-        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1" 
-                [class.bg-white]="filterType === 'RARE'" [class.shadow-sm]="filterType === 'RARE'"
-                [class.text-dark]="filterType === 'RARE'" [class.text-muted]="filterType !== 'RARE'"
-                (click)="filterType = 'RARE'">
+        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1"
+                [class.bg-white]="filterType() === 'RARE'" [class.shadow-sm]="filterType() === 'RARE'"
+                [class.text-dark]="filterType() === 'RARE'" [class.text-muted]="filterType() !== 'RARE'"
+                (click)="filterType.set('RARE')">
           <span class="bg-slate-500 rounded-circle d-inline-block" style="width:8px;height:8px;"></span> Rare
         </button>
-        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1" 
-                [class.bg-white]="filterType === 'EPIC'" [class.shadow-sm]="filterType === 'EPIC'"
-                [class.text-dark]="filterType === 'EPIC'" [class.text-muted]="filterType !== 'EPIC'"
-                (click)="filterType = 'EPIC'">
+        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1"
+                [class.bg-white]="filterType() === 'EPIC'" [class.shadow-sm]="filterType() === 'EPIC'"
+                [class.text-dark]="filterType() === 'EPIC'" [class.text-muted]="filterType() !== 'EPIC'"
+                (click)="filterType.set('EPIC')">
           <span class="bg-yellow-600 rounded-circle d-inline-block" style="width:8px;height:8px;"></span> Epic
         </button>
-        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1" 
-                [class.bg-white]="filterType === 'LEGENDARY'" [class.shadow-sm]="filterType === 'LEGENDARY'"
-                [class.text-dark]="filterType === 'LEGENDARY'" [class.text-muted]="filterType !== 'LEGENDARY'"
-                (click)="filterType = 'LEGENDARY'">
+        <button class="btn btn-sm rounded-pill px-3 fw-600 d-flex align-items-center gap-1"
+                [class.bg-white]="filterType() === 'LEGENDARY'" [class.shadow-sm]="filterType() === 'LEGENDARY'"
+                [class.text-dark]="filterType() === 'LEGENDARY'" [class.text-muted]="filterType() !== 'LEGENDARY'"
+                (click)="filterType.set('LEGENDARY')">
           <span class="bg-cyan-600 rounded-circle d-inline-block" style="width:8px;height:8px;"></span> Legendary
         </button>
       </ng-container>
@@ -98,39 +98,39 @@
     <!-- Search Box -->
     <div class="search-box position-relative" style="min-width: 250px;">
       <svg class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" class="form-control form-control-premium ps-5 rounded-pill" placeholder="Search achievements..." [(ngModel)]="searchTerm">
+      <input type="text" class="form-control form-control-premium ps-5 rounded-pill" placeholder="Search achievements..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
     </div>
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading && primaryCategory !== 'GOAL'" class="row g-4">
+  <div *ngIf="isLoading() && primaryCategory() !== 'GOAL'" class="row g-4">
     <div class="col-12 col-md-6 col-lg-4" *ngFor="let i of [1,2,3,4,5,6]">
       <app-loading-skeleton type="card"></app-loading-skeleton>
     </div>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && filteredBadges.length === 0 && primaryCategory !== 'GOAL'" class="text-center py-5 my-5">
+  <div *ngIf="!isLoading() && filteredBadges().length === 0 && primaryCategory() !== 'GOAL'" class="text-center py-5 my-5">
     <div class="bg-surface rounded-circle d-inline-flex p-4 mb-3 shadow-sm">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
     </div>
     <h4 class="fw-bold text-dark">No achievements found</h4>
-    <p class="desc-light" *ngIf="primaryCategory === 'GENERAL'">No general achievements available yet.</p>
-    <p class="desc-light" *ngIf="primaryCategory === 'CHALLENGE'">No challenge achievements available yet. Complete challenges to unlock them.</p>
+    <p class="desc-light" *ngIf="primaryCategory() === 'GENERAL'">No general achievements available yet.</p>
+    <p class="desc-light" *ngIf="primaryCategory() === 'CHALLENGE'">No challenge achievements available yet. Complete challenges to unlock them.</p>
   </div>
 
   <!-- Badge Grid (General & Challenge) -->
-  <div *ngIf="!isLoading && filteredBadges.length > 0 && primaryCategory !== 'GOAL'" class="row g-4">
-    <div class="col-12 col-md-6 col-lg-4 animate-stagger-item" *ngFor="let badge of filteredBadges">
-      
-      <div class="card-premium h-100 p-4 d-flex flex-column position-relative cursor-pointer transition-all hover-shadow" 
+  <div *ngIf="!isLoading() && filteredBadges().length > 0 && primaryCategory() !== 'GOAL'" class="row g-4">
+    <div class="col-12 col-md-6 col-lg-4 animate-stagger-item" *ngFor="let badge of filteredBadges()">
+
+      <div class="card-premium h-100 p-4 d-flex flex-column position-relative cursor-pointer transition-all hover-shadow"
            [class.opacity-75]="!badge.isEarned"
            tabindex="0"
            role="button"
            [attr.aria-label]="badge.name + ' badge, ' + badge.rarity + ' rarity, ' + (badge.isEarned ? 'Earned' : 'Locked') + (badge.criteriaThreshold ? ', progress ' + (badge.currentValue || 0) + ' of ' + badge.criteriaThreshold : '')"
            (click)="openBadgeModal(badge)"
            (keydown.enter)="openBadgeModal(badge)">
-        
+
         <!-- Earned Ribbon -->
         <div *ngIf="badge.isEarned" class="position-absolute top-0 end-0 m-3 bg-emerald-light text-emerald text-uppercase fs-xs fw-bold px-2 py-1 rounded">
           Earned
@@ -158,10 +158,10 @@
             <span class="fs-xs fw-600 text-dark">{{ badge.currentValue || 0 }} / {{ badge.criteriaThreshold }}</span>
           </div>
           <div class="progress" style="height: 6px; background-color: #f1f5f9;">
-            <div class="progress-bar" 
+            <div class="progress-bar"
                  [ngClass]="getBadgeIconClass(badge.rarity, true).split(' ')[0]"
-                 role="progressbar" 
-                 [style.width.%]="getBadgeProgressPercent(badge)" 
+                 role="progressbar"
+                 [style.width.%]="getBadgeProgressPercent(badge)"
                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
             </div>
           </div>
@@ -181,7 +181,7 @@
           <div class="d-flex align-items-center gap-1" *ngIf="badge.type === 'CHALLENGE'">
             <!-- Empty div to push the date to the right if we use space-between -->
           </div>
-          
+
           <div *ngIf="badge.isEarned && badge.awardedAt">
             <span class="fs-xs fw-600 text-muted">{{ badge.awardedAt | date:'mediumDate' }}</span>
           </div>
@@ -199,15 +199,15 @@
   </div>
 
   <!-- Goal Achievements (Original Modal UI) -->
-  <div *ngIf="primaryCategory === 'GOAL'" class="mt-4">
-    <div *ngIf="isGoalsLoading" class="d-flex justify-content-center p-5">
+  <div *ngIf="primaryCategory() === 'GOAL'" class="mt-4">
+    <div *ngIf="isGoalsLoading()" class="d-flex justify-content-center p-5">
       <div class="spinner-border text-primary" role="status"></div>
     </div>
 
-    <div *ngIf="!isGoalsLoading">
+    <div *ngIf="!isGoalsLoading()">
 
       <!-- Empty State -->
-      <div *ngIf="goalAchievements.length === 0" class="text-center py-5 bg-white rounded-4 shadow-sm">
+      <div *ngIf="goalAchievements().length === 0" class="text-center py-5 bg-white rounded-4 shadow-sm">
         <div class="mb-3">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
         </div>
@@ -216,10 +216,10 @@
       </div>
 
       <!-- Summary Stats -->
-      <div *ngIf="goalAchievements.length > 0" class="row g-3 mb-4">
+      <div *ngIf="goalAchievements().length > 0" class="row g-3 mb-4">
         <div class="col-4">
           <div class="card-premium p-3 text-center h-100 shadow-sm border-0 bg-white">
-            <div class="fs-3 fw-bold text-success">{{ goalAchievements.length }}</div>
+            <div class="fs-3 fw-bold text-success">{{ goalAchievements().length }}</div>
             <div class="fs-8 text-muted fw-bold text-uppercase">Achievements</div>
           </div>
         </div>
@@ -238,8 +238,8 @@
       </div>
 
       <!-- Achievement Cards -->
-      <div *ngIf="goalAchievements.length > 0">
-        <div *ngFor="let goal of paginatedGoalAchievements; let i = index" class="card-premium p-0 mb-3 border-0 shadow-sm overflow-hidden bg-white">
+      <div *ngIf="goalAchievements().length > 0">
+        <div *ngFor="let goal of paginatedGoalAchievements(); let i = index" class="card-premium p-0 mb-3 border-0 shadow-sm overflow-hidden bg-white">
           <!-- Achievement Header -->
           <div class="d-flex align-items-center gap-3 p-3 border-bottom border-color">
             <div class="bg-warning bg-opacity-10 rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; min-width: 40px;">
@@ -287,31 +287,31 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
                 Target: {{ goal.targetDate | date:'mediumDate' }}
               </span>
-              <span *ngIf="goalXpMap[goal.id]" class="badge bg-emerald-light text-emerald border border-emerald-light rounded-pill px-2 py-1 fs-8 fw-bold d-flex align-items-center gap-1">
+              <span *ngIf="goalXpMap()[goal.id]" class="badge bg-emerald-light text-emerald border border-emerald-light rounded-pill px-2 py-1 fs-8 fw-bold d-flex align-items-center gap-1">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                +{{ goalXpMap[goal.id] }} XP
+                +{{ goalXpMap()[goal.id] }} XP
               </span>
-              <span *ngIf="!goalXpMap[goal.id] && goal.status === 'ACHIEVED'" class="badge bg-light text-muted border rounded-pill px-2 py-1 fs-8 d-flex align-items-center gap-1">
+              <span *ngIf="!goalXpMap()[goal.id] && goal.status === 'ACHIEVED'" class="badge bg-light text-muted border rounded-pill px-2 py-1 fs-8 d-flex align-items-center gap-1">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 Completed
               </span>
             </div>
 
             <!-- Show History Toggle Button -->
-            <div *ngIf="achievementAnalyticsMap[goal.id]?.history?.length" class="mt-3 pt-3 border-top border-color">
-              <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 fs-8 fw-bold d-flex align-items-center gap-2 w-100 justify-content-center" 
+            <div *ngIf="achievementAnalyticsMap()[goal.id]?.history?.length" class="mt-3 pt-3 border-top border-color">
+              <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 fs-8 fw-bold d-flex align-items-center gap-2 w-100 justify-content-center"
                       style="transition: all 0.3s ease;"
                       (click)="toggleAchievementHistory(goal.id)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
-                {{ expandedAchievementId === goal.id ? 'Hide History' : 'Show History' }}
-                <span class="badge bg-light text-muted border fs-8">{{ achievementAnalyticsMap[goal.id].history.length }}</span>
-                <svg *ngIf="expandedAchievementId !== goal.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
-                <svg *ngIf="expandedAchievementId === goal.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                {{ expandedAchievementId() === goal.id ? 'Hide History' : 'Show History' }}
+                <span class="badge bg-light text-muted border fs-8">{{ achievementAnalyticsMap()[goal.id].history.length }}</span>
+                <svg *ngIf="expandedAchievementId() !== goal.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                <svg *ngIf="expandedAchievementId() === goal.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
               </button>
 
               <!-- Expandable History -->
-              <div *ngIf="expandedAchievementId === goal.id" class="d-flex flex-column gap-2 mt-3" style="animation: fadeIn 0.3s ease;">
-                <div *ngFor="let item of achievementAnalyticsMap[goal.id].history.slice().reverse()" class="d-flex align-items-center gap-2 bg-light rounded-3 px-3 py-2">
+              <div *ngIf="expandedAchievementId() === goal.id" class="d-flex flex-column gap-2 mt-3" style="animation: fadeIn 0.3s ease;">
+                <div *ngFor="let item of achievementAnalyticsMap()[goal.id].history.slice().reverse()" class="d-flex align-items-center gap-2 bg-light rounded-3 px-3 py-2">
                   <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; min-width: 24px;"
                        [ngClass]="item.type === 'AUTOMATIC' ? 'bg-primary-subtle text-primary' : 'bg-secondary-subtle text-secondary'">
                     <svg *ngIf="item.type === 'AUTOMATIC'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -329,18 +329,18 @@
         </div>
 
         <!-- Achievements Pagination -->
-        <div *ngIf="goalAchievements.length > achievementsPageSize" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-color">
-          <span class="fs-8 text-muted">Showing {{ achievementsPageStart + 1 }}–{{ achievementsPageEnd }} of {{ goalAchievements.length }}</span>
+        <div *ngIf="goalAchievements().length > achievementsPageSize()" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-color">
+          <span class="fs-8 text-muted">Showing {{ achievementsPageStart() + 1 }}–{{ achievementsPageEnd() }} of {{ goalAchievements().length }}</span>
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1" 
-                    [disabled]="achievementsPage === 0"
-                    (click)="achievementsPage = achievementsPage - 1">
+            <button class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1"
+                    [disabled]="achievementsPage() === 0"
+                    (click)="achievementsPage.set(achievementsPage() - 1)">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
               Previous
             </button>
-            <button class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1" 
-                    [disabled]="achievementsPageEnd >= goalAchievements.length"
-                    (click)="achievementsPage = achievementsPage + 1">
+            <button class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-bold d-flex align-items-center gap-1"
+                    [disabled]="achievementsPageEnd() >= goalAchievements().length"
+                    (click)="achievementsPage.set(achievementsPage() + 1)">
               Next
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
             </button>
@@ -353,63 +353,63 @@
 </div>
 
 <!-- Badge Detail Modal -->
-<div *ngIf="selectedBadge" class="modal-backdrop fade show" style="background-color: rgba(0,0,0,0.5); z-index: 1040;" (click)="closeBadgeModal()"></div>
-<div *ngIf="selectedBadge" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="badgeModalLabel" style="z-index: 1050;" (keydown.escape)="closeBadgeModal()">
+<div *ngIf="selectedBadge()" class="modal-backdrop fade show" style="background-color: rgba(0,0,0,0.5); z-index: 1040;" (click)="closeBadgeModal()"></div>
+<div *ngIf="selectedBadge()" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="badgeModalLabel" style="z-index: 1050;" (keydown.escape)="closeBadgeModal()">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
-      
+
       <!-- Modal Header / Banner -->
       <div class="position-relative p-4 text-center">
         <button type="button" class="btn-close position-absolute top-0 end-0 m-3" (click)="closeBadgeModal()" aria-label="Close"></button>
         <div class="mb-3 d-flex justify-content-center">
-          <app-badge-emblem [badge]="selectedBadge" [size]="120" [showStatusOverlay]="true"></app-badge-emblem>
-        </div>  
+          <app-badge-emblem [badge]="selectedBadge()!" [size]="120" [showStatusOverlay]="true"></app-badge-emblem>
+        </div>
       </div>
-      
-      <h3 class="fw-bold mb-1 text-center" id="badgeModalLabel" [ngClass]="selectedBadge.type === 'CHALLENGE' && selectedBadge.color ? ('text-' + selectedBadge.color) : getBadgeIconClass(selectedBadge.rarity, selectedBadge.isEarned).split(' ')[1]">{{ selectedBadge.name }}</h3>
+
+      <h3 class="fw-bold mb-1 text-center" id="badgeModalLabel" [ngClass]="selectedBadge()?.type === 'CHALLENGE' && selectedBadge()?.color ? ('text-' + selectedBadge()?.color) : getBadgeIconClass(selectedBadge()?.rarity || 'COMMON', selectedBadge()?.isEarned || false).split(' ')[1]">{{ selectedBadge()?.name }}</h3>
       <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
-        <span class="badge border bg-white opacity-75 text-dark text-uppercase fs-xs tracking-wide">{{ selectedBadge.category }}</span>
-        <span *ngIf="selectedBadge.type !== 'CHALLENGE'" class="fw-bold fs-xs text-uppercase" [ngClass]="getBadgeIconClass(selectedBadge.rarity, selectedBadge.isEarned).split(' ')[1]">{{ selectedBadge.rarity }}</span>
+        <span class="badge border bg-white opacity-75 text-dark text-uppercase fs-xs tracking-wide">{{ selectedBadge()?.category }}</span>
+        <span *ngIf="selectedBadge()?.type !== 'CHALLENGE'" class="fw-bold fs-xs text-uppercase" [ngClass]="getBadgeIconClass(selectedBadge()?.rarity || 'COMMON', selectedBadge()?.isEarned || false).split(' ')[1]">{{ selectedBadge()?.rarity }}</span>
       </div>
-      
+
       <!-- Modal Body -->
       <div class="modal-body p-4 bg-white">
-        <p class="desc-light text-center mb-4 fs-6">{{ selectedBadge.description }}</p>
-        
+        <p class="desc-light text-center mb-4 fs-6">{{ selectedBadge()?.description }}</p>
+
         <div class="card bg-surface border-0 rounded-3 p-3 mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fs-sm fw-600 text-muted">Status</span>
-            <span *ngIf="selectedBadge.isEarned" class="badge bg-emerald-light text-emerald fw-bold px-2 py-1">Unlocked</span>
-            <span *ngIf="!selectedBadge.isEarned" class="badge bg-light text-secondary fw-bold px-2 py-1"><svg width="12" height="12" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Locked</span>
+            <span *ngIf="selectedBadge()?.isEarned" class="badge bg-emerald-light text-emerald fw-bold px-2 py-1">Unlocked</span>
+            <span *ngIf="!selectedBadge()?.isEarned" class="badge bg-light text-secondary fw-bold px-2 py-1"><svg width="12" height="12" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Locked</span>
           </div>
-          
-          <div class="d-flex justify-content-between align-items-center" [class.mb-2]="selectedBadge.type !== 'CHALLENGE'" *ngIf="selectedBadge.isEarned && selectedBadge.awardedAt">
+
+          <div class="d-flex justify-content-between align-items-center" [class.mb-2]="selectedBadge()?.type !== 'CHALLENGE'" *ngIf="selectedBadge()?.isEarned && selectedBadge()?.awardedAt">
             <span class="fs-sm fw-600 text-muted">Earned On</span>
-            <span class="fs-sm fw-bold text-dark">{{ selectedBadge.awardedAt | date:'mediumDate' }}</span>
+            <span class="fs-sm fw-bold text-dark">{{ selectedBadge()?.awardedAt | date:'mediumDate' }}</span>
           </div>
-          
-          <div class="d-flex justify-content-between align-items-center" *ngIf="selectedBadge.type !== 'CHALLENGE'">
+
+          <div class="d-flex justify-content-between align-items-center" *ngIf="selectedBadge()?.type !== 'CHALLENGE'">
             <span class="fs-sm fw-600 text-muted">Reward</span>
-            <span class="fs-sm fw-bold text-orange">+{{ selectedBadge.xpReward || 0 }} XP</span>
+            <span class="fs-sm fw-bold text-orange">+{{ selectedBadge()?.xpReward || 0 }} XP</span>
           </div>
         </div>
-        
-        <div *ngIf="selectedBadge.type !== 'CHALLENGE' && selectedBadge.criteriaThreshold && selectedBadge.criteriaThreshold > 0">
+
+        <div *ngIf="selectedBadge()?.type !== 'CHALLENGE' && selectedBadge()?.criteriaThreshold && (selectedBadge()?.criteriaThreshold || 0) > 0">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="fs-xs fw-600 text-muted">Progress</span>
-            <span class="fs-xs fw-600 text-dark">{{ selectedBadge.currentValue || 0 }} / {{ selectedBadge.criteriaThreshold }}</span>
+            <span class="fs-xs fw-600 text-dark">{{ selectedBadge()?.currentValue || 0 }} / {{ selectedBadge()?.criteriaThreshold }}</span>
           </div>
           <div class="progress" style="height: 8px; background-color: #f1f5f9;">
-            <div class="progress-bar" 
-                 [ngClass]="getBadgeIconClass(selectedBadge.rarity, true).split(' ')[0]"
-                 role="progressbar" 
-                 [style.width.%]="getBadgeProgressPercent(selectedBadge)" 
+            <div class="progress-bar"
+                 [ngClass]="getBadgeIconClass(selectedBadge()?.rarity || 'COMMON', true).split(' ')[0]"
+                 role="progressbar"
+                 [style.width.%]="getBadgeProgressPercent(selectedBadge()!)"
                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
             </div>
           </div>
         </div>
 
-        <div *ngIf="!selectedBadge.isEarned && selectedBadge.type === 'CHALLENGE'" class="text-center mt-3">
+        <div *ngIf="!selectedBadge()?.isEarned && selectedBadge()?.type === 'CHALLENGE'" class="text-center mt-3">
           <p class="text-muted fs-sm fw-600 mb-0">Complete the challenge to unlock this badge.</p>
         </div>
 

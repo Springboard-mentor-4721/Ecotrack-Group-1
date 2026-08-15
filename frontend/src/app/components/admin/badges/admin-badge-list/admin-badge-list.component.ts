@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminService } from '../../../../services/admin.service';
 import { AdminBadge, BadgeDefinitionRequest } from '../../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
-import { ChangeDetectorRef } from '@angular/core';
+
 import { LucideAngularModule, Edit, EyeOff, Plus, Award, Target } from 'lucide-angular';
 
 declare var bootstrap: any;
@@ -17,20 +17,20 @@ declare var bootstrap: any;
   styleUrls: ['./admin-badge-list.component.css']
 })
 export class AdminBadgeListComponent implements OnInit {
-  badges: AdminBadge[] = [];
-  isLoading = false;
-  isSaving = false;
-  errorMessage = '';
-  successMessage = '';
+  badges = signal<AdminBadge[]>([]);
+  isLoading = signal<boolean>(false);
+  isSaving = signal<boolean>(false);
+  errorMessage = signal<string>('');
+  successMessage = signal<string>('');
 
   // Pagination
-  currentPage = 0;
-  pageSize = 10;
-  totalPages = 0;
-  totalElements = 0;
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(10);
+  totalPages = signal<number>(0);
+  totalElements = signal<number>(0);
 
   // Tabs
-  activeTab: 'GENERIC' | 'CHALLENGE' = 'GENERIC';
+  activeTab = signal<'GENERIC' | 'CHALLENGE'>('GENERIC');
 
   // Icons
   EditIcon = Edit;
@@ -41,14 +41,13 @@ export class AdminBadgeListComponent implements OnInit {
 
   // Modal and Form
   badgeForm: FormGroup;
-  isEditing = false;
-  currentBadgeId: number | null = null;
+  isEditing = signal<boolean>(false);
+  currentBadgeId = signal<number | null>(null);
   badgeModal: any;
 
   constructor(
     private adminService: AdminService,
-    private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
+    private fb: FormBuilder
   ) {
     this.badgeForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -94,7 +93,7 @@ export class AdminBadgeListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadBadges(this.currentPage);
+    this.loadBadges(this.currentPage());
   }
 
   ngAfterViewInit(): void {
@@ -105,53 +104,50 @@ export class AdminBadgeListComponent implements OnInit {
   }
 
   setTab(tab: 'GENERIC' | 'CHALLENGE'): void {
-    this.activeTab = tab;
-    this.currentPage = 0;
-    this.loadBadges(this.currentPage);
+    this.activeTab.set(tab);
+    this.currentPage.set(0);
+    this.loadBadges(0);
   }
 
   loadBadges(page: number): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     
-    this.adminService.getAdminBadges(page, this.pageSize, this.activeTab)
+    this.adminService.getAdminBadges(page, this.pageSize(), this.activeTab())
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       }))
       .subscribe({
         next: (response) => {
-          this.badges = response.content;
-          this.currentPage = response.number;
-          this.totalPages = response.totalPages;
-          this.totalElements = response.totalElements;
-          this.cdr.detectChanges();
+          this.badges.set(response.content);
+          this.currentPage.set(response.number);
+          this.totalPages.set(response.totalPages);
+          this.totalElements.set(response.totalElements);
         },
         error: (err) => {
-          this.errorMessage = 'Failed to load badges.';
+          this.errorMessage.set('Failed to load badges.');
           console.error(err);
-          this.cdr.detectChanges();
         }
       });
   }
 
   onPageChange(newPage: number): void {
-    if (newPage >= 0 && newPage < this.totalPages) {
+    if (newPage >= 0 && newPage < this.totalPages()) {
       this.loadBadges(newPage);
     }
   }
 
   openCreateModal(): void {
-    this.isEditing = false;
-    this.currentBadgeId = null;
-    this.badgeForm.reset({ type: this.activeTab, isHidden: false, isRepeatable: false, criteriaThreshold: 1 });
-    this.updateValidators(this.activeTab);
+    this.isEditing.set(false);
+    this.currentBadgeId.set(null);
+    this.badgeForm.reset({ type: this.activeTab(), isHidden: false, isRepeatable: false, criteriaThreshold: 1 });
+    this.updateValidators(this.activeTab());
     this.badgeModal.show();
   }
 
   openEditModal(badge: AdminBadge): void {
-    this.isEditing = true;
-    this.currentBadgeId = badge.id;
+    this.isEditing.set(true);
+    this.currentBadgeId.set(badge.id);
     
     this.badgeForm.patchValue({
       name: badge.name,
@@ -184,29 +180,27 @@ export class AdminBadgeListComponent implements OnInit {
       return;
     }
 
-    this.isSaving = true;
-    this.errorMessage = '';
+    this.isSaving.set(true);
+    this.errorMessage.set('');
     
     const request: BadgeDefinitionRequest = this.badgeForm.value;
 
-    const saveObs = this.isEditing && this.currentBadgeId
-      ? this.adminService.updateBadge(this.currentBadgeId, request)
+    const saveObs = this.isEditing() && this.currentBadgeId()
+      ? this.adminService.updateBadge(this.currentBadgeId()!, request)
       : this.adminService.createBadge(request);
 
-    saveObs.pipe(finalize(() => this.isSaving = false)).subscribe({
+    saveObs.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: () => {
-        this.successMessage = `Badge successfully ${this.isEditing ? 'updated' : 'created'}.`;
+        this.successMessage.set(`Badge successfully ${this.isEditing() ? 'updated' : 'created'}.`);
         this.closeModal();
-        this.loadBadges(this.currentPage);
+        this.loadBadges(this.currentPage());
         setTimeout(() => {
-          this.successMessage = '';
-          this.cdr.detectChanges();
+          this.successMessage.set('');
         }, 3000);
       },
       error: (err) => {
         console.error('Error saving badge:', err);
-        this.errorMessage = 'Failed to save badge. Please check your inputs.';
-        this.cdr.detectChanges();
+        this.errorMessage.set('Failed to save badge. Please check your inputs.');
       }
     });
   }
@@ -215,21 +209,17 @@ export class AdminBadgeListComponent implements OnInit {
     if (confirm('Are you sure you want to disable this badge? Users will no longer be able to earn it.')) {
       this.adminService.disableBadge(id).subscribe({
         next: () => {
-          this.successMessage = 'Badge successfully disabled.';
-          this.cdr.detectChanges();
-          this.loadBadges(this.currentPage);
+          this.successMessage.set('Badge successfully disabled.');
+          this.loadBadges(this.currentPage());
           setTimeout(() => {
-            this.successMessage = '';
-            this.cdr.detectChanges();
+            this.successMessage.set('');
           }, 3000);
         },
         error: (err) => {
           console.error('Error disabling badge:', err);
-          this.errorMessage = 'Failed to disable badge.';
-          this.cdr.detectChanges();
+          this.errorMessage.set('Failed to disable badge.');
           setTimeout(() => {
-            this.errorMessage = '';
-            this.cdr.detectChanges();
+            this.errorMessage.set('');
           }, 3000);
         }
       });

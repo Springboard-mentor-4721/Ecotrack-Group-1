@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -15,11 +15,11 @@ import { environment } from '../../../environments/environment';
 })
 export class LoginComponent implements AfterViewInit, OnDestroy {
   loginForm: FormGroup;
-  errorMessage = '';
-  loading = false;
-  forgotPasswordMode = false;
-  forgotPasswordMessage = '';
-  showPassword = false;
+  errorMessage = signal('');
+  loading = signal(false);
+  forgotPasswordMode = signal(false);
+  forgotPasswordMessage = signal('');
+  showPassword = signal(false);
 
   // Animation state
   private mouseX = 0;
@@ -32,8 +32,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private fb: FormBuilder,
     private authService: AuthService,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private cdr: ChangeDetectorRef
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -102,7 +101,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
   togglePasswordVisibility(event: Event) {
     event.preventDefault();
-    this.showPassword = !this.showPassword;
+    this.showPassword.set(!this.showPassword());
   }
 
   login() {
@@ -112,32 +111,31 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     const emailControl = this.loginForm.get('email');
     if (emailControl?.value) emailControl.setValue(emailControl.value.trim().toLowerCase());
     
-    if (this.forgotPasswordMode) {
+    if (this.forgotPasswordMode()) {
       if (emailControl?.invalid) return;
-      this.loading = true;
+      this.loading.set(true);
       this.authService.forgotPassword(emailControl?.value)
         .pipe(
           finalize(() => {
-            this.loading = false;
-            this.cdr.detectChanges();
+            this.loading.set(false);
           })
         )
         .subscribe({
           next: (res: any) => {
-            this.forgotPasswordMessage = res?.message || 'Password reset link sent to your email.';
-            this.errorMessage = '';
+            this.forgotPasswordMessage.set(res?.message || 'Password reset link sent to your email.');
+            this.errorMessage.set('');
           },
           error: (err) => {
-            this.forgotPasswordMessage = '';
+            this.forgotPasswordMessage.set('');
             if (err.status === 200) {
               // Edge case: Backend returned plain text success message, caught as JSON parsing error
-              this.forgotPasswordMessage = 'Password reset link sent to your email.';
-              this.errorMessage = '';
-            } else if (err.status === 0) this.errorMessage = 'Network error. Please check your internet connection.';
-            else if (err.status === 400) this.errorMessage = err.error?.message || 'Invalid email format.';
-            else if (err.status === 404) this.errorMessage = 'Email address not found.';
-            else if (err.status === 500) this.errorMessage = 'Unexpected server error. Please try again later.';
-            else this.errorMessage = err.error?.message || 'Failed to send reset link.';
+              this.forgotPasswordMessage.set('Password reset link sent to your email.');
+              this.errorMessage.set('');
+            } else if (err.status === 0) this.errorMessage.set('Network error. Please check your internet connection.');
+            else if (err.status === 400) this.errorMessage.set(err.error?.message || 'Invalid email format.');
+            else if (err.status === 404) this.errorMessage.set('Email address not found.');
+            else if (err.status === 500) this.errorMessage.set('Unexpected server error. Please try again later.');
+            else this.errorMessage.set(err.error?.message || 'Failed to send reset link.');
           }
         });
       return;
@@ -145,14 +143,13 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
     if (this.loginForm.invalid) return;
 
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.authService.login(this.loginForm.value)
       .pipe(
         finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
+          this.loading.set(false);
         })
       )
       .subscribe({
@@ -172,15 +169,15 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
         },
         error: (err) => {
           if (err.status === 0) {
-            this.errorMessage = 'Network error. Please check your internet connection.';
+            this.errorMessage.set('Network error. Please check your internet connection.');
           } else if (err.status === 401 || err.status === 403) {
-            this.errorMessage = 'Invalid email or password.';
+            this.errorMessage.set('Invalid email or password.');
           } else if (err.status === 400) {
-            this.errorMessage = err.error?.message || 'Validation error.';
+            this.errorMessage.set(err.error?.message || 'Validation error.');
           } else if (err.status === 500) {
-            this.errorMessage = 'Unexpected server error. Please try again later.';
+            this.errorMessage.set('Unexpected server error. Please try again later.');
           } else {
-            this.errorMessage = err.error?.message || 'Invalid credentials.';
+            this.errorMessage.set(err.error?.message || 'Invalid credentials.');
           }
         }
       });
@@ -192,10 +189,10 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
   toggleForgotPassword(event: Event) {
     event.preventDefault();
-    this.forgotPasswordMode = !this.forgotPasswordMode;
-    this.errorMessage = '';
-    this.forgotPasswordMessage = '';
-    if (this.forgotPasswordMode) {
+    this.forgotPasswordMode.set(!this.forgotPasswordMode());
+    this.errorMessage.set('');
+    this.forgotPasswordMessage.set('');
+    if (this.forgotPasswordMode()) {
       this.loginForm.get('password')?.clearValidators();
     } else {
       this.loginForm.get('password')?.setValidators(Validators.required);

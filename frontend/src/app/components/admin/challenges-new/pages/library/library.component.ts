@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, computed, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, computed  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -77,7 +77,7 @@ import { environment } from '../../../../../../environments/environment';
             <span class="material-icons">search</span>
             <input type="text" [formControl]="searchControl" placeholder="Search challenges..." />
           </div>
-          
+
           <!-- Category Dropdown -->
           <div class="action-dropdown-container" style="min-width: 170px;">
             <div class="filter-dropdown" (click)="showCategoryDropdown = !showCategoryDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
@@ -133,12 +133,12 @@ import { environment } from '../../../../../../environments/environment';
               <button class="dropdown-item" [class.active-item]="sortControl.value === 'z-a'" (click)="sortControl.setValue('z-a'); showSortDropdown = false">Sort: Z-A</button>
             </div>
           </div>
-          
+
           <button class="btn btn-outline" style="border-color: #cbd5e1; color: #64748b;" (click)="clearFilters()">
             <span class="material-icons" style="font-size: 1.1rem;">filter_alt_off</span> Clear Filters
           </button>
         </div>
-        
+
       </div>
 
       <div class="tabs" style="align-items: center; padding-bottom: 4px;">
@@ -163,7 +163,7 @@ import { environment } from '../../../../../../environments/environment';
         <app-loading-skeleton *ngIf="loading() && !apiError()" type="table"></app-loading-skeleton>
 
         <ng-container *ngIf="!loading() && !apiError()">
-          <app-empty-state 
+          <app-empty-state
             *ngIf="challenges().length === 0"
             title="No Challenges Found"
             description="No Challenges match your current filters. Adjust your search or create a new challenge."
@@ -177,8 +177,8 @@ import { environment } from '../../../../../../environments/environment';
                 <thead>
                   <tr>
                     <th style="width: 40px; padding-right: 0" *ngIf="selectionMode()">
-                      <input type="checkbox" class="custom-checkbox" 
-                        [checked]="isAllSelected()" 
+                      <input type="checkbox" class="custom-checkbox"
+                        [checked]="isAllSelected()"
                         (change)="toggleAll($event)" />
                     </th>
                     <th style="text-align: center;">Challenge</th>
@@ -198,8 +198,8 @@ import { environment } from '../../../../../../environments/environment';
                   <ng-container *ngFor="let c of challenges(); trackBy: trackById">
                     <tr [class.archived]="c.status === 'ARCHIVED'" [class.expanded]="expandedRowId() === c.id" (click)="viewChallenge(c.id)" (dblclick)="onRowDoubleClick(c.id, $event)">
                       <td style="padding-right: 0" *ngIf="selectionMode()">
-                        <input type="checkbox" class="custom-checkbox" 
-                          [checked]="selectedIds().has(c.id)" 
+                        <input type="checkbox" class="custom-checkbox"
+                          [checked]="selectedIds().has(c.id)"
                           (click)="$event.stopPropagation()"
                           (change)="toggleSelection(c.id)" />
                       </td>
@@ -313,7 +313,7 @@ import { environment } from '../../../../../../environments/environment';
           </div>
         </ng-container>
 
-        <app-bulk-action-bar 
+        <app-bulk-action-bar
           *ngIf="selectedIds().size > 0"
           [selectedCount]="selectedIds().size"
           [showApprove]="showBulkApprove()"
@@ -364,10 +364,10 @@ import { environment } from '../../../../../../environments/environment';
     @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    
+
     .stat-card {
       background: white; border-radius: 12px; padding: 1.5rem 1.25rem;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); 
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
       border: 1px solid #e2e8f0;
       display: flex; flex-direction: column; gap: 0.5rem;
       align-items: center; text-align: center;
@@ -503,7 +503,7 @@ import { environment } from '../../../../../../environments/environment';
       background: transparent;
     }
     .dropdown-item .material-icons { font-size: 1.25rem; color: #64748b; }
-    
+
     /* Make table scrollable if it still exceeds screen width */
     .table-responsive { width: 100%; overflow: visible !important; }
   `]
@@ -523,7 +523,7 @@ export class LibraryComponent implements OnInit {
   showPageSizeDropdown = false;
 
   private destroyRef = inject(DestroyRef);
-  private cdr = inject(ChangeDetectorRef);
+
 
   challenges = signal<Challenge[]>([]);
   stats = signal<ChallengeStats | null>(null);
@@ -532,7 +532,7 @@ export class LibraryComponent implements OnInit {
   expandedRowId = signal<number | null>(null);
   activeActionMenuId = signal<number | null>(null);
   selectionMode = signal<boolean>(false);
-  
+
   currentPage = signal<number>(0);
   totalPages = signal<number>(0);
   totalElements = signal<number>(0);
@@ -650,7 +650,7 @@ export class LibraryComponent implements OnInit {
         this.totalPages.set(res.totalPages);
         this.totalElements.set(res.totalElements);
         this.clearSelection();
-        this.cdr.markForCheck();
+
       }
     });
   }
@@ -788,11 +788,11 @@ export class LibraryComponent implements OnInit {
       }
       this.clearSelection();
       this.refresh();
-      this.cdr.markForCheck();
+
     },
     error: () => {
       this.toast.error('Bulk action failed.');
-      this.cdr.markForCheck();
+
     }
     });
   }
@@ -807,11 +807,11 @@ export class LibraryComponent implements OnInit {
       }
       this.clearSelection();
       this.refresh();
-      this.cdr.markForCheck();
+
     },
     error: () => {
       this.toast.error('Bulk archive failed.');
-      this.cdr.markForCheck();
+
     }
     });
   }
@@ -850,7 +850,7 @@ export class LibraryComponent implements OnInit {
     this.challengeService.getChallengeDetail(id).subscribe({
       next: (challenge) => {
         const duplicateData = this.challengeService.buildDuplicatePayload(challenge);
-        this.router.navigate(['/admin/challenges/create/wizard'], { 
+        this.router.navigate(['/admin/challenges/create/wizard'], {
           state: { duplicateData, originalName: challenge.title }
         });
       },
@@ -871,12 +871,12 @@ export class LibraryComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge "${c.title}" approved.`);
             this.refresh();
-            this.cdr.markForCheck();
+
           },
           error: (err) => {
             const msg = err.error?.message || 'Failed to approve challenge.';
             this.toast.error(msg);
-            this.cdr.markForCheck();
+
           }
         });
       }
@@ -891,12 +891,12 @@ export class LibraryComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge "${c.title}" rejected.`);
             this.refresh();
-            this.cdr.markForCheck();
+
           },
           error: (err) => {
             const msg = err.error?.message || 'Failed to reject challenge.';
             this.toast.error(msg);
-            this.cdr.markForCheck();
+
           }
         });
       }
@@ -911,11 +911,11 @@ export class LibraryComponent implements OnInit {
           next: () => {
             this.toast.success(`Challenge "${c.title}" archived.`);
             this.refresh();
-            this.cdr.markForCheck();
+
           },
           error: () => {
             this.toast.error('Failed to archive challenge.');
-            this.cdr.markForCheck();
+
           }
         });
       }

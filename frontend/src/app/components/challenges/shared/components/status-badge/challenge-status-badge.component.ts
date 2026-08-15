@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChallengeStatusLabelPipe } from '../../pipes/challenge-status-label.pipe';
-import { LucideAngularModule, Circle, ShieldCheck, ShieldAlert, CheckCircle, XCircle, MinusCircle, Clock, Archive } from 'lucide-angular';
+import { LucideAngularModule, Circle, ShieldCheck, ShieldAlert, CircleCheck, XCircle, MinusCircle, Clock, Archive } from 'lucide-angular';
 
 @Component({
   selector: 'app-challenge-status-badge',
@@ -16,7 +16,7 @@ export class ChallengeStatusBadgeComponent {
   @Input() overlay: boolean = false;
 
   readonly icons = {
-    Circle, ShieldCheck, ShieldAlert, CheckCircle, XCircle, MinusCircle, Clock, Archive
+    Circle, ShieldCheck, ShieldAlert, CircleCheck, XCircle, MinusCircle, Clock, Archive
   };
 
   get badgeClass(): string {
@@ -44,7 +44,7 @@ export class ChallengeStatusBadgeComponent {
       case 'ACTIVE': return null;
       case 'WITHIN_BUDGET': return this.icons.ShieldCheck;
       case 'EXCEEDED': return this.icons.ShieldAlert;
-      case 'COMPLETED': return this.icons.CheckCircle;
+      case 'COMPLETED': return this.icons.CircleCheck;
       case 'FAILED': return this.icons.XCircle;
       case 'DROPPED': return this.icons.MinusCircle;
       case 'UPCOMING':

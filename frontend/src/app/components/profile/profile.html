@@ -41,7 +41,7 @@
 </div>
 
 <div class="page-container profile-page animate-page">
-  <div *ngIf="isLoading && !profile" class="animate-page">
+  <div *ngIf="isLoading() && !profile()" class="animate-page">
     <div class="row"><div class="col-12 mb-4"><app-loading-skeleton type="card"></app-loading-skeleton></div></div>
     <div class="row">
       <div class="col-lg-8 mb-4"><app-loading-skeleton type="card"></app-loading-skeleton></div>
@@ -49,24 +49,24 @@
     </div>
   </div>
 
-  <ng-container *ngIf="profile">
+  <ng-container *ngIf="profile() as profile">
     <div class="toast-container">
-      <div *ngIf="successMessage" class="premium-alert success-alert" aria-live="polite">
+      <div *ngIf="successMessage()" class="premium-alert success-alert" aria-live="polite">
         <div class="alert-icon text-emerald">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
         </div>
         <div class="alert-content">
           <h5 class="alert-title m-0 fs-6 fw-bold text-dark">Success</h5>
-          <p class="alert-desc m-0 fs-7 text-muted">{{ successMessage }}</p>
+          <p class="alert-desc m-0 fs-7 text-muted">{{ successMessage() }}</p>
         </div>
       </div>
-      <div *ngIf="errorMessage" class="premium-alert error-alert" aria-live="assertive">
+      <div *ngIf="errorMessage()" class="premium-alert error-alert" aria-live="assertive">
         <div class="alert-icon text-danger">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         </div>
         <div class="alert-content">
           <h5 class="alert-title m-0 fs-6 fw-bold text-dark">Error</h5>
-          <p class="alert-desc m-0 fs-7 text-muted">{{ errorMessage }}</p>
+          <p class="alert-desc m-0 fs-7 text-muted">{{ errorMessage() }}</p>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@
     <!-- ===============================
          SECTION 1: GAMIFICATION HERO
          =============================== -->
-    <div class="gamification-hero premium-card animate-stagger-item mb-4" *ngIf="gamificationProfile">
+    <div class="gamification-hero premium-card animate-stagger-item mb-4" *ngIf="gamificationProfile() as gamificationProfile">
       <div class="hero-layout">
         <!-- AVATAR -->
         <div class="hero-avatar">
@@ -87,7 +87,7 @@
                  (dragover)="onDragOver($event)" 
                  (dragleave)="onDragLeave($event)" 
                  (drop)="onDrop($event)"
-                 [class.dragging]="isDragging"
+                 [class.dragging]="isDragging()"
                  aria-label="Upload profile picture">
               <img 
                 *ngIf="imagePreviewUrl || profile.profilePictureUrl" 
@@ -95,8 +95,8 @@
                 (error)="profile.profilePictureUrl = undefined"
                 alt="Profile Avatar" 
                 class="profile-avatar"
-                [class.loading]="isUploading">
-              <div *ngIf="!imagePreviewUrl && !profile.profilePictureUrl" class="profile-avatar-placeholder bg-emerald-light text-emerald fw-bold" [class.loading]="isUploading">
+                [class.loading]="isUploading()">
+              <div *ngIf="!imagePreviewUrl && !profile.profilePictureUrl" class="profile-avatar-placeholder bg-emerald-light text-emerald fw-bold" [class.loading]="isUploading()">
                 {{ profile.name.substring(0, 2).toUpperCase() }}
               </div>
               <div class="avatar-upload-overlay rounded-circle">
@@ -178,7 +178,7 @@
       <div class="col-lg-8 d-flex flex-column gap-4">
         
         <!-- BADGE SHOWCASE -->
-        <div class="premium-card animate-stagger-item" *ngIf="gamificationProfile">
+        <div class="premium-card animate-stagger-item" *ngIf="gamificationProfile() as gamificationProfile">
           <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <div>
               <h4 class="section-title text-dark m-0">Badge Showcase</h4>
@@ -190,8 +190,8 @@
             </a>
           </div>
 
-          <div class="row g-3" *ngIf="recentBadges.length > 0">
-            <div class="col-md-3 col-6" *ngFor="let badge of recentBadges">
+          <div class="row g-3" *ngIf="recentBadges().length > 0">
+            <div class="col-md-3 col-6" *ngFor="let badge of recentBadges()">
               <div class="badge-card text-center p-3 rounded-4 bg-surface h-100 border transition-all hover-shadow" [title]="badge.name + ' - ' + badge.rarity">
                 <div class="mb-3">
                   <app-badge-emblem [badge]="badge" [size]="80"></app-badge-emblem>
@@ -203,7 +203,7 @@
             </div>
           </div>
           
-          <div *ngIf="recentBadges.length === 0" class="text-center py-5 bg-surface rounded-4 border border-dashed">
+          <div *ngIf="recentBadges().length === 0" class="text-center py-5 bg-surface rounded-4 border border-dashed">
             <div class="text-muted mb-3 d-flex justify-content-center">
               <div class="bg-surface-hover rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
@@ -215,7 +215,7 @@
         </div>
 
         <!-- STREAK EXPERIENCE -->
-        <div class="premium-card animate-stagger-item" *ngIf="gamificationProfile">
+        <div class="premium-card animate-stagger-item" *ngIf="gamificationProfile() as gamificationProfile">
           <div class="section-header mb-4 border-bottom pb-3">
             <h4 class="section-title text-dark m-0 d-flex align-items-center gap-2">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-orange"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
@@ -295,10 +295,10 @@
             </div>
 
             <div class="form-actions border-top pt-4 d-flex justify-content-end gap-3">
-              <button type="button" class="btn-profile-cancel" [disabled]="profileForm.pristine || isLoading" (click)="cancelChanges()">Cancel</button>
-              <button type="submit" class="btn-profile-submit" [disabled]="profileForm.invalid || profileForm.pristine || isLoading">
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                {{ isLoading ? 'Saving...' : 'Save Changes' }}
+              <button type="button" class="btn-profile-cancel" [disabled]="profileForm.pristine || isLoading()" (click)="cancelChanges()">Cancel</button>
+              <button type="submit" class="btn-profile-submit" [disabled]="profileForm.invalid || profileForm.pristine || isLoading()">
+                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                {{ isLoading() ? 'Saving...' : 'Save Changes' }}
               </button>
             </div>
           </form>
@@ -311,8 +311,8 @@
             <p class="section-subtitle text-muted m-0 mt-1">Manage how you receive alerts and updates.</p>
           </div>
           
-          <div *ngIf="prefSuccessMessage" class="alert alert-success fs-7 p-2 mb-3">{{ prefSuccessMessage }}</div>
-          <div *ngIf="prefErrorMessage" class="alert alert-danger fs-7 p-2 mb-3">{{ prefErrorMessage }}</div>
+          <div *ngIf="prefSuccessMessage()" class="alert alert-success fs-7 p-2 mb-3">{{ prefSuccessMessage() }}</div>
+          <div *ngIf="prefErrorMessage()" class="alert alert-danger fs-7 p-2 mb-3">{{ prefErrorMessage() }}</div>
 
           <div class="preferences-list d-flex flex-column gap-3 mb-4">
             <div class="row px-3 pb-2 border-bottom d-none d-md-flex text-muted fs-xs fw-bold text-uppercase">
@@ -321,7 +321,7 @@
               <div class="col-3 text-center">Email</div>
             </div>
             
-            <div class="row align-items-center px-3 py-2 bg-surface rounded" *ngFor="let pref of notificationPrefs; let i = index">
+            <div class="row align-items-center px-3 py-2 bg-surface rounded" *ngFor="let pref of notificationPrefs(); let i = index">
               <div class="col-12 col-md-6 mb-2 mb-md-0">
                 <span class="text-dark fw-600 fs-7">{{ getPrefLabel(pref.eventType) }}</span>
               </div>
@@ -341,9 +341,9 @@
           </div>
           
           <div class="form-actions border-top pt-4 d-flex justify-content-end gap-3">
-            <button type="button" class="btn-profile-submit" [disabled]="isSavingPrefs" (click)="savePreferences()">
-              <span *ngIf="isSavingPrefs" class="spinner-border spinner-border-sm me-2"></span>
-              {{ isSavingPrefs ? 'Saving...' : 'Save Preferences' }}
+            <button type="button" class="btn-profile-submit" [disabled]="isSavingPrefs()" (click)="savePreferences()">
+              <span *ngIf="isSavingPrefs()" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isSavingPrefs() ? 'Saving...' : 'Save Preferences' }}
             </button>
           </div>
         </div>
@@ -362,11 +362,11 @@
           </div>
           
           <div class="activity-feed">
-            <div *ngIf="recentActivity.length === 0" class="text-center py-4 bg-surface rounded-4">
+            <div *ngIf="recentActivity().length === 0" class="text-center py-4 bg-surface rounded-4">
               <p class="text-muted fs-7 m-0">No recent activity.</p>
             </div>
             
-            <div class="xp-history-item d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom" *ngFor="let activity of recentActivity; let last = last" [class.border-bottom]="!last">
+            <div class="xp-history-item d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom" *ngFor="let activity of recentActivity(); let last = last" [class.border-bottom]="!last">
               <div class="d-flex align-items-center gap-3">
                 <div class="source-icon rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;"
                      [ngClass]="{
@@ -392,7 +392,7 @@
               </div>
             </div>
             
-            <div class="d-flex justify-content-center mt-3 pt-3 border-top" *ngIf="recentActivity.length > 0">
+            <div class="d-flex justify-content-center mt-3 pt-3 border-top" *ngIf="recentActivity().length > 0">
               <a href="/dashboard" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold">View all activity</a>
             </div>
           </div>

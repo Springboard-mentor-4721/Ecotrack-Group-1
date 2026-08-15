@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ChallengeService } from '../../../services/challenge.service';
@@ -23,16 +23,16 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./my-challenges-page.component.css']
 })
 export class MyChallengesPageComponent implements OnInit {
-  allChallenges: MyChallengeEntry[] = [];
-  filteredChallenges: MyChallengeEntry[] = [];
+  allChallenges = signal<MyChallengeEntry[]>([]);
+  filteredChallenges = signal<MyChallengeEntry[]>([]);
   
-  isLoading = false;
-  errorMessage = '';
+  isLoading = signal(false);
+  errorMessage = signal('');
   
-  currentTab: TabType = 'ACTIVE';
+  currentTab = signal<TabType>('ACTIVE');
   
-  currentPage = 0;
-  pageSize = 100;
+  currentPage = signal(0);
+  pageSize = signal(100);
   
   tabs: { id: TabType, label: string }[] = [
     { id: 'ACTIVE', label: 'Active' },
@@ -42,7 +42,6 @@ export class MyChallengesPageComponent implements OnInit {
 
   constructor(
     private challengeService: ChallengeService,
-    private cdr: ChangeDetectorRef,
     private router: Router
   ) {}
 
@@ -51,8 +50,8 @@ export class MyChallengesPageComponent implements OnInit {
   }
 
   loadMyChallenges(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     
     // ARCHITECTURE NOTE (Phase 1 Container/Presentational):
     // The My Challenges Page employs an N+1 loading strategy to fetch participant progress
@@ -61,57 +60,43 @@ export class MyChallengesPageComponent implements OnInit {
     // that returns full details in a single request.
     
     // Load a large page size to ensure all active/completed/failed are fetched
-    this.challengeService.getMyChallenges(this.currentPage, this.pageSize)
+    this.challengeService.getMyChallenges(this.currentPage(), this.pageSize())
       .pipe(
-        switchMap(response => {
+        map(response => {
           const participants = response.content;
-          if (participants.length === 0) return of([]);
-
-          const challengeRequests = participants.map(participant => 
-            this.challengeService.getChallengeDetail(participant.challengeId).pipe(
-              map(challenge => ({ participant, challenge } as MyChallengeEntry)),
-              catchError(error => {
-                console.error(`Error loading challenge detail for ID ${participant.challengeId}`, error);
-                return of(null);
-              })
-            )
-          );
-
-          return forkJoin(challengeRequests);
+          if (participants.length === 0) return [];
+          return participants.map(participant => ({ participant, challenge: participant.challenge! } as MyChallengeEntry));
         }),
-        map(results => results.filter(res => res !== null) as MyChallengeEntry[]),
         finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
+          this.isLoading.set(false);
+          })
       )
       .subscribe({
         next: (entries) => {
-          this.allChallenges = entries;
+          this.allChallenges.set(entries);
           this.applyFilter();
         },
         error: (err) => {
-          this.errorMessage = 'Failed to load your challenges. Please try again later.';
+          this.errorMessage.set('Failed to load your challenges. Please try again later.');
           console.error('Error fetching my challenges', err);
         }
       });
   }
 
   setTab(tab: TabType): void {
-    this.currentTab = tab;
+    this.currentTab.set(tab);
     this.applyFilter();
   }
 
   private applyFilter(): void {
-    if (this.currentTab === 'ACTIVE') {
-      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'ACTIVE' || c.participant.status === 'WITHIN_BUDGET');
-    } else if (this.currentTab === 'COMPLETED') {
-      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'COMPLETED');
-    } else if (this.currentTab === 'FAILED') {
-      this.filteredChallenges = this.allChallenges.filter(c => c.participant.status === 'FAILED' || c.participant.status === 'DROPPED' || c.participant.status === 'EXCEEDED');
+    if (this.currentTab() === 'ACTIVE') {
+      this.filteredChallenges.set(this.allChallenges().filter(c => c.participant.status === 'ACTIVE' || c.participant.status === 'WITHIN_BUDGET'));
+    } else if (this.currentTab() === 'COMPLETED') {
+      this.filteredChallenges.set(this.allChallenges().filter(c => c.participant.status === 'COMPLETED'));
+    } else if (this.currentTab() === 'FAILED') {
+      this.filteredChallenges.set(this.allChallenges().filter(c => c.participant.status === 'FAILED' || c.participant.status === 'DROPPED' || c.participant.status === 'EXCEEDED'));
     }
-    this.cdr.detectChanges();
-  }
+    }
 
   onCardClick(challengeId: number): void {
     this.router.navigate(['/challenges', challengeId]);

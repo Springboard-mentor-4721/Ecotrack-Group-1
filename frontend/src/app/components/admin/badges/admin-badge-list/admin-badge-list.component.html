@@ -10,30 +10,30 @@
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
-      <a class="nav-link cursor-pointer" [class.active]="activeTab === 'GENERIC'" (click)="setTab('GENERIC')">Generic Badges</a>
+      <a class="nav-link cursor-pointer" [class.active]="activeTab() === 'GENERIC'" (click)="setTab('GENERIC')">Generic Badges</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link cursor-pointer" [class.active]="activeTab === 'CHALLENGE'" (click)="setTab('CHALLENGE')">Challenge Badges</a>
+      <a class="nav-link cursor-pointer" [class.active]="activeTab() === 'CHALLENGE'" (click)="setTab('CHALLENGE')">Challenge Badges</a>
     </li>
   </ul>
 
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  <div *ngIf="successMessage()" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage() }}
+    <button type="button" class="btn-close" (click)="successMessage.set('')" aria-label="Close"></button>
   </div>
   
-  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ errorMessage }}
-    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+  <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage() }}
+    <button type="button" class="btn-close" (click)="errorMessage.set('')" aria-label="Close"></button>
   </div>
 
-  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+  <div *ngIf="isLoading()" class="d-flex justify-content-center py-5">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
 
-  <div class="card shadow-sm border-0" *ngIf="!isLoading">
+  <div class="card shadow-sm border-0" *ngIf="!isLoading()">
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -41,17 +41,17 @@
             <tr>
               <th class="border-0 px-4 py-3">Badge Info</th>
               <th class="border-0 py-3">Category</th>
-              <th class="border-0 py-3" *ngIf="activeTab === 'GENERIC'">Rarity</th>
+              <th class="border-0 py-3" *ngIf="activeTab() === 'GENERIC'">Rarity</th>
               <th class="border-0 py-3">Criteria</th>
               <th class="border-0 py-3">Status</th>
               <th class="border-0 py-3 text-end px-4">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngIf="badges.length === 0">
-              <td [attr.colspan]="activeTab === 'GENERIC' ? 6 : 5" class="text-center py-4 text-muted">No badges found in this category.</td>
+            <tr *ngIf="badges().length === 0">
+              <td [attr.colspan]="activeTab() === 'GENERIC' ? 6 : 5" class="text-center py-4 text-muted">No badges found in this category.</td>
             </tr>
-            <tr *ngFor="let badge of badges">
+            <tr *ngFor="let badge of badges()">
               <td class="px-4">
                 <div class="d-flex align-items-center gap-3">
                   <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
@@ -66,7 +66,7 @@
                 </div>
               </td>
               <td>{{ badge.category }}</td>
-              <td *ngIf="activeTab === 'GENERIC'">
+              <td *ngIf="activeTab() === 'GENERIC'">
                 <span [class]="getRarityClass(badge.rarity)">{{ badge.rarity }}</span>
               </td>
               <td>
@@ -104,16 +104,16 @@
   </div>
 
   <!-- Pagination -->
-  <nav *ngIf="totalPages > 1 && !isLoading" class="mt-4" aria-label="Badges pagination">
+  <nav *ngIf="totalPages() > 1 && !isLoading()" class="mt-4" aria-label="Badges pagination">
     <ul class="pagination justify-content-center">
-      <li class="page-item" [class.disabled]="currentPage === 0">
-        <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+      <li class="page-item" [class.disabled]="currentPage() === 0">
+        <button class="page-link" (click)="onPageChange(currentPage() - 1)" [disabled]="currentPage() === 0">Previous</button>
       </li>
       <li class="page-item disabled">
-        <span class="page-link">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <span class="page-link">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
       </li>
-      <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
-        <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">Next</button>
+      <li class="page-item" [class.disabled]="currentPage() >= totalPages() - 1">
+        <button class="page-link" (click)="onPageChange(currentPage() + 1)" [disabled]="currentPage() >= totalPages() - 1">Next</button>
       </li>
     </ul>
   </nav>
@@ -125,7 +125,7 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header bg-light">
         <h5 class="modal-title fw-bold" id="badgeModalLabel">
-          {{ isEditing ? 'Edit Badge' : 'Create New Badge' }}
+          {{ isEditing() ? 'Edit Badge' : 'Create New Badge' }}
         </h5>
         <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
       </div>
@@ -243,10 +243,10 @@
         </div>
         
         <div class="modal-footer bg-light">
-          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="isSaving">Cancel</button>
-          <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" [disabled]="isSaving">
-            <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{ isEditing ? 'Save Changes' : 'Create Badge' }}
+          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="isSaving()">Cancel</button>
+          <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" [disabled]="isSaving()">
+            <span *ngIf="isSaving()" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{ isEditing() ? 'Save Changes' : 'Create Badge' }}
           </button>
         </div>
       </form>

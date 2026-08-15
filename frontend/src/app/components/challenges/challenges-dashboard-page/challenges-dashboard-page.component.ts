@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -35,25 +35,24 @@ import { ChallengeCardComponent } from '../shared/components/challenge-card/chal
   styleUrls: ['./challenges-dashboard-page.component.css']
 })
 export class ChallengesDashboardPageComponent implements OnInit {
-  isLoading = true;
+  isLoading = signal(true);
   
   // Data segments for challenges
-  myActiveChallenges: MyChallengeEntry[] = [];
-  myCompletedChallenges: MyChallengeEntry[] = [];
-  exploreChallenges: Challenge[] = [];
-  recommendedChallenges: Challenge[] = [];
+  myActiveChallenges = signal<MyChallengeEntry[]>([]);
+  myCompletedChallenges = signal<MyChallengeEntry[]>([]);
+  exploreChallenges = signal<Challenge[]>([]);
+  recommendedChallenges = signal<Challenge[]>([]);
 
   // Stats
-  totalXpEarned = 0;
+  totalXpEarned = signal(0);
   
-  urgencyAlerts: UrgencyAlert[] = [];
+  urgencyAlerts = signal<UrgencyAlert[]>([]);
   
   Math = Math;
 
   constructor(
     private challengeService: ChallengeService,
     private adminChallengeService: AdminChallengeService,
-    private cdr: ChangeDetectorRef,
     private router: Router
   ) {}
 
@@ -62,7 +61,7 @@ export class ChallengesDashboardPageComponent implements OnInit {
   }
 
   loadDashboardData(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     
     // ARCHITECTURE NOTE (Phase 1 Container/Presentational):
     // The Dashboard employs an N+1 loading strategy to stitch together participant progress
@@ -73,16 +72,11 @@ export class ChallengesDashboardPageComponent implements OnInit {
     // ForkJoin to get both my challenges and explore challenges at the same time
     forkJoin({
       my: this.challengeService.getMyChallenges(0, 100).pipe(
-        switchMap(res => {
-          if (res.content.length === 0) return of([]);
-          return forkJoin(res.content.map(p => 
-            this.challengeService.getChallengeDetail(p.challengeId).pipe(
-              map(c => ({ participant: p, challenge: c } as MyChallengeEntry)),
-              catchError(() => of(null))
-            )
-          ));
+        map(res => {
+          if (res.content.length === 0) return [];
+          return res.content.map(p => ({ participant: p, challenge: p.challenge! } as MyChallengeEntry));
         }),
-        map(results => results.filter(r => r !== null) as MyChallengeEntry[])
+        catchError(() => of([]))
       ),
       explore: this.challengeService.getChallenges(0, 20).pipe(
         map(res => res.content),
@@ -93,28 +87,27 @@ export class ChallengesDashboardPageComponent implements OnInit {
       )
     }).pipe(
       finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      })
+        this.isLoading.set(false);
+        })
     ).subscribe({
       next: (data) => {
         const myChallenges = data.my;
-        this.myActiveChallenges = myChallenges.filter(c => ['ACTIVE', 'WITHIN_BUDGET', 'EXCEEDED'].includes(c.participant.status));
-        this.myCompletedChallenges = myChallenges.filter(c => ['COMPLETED', 'FAILED', 'DROPPED'].includes(c.participant.status));
+        this.myActiveChallenges.set(myChallenges.filter(c => ['ACTIVE', 'WITHIN_BUDGET', 'EXCEEDED'].includes(c.participant.status)));
+        this.myCompletedChallenges.set(myChallenges.filter(c => ['COMPLETED', 'FAILED', 'DROPPED'].includes(c.participant.status)));
         
         // Calculate total XP
-        this.totalXpEarned = this.myCompletedChallenges.reduce((sum, c) => sum + (c.challenge.rewardXp || 0), 0);
+        this.totalXpEarned.set(this.myCompletedChallenges().reduce((sum, c) => sum + (c.challenge.rewardXp || 0), 0));
         
         // The backend now natively filters out challenges we've already joined
-        this.exploreChallenges = data.explore;
+        this.exploreChallenges.set(data.explore);
         
         // Load AI Recommended Challenges
-        this.recommendedChallenges = data.recommended;
+        this.recommendedChallenges.set(data.recommended);
           
         // Compute Alerts
         const alerts: UrgencyAlert[] = [];
         const now = new Date().getTime();
-        this.myActiveChallenges.forEach(entry => {
+        this.myActiveChallenges().forEach(entry => {
           if (entry.challenge.challengeEvaluationType === 'BUDGET') {
             const usage = entry.participant.progress / (entry.challenge.targetValue || 1);
             if (usage >= 0.8) {
@@ -139,7 +132,7 @@ export class ChallengesDashboardPageComponent implements OnInit {
             }
           }
         });
-        this.urgencyAlerts = alerts;
+        this.urgencyAlerts.set(alerts);
       },
       error: (err) => {
         console.error('Error loading dashboard', err);

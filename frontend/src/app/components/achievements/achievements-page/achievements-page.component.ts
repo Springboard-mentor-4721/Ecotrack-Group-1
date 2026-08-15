@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GamificationService } from '../../../services/gamification.service';
@@ -18,37 +18,36 @@ import { BadgeEmblemComponent } from '../../../shared/components/badge-emblem/ba
   styleUrl: './achievements-page.component.css'
 })
 export class AchievementsPageComponent implements OnInit {
-  isLoading = true;
-  badges: Badge[] = [];
-  
+  isLoading = signal(true);
+  badges = signal<Badge[]>([]);
+
   // Goals State
-  isGoalsLoading = false;
-  goalsFetched = false;
-  goalAchievements: GoalResponse[] = [];
-  achievementAnalyticsMap: { [id: number]: GoalAnalyticsResponse } = {};
-  goalXpMap: { [id: number]: number } = {};
-  expandedAchievementId: number | null = null;
-  achievementsPage = 0;
-  achievementsPageSize = 5;
-  
+  isGoalsLoading = signal(false);
+  goalsFetched = signal(false);
+  goalAchievements = signal<GoalResponse[]>([]);
+  achievementAnalyticsMap = signal<{ [id: number]: GoalAnalyticsResponse }>({});
+  goalXpMap = signal<{ [id: number]: number }>({});
+  expandedAchievementId = signal<number | null>(null);
+  achievementsPage = signal(0);
+  achievementsPageSize = signal(5);
+
   // Navigation & Filtering
-  primaryCategory: 'GENERAL' | 'CHALLENGE' | 'GOAL' = 'GENERAL';
-  searchTerm: string = '';
-  filterType: 'ALL' | 'EARNED' | 'LOCKED' | 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' = 'ALL';
+  primaryCategory = signal<'GENERAL' | 'CHALLENGE' | 'GOAL'>('GENERAL');
+  searchTerm = signal('');
+  filterType = signal<'ALL' | 'EARNED' | 'LOCKED' | 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'>('ALL');
 
   // Modal State
-  selectedBadge: Badge | null = null;
+  selectedBadge = signal<Badge | null>(null);
 
   constructor(
     private gamificationService: GamificationService,
     private goalService: GoalService,
-    private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.loadBadges();
-    
+
     this.route.queryParams.subscribe(params => {
       if (params['tab'] === 'GOAL') {
         this.setPrimaryCategory('GOAL');
@@ -57,33 +56,30 @@ export class AchievementsPageComponent implements OnInit {
   }
 
   loadBadges(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.gamificationService.getBadges()
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       }))
       .subscribe({
         next: (data) => {
-          this.badges = data;
-          this.cdr.detectChanges();
+          this.badges.set(data);
         },
         error: (err) => {
           console.error('Error fetching badges', err);
-          this.cdr.detectChanges();
         }
       });
   }
 
   loadGoalsIfNecessary(): void {
-    if (this.goalsFetched) return;
-    this.isGoalsLoading = true;
+    if (this.goalsFetched()) return;
+    this.isGoalsLoading.set(true);
     this.goalService.getGoals().subscribe({
       next: (goals) => {
-        this.goalsFetched = true;
+        this.goalsFetched.set(true);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        this.goalAchievements = goals.content.filter(g => {
+        this.goalAchievements.set(goals.content.filter(g => {
           if (!g.isAutomatic) {
             return (g.status as string) === 'ACHIEVED' || (g.status as string) === 'COMPLETED';
           } else {
@@ -91,19 +87,18 @@ export class AchievementsPageComponent implements OnInit {
             targetDate.setHours(23, 59, 59, 999);
             return targetDate < today && g.currentValue <= g.targetValue;
           }
-        });
+        }));
 
-        if (this.goalAchievements.length === 0) {
-          this.isGoalsLoading = false;
-          this.cdr.detectChanges();
+        if (this.goalAchievements().length === 0) {
+          this.isGoalsLoading.set(false);
           return;
         }
 
         let loaded = 0;
-        this.goalAchievements.forEach(goal => {
+        this.goalAchievements().forEach(goal => {
           this.goalService.getAnalytics(goal.id).subscribe({
             next: (data) => {
-              this.achievementAnalyticsMap[goal.id] = data;
+              this.achievementAnalyticsMap.update(map => ({...map, [goal.id]: data}));
               loaded++;
               this.checkGoalsLoaded(loaded);
             },
@@ -120,43 +115,40 @@ export class AchievementsPageComponent implements OnInit {
             if (xpData && xpData.content) {
               xpData.content.forEach(entry => {
                 if (entry.sourceType === 'GOAL_COMPLETED') {
-                  this.goalXpMap[entry.sourceId] = entry.xpAwarded;
+                  this.goalXpMap.update(map => ({...map, [entry.sourceId]: entry.xpAwarded}));
                 }
               });
             }
-            this.cdr.detectChanges();
           }
         });
       },
       error: (err) => {
         console.error('Error fetching goals', err);
-        this.isGoalsLoading = false;
-        this.cdr.detectChanges();
+        this.isGoalsLoading.set(false);
       }
     });
   }
 
   private checkGoalsLoaded(loaded: number): void {
-    if (loaded >= this.goalAchievements.length) {
-      this.isGoalsLoading = false;
-      this.cdr.detectChanges();
+    if (loaded >= this.goalAchievements().length) {
+      this.isGoalsLoading.set(false);
     }
   }
 
-  get achievementsPageStart(): number {
-    return this.achievementsPage * this.achievementsPageSize;
-  }
+  achievementsPageStart = computed(() => {
+    return this.achievementsPage() * this.achievementsPageSize();
+  });
 
-  get achievementsPageEnd(): number {
-    return Math.min(this.achievementsPageStart + this.achievementsPageSize, this.goalAchievements.length);
-  }
+  achievementsPageEnd = computed(() => {
+    return Math.min(this.achievementsPageStart() + this.achievementsPageSize(), this.goalAchievements().length);
+  });
 
-  get paginatedGoalAchievements(): GoalResponse[] {
-    return this.goalAchievements.slice(this.achievementsPageStart, this.achievementsPageEnd);
-  }
+  paginatedGoalAchievements = computed(() => {
+    return this.goalAchievements().slice(this.achievementsPageStart(), this.achievementsPageEnd());
+  });
 
   toggleAchievementHistory(goalId: number): void {
-    this.expandedAchievementId = this.expandedAchievementId === goalId ? null : goalId;
+    this.expandedAchievementId.update(id => id === goalId ? null : goalId);
   }
 
   getAchievementLabel(goal: GoalResponse): string {
@@ -191,22 +183,22 @@ export class AchievementsPageComponent implements OnInit {
   }
 
   getManualAchievementsCount(): number {
-    return this.goalAchievements.filter(g => !g.isAutomatic).length;
+    return this.goalAchievements().filter(g => !g.isAutomatic).length;
   }
 
   getAutoAchievementsCount(): number {
-    return this.goalAchievements.filter(g => g.isAutomatic).length;
+    return this.goalAchievements().filter(g => g.isAutomatic).length;
   }
 
-  get filteredBadges(): Badge[] {
-    return this.badges.filter(badge => {
+  filteredBadges = computed(() => {
+    return this.badges().filter(badge => {
       // 1. Primary Category
       let matchesCategory = false;
       const isChallengeBadge = badge.type === 'CHALLENGE';
 
-      if (this.primaryCategory === 'CHALLENGE') {
+      if (this.primaryCategory() === 'CHALLENGE') {
         matchesCategory = isChallengeBadge;
-      } else if (this.primaryCategory === 'GENERAL') {
+      } else if (this.primaryCategory() === 'GENERAL') {
         // GENERAL
         matchesCategory = !isChallengeBadge;
       } else {
@@ -217,18 +209,18 @@ export class AchievementsPageComponent implements OnInit {
       if (!matchesCategory) return false;
 
       // 2. Search term
-      const matchesSearch = badge.name.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
-                            badge.description.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchesSearch = badge.name.toLowerCase().includes(this.searchTerm().toLowerCase()) ||
+                            badge.description.toLowerCase().includes(this.searchTerm().toLowerCase());
       if (!matchesSearch) return false;
-      
+
       // 3. Secondary filter type
       let matchesFilter = true;
-      if (this.filterType === 'EARNED') {
+      if (this.filterType() === 'EARNED') {
         matchesFilter = badge.isEarned === true;
-      } else if (this.filterType === 'LOCKED') {
+      } else if (this.filterType() === 'LOCKED') {
         matchesFilter = badge.isEarned === false;
-      } else if (['COMMON', 'RARE', 'EPIC', 'LEGENDARY'].includes(this.filterType)) {
-        matchesFilter = badge.rarity?.toUpperCase() === this.filterType;
+      } else if (['COMMON', 'RARE', 'EPIC', 'LEGENDARY'].includes(this.filterType())) {
+        matchesFilter = badge.rarity?.toUpperCase() === this.filterType();
       }
 
       return matchesFilter;
@@ -236,22 +228,22 @@ export class AchievementsPageComponent implements OnInit {
       if (a.isEarned === b.isEarned) return 0;
       return a.isEarned ? -1 : 1;
     });
-  }
+  });
 
   setPrimaryCategory(category: 'GENERAL' | 'CHALLENGE' | 'GOAL'): void {
-    this.primaryCategory = category;
-    this.filterType = 'ALL';
+    this.primaryCategory.set(category);
+    this.filterType.set('ALL');
     if (category === 'GOAL') {
       this.loadGoalsIfNecessary();
     }
   }
 
   openBadgeModal(badge: Badge): void {
-    this.selectedBadge = badge;
+    this.selectedBadge.set(badge);
   }
 
   closeBadgeModal(): void {
-    this.selectedBadge = null;
+    this.selectedBadge.set(null);
   }
 
   getBadgeIconClass(rarity: string, isEarned: boolean): string {

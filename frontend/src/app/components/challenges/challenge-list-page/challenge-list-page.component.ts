@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ChallengeService } from '../../../services/challenge.service';
@@ -25,25 +25,24 @@ import { RouterModule } from '@angular/router';
   styleUrl: './challenge-list-page.component.css'
 })
 export class ChallengeListPageComponent implements OnInit {
-  isLoading = true;
-  hasError = false;
-  challenges: Challenge[] = [];
-  
+  isLoading = signal(true);
+  hasError = signal(false);
+  challenges = signal<Challenge[]>([]);
+
   // Filtering & Search
-  searchQuery = '';
-  evaluationFilter: 'ALL' | 'ACHIEVEMENT' | 'BUDGET' = 'ALL';
-  trackingFilter: 'ALL' | 'AUTOMATIC' | 'MANUAL' = 'ALL';
-  sortFilter: string = 'newest';
+  searchQuery = signal('');
+  evaluationFilter = signal<'ALL' | 'ACHIEVEMENT' | 'BUDGET'>('ALL');
+  trackingFilter = signal<'ALL' | 'AUTOMATIC' | 'MANUAL'>('ALL');
+  sortFilter = signal<string>('newest');
 
   // Pagination
-  currentPage = 0;
-  totalPages = 0;
-  totalElements = 0;
-  pageSize = 12;
+  currentPage = signal(0);
+  totalPages = signal(0);
+  totalElements = signal(0);
+  pageSize = signal(12);
 
   constructor(
-    private challengeService: ChallengeService,
-    private cdr: ChangeDetectorRef
+    private challengeService: ChallengeService
   ) {}
 
   ngOnInit(): void {
@@ -51,85 +50,80 @@ export class ChallengeListPageComponent implements OnInit {
   }
 
   loadChallenges(): void {
-    this.isLoading = true;
-    
+    this.isLoading.set(true);
+
     let sortParam = 'id,desc';
-    if (this.sortFilter === 'oldest') sortParam = 'id,asc';
-    else if (this.sortFilter === 'a-z') sortParam = 'title,asc';
-    else if (this.sortFilter === 'z-a') sortParam = 'title,desc';
+    if (this.sortFilter() === 'oldest') sortParam = 'id,asc';
+    else if (this.sortFilter() === 'a-z') sortParam = 'title,asc';
+    else if (this.sortFilter() === 'z-a') sortParam = 'title,desc';
 
     this.challengeService.getChallenges(
-      this.currentPage, 
-      this.pageSize,
-      this.searchQuery,
-      this.evaluationFilter,
-      this.trackingFilter,
+      this.currentPage(),
+      this.pageSize(),
+      this.searchQuery(),
+      this.evaluationFilter(),
+      this.trackingFilter(),
       sortParam
     )
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
+        this.isLoading.set(false);
+        }))
       .subscribe({
         next: (res) => {
-          this.challenges = res.content || [];
-          this.totalPages = res.totalPages || 0;
-          this.totalElements = res.totalElements || 0;
-          this.cdr.detectChanges();
-        },
+          this.challenges.set(res.content || []);
+          this.totalPages.set(res.totalPages || 0);
+          this.totalElements.set(res.totalElements || 0);
+          },
         error: (err) => {
           console.error('Failed to load challenges', err);
-          this.hasError = true;
-          this.cdr.detectChanges();
-        }
+          this.hasError.set(true);
+          }
       });
   }
 
   prevPage(): void {
-    if (this.currentPage > 0) {
-      this.currentPage--;
+    if (this.currentPage() > 0) {
+      this.currentPage.update(v => v - 1);
       this.loadChallenges();
     }
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages - 1) {
-      this.currentPage++;
+    if (this.currentPage() < this.totalPages() - 1) {
+      this.currentPage.update(v => v + 1);
       this.loadChallenges();
     }
   }
 
-  get filteredChallenges(): Challenge[] {
-    return this.challenges;
-  }
+  filteredChallenges = computed(() => this.challenges());
 
   setEvaluationFilter(type: 'ALL' | 'ACHIEVEMENT' | 'BUDGET' | any): void {
-    this.evaluationFilter = type;
-    this.currentPage = 0;
+    this.evaluationFilter.set(type);
+    this.currentPage.set(0);
     this.loadChallenges();
   }
 
   setTrackingFilter(type: 'ALL' | 'AUTOMATIC' | 'MANUAL' | any): void {
-    this.trackingFilter = type;
-    this.currentPage = 0;
+    this.trackingFilter.set(type);
+    this.currentPage.set(0);
     this.loadChallenges();
   }
 
   setSortFilter(type: string | any): void {
-    this.sortFilter = type;
-    this.currentPage = 0;
+    this.sortFilter.set(type);
+    this.currentPage.set(0);
     this.loadChallenges();
   }
 
   onSearchChange(val: string): void {
-    this.searchQuery = val;
-    this.currentPage = 0;
+    this.searchQuery.set(val);
+    this.currentPage.set(0);
     this.loadChallenges();
   }
 
   clearSearch(): void {
-    this.searchQuery = '';
-    this.currentPage = 0;
+    this.searchQuery.set('');
+    this.currentPage.set(0);
     this.loadChallenges();
   }
 

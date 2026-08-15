@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -28,7 +28,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
         </button>
         <h2 style="margin: 0; font-size: 1.5rem; font-weight: bold; color: #0f172a; position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none;">Create Challenge</h2>
       </div>
-      
+
       <div *ngIf="isDuplicating" class="duplicate-banner animate-fade-in" style="background: #e0e7ff; color: #3730a3; padding: 1rem 1.5rem; margin: 0 2rem 1rem 2rem; border-radius: 8px; border-left: 4px solid #6366f1; display: flex; align-items: center; gap: 1rem;">
         <span class="material-icons" style="font-size: 1.5rem;">content_copy</span>
         <div>
@@ -38,7 +38,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
       </div>
 
       <div class="wizard-main-container">
-        
+
         <!-- STEPPER NAV -->
         <div class="stepper-nav">
           <div class="step" [class.active]="currentStep() === 1" [class.completed]="currentStep() > 1" (click)="goToStep(1)">
@@ -49,7 +49,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
             <span class="step-label">Basic Info</span>
           </div>
           <div class="step-line" [class.completed]="currentStep() > 1"></div>
-          
+
           <div class="step" [class.active]="currentStep() === 2" [class.completed]="currentStep() > 2" (click)="goToStep(2)">
             <div class="step-circle">
               <span *ngIf="currentStep() <= 2">2</span>
@@ -58,7 +58,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
             <span class="step-label">Tracking Behavior</span>
           </div>
           <div class="step-line" [class.completed]="currentStep() > 2"></div>
-          
+
           <div class="step" [class.active]="currentStep() === 3" [class.completed]="currentStep() > 3" (click)="goToStep(3)">
             <div class="step-circle">
               <span *ngIf="currentStep() <= 3">3</span>
@@ -67,7 +67,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
             <span class="step-label">Evaluation & Target</span>
           </div>
           <div class="step-line" [class.completed]="currentStep() > 3"></div>
-          
+
           <div class="step" [class.active]="currentStep() === 4" [class.completed]="currentStep() > 4" (click)="goToStep(4)">
             <div class="step-circle">
               <span *ngIf="currentStep() <= 4">4</span>
@@ -78,17 +78,17 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
         </div>
 
         <form [formGroup]="wizardForm">
-          
+
           <!-- STEPS 1-3 WITH SPLIT LAYOUT -->
           <div class="split-layout" *ngIf="currentStep() < 4">
             <div class="form-section-wrapper" style="min-width: 0;">
-              
+
               <!-- STEP 1: BASIC INFORMATION -->
               <div class="step-content animate-fade-in" *ngIf="currentStep() === 1">
             <div class="form-section">
               <h2 class="step-title">Basic Information</h2>
               <p class="step-subtitle">Provide the basic details for your challenge.</p>
-              
+
               <div class="form-group">
                 <label for="title">Challenge Name <span class="required">*</span></label>
                 <input id="title" type="text" class="premium-input" formControlName="title" [attr.aria-invalid]="isInvalid('title')" aria-describedby="title-error" />
@@ -120,7 +120,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   <div id="end-error" class="validation-error" *ngIf="isInvalid('endDate')">Valid end date is required.</div>
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label>Cover Image</label>
                 <div class="cover-upload-area">
@@ -143,12 +143,12 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
               </div>
             </div>
           </div>
-          
+
           <!-- STEP 2: TRACKING BEHAVIOR -->
           <div class="step-content animate-fade-in" *ngIf="currentStep() === 2">
             <h2 class="step-title">Tracking Behavior</h2>
             <p class="step-subtitle">Define how progress will be tracked for this challenge.</p>
-            
+
             <div class="form-section">
               <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Tracking Method</h4>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -157,7 +157,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">lock_open</span> Unlock Template
                 </button>
               </div>
-              
+
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                 <div class="tracking-card" [class.active]="wizardForm.get('trackingMethod')?.value === 'AUTOMATIC'" (click)="wizardForm.patchValue({trackingMethod: 'AUTOMATIC'})" role="radio" [attr.aria-checked]="wizardForm.get('trackingMethod')?.value === 'AUTOMATIC'" tabindex="0">
                   <div class="tc-icon-wrapper"><span class="material-icons tc-icon">eco</span></div>
@@ -167,7 +167,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   </div>
                   <div class="tc-radio"><span class="material-icons" *ngIf="wizardForm.get('trackingMethod')?.value === 'AUTOMATIC'">check_circle</span></div>
                 </div>
-                
+
                 <div class="tracking-card" [class.active]="wizardForm.get('trackingMethod')?.value === 'MANUAL'" (click)="wizardForm.patchValue({trackingMethod: 'MANUAL'})" role="radio" [attr.aria-checked]="wizardForm.get('trackingMethod')?.value === 'MANUAL'" tabindex="0">
                   <div class="tc-icon-wrapper manual"><span class="material-icons tc-icon">description</span></div>
                   <div class="tc-content">
@@ -180,10 +180,10 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
               <!-- AUTOMATIC TRACKING CONFIGURATION -->
               <div *ngIf="wizardForm.get('trackingMethod')?.value === 'AUTOMATIC'" style="margin-bottom: 2rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
-                
+
                 <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Tracking Sources</h4>
                 <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1rem;">Select specific subcategories to aggregate progress for this challenge.</p>
-                  
+
                 <div style="margin-bottom: 1rem;">
                   <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Category Filter</label>
                   <select class="premium-input" style="max-width: 400px;" (change)="multiSourceFilterCategoryId = $any($event.target).value">
@@ -193,7 +193,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 </div>
 
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; background: white; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 8px;">
-                  <div *ngFor="let sub of getFilteredSubcategories()" 
+                  <div *ngFor="let sub of getFilteredSubcategories()"
                        (click)="toggleSubcategoryId(sub.id)"
                        style="display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: #0f172a; background: #f8fafc; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid #e2e8f0; cursor: pointer; user-select: none;"
                        [style.opacity]="resolvedSubcategoryIds.includes(sub.id) ? '1' : '0.5'"
@@ -231,17 +231,17 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
               </div>
             </div>
           </div>
-          
+
           <!-- STEP 3: EVALUATION & TARGET -->
           <div class="step-content animate-fade-in" *ngIf="currentStep() === 3">
             <h2 class="step-title">Evaluation & Target</h2>
             <p class="step-subtitle">Define the evaluation criteria and numeric goal for the challenge.</p>
-            
+
             <div class="form-section">
               <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Evaluation Type</h4>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                 <!-- Achievement Card -->
-                <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'" 
+                <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'"
                      (click)="wizardForm.patchValue({challengeEvaluationType: 'ACHIEVEMENT'})" role="radio" [attr.aria-checked]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'" tabindex="0">
                   <div class="tc-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
                     <span class="material-icons tc-icon">emoji_events</span>
@@ -256,9 +256,9 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                     <span class="material-icons" *ngIf="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'">check_circle</span>
                   </div>
                 </div>
-                
+
                 <!-- Budget Card -->
-                <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'BUDGET'" 
+                <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'BUDGET'"
                      (click)="wizardForm.patchValue({challengeEvaluationType: 'BUDGET'})" role="radio" [attr.aria-checked]="wizardForm.get('challengeEvaluationType')?.value === 'BUDGET'" tabindex="0">
                   <div class="tc-icon-wrapper" style="background: #fef9c3; color: #ca8a04;">
                     <span class="material-icons tc-icon">account_balance_wallet</span>
@@ -284,7 +284,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                     An Achievement challenge must have a target greater than 0.
                   </div>
                 </div>
-                
+
                 <div style="flex: 1; position: relative;">
                   <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">XP Reward <span class="required">*</span></label>
                   <input type="number" class="premium-input" formControlName="rewardXp" [attr.aria-invalid]="isInvalid('rewardXp')" aria-describedby="xp-error" />
@@ -338,14 +338,14 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 </div>
               </div>
             </div>
-            
+
           </div>
-          
+
           <!-- STEP 4: REVIEW -->
           <div class="step-content animate-fade-in" *ngIf="currentStep() === 4" style="display: flex; flex-direction: column; align-items: center;">
             <h2 class="step-title" style="text-align: center;">Review Challenge Details</h2>
             <p class="step-subtitle" style="text-align: center;">Please review all the information before publishing.</p>
-            
+
             <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; width: 100%; max-width: 800px;">
               <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff;">
                 <div style="height: 250px; background-color: #10b981; position: relative;">
@@ -354,10 +354,10 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                     <span class="material-icons" style="font-size: 6rem; color: rgba(255,255,255,0.8);">eco</span>
                   </div>
                 </div>
-                
+
                 <div style="padding: 2rem;">
                   <h4 style="margin-top: 0; margin-bottom: 1.5rem; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; font-size: 1.5rem;">{{ wizardForm.value.title || 'Untitled' }}</h4>
-                
+
                   <div class="review-row" style="margin-bottom: 2rem;">
                     <span class="material-icons review-icon">description</span>
                     <div>
@@ -438,7 +438,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
               </div>
             </div>
           </div>
-          
+
           <!-- PUBLISHING OVERLAY -->
           <div class="step-content animate-fade-in" *ngIf="submitting()" style="position: absolute; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <div style="text-align: center;">
@@ -447,7 +447,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
               <p style="color: #64748b;">Please wait while we set up your new challenge.</p>
             </div>
           </div>
-          
+
         </form>
 
         <!-- WIZARD FOOTER -->
@@ -456,13 +456,13 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
           <button class="btn-cancel" *ngIf="currentStep() > 1 && !submitting()" (click)="prevStep()">
             <span class="material-icons" style="font-size: 18px; margin-right: 4px;">arrow_back</span> Back
           </button>
-          
+
           <div class="spacer"></div>
-          
+
           <button class="btn-next" *ngIf="currentStep() < 4 && !submitting()" (click)="nextStep()">
             Next <span class="material-icons" style="font-size: 18px; margin-left: 4px;">arrow_forward</span>
           </button>
-          
+
           <button class="btn-next" *ngIf="currentStep() === 4 && !submitting()" [disabled]="!canSubmit()" (click)="submit()">
             Publish Challenge
           </button>
@@ -479,16 +479,16 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
       margin-bottom: 1.5rem; max-width: 1200px; margin-left: auto; margin-right: auto; display: flex; justify-content: space-between; align-items: center; position: relative;
     }
     .back-link {
-      background: none; border: none; font-size: 1rem; font-weight: 600; color: #0f172a; 
+      background: none; border: none; font-size: 1rem; font-weight: 600; color: #0f172a;
       display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0;
     }
     .back-link .material-icons { color: #10b981; font-size: 1.25rem; }
-    
+
     .wizard-main-container {
-      background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+      background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       max-width: 1200px; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
-    
+
     /* STEPPER */
     .stepper-nav {
       display: flex; align-items: center; justify-content: space-between; padding: 2rem 4rem;
@@ -507,7 +507,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     .step.completed .step-circle .material-icons { font-size: 1.125rem; }
     .step-label { font-size: 0.8125rem; font-weight: 600; color: #0f172a; text-align: center; max-width: 80px; }
     .step:not(.active):not(.completed) .step-label { color: #64748b; font-weight: 500; }
-    
+
     .step-line { flex: 1; height: 2px; background: #e2e8f0; margin: 0 1rem; position: relative; top: -16px; }
     .step-line.completed { background: #10b981; }
 
@@ -515,37 +515,37 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     .step-content { padding: 2.5rem 4rem; flex: 1; }
     .step-title { margin: 0 0 0.5rem 0; font-size: 1.75rem; color: #0f172a; font-weight: 700; }
     .step-subtitle { color: #64748b; font-size: 0.9375rem; margin-bottom: 2rem; }
-    
+
     .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     /* STEP 1 SPLIT LAYOUT */
     .split-layout { display: grid; grid-template-columns: 1fr 340px; gap: 3rem; }
     @media (max-width: 900px) { .split-layout { grid-template-columns: 1fr; } }
-    
+
     .form-group { margin-bottom: 1.5rem; position: relative; }
     .form-group label { display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.5rem; color: #334155; }
     .required { color: #ef4444; }
-    
+
     .premium-input {
-      width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem 1rem; 
+      width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem 1rem;
       font-size: 0.9375rem; color: #0f172a; transition: 0.2s; font-family: inherit;
     }
     .premium-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px #ecfdf5; }
     .premium-input[aria-invalid="true"] { border-color: #ef4444; box-shadow: 0 0 0 3px #fef2f2; }
     .premium-input[aria-invalid="true"]:focus { border-color: #ef4444; box-shadow: 0 0 0 3px #fef2f2; }
     .validation-error { color: #ef4444; font-size: 0.75rem; margin-top: 0.35rem; font-weight: 500; display: block; }
-    
+
     .premium-input::placeholder { color: #94a3b8; }
     textarea.premium-input { resize: vertical; }
     .char-count { text-align: right; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
-    
+
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    
+
     .cover-upload-area { display: flex; gap: 1.5rem; align-items: center; }
     .cover-preview { width: 140px; height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .cover-actions { display: flex; flex-direction: column; gap: 0.5rem; }
-    .btn-outline-green { 
+    .btn-outline-green {
       background: white; border: 1px solid #cbd5e1; color: #10b981; font-weight: 600; font-size: 0.875rem;
       padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
     }
@@ -572,14 +572,14 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
       border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
     }
     .btn-cancel:hover { background: #f8fafc; }
-    
+
     .btn-next {
       background: #059669; color: white; border: none; padding: 0.75rem 1.5rem;
       border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; transition: 0.2s;
     }
     .btn-next:hover { background: #047857; }
     .btn-next:disabled { opacity: 0.7; cursor: not-allowed; background: #94a3b8; }
-    
+
     .tracking-card {
       border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; display: flex; gap: 1rem; cursor: pointer; transition: 0.2s;
     }
@@ -595,7 +595,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     .tc-radio { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid #cbd5e1; }
     .tracking-card.active .tc-radio { border: none; }
     .tc-radio .material-icons { color: #10b981; font-size: 24px; }
-    
+
     .review-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
     .review-icon { color: #64748b; font-size: 1.5rem; }
     .review-row small { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
@@ -609,7 +609,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   private toast = inject(ToastService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-  private cdr = inject(ChangeDetectorRef);
+
 
   currentStep = signal<number>(1);
   submitting = signal<boolean>(false);
@@ -619,18 +619,18 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   isTemplate = false;
   editChallengeId: number | null = null;
   originalName = '';
-  
+
   templateDataRef: any = null;
   resolvedSubcategoryIds: number[] = [];
   activeTrackingSources: TrackingSourceCode[] = [];
-  
+
   selectedImageFile: File | null = null;
   imagePreviewUrl: string | null = null;
-  
+
   automaticCategories = signal<CarbonCategory[]>([]);
   allSubcategories: CarbonSubcategory[] = [];
   challengeBadges: AdminBadge[] = [];
-  
+
   multiSourceFilterCategoryId: number | 'ALL' = 'ALL';
 
   wizardForm: FormGroup = this.fb.group({
@@ -657,7 +657,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     if (state && state['duplicateData']) {
       this.isDuplicating = true;
       this.originalName = state['originalName'];
-      
+
       setTimeout(() => {
         this.wizardForm.patchValue(state['duplicateData']);
       });
@@ -665,14 +665,14 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       this.isTemplate = true;
       this.templateDataRef = nav.extras.state['templateData'];
       this.activeTrackingSources = [...(this.templateDataRef.trackingSources || [])];
-      
+
       if (this.templateDataRef.imageUrl) {
         this.imagePreviewUrl = this.templateDataRef.imageUrl;
       }
-      
+
       setTimeout(() => {
         const mappedProgressMetric = this.templateDataRef.progressMetric || 'ENTRY_COUNT';
-        
+
         const duration = this.templateDataRef.durationDays || this.templateDataRef.rulesConfig?.durationDays || 7;
         const now = new Date();
         const end = new Date(now.getTime() + (duration * 24 * 60 * 60 * 1000));
@@ -686,7 +686,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
            startDate: this.formatDateTimeLocal(now),
            endDate: this.formatDateTimeLocal(end)
         });
-        
+
         if (this.templateDataRef?.rulesConfig) {
            this.wizardForm.patchValue(this.templateDataRef.rulesConfig);
         }
@@ -707,7 +707,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
 
   onImageError(): void {
     this.imagePreviewUrl = null;
-    this.cdr.markForCheck();
+
   }
 
   onImageSelected(event: any): void {
@@ -717,7 +717,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagePreviewUrl = e.target.result;
-        this.cdr.markForCheck();
+
       };
       reader.readAsDataURL(file);
     }
@@ -750,8 +750,8 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       if (val && this.wizardForm.get('durationDays')?.value) {
          const days = this.wizardForm.get('durationDays')?.value;
          let d = new Date(val);
-         if (val.length === 10) { 
-             d.setHours(0, 0, 0, 0); 
+         if (val.length === 10) {
+             d.setHours(0, 0, 0, 0);
          }
          d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
          this.wizardForm.patchValue({ endDate: this.formatDateTimeLocal(d) }, { emitEvent: false });
@@ -803,14 +803,14 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
         // Create mode: blank tracking sources
         this.resolvedSubcategoryIds = [];
       }
-      this.cdr.markForCheck();
+
     });
 
     // Fetch challenge badges
     this.adminService.getAdminBadges(0, 100).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.challengeBadges = response.content.filter((b: AdminBadge) => b.type === 'CHALLENGE' && !b.isHidden);
-        this.cdr.markForCheck();
+
       }
     });
 
@@ -818,7 +818,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const idParam = params.get('id');
       const url = this.router.url;
-      
+
       if (idParam && url.endsWith('/edit')) {
         const numericId = Number(idParam);
         if (!isNaN(numericId)) {
@@ -840,7 +840,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
         if (rules.allowedSubcategoryIds) {
           this.resolvedSubcategoryIds = rules.allowedSubcategoryIds;
         }
-        
+
         const formData = {
           title: challenge.title,
           description: challenge.description,
@@ -859,7 +859,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
         };
         this.wizardForm.patchValue(formData);
         this.wizardForm.markAllAsTouched();
-        
+
         if (challenge.imageUrl) {
           this.imagePreviewUrl = challenge.imageUrl;
         }
@@ -896,14 +896,14 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     if (this.resolvedSubcategoryIds.length <= 1) {
       return false;
     }
-    
+
     // Find all selected subcategories
     const selectedSubs = this.allSubcategories.filter(s => this.resolvedSubcategoryIds.includes(s.id));
     if (selectedSubs.length === 0) return false;
-    
+
     // Get their default_unit (might be mapped from backend as defaultUnit)
     const firstUnit = (selectedSubs[0] as any).default_unit || (selectedSubs[0] as any).defaultUnit || '';
-    
+
     for (const sub of selectedSubs) {
       const u = (sub as any).default_unit || (sub as any).defaultUnit || '';
       if (u !== firstUnit) {
@@ -915,15 +915,15 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
 
   get derivedUnitLabel(): string {
     const metric = this.wizardForm.get('progressMetric')?.value;
-    
+
     if (metric === 'CARBON_EMISSION') {
       return 'kgCO2e';
     }
-    
+
     if (metric === 'ENTRY_COUNT') {
       return 'entries';
     }
-    
+
     if (metric === 'QUANTITY') {
       if (this.resolvedSubcategoryIds.length > 0) {
         const firstSelected = this.allSubcategories.find(s => s.id === this.resolvedSubcategoryIds[0]);
@@ -934,7 +934,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       }
       return 'units';
     }
-    
+
     return 'units';
   }
 
@@ -975,20 +975,20 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     } else if (this.currentStep() === 2) {
       const step2Fields = ['trackingMethod', 'progressMetric'];
       const isValid = step2Fields.every(f => this.wizardForm.get(f)?.valid ?? true);
-      
+
       const trackingMethod = this.wizardForm.get('trackingMethod')?.value;
       const progressMetric = this.wizardForm.get('progressMetric')?.value;
-      
+
       if (trackingMethod === 'AUTOMATIC' && progressMetric !== 'CARBON_EMISSION' && this.resolvedSubcategoryIds.length === 0) {
         this.toast.error('Please select at least one tracking source for Automatic tracking.');
         return;
       }
-      
+
       if (this.unitConflictWarning) {
         this.toast.error('Cannot proceed with conflicting units in Physical Quantity tracking.');
         return;
       }
-      
+
       if (isValid) {
         this.currentStep.set(3);
       } else {
@@ -998,15 +998,15 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     } else if (this.currentStep() === 3) {
       const step3Fields = ['challengeEvaluationType', 'targetValue', 'rewardXp'];
       const isValid = step3Fields.every(f => this.wizardForm.get(f)?.valid ?? true);
-      
+
       const evalType = this.wizardForm.get('challengeEvaluationType')?.value;
       const target = this.wizardForm.get('targetValue')?.value;
-      
+
       if (evalType === 'ACHIEVEMENT' && target === 0) {
         this.toast.error('Achievement challenges must have a target greater than 0.');
         return;
       }
-      
+
       if (isValid) {
         this.currentStep.set(4);
       } else {
@@ -1028,22 +1028,22 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
       this.router.navigate(['/admin/challenges/create']);
     }
   }
-  
+
   canSubmit(): boolean {
     if (this.wizardForm.invalid) return false;
-    
+
     const trackingMethod = this.wizardForm.get('trackingMethod')?.value;
     const progressMetric = this.wizardForm.get('progressMetric')?.value;
     if (trackingMethod === 'AUTOMATIC' && progressMetric !== 'CARBON_EMISSION' && this.resolvedSubcategoryIds.length === 0) {
       return false;
     }
-    
+
     if (this.unitConflictWarning) return false;
-    
+
     const evalType = this.wizardForm.get('challengeEvaluationType')?.value;
     const target = this.wizardForm.get('targetValue')?.value;
     if (evalType === 'ACHIEVEMENT' && target === 0) return false;
-    
+
     return true;
   }
 

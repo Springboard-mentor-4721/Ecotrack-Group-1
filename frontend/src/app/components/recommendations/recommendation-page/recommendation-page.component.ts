@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -20,39 +20,39 @@ import { AiSkeletonLineComponent } from '../../../shared/components/ai-skeleton-
   styleUrls: ['./recommendation-page.component.css']
 })
 export class RecommendationPageComponent implements OnInit, OnDestroy {
-  recommendations: Recommendation[] = [];
-  parsedRecommendations: any[] = [];
-  isLoading = false;
-  isGenerating = false;
-  errorMessage = '';
+  recommendations = signal<Recommendation[]>([]);
+  parsedRecommendations = signal<any[]>([]);
+  isLoading = signal<boolean>(false);
+  isGenerating = signal<boolean>(false);
+  errorMessage = signal<string>('');
   
-  rateLimited = false;
-  retryAfterSeconds = 0;
+  rateLimited = signal<boolean>(false);
+  retryAfterSeconds = signal<number>(0);
   private intervalId: any;
 
-  activeTab: 'journal_summary' | 'recommendations' | 'history' = 'journal_summary';
+  activeTab = signal<'journal_summary' | 'recommendations' | 'history'>('journal_summary');
 
   // Journal Summary State
-  journalSummaryState: AiFeatureState<JournalSummaryResponse> = { loading: false, data: null, error: null };
-  journalSummaryRateLimited = false;
-  journalSummaryRetryAfter = 0;
+  journalSummaryState = signal<AiFeatureState<JournalSummaryResponse>>({ loading: false, data: null, error: null });
+  journalSummaryRateLimited = signal<boolean>(false);
+  journalSummaryRetryAfter = signal<number>(0);
   private journalIntervalId: any;
 
   // History State
-  historyItems: any[] = [];
-  isHistoryLoading = false;
-  historyError = '';
-  historyFilter: string = 'ALL';
-  historyPage = 0;
-  historyTotalPages = 0;
-  historyPageSize = 10;
-  selectedHistoryItem: any = null;
+  historyItems = signal<any[]>([]);
+  isHistoryLoading = signal<boolean>(false);
+  historyError = signal<string>('');
+  historyFilter = signal<string>('ALL');
+  historyPage = signal<number>(0);
+  historyTotalPages = signal<number>(0);
+  historyPageSize = signal<number>(10);
+  selectedHistoryItem = signal<any>(null);
 
   // Pagination
-  currentPage = 0;
-  pageSize = 10;
-  totalPages = 0;
-  totalElements = 0;
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(10);
+  totalPages = signal<number>(0);
+  totalElements = signal<number>(0);
 
   // Icons
   LightbulbIcon = Lightbulb;
@@ -70,49 +70,45 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
   constructor(
     private recommendationService: RecommendationService,
     private aiService: AiService,
-    private carbonEntryService: CarbonEntryService,
-    private cdr: ChangeDetectorRef
+    private carbonEntryService: CarbonEntryService
   ) {}
 
   ngOnInit(): void {
-    this.loadRecommendations(this.currentPage);
+    this.loadRecommendations(this.currentPage());
     this.loadJournalSummary();
   }
 
   switchTab(tab: 'journal_summary' | 'recommendations' | 'history'): void {
-    this.activeTab = tab;
-    if (tab === 'history' && this.historyItems.length === 0) {
+    this.activeTab.set(tab);
+    if (tab === 'history' && this.historyItems().length === 0) {
       this.loadHistory(0);
     }
-    if (tab === 'journal_summary' && !this.journalSummaryState.data && !this.journalSummaryState.loading && !this.journalSummaryState.error) {
+    if (tab === 'journal_summary' && !this.journalSummaryState().data && !this.journalSummaryState().loading && !this.journalSummaryState().error) {
       this.loadJournalSummary();
     }
   }
 
   loadHistory(page: number): void {
-    this.isHistoryLoading = true;
-    this.historyError = '';
-    this.aiService.getAiHistory(this.historyFilter, page, this.historyPageSize)
+    this.isHistoryLoading.set(true);
+    this.historyError.set('');
+    this.aiService.getAiHistory(this.historyFilter(), page, this.historyPageSize())
       .pipe(finalize(() => {
-        this.isHistoryLoading = false;
-        this.cdr.detectChanges();
+        this.isHistoryLoading.set(false);
       }))
       .subscribe({
         next: (res) => {
-          this.historyItems = res.items.map((item: any) => {
+          this.historyItems.set(res.items.map((item: any) => {
              if (item.contentJson) {
                 try { item.parsedContent = JSON.parse(item.contentJson); } catch (e) {}
              }
              return item;
-          });
-          this.historyPage = res.currentPage;
-          this.historyTotalPages = res.totalPages;
-          this.cdr.detectChanges();
+          }));
+          this.historyPage.set(res.currentPage);
+          this.historyTotalPages.set(res.totalPages);
         },
         error: (err) => {
-          this.historyError = 'Failed to load AI history.';
+          this.historyError.set('Failed to load AI history.');
           console.error(err);
-          this.cdr.detectChanges();
         }
       });
   }
@@ -122,74 +118,70 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
   }
 
   onHistoryPageChange(newPage: number): void {
-    if (newPage >= 0 && newPage < this.historyTotalPages) {
+    if (newPage >= 0 && newPage < this.historyTotalPages()) {
       this.loadHistory(newPage);
     }
   }
 
   onHistoryPageSizeChange(): void {
-    this.historyPage = 0;
+    this.historyPage.set(0);
     this.loadHistory(0);
   }
 
   openDetails(item: any): void {
-    this.selectedHistoryItem = item;
+    this.selectedHistoryItem.set(item);
   }
 
   closeDetails(): void {
-    this.selectedHistoryItem = null;
+    this.selectedHistoryItem.set(null);
   }
 
   loadRecommendations(page: number): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     
-    this.recommendationService.getRecommendations(page, this.pageSize)
+    this.recommendationService.getRecommendations(page, this.pageSize())
       .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       }))
       .subscribe({
         next: (response) => {
-          this.recommendations = response.content;
-          this.parsedRecommendations = this.recommendations.map(rec => {
+          this.recommendations.set(response.content);
+          this.parsedRecommendations.set(this.recommendations().map(rec => {
              const parts = rec.recommendation.split('\n\nWhy this is recommended: ');
              return {
                 ...rec,
                 mainText: parts[0],
                 rationale: parts.length > 1 ? parts[1] : null
              };
-          });
-          this.currentPage = response.number;
-          this.totalPages = response.totalPages;
-          this.totalElements = response.totalElements;
-          this.cdr.detectChanges();
+          }));
+          this.currentPage.set(response.number);
+          this.totalPages.set(response.totalPages);
+          this.totalElements.set(response.totalElements);
         },
         error: (err) => {
-          this.errorMessage = 'Failed to load recommendations. Please try again later.';
+          this.errorMessage.set('Failed to load recommendations. Please try again later.');
           console.error('Error fetching recommendations', err);
-          this.cdr.detectChanges();
         }
       });
   }
 
   onPageChange(newPage: number): void {
-    if (newPage >= 0 && newPage < this.totalPages) {
+    if (newPage >= 0 && newPage < this.totalPages()) {
       this.loadRecommendations(newPage);
     }
   }
 
   generateRecommendations(): void {
-    if (this.isGenerating || this.rateLimited) return;
+    if (this.isGenerating() || this.rateLimited()) return;
 
-    this.isGenerating = true;
-    this.errorMessage = '';
-    this.rateLimited = false;
+    this.isGenerating.set(true);
+    this.errorMessage.set('');
+    this.rateLimited.set(false);
     
     this.recommendationService.generate()
       .pipe(finalize(() => {
-        this.isGenerating = false;
-        this.cdr.detectChanges();
+        this.isGenerating.set(false);
       }))
       .subscribe({
         next: () => {
@@ -200,15 +192,15 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
           if (err.status === 429) {
             const serverRetry = err.error?.retryAfterSeconds;
             if (serverRetry) {
-              this.rateLimited = true;
-              this.retryAfterSeconds = serverRetry;
-              this.errorMessage = 'AI request limit reached.';
+              this.rateLimited.set(true);
+              this.retryAfterSeconds.set(serverRetry);
+              this.errorMessage.set('AI request limit reached.');
               this.startCountdown();
             } else {
-              this.errorMessage = 'Recommendation generation is temporarily unavailable. Please try again later.';
+              this.errorMessage.set('Recommendation generation is temporarily unavailable. Please try again later.');
             }
           } else {
-            this.errorMessage = 'Failed to generate recommendations.';
+            this.errorMessage.set('Failed to generate recommendations.');
             console.error('Error generating recommendations', err);
           }
         }
@@ -219,13 +211,12 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
     if (this.intervalId) clearInterval(this.intervalId);
     
     this.intervalId = setInterval(() => {
-      this.retryAfterSeconds--;
-      if (this.retryAfterSeconds <= 0) {
-        this.rateLimited = false;
-        this.errorMessage = '';
+      this.retryAfterSeconds.update(v => v - 1);
+      if (this.retryAfterSeconds() <= 0) {
+        this.rateLimited.set(false);
+        this.errorMessage.set('');
         clearInterval(this.intervalId);
       }
-      this.cdr.detectChanges();
     }, 1000);
   }
 
@@ -235,50 +226,45 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
   }
 
   loadJournalSummary(): void {
-    this.journalSummaryState = { loading: true, data: null, error: null, empty: true };
+    this.journalSummaryState.set({ loading: true, data: null, error: null, empty: true });
     this.carbonEntryService.getJournalSummary().subscribe({
       next: (res) => {
         if (res && res.summaryText) {
-          this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
+          this.journalSummaryState.set({ loading: false, data: res, error: null, empty: false });
         } else {
-          this.journalSummaryState = { loading: false, data: null, error: null, empty: true };
+          this.journalSummaryState.set({ loading: false, data: null, error: null, empty: true });
         }
-        this.cdr.detectChanges();
       },
       error: () => {
-        this.journalSummaryState = { loading: false, data: null, error: 'AI Summary unavailable', empty: true };
-        this.cdr.detectChanges();
+        this.journalSummaryState.set({ loading: false, data: null, error: 'AI Summary unavailable', empty: true });
       }
     });
   }
 
   generateJournalSummary(): void {
-    if (this.journalSummaryState.loading || this.journalSummaryRateLimited) return;
+    if (this.journalSummaryState().loading || this.journalSummaryRateLimited()) return;
 
-    this.journalSummaryState.loading = true;
-    this.journalSummaryState.error = null;
-    this.journalSummaryRateLimited = false;
+    this.journalSummaryState.set({ ...this.journalSummaryState(), loading: true, error: null });
+    this.journalSummaryRateLimited.set(false);
     
     this.carbonEntryService.generateJournalSummary().subscribe({
       next: (res) => {
-        this.journalSummaryState = { loading: false, data: res, error: null, empty: false };
-        this.cdr.detectChanges();
+        this.journalSummaryState.set({ loading: false, data: res, error: null, empty: false });
       },
       error: (err: HttpErrorResponse) => {
         if (err.status === 429) {
           const serverRetry = err.error?.retryAfterSeconds;
           if (serverRetry) {
-            this.journalSummaryRateLimited = true;
-            this.journalSummaryRetryAfter = serverRetry;
-            this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'AI request limit reached.', empty: this.journalSummaryState.data == null };
+            this.journalSummaryRateLimited.set(true);
+            this.journalSummaryRetryAfter.set(serverRetry);
+            this.journalSummaryState.set({ loading: false, data: this.journalSummaryState().data, error: 'AI request limit reached.', empty: this.journalSummaryState().data == null });
             this.startJournalCountdown();
           } else {
-            this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'Failed to generate summary.', empty: this.journalSummaryState.data == null };
+            this.journalSummaryState.set({ loading: false, data: this.journalSummaryState().data, error: 'Failed to generate summary.', empty: this.journalSummaryState().data == null });
           }
         } else {
-          this.journalSummaryState = { loading: false, data: this.journalSummaryState.data, error: 'Failed to generate summary.', empty: this.journalSummaryState.data == null };
+          this.journalSummaryState.set({ loading: false, data: this.journalSummaryState().data, error: 'Failed to generate summary.', empty: this.journalSummaryState().data == null });
         }
-        this.cdr.detectChanges();
       }
     });
   }
@@ -287,13 +273,12 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
     if (this.journalIntervalId) clearInterval(this.journalIntervalId);
     
     this.journalIntervalId = setInterval(() => {
-      this.journalSummaryRetryAfter--;
-      if (this.journalSummaryRetryAfter <= 0) {
-        this.journalSummaryRateLimited = false;
-        this.journalSummaryState.error = null;
+      this.journalSummaryRetryAfter.update(v => v - 1);
+      if (this.journalSummaryRetryAfter() <= 0) {
+        this.journalSummaryRateLimited.set(false);
+        this.journalSummaryState.set({ ...this.journalSummaryState(), error: null });
         clearInterval(this.journalIntervalId);
       }
-      this.cdr.detectChanges();
     }, 1000);
   }
 

@@ -1,36 +1,36 @@
 <div class="container-fluid py-4 py-md-5">
-  
-  <div *ngIf="isLoading" class="mb-5">
+
+  <div *ngIf="isLoading()" class="mb-5">
     <app-loading-skeleton type="card"></app-loading-skeleton>
   </div>
 
-  <div *ngIf="!isLoading">
-    
+  <div *ngIf="!isLoading()">
+
     <!-- Hero Section -->
-    <app-dashboard-hero 
-      [activeChallengesCount]="myActiveChallenges.length" 
-      [completedCount]="myCompletedChallenges.length">
+    <app-dashboard-hero
+      [activeChallengesCount]="myActiveChallenges().length"
+      [completedCount]="myCompletedChallenges().length">
     </app-dashboard-hero>
 
     <!-- Urgency Alerts -->
-    <app-urgency-alert-banner 
-      [alerts]="urgencyAlerts">
+    <app-urgency-alert-banner
+      [alerts]="urgencyAlerts()">
     </app-urgency-alert-banner>
 
     <!-- Quick Actions (with Total XP) -->
-    <app-dashboard-quick-actions [totalXp]="totalXpEarned"></app-dashboard-quick-actions>
+    <app-dashboard-quick-actions [totalXp]="totalXpEarned()"></app-dashboard-quick-actions>
 
     <!-- Active Challenges Placeholder -->
     <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="h4 fw-bold mb-0">Continue Your Challenges</h2>
         <a [routerLink]="['/challenges/my']" class="text-primary text-decoration-none fw-bold fs-sm d-inline-flex align-items-center group">
-          View All 
+          View All
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ms-1 transition-transform group-hover:translate-x-1" style="transition: transform 0.2s ease;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </a>
       </div>
-      
-      <div *ngIf="myActiveChallenges.length === 0" class="bg-surface rounded-4 p-5 text-center border shadow-sm">
+
+      <div *ngIf="myActiveChallenges().length === 0" class="bg-surface rounded-4 p-5 text-center border shadow-sm">
         <div class="bg-slate-200 text-slate-400 mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
         </div>
@@ -39,10 +39,10 @@
         <a [routerLink]="['/challenges/explore']" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">Explore Challenges</a>
       </div>
 
-      <div *ngIf="myActiveChallenges.length > 0" class="mb-4">
+      <div *ngIf="myActiveChallenges().length > 0" class="mb-4">
         <div class="row row-cols-1 row-cols-lg-2 g-3">
-          <div class="col" *ngFor="let entry of myActiveChallenges">
-            <app-my-challenge-card 
+          <div class="col" *ngFor="let entry of myActiveChallenges()">
+            <app-my-challenge-card
               [entry]="entry"
               [compact]="true"
               (cardClicked)="onChallengeClick($event)">
@@ -63,13 +63,13 @@
           </span>
         </h2>
         <a [routerLink]="['/challenges/explore']" class="text-primary text-decoration-none fw-bold fs-sm d-inline-flex align-items-center group">
-          Explore All 
+          Explore All
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ms-1 transition-transform group-hover:translate-x-1" style="transition: transform 0.2s ease;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </a>
       </div>
 
       <div class="mb-4 row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-        <div class="col" *ngFor="let challenge of recommendedChallenges">
+        <div class="col" *ngFor="let challenge of recommendedChallenges()">
           <app-challenge-card [challenge]="challenge"></app-challenge-card>
         </div>
       </div>

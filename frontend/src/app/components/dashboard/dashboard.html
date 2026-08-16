@@ -6,6 +6,7 @@
   <div *ngIf="isLoading()" class="animate-page">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="md:col-span-4"><app-loading-skeleton type="card"></app-loading-skeleton></div>
+      <div class="md:col-span-4"><app-loading-skeleton type="card"></app-loading-skeleton></div>
       <div class="md:col-span-1"><app-loading-skeleton type="card"></app-loading-skeleton></div>
       <div class="md:col-span-2"><app-loading-skeleton type="card"></app-loading-skeleton></div>
       <div class="md:col-span-1"><app-loading-skeleton type="card"></app-loading-skeleton></div>
@@ -27,101 +28,106 @@
   <ng-container *ngIf="!isLoading() && !apiError() && dashboardSummary">
 
     <!-- 1. PERSONAL CONTEXT (HERO) -->
-    <div class="ecosystem-hero mb-5 animate-stagger-item">
+    <div class="ecosystem-hero mb-4 animate-stagger-item rounded-4 p-4 position-relative overflow-hidden shadow-sm">
       <!-- Ambient Background Glow -->
       <div class="hero-bg-glow position-absolute top-0 start-0 w-100 h-100 opacity-50 pointer-events-none" 
            [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'background'"></div>
            
-      <div class="row align-items-center justify-content-between position-relative z-1">
+      <div class="row align-items-center position-relative z-1">
         
         <!-- Left: Text Context -->
-        <div class="col-lg-5 mb-5 mb-lg-0 text-center text-lg-start hero-text-reveal">
-          <span class="hero-date d-inline-block px-3 py-1 bg-white bg-opacity-75 rounded-pill text-teal fw-bold fs-xs text-uppercase tracking-wider mb-4 backdrop-blur shadow-sm">
+        <div class="col-lg-7 mb-4 mb-lg-0 hero-text-reveal">
+          <span class="hero-date d-inline-block px-3 py-1 bg-white bg-opacity-75 rounded-pill text-teal fw-bold fs-xs text-uppercase tracking-wider mb-3 shadow-sm">
             {{ today | date:'EEEE, MMMM d, y' }}
           </span>
-          <h1 class="display-4 fw-black text-dark tracking-tight mb-3 lh-1">
-            {{ greeting }}<ng-container *ngIf="user()?.name">, <br/><span class="text-teal">{{ user().name.split(' ')[0] }}</span></ng-container>
+          <h1 class="display-5 fw-black text-dark tracking-tight mb-2 lh-1">
+            {{ greeting }}, <span class="text-teal">{{ user()?.name ? user().name.split(' ')[0] : 'User' }}</span>
           </h1>
-          <p class="fs-5 text-slate-muted fw-medium mb-5 max-w-lg mx-auto mx-lg-0 lh-base" *ngIf="heroInsight()">
-            {{ heroInsight() }}
+          <p class="fs-6 text-slate-muted fw-medium mb-4 max-w-lg lh-base">
+            Ready to make a positive impact today?
           </p>
-          <a routerLink="/carbon-tracker" class="btn-ecosystem-primary text-decoration-none hero-cta">
-            <lucide-angular [img]="PlusIcon" size="18" class="me-1"></lucide-angular>
-            Log Activity
-          </a>
+
+          <!-- Daily Eco Tip -->
+          <div class="mt-4 pe-lg-4">
+             <app-eco-tip-card [state]="ecoTipState()"></app-eco-tip-card>
+          </div>
         </div>
 
-        <!-- Right: EcoScore Visual Anchor -->
-        <div class="col-lg-6 d-flex flex-column align-items-center hero-visual-reveal">
-           <!-- Refined EcoScore Visual -->
-           <div class="ecoscore-refined-container position-relative mb-4 d-flex flex-column align-items-center justify-content-center text-center"
-                [attr.aria-label]="'Eco Score: ' + dashboardSummary()!.gamificationProfile.currentEcoScore">
-              
-              <!-- Subtle atmospheric glow -->
-              <div class="ecoscore-ambient-glow position-absolute top-50 start-50 translate-middle rounded-circle"
-                   [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'background'"></div>
-                   
-              <!-- Gradient Outline Border -->
-              <div class="score-circle-border" [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'text'"></div>
-              
-              <!-- Typography Inner Circle -->
-              <div class="position-relative z-1 d-flex flex-column align-items-center bg-white bg-opacity-75 rounded-circle justify-content-center shadow-sm backdrop-blur" style="width: 240px; height: 240px; border: 4px solid rgba(255,255,255,0.8);">
-                 <div class="text-uppercase fw-bold tracking-widest fs-xs mb-1" [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'text'">
-                    ECO SCORE
-                 </div>
-                 
-                 <div class="fw-black lh-1 score-value-refined mb-2" 
-                      [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'primary'">
-                    {{ dashboardSummary()!.gamificationProfile.currentEcoScore }}
-                 </div>
-                 
-                 <div class="status-text fw-bold fs-6"
-                      [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'text'">
-                    {{ dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'status' }}
-                 </div>
-              </div>
-           </div>
-
-           <!-- Supporting Metrics Bar (Compact, Horizontal) -->
-           <div class="supporting-metrics-bar d-flex justify-content-center align-items-center gap-3 w-100 px-4 py-3 rounded-4 shadow-sm bg-white bg-opacity-90 backdrop-blur mt-2" style="max-width: 440px;">
-              <div class="metric-item text-center flex-grow-1">
-                 <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
-                    <lucide-angular [img]="TrendingUpIcon" size="18" class="text-slate-muted"></lucide-angular>
-                    <div class="metric-label m-0">Level</div>
-                 </div>
-                 <div class="metric-value">{{ dashboardSummary()!.gamificationProfile.currentLevel }}</div>
-              </div>
-              <div class="metric-divider"></div>
-              <div class="metric-item text-center flex-grow-1">
-                 <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
-                    <lucide-angular [img]="FlameIcon" size="18" class="text-orange"></lucide-angular>
-                    <div class="metric-label m-0">Streak</div>
-                 </div>
-                 <div class="metric-value">{{ dashboardSummary()!.gamificationProfile.currentStreak }}<span class="fs-xs fw-normal text-muted ms-1">d</span></div>
-              </div>
-              <div class="metric-divider"></div>
-              <div class="metric-item text-center flex-grow-1">
-                 <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
-                    <lucide-angular [img]="TrophyIcon" size="18" class="text-yellow-600"></lucide-angular>
-                    <div class="metric-label text-nowrap m-0">Monthly Rank</div>
-                 </div>
-                 <div class="metric-value"><span class="fs-xs fw-normal text-muted me-1">#</span>{{ (dashboardSummary()!.monthlyLeaderboardRank?.rank || 0) > 0 ? dashboardSummary()!.monthlyLeaderboardRank?.rank : '&mdash;' }}</div>
-              </div>
-           </div>
+        <!-- Right: Eco Score -->
+        <div class="col-lg-5 hero-visual-reveal d-flex flex-column justify-content-center align-items-center mt-4 mt-lg-0">
+          <!-- Halo container -->
+          <div class="rounded-circle d-inline-flex shadow-sm" style="padding: 16px;"
+               [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'background'">
+            <!-- Inner white circle -->
+            <div class="bg-white rounded-circle d-flex flex-column align-items-center justify-content-center shadow"
+                 style="width: 220px; height: 220px;"
+                 [ngClass]="dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'text'">
+               <div class="text-uppercase fw-bold tracking-widest mb-1 text-dark" style="font-size: 0.8rem;">ECO SCORE</div>
+               <div class="display-2 fw-black lh-1 mb-2" style="letter-spacing: -0.05em;">
+                  {{ dashboardSummary()!.gamificationProfile.currentEcoScore }}
+               </div>
+               <div class="fw-bold" style="font-size: 0.85rem;">
+                  {{ dashboardSummary()!.gamificationProfile.currentEcoScore | ecoScoreColor:'status' }}
+               </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 2. IMPACT -->
-    <div class="section-header mb-4 mt-5">
-      <h2 class="fs-4 fw-bold text-dark mb-0">Impact</h2>
-      <p class="text-slate-muted fs-6 mb-0">What is your environmental footprint?</p>
+    <!-- 2. GAMIFICATION ROW -->
+    <div class="row g-4 mb-5 animate-stagger-item">
+       <!-- Level Card -->
+       <div class="col-lg-6 col-md-12">
+          <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 d-flex align-items-center gap-3 h-100">
+             <div class="bg-light rounded-circle p-2 text-primary">
+                <lucide-angular [img]="TrendingUpIcon" size="20"></lucide-angular>
+             </div>
+             <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-bold text-dark fs-sm">Level {{ dashboardSummary()!.gamificationProfile.currentLevel }}</span>
+                  <span class="text-muted fs-xs fw-medium">{{ dashboardSummary()!.gamificationProfile.lifetimeEcoXp }} / {{ dashboardSummary()!.gamificationProfile.nextLevelXp }} XP</span>
+                </div>
+                <div class="progress" style="height: 6px; background-color: #e2e8f0;">
+                  <div class="progress-bar bg-primary rounded-pill" [style.width.%]="xpProgressPercent()"></div>
+                </div>
+             </div>
+          </div>
+       </div>
+       
+       <!-- Streak Card -->
+       <div class="col-lg-3 col-md-6">
+          <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 d-flex flex-column align-items-center justify-content-center h-100 text-center">
+             <div class="d-flex align-items-center justify-content-center gap-1 mb-2">
+                <lucide-angular [img]="FlameIcon" size="16" class="text-orange"></lucide-angular>
+                <div class="text-muted fs-xs fw-bold text-uppercase tracking-wider m-0">Streak</div>
+             </div>
+             <div class="fw-bold fs-4 text-dark lh-1">{{ dashboardSummary()!.gamificationProfile.currentStreak }} <span class="fs-sm fw-medium text-muted">days</span></div>
+          </div>
+       </div>
+
+       <!-- Rank Card -->
+       <div class="col-lg-3 col-md-6">
+          <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 d-flex flex-column align-items-center justify-content-center h-100 text-center">
+             <div class="d-flex align-items-center justify-content-center gap-1 mb-2">
+                <lucide-angular [img]="TrophyIcon" size="16" class="text-yellow-600"></lucide-angular>
+                <div class="text-muted fs-xs fw-bold text-uppercase tracking-wider m-0">Rank</div>
+             </div>
+             <div class="fw-bold fs-4 text-dark lh-1"><span class="fs-sm fw-medium text-muted me-1">#</span>{{ (dashboardSummary()!.monthlyLeaderboardRank?.rank || 0) > 0 ? dashboardSummary()!.monthlyLeaderboardRank?.rank : '-' }}</div>
+             <div class="text-muted fw-medium mt-2" style="font-size: 0.65rem;">This month</div>
+          </div>
+       </div>
+    </div>
+
+    <!-- 3. CARBON IMPACT -->
+    <div class="section-header mb-4 mt-2">
+      <h2 class="fs-4 fw-bold text-dark mb-0">Carbon Impact</h2>
     </div>
     
     <div class="row g-4 mb-5 animate-stagger-item">
       <!-- Monthly Impact -->
       <div class="col-lg-4">
-        <div class="impact-feature-card h-100 p-4 rounded-4 d-flex flex-column justify-content-center position-relative overflow-hidden shadow-sm">
+        <div class="impact-feature-card hover-elevate h-100 p-4 rounded-4 d-flex flex-column justify-content-center position-relative overflow-hidden shadow-sm" style="min-height: 220px;">
           <div class="position-relative z-1 text-center text-lg-start">
             <span class="text-uppercase fw-bold tracking-wider fs-xs mb-3 d-block text-muted">Current Month</span>
             <div class="d-flex align-items-baseline justify-content-center justify-content-lg-start gap-2 mb-4">
@@ -141,14 +147,14 @@
             </div>
           </div>
           <!-- Decorative leaf background -->
-          <svg class="position-absolute bottom-0 end-0 text-success opacity-5 w-50 h-50 mb-n4 me-n4 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66l.95-2.3c.48.17 1.04.3 1.71.3C13.19 20 19 18.5 22 13V3h-9.98c0 0-.01.27-.02.4C12 3.65 12 4.41 12 5c0 3 2 5 2 5s-2-2-4-2c-3.14 0-4.66 1.9-5.18 3.5C7 11.23 8.35 12 10 12c1 0 2-.42 2-1c0 0 2 2 2 5c0 .35-.04.68-.1 1c1.23-1.63 2.1-4.07 2.1-7h1v-1z"/></svg>
+          <svg class="position-absolute bottom-0 end-0 text-success opacity-5 w-50 h-50 mb-n4 me-n4 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66l.95-2.3c.48.17 1.04.3 1.71.3C13.19 20 19 18.5 22 13V3h-9.98c0 0-.01.27-.02.4C12 3.65 12 4.41 12 5c0 3 2 5 2 5s-2-2-4-2c-3.14 0-4.66 1.9-5.18 3.5C7 11.23 8.35 12 10 12c1 0 2-.42 2-1c0 0 2 2 5c0 .35-.04.68-.1 1c1.23-1.63 2.1-4.07 2.1-7h1v-1z"/></svg>
         </div>
       </div>
       
       <!-- Trend Chart -->
       <div class="col-lg-8">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column" style="min-height: 220px;">
+          <div class="d-flex justify-content-between align-items-center mb-2">
              <div class="fw-bold fs-5 text-dark">Emissions Trend</div>
              <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ trendInsight() }}</div>
           </div>
@@ -158,7 +164,7 @@
             </div>
           </ng-container>
           <ng-template #emptyChart>
-            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center text-muted py-5">
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center text-muted py-3">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-3 opacity-50"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
               <div class="fw-bold fs-6 mb-1">No historical data</div>
               <div class="fs-xs max-w-sm">Start logging your daily actions to see trends over time.</div>
@@ -168,39 +174,40 @@
       </div>
     </div>
 
-    <!-- 3. INSIGHTS -->
-    <div class="section-header mb-4 mt-5">
-      <h2 class="fs-4 fw-bold text-dark mb-0">Insights</h2>
-      <p class="text-slate-muted fs-6 mb-0">Where is it coming from and what does it mean?</p>
+    <!-- 4. SOURCES & ENTRIES -->
+    <div class="section-header mb-4 mt-2">
+      <h2 class="fs-4 fw-bold text-dark mb-0">Sources & Entries</h2>
     </div>
 
-    <div class="row g-4 mb-5 animate-stagger-item">
+    <div class="row g-4 mb-5 animate-stagger-item align-items-stretch">
       <!-- Source Distribution -->
-      <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="fw-bold fs-5 text-dark">Source Distribution</div>
-            <div class="fs-xs fw-medium text-slate-muted bg-light px-2 py-1 rounded">{{ topSourceInsight() }}</div>
+      <div class="col-lg-5">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
+          <div class="d-flex flex-column gap-3 mb-4">
+            <div class="fw-bold fs-5 text-dark text-start">Source Distribution</div>
+            <div class="d-flex justify-content-center w-100">
+               <div class="fs-xs fw-medium text-slate-muted bg-light px-3 py-1 rounded">{{ topSourceInsight() }}</div>
+            </div>
           </div>
           
           <ng-container *ngIf="carbonSources().length > 1; else singleDoughnut">
             <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-              <div class="position-relative mb-4" style="height: 140px; width: 140px;">
+              <div class="position-relative mb-4 mt-2" style="height: 240px; width: 240px;">
                 <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" [type]="doughnutChartType"></canvas>
                 <div class="position-absolute top-50 start-50 translate-middle text-center">
                   <span class="fw-bold text-dark d-block lh-1 fs-4">{{ dashboardSummary()!.userSummary.monthlyEmission | number:'1.0-0' }}</span>
                   <span class="fs-xs text-muted" style="font-size: 0.65rem;">kgCO2e</span>
                 </div>
               </div>
-              <div class="w-100 px-2">
-                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-light" *ngFor="let source of carbonSources()">
+              <div class="w-100 px-3 px-xl-4 mt-auto">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-light" *ngFor="let source of carbonSources()">
                   <div class="d-flex align-items-center gap-2">
                     <span class="rounded-circle d-inline-block" [style.backgroundColor]="source.color" style="width: 8px; height: 8px;"></span>
-                    <span class="fw-bold text-dark fs-xs text-truncate" style="max-width: 100px;">{{ source.name }}</span>
+                    <span class="fw-bold text-dark fs-sm">{{ source.name }}</span>
                   </div>
-                  <div class="text-end">
-                    <span class="fw-bold text-slate-muted fs-xs me-2">{{ source.value | number:'1.0-1' }}</span>
-                    <span class="text-dark fw-bold fs-xs d-inline-block text-end" style="width: 30px;">{{ source.percentage | number:'1.0-0' }}%</span>
+                  <div class="text-end d-flex align-items-center gap-3">
+                    <span class="fw-bold text-slate-muted fs-sm">{{ source.value | number:'1.0-1' }} <span style="font-size: 0.65rem;">kgCO2e</span></span>
+                    <span class="text-dark fw-bold fs-sm d-inline-block text-end" style="width: 35px;">{{ source.percentage | number:'1.0-0' }}%</span>
                   </div>
                 </div>
               </div>
@@ -228,23 +235,62 @@
         </div>
       </div>
       
-      <!-- Unified Insights & AI Eco Tip -->
-      <div class="col-lg-8 d-flex flex-column justify-content-between gap-4">
-         <app-unified-insights-panel class="flex-grow-1"></app-unified-insights-panel>
-         <app-eco-tip-card [state]="ecoTipState()"></app-eco-tip-card>
+      <!-- Recent Carbon Entries -->
+      <div class="col-lg-7">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="fw-bold text-dark fs-5 mb-0">Recent Carbon Entries</div>
+            <a routerLink="/carbon-tracker" class="text-teal text-decoration-none fw-bold fs-xs hover-teal">View Full History</a>
+          </div>
+          
+          <div class="d-flex flex-column flex-grow-1">
+             <div *ngIf="dashboardSummary()!.recentActivities.length > 0; else emptyEntries">
+               <div class="history-list-item d-flex align-items-center justify-content-between py-3 border-bottom border-light" *ngFor="let entry of dashboardSummary()!.recentActivities.slice(0, 5); let last = last" [class.border-bottom-0]="last">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="bg-light rounded-circle p-2 text-slate-muted shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <ng-container [ngSwitch]="entry.category">
+                      <svg *ngSwitchCase="'Electricity'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                      <svg *ngSwitchCase="'Online Shopping'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                      <svg *ngSwitchCase="'Transportation'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                      <svg *ngSwitchCase="'Fuel'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5" /><path d="M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16" /><path d="M2 21h13" /><path d="M3 9h11" /></svg>
+                      <svg *ngSwitchCase="'Food'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8" /><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7" /><path d="m2.1 21.8 6.4-6.3" /><path d="m19 5-7 7" /></svg>
+                      <svg *ngSwitchCase="'Waste'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 11v6" /><path d="M14 11v6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                      <svg *ngSwitchCase="'Water Usage'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7 2.9 7 2.9s-2.15 6.16-2.29 6.16c-1.14.93-1.71 2.03-1.71 3.19 0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 1 14 8.5c1.14.93 1.71 2.03 1.71 3.19 0 2.22-1.8 4.05-4 4.05-3.12 0-5.32-3.18-5.32-3.18"/></svg>
+                      <svg *ngSwitchCase="'Travel'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></svg>
+                      <svg *ngSwitchDefault width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                    </ng-container>
+                  </div>
+                  <div>
+                    <span class="fw-bold text-dark d-block fs-sm lh-1 mb-1">{{ entry.subType || entry.category }}</span>
+                    <span class="text-slate-muted fw-medium" style="font-size: 0.75rem;">{{ entry.entryDate | date:'MMM d, h:mm a' }}</span>
+                  </div>
+                </div>
+                <div class="fw-bold text-dark fs-sm text-end bg-light px-3 py-2 rounded shadow-sm">
+                  {{ entry.emission > 0 ? '+' : '' }}{{ entry.emission | number:'1.1-1' }} <span class="text-slate-muted fw-medium" style="font-size: 0.7rem;">kgCO2e</span>
+                </div>
+               </div>
+             </div>
+             <ng-template #emptyEntries>
+              <div class="text-center py-5 my-auto bg-light rounded-3 border-dashed">
+                <span class="text-dark fw-bold mb-1 d-block">No carbon entries yet.</span>
+                <span class="text-slate-muted fs-xs mb-3 px-3 d-block">Log your first activity to start tracking your impact.</span>
+                <a routerLink="/carbon-tracker" class="btn btn-teal btn-sm rounded-pill px-4 fw-bold text-white no-underline text-decoration-none shadow-sm">Log Activity</a>
+              </div>
+             </ng-template>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 4. ACTIONS -->
-    <div class="section-header mb-4 mt-5">
-      <h2 class="fs-4 fw-bold text-dark mb-0">Actions</h2>
-      <p class="text-slate-muted fs-6 mb-0">What should you do next?</p>
+    <!-- 5. PROGRESS -->
+    <div class="section-header mb-4 mt-2">
+      <h2 class="fs-4 fw-bold text-dark mb-0">Progress</h2>
     </div>
 
     <div class="row g-4 mb-5 animate-stagger-item">
       <!-- Goals -->
-      <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
+      <div class="col-lg-6">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <div class="fw-bold text-dark fs-5 mb-0">Goals</div>
@@ -254,9 +300,18 @@
           </div>
           
           <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary()!.goalSummary.activeGoalsList.length > 0">
-            <div class="p-3 rounded-3 bg-light" *ngFor="let goal of dashboardSummary()!.goalSummary.activeGoalsList">
+            <div class="p-3 rounded-3 bg-light border border-light" *ngFor="let goal of dashboardSummary()!.goalSummary.activeGoalsList.slice(0,3)">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="fw-bold text-dark fs-xs">{{ goal.title }}</span>
+                <div class="d-flex align-items-center gap-2">
+                   <div class="text-teal d-flex align-items-center justify-content-center">
+                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="12" cy="12" r="10"></circle>
+                       <circle cx="12" cy="12" r="6"></circle>
+                       <circle cx="12" cy="12" r="2"></circle>
+                     </svg>
+                   </div>
+                   <span class="fw-bold text-dark fs-xs text-truncate" style="max-width: 150px;">{{ goal.title }}</span>
+                </div>
                 <span class="bg-white text-slate-muted px-2 py-1 rounded fs-xs fw-medium shadow-sm">{{ goal.targetDate | date:'MMM d' }}</span>
               </div>
               <div class="d-flex justify-content-between align-items-end mb-2">
@@ -278,8 +333,8 @@
       </div>
       
       <!-- Challenges -->
-      <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
+      <div class="col-lg-6">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <div class="fw-bold text-dark fs-5 mb-0">Challenges</div>
@@ -289,11 +344,20 @@
           </div>
           
           <div class="d-flex flex-column gap-3 flex-grow-1" *ngIf="dashboardSummary()!.activeChallenges.length > 0">
-            <div class="p-3 rounded-3 bg-light" *ngFor="let cp of dashboardSummary()!.activeChallenges">
+            <div class="p-3 rounded-3 bg-light border border-light" *ngFor="let cp of dashboardSummary()!.activeChallenges.slice(0,3)">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="d-flex align-items-center gap-2">
-                   <div class="bg-teal bg-opacity-10 text-teal rounded p-1">
-                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                   <div class="text-teal d-flex align-items-center justify-content-center">
+                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                       <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+                       <line x1="13" y1="19" x2="19" y2="13"></line>
+                       <line x1="16" y1="16" x2="20" y2="20"></line>
+                       <line x1="19" y1="21" x2="21" y2="19"></line>
+                       <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline>
+                       <line x1="5" y1="14" x2="9" y2="18"></line>
+                       <line x1="7" y1="17" x2="4" y2="20"></line>
+                       <line x1="3" y1="19" x2="5" y2="21"></line>
+                     </svg>
                    </div>
                    <span class="fw-bold text-dark fs-xs text-truncate" style="max-width: 150px;">{{ cp.challengeTitle }}</span>
                 </div>
@@ -309,94 +373,107 @@
             </div>
           </div>
           
-          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto" *ngIf="dashboardSummary()!.activeChallenges.length === 0">
+          <div class="d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto bg-light rounded-3 border-dashed" *ngIf="dashboardSummary()!.activeChallenges.length === 0">
             <span class="text-dark fw-bold mb-1">No active challenges.</span>
             <span class="text-slate-muted fs-xs mb-3 px-3">Join a challenge to boost your impact.</span>
             <a routerLink="/challenges" class="btn btn-outline-teal btn-sm rounded-pill px-4 fw-bold">Find Challenges</a>
           </div>
         </div>
       </div>
-
-      <!-- Quick Actions -->
-      <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
-          <div class="fw-bold text-dark fs-5 mb-4">Quick Actions</div>
-          
-          <div class="d-flex flex-column gap-3 flex-grow-1">
-            <a routerLink="/carbon-tracker" class="d-flex align-items-center justify-content-center gap-2 p-3 rounded-4 bg-teal text-white text-decoration-none fw-bold shadow-sm transition-all hover:-translate-y-0.5">
-               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-               <span>Log Activity</span>
-            </a>
-            
-            <div class="row g-3 mt-1 flex-grow-1">
-               <div class="col-6">
-                 <a routerLink="/goals" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 bg-light text-decoration-none transition-all hover:-translate-y-0.5 h-100 hover-shadow">
-                   <div class="text-primary bg-primary bg-opacity-10 p-2 rounded-circle">
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-                   </div>
-                   <span class="fw-bold text-dark fs-xs text-center mt-1">Create Goal</span>
-                 </a>
-               </div>
-               <div class="col-6">
-                 <a routerLink="/challenges" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 bg-light text-decoration-none transition-all hover:-translate-y-0.5 h-100 hover-shadow">
-                   <div class="text-warning bg-warning bg-opacity-10 p-2 rounded-circle">
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                   </div>
-                   <span class="fw-bold text-dark fs-xs text-center mt-1">Challenges</span>
-                 </a>
-               </div>
-            </div>
-
-            <a routerLink="/recommendations" class="d-flex align-items-center justify-content-center gap-2 p-3 mt-1 rounded-4 bg-light text-dark text-decoration-none fw-bold fs-xs transition-all hover-shadow">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-              View Full Reports
-            </a>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- 5. HISTORY -->
-    <div class="section-header mb-4 mt-5">
-      <h2 class="fs-4 fw-bold text-dark mb-0">History</h2>
-      <p class="text-slate-muted fs-6 mb-0">What have you achieved recently?</p>
+    <!-- 6. ACHIEVEMENTS & ACTIONS -->
+    <div class="section-header mb-4 mt-2">
+      <h2 class="fs-4 fw-bold text-dark mb-0">Achievements & Actions</h2>
     </div>
 
-    <div class="row g-4 mb-5 animate-stagger-item">
-      <!-- Recent Activity -->
-      <div class="col-lg-6">
-        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column">
+    <div class="row g-4 mb-0 animate-stagger-item align-items-stretch">
+      <!-- Recent Achievements -->
+      <div class="col-lg-8">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="fw-bold text-dark fs-5 mb-0">Recent Activity</div>
-            <a routerLink="/carbon-tracker" class="text-teal text-decoration-none fw-bold fs-xs hover-teal">View Journal</a>
+            <div class="fw-bold text-dark fs-5 mb-0">Recent Achievements</div>
           </div>
           
           <div class="d-flex flex-column flex-grow-1">
-            <div class="history-list-item d-flex align-items-center justify-content-between py-3 border-bottom border-light" *ngFor="let entry of dashboardSummary()!.recentActivities; let last = last" [class.border-bottom-0]="last">
-              <div class="d-flex align-items-center gap-3">
-                <div class="bg-light rounded-circle p-2 text-slate-muted shadow-sm">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                </div>
-                <div>
-                  <span class="fw-bold text-dark d-block fs-xs lh-1 mb-1">{{ entry.subType || entry.category }}</span>
-                  <span class="text-slate-muted fw-medium" style="font-size: 0.7rem;">{{ entry.entryDate | date:'MMM d, h:mm a' }}</span>
-                </div>
+             <div *ngIf="dashboardSummary()!.recentBadges && dashboardSummary()!.recentBadges.length > 0; else emptyAchievements">
+               <div class="d-flex flex-wrap gap-3 mb-3">
+                  <div class="bg-light rounded-4 px-3 py-3 d-flex align-items-center gap-3 border border-light shadow-sm flex-grow-1 flex-md-grow-0" style="min-width: 200px;" *ngFor="let badge of dashboardSummary()!.recentBadges.slice(0,4)">
+                    <img [src]="'assets/badges/' + badge.name + '.png'" [alt]="badge.name" style="width: 56px; height: 56px; object-fit: contain;">
+                    <div>
+                      <span class="fw-bold text-dark fs-sm d-block lh-1 mb-1">{{ badge.name }}</span>
+                      <span class="fs-xs fw-medium text-slate-muted">{{ badge.awardedAt | date:'MMM d, y' }}</span>
+                    </div>
+                  </div>
+               </div>
+             </div>
+             
+             <ng-template #emptyAchievements>
+              <div class="text-center py-5 my-auto bg-light rounded-3 border-dashed">
+                <span class="text-dark fw-bold mb-1 d-block">No achievements yet.</span>
+                <span class="text-slate-muted fs-xs mb-3 px-3 d-block">Complete goals and challenges to earn your first badge.</span>
+                <a routerLink="/challenges" class="btn btn-outline-teal btn-sm rounded-pill px-4 fw-bold">Explore Challenges</a>
               </div>
-              <div class="fw-bold text-dark fs-xs text-end bg-light px-2 py-1 rounded">
-                {{ entry.emission | number:'1.1-1' }} <span class="text-slate-muted fw-medium" style="font-size: 0.65rem;">kgCO2e</span>
-              </div>
-            </div>
-            
-            <div class="text-center py-5 my-auto" *ngIf="dashboardSummary()!.recentActivities.length === 0">
-              <span class="text-muted fs-xs">Your recent activity will appear here.</span>
-            </div>
+             </ng-template>
           </div>
         </div>
       </div>
       
-      <!-- Achievements -->
-      <div class="col-lg-6">
-        <app-recent-achievements [badges]="dashboardSummary()!.recentBadges || []"></app-recent-achievements>
+      <!-- Quick Actions -->
+      <div class="col-lg-4">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
+          <div class="fw-bold text-dark fs-5 mb-4">Quick Actions</div>
+          <div class="row g-3 flex-grow-1">
+            <div class="col-12">
+              <a routerLink="/carbon-tracker" class="d-flex align-items-center justify-content-center gap-2 p-3 rounded-4 bg-teal text-white text-decoration-none transition-all hover:-translate-y-0.5 h-100 shadow-sm hover-shadow">
+                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                 <span class="fw-bold fs-sm">Log Activity</span>
+              </a>
+            </div>
+            
+            <div class="col-6">
+              <a routerLink="/goals" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 text-decoration-none transition-all hover:-translate-y-0.5 h-100" style="background-color: #f1f5f9; color: #475569;">
+                <div class="text-slate-muted bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                </div>
+                <span class="fw-bold fs-xs text-center">Goals</span>
+              </a>
+            </div>
+            
+            <div class="col-6">
+              <a routerLink="/challenges" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 text-decoration-none transition-all hover:-translate-y-0.5 h-100" style="background-color: #f1f5f9; color: #475569;">
+                <div class="text-warning bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+                    <line x1="13" y1="19" x2="19" y2="13"></line>
+                    <line x1="16" y1="16" x2="20" y2="20"></line>
+                    <line x1="19" y1="21" x2="21" y2="19"></line>
+                    <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline>
+                    <line x1="5" y1="14" x2="9" y2="18"></line>
+                    <line x1="7" y1="17" x2="4" y2="20"></line>
+                    <line x1="3" y1="19" x2="5" y2="21"></line>
+                  </svg>
+                </div>
+                <span class="fw-bold fs-xs text-center">Challenges</span>
+              </a>
+            </div>
+
+            <div class="col-12">
+              <a routerLink="/reports" class="d-flex align-items-center justify-content-center gap-2 p-3 rounded-4 text-decoration-none transition-all hover:-translate-y-0.5 h-100" style="background-color: #f1f5f9; color: #475569;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <path d="M7 10h10"></path>
+                  <path d="M7 14h10"></path>
+                  <path d="M7 18h10"></path>
+                  <path d="M13 14l2-2 2 2" stroke-width="1.5"></path>
+                  <circle cx="9" cy="15" r="2" stroke-width="1.5"></circle>
+                </svg>
+                <span class="fw-bold fs-sm">Reports & Analytics</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

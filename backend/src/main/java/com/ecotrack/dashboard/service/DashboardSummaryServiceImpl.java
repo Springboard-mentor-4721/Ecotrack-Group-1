@@ -150,6 +150,9 @@ public class DashboardSummaryServiceImpl implements DashboardSummaryService {
                         .rarity(ub.getBadge().getRarity())
                         .awardedAt(ub.getAwardedAt())
                         .isEarned(true)
+                        .icon(ub.getBadge().getIcon())
+                        .type(ub.getBadge().getType())
+                        .color(ub.getBadge().getColor())
                         .build())
                 .collect(Collectors.toList());
 

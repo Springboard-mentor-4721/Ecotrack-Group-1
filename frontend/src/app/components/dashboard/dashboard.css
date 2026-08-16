@@ -2,7 +2,6 @@
 
 .dashboard-wrapper {
   padding-bottom: 4rem;
-  background-color: #f8fafc; /* Very soft neutral background */
   min-height: 100vh;
 }
 
@@ -26,7 +25,7 @@
 .ecosystem-hero {
   background: var(--hero-gradient);
   border-radius: 2.5rem;
-  padding: 4rem 3.5rem;
+  padding: 6rem 3.5rem;
   box-shadow: 0 10px 40px -10px rgba(13, 148, 136, 0.08);
   position: relative;
   overflow: hidden;
@@ -183,4 +182,13 @@
     padding: 1rem !important;
     gap: 1rem !important;
   }
+}
+
+/* Card Hover Effects */
+.hover-elevate {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-elevate:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08) !important;
 }

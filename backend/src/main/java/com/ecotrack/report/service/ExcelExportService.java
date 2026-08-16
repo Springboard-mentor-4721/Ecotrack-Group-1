@@ -124,6 +124,15 @@ public class ExcelExportService {
             createRow(overviewSheet, 11, "Current EcoScore:", String.valueOf(report.getCurrentEcoScore()));
             createRow(overviewSheet, 12, "Current Rank:", report.getCurrentRank());
 
+            if (report.getXpTransactions() != null && !report.getXpTransactions().isEmpty()) {
+                Sheet xpSheet = workbook.createSheet("XP Activity");
+                createRow(xpSheet, 0, "Date", "Activity", "XP Amount");
+                int rowNum = 1;
+                for (com.ecotrack.report.dto.XpTransactionDTO tx : report.getXpTransactions()) {
+                    createRow(xpSheet, rowNum++, tx.getTimestamp(), tx.getDescription(), (tx.getAmount() > 0 ? "+" : "") + tx.getAmount());
+                }
+            }
+
             workbook.write(out);
             return out.toByteArray();
         } catch (Exception e) {

@@ -1,7 +1,14 @@
 <div class="container-fluid py-4 animate-page">
-  <div class="hero-premium position-relative overflow-hidden mb-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, var(--color-emerald), var(--color-teal));">
-    <div class="position-absolute top-0 end-0 p-4 opacity-25">
-      <lucide-angular [img]="LightbulbIcon" size="120" class="text-white"></lucide-angular>
+  <div class="hero-premium position-relative overflow-hidden mb-4 rounded-4 shadow-sm bg-ai-gradient">
+    <div class="position-absolute opacity-25 pointer-events-none" style="top: -20px; right: 10px; transform: rotate(-10deg);">
+      <svg width="160" height="160" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-white" style="filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));">
+        <!-- Magic wand / AI sparkles -->
+        <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" fill="rgba(255,255,255,0.1)"></path>
+        <path d="M20 3v4"></path>
+        <path d="M22 5h-4"></path>
+        <path d="M4 17v2"></path>
+        <path d="M5 18H3"></path>
+      </svg>
     </div>
     <div class="p-4 p-md-5 position-relative z-1 text-white">
       <h2 class="fw-bold mb-2 text-white display-6 tracking-tight">AI Recommendations <span class="opacity-75">& History</span></h2>
@@ -12,7 +19,7 @@
   <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3">
     <li class="nav-item">
       <button class="nav-link rounded-pill d-flex align-items-center gap-2 fw-bold px-4 transition-all"
-         [class.bg-teal]="activeTab() === 'journal_summary'"
+         [class.bg-ai]="activeTab() === 'journal_summary'"
          [class.text-white]="activeTab() === 'journal_summary'"
          [class.text-muted]="activeTab() !== 'journal_summary'"
          [class.bg-light]="activeTab() !== 'journal_summary'"
@@ -23,18 +30,18 @@
     </li>
     <li class="nav-item">
       <button class="nav-link rounded-pill d-flex align-items-center gap-2 fw-bold px-4 transition-all"
-         [class.bg-teal]="activeTab() === 'recommendations'"
+         [class.bg-ai]="activeTab() === 'recommendations'"
          [class.text-white]="activeTab() === 'recommendations'"
          [class.text-muted]="activeTab() !== 'recommendations'"
          [class.bg-light]="activeTab() !== 'recommendations'"
          (click)="switchTab('recommendations')">
-        <lucide-angular [img]="LightbulbIcon" size="18"></lucide-angular>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
         Current Recommendations
       </button>
     </li>
     <li class="nav-item">
       <button class="nav-link rounded-pill d-flex align-items-center gap-2 fw-bold px-4 transition-all"
-         [class.bg-teal]="activeTab() === 'history'"
+         [class.bg-ai]="activeTab() === 'history'"
          [class.text-white]="activeTab() === 'history'"
          [class.text-muted]="activeTab() !== 'history'"
          [class.bg-light]="activeTab() !== 'history'"
@@ -53,7 +60,7 @@
 
           <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
             <div class="d-flex align-items-center gap-2">
-              <div class="icon-circle bg-teal-soft text-teal me-1" style="width: 40px; height: 40px; flex-shrink: 0;">
+              <div class="icon-circle bg-ai-soft text-ai me-1 d-flex align-items-center justify-content-center rounded-3" style="width: 40px; height: 40px; flex-shrink: 0;">
                 <lucide-angular [img]="FileTextIcon" size="20"></lucide-angular>
               </div>
               <div>
@@ -62,7 +69,7 @@
               </div>
             </div>
 
-            <button class="btn text-teal fw-bold fs-7 d-flex align-items-center gap-2 p-0 border-0 bg-transparent btn-link text-decoration-none transition-all hover-translate-y"
+            <button class="btn text-ai fw-bold fs-7 d-flex align-items-center gap-2 p-0 border-0 bg-transparent btn-link text-decoration-none transition-all hover-translate-y"
                     (click)="generateJournalSummary()"
                     [disabled]="journalSummaryState().loading || journalSummaryRateLimited()"
                     title="Generate new AI summary">
@@ -101,19 +108,21 @@
 
           <!-- Empty State -->
           <div *ngIf="journalSummaryState().empty && !journalSummaryState().loading && !journalSummaryRateLimited() && !journalSummaryState().error" class="text-center py-5 my-4">
-            <div class="icon-circle bg-teal-soft text-teal mx-auto mb-3" style="width: 80px; height: 80px;">
+            <div class="icon-circle bg-ai-soft text-ai mx-auto mb-3 d-flex align-items-center justify-content-center rounded-4" style="width: 80px; height: 80px;">
               <lucide-angular [img]="FileTextIcon" size="40"></lucide-angular>
             </div>
             <h3 class="fw-bold text-dark mb-2">No journal summary yet</h3>
             <p class="text-muted fs-6 mb-4 max-w-md mx-auto">Click "Generate New Summary" to analyze your recent entries and receive personalized insights.</p>
-            <button class="btn btn-teal rounded-pill px-4 fw-bold shadow-sm" (click)="generateJournalSummary()">
+            <button class="btn btn-ai rounded-pill px-4 fw-bold shadow-sm" (click)="generateJournalSummary()">
               Generate New Summary
             </button>
           </div>
 
             <!-- Success State -->
             <div *ngIf="journalSummaryState().data" class="animate-fade-in mt-1">
-               <p class="fs-5 text-dark fw-medium lh-base mb-4 opacity-75 fst-italic">"{{ journalSummaryState().data?.summaryText }}"</p>
+               <div class="p-4 mb-4 bg-ai-soft bg-opacity-50 rounded-4 border-start border-4 border-ai">
+                 <p class="fs-6 text-dark lh-lg mb-0 fw-medium text-opacity-75" style="letter-spacing: 0.2px;">{{ journalSummaryState().data?.summaryText }}</p>
+               </div>
 
                <div class="d-flex flex-wrap gap-3 mb-5">
                  <div>
@@ -153,15 +162,15 @@
 
                <div *ngIf="journalSummaryState().data?.recommendations?.length" class="card bg-surface border-0 rounded-4 shadow-sm p-4 mt-2">
                   <div class="d-flex align-items-center gap-2 mb-3">
-                    <div class="text-teal">
-                      <lucide-angular [img]="LightbulbIcon" size="20"></lucide-angular>
+                    <div class="text-ai">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
                     </div>
                     <h6 class="fw-bold text-dark mb-0 fs-6">Key Recommendations</h6>
                   </div>
                   <div class="row g-3">
                     <div class="col-12" *ngFor="let rec of journalSummaryState().data?.recommendations">
                        <div class="d-flex align-items-start p-3 bg-white rounded-3 border border-teal shadow-sm transition-all hover-translate-y">
-                         <lucide-angular [img]="ZapIcon" size="18" class="text-teal me-3 mt-1 flex-shrink-0"></lucide-angular>
+                         <lucide-angular [img]="ZapIcon" size="18" class="text-ai me-3 mt-1 flex-shrink-0"></lucide-angular>
                          <span class="fs-6 text-dark lh-sm fw-medium">{{ rec }}</span>
                        </div>
                     </div>
@@ -177,7 +186,7 @@
   <div *ngIf="activeTab() === 'recommendations'" class="animate-fade-in">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h5 class="fw-bold text-dark mb-0">Latest Insights</h5>
-      <button class="btn btn-teal rounded-pill d-flex align-items-center gap-2 shadow-sm fw-bold px-4 transition-all"
+      <button class="btn btn-ai rounded-pill d-flex align-items-center gap-2 shadow-sm fw-bold px-4 transition-all"
               (click)="generateRecommendations()" [disabled]="isGenerating() || rateLimited()">
         <lucide-angular [img]="RefreshCwIcon" size="18" [class.spin]="isGenerating()"></lucide-angular>
         {{ isGenerating() ? 'Generating...' : 'Generate New Recommendations' }}
@@ -212,12 +221,12 @@
     </div>
 
     <div *ngIf="!isLoading() && !errorMessage() && parsedRecommendations().length === 0" class="card-premium p-5 text-center my-4 shadow-sm border-0">
-      <div class="icon-circle bg-teal-soft text-teal mx-auto mb-3" style="width: 80px; height: 80px;">
-        <lucide-angular [img]="LightbulbIcon" size="40"></lucide-angular>
+      <div class="icon-circle bg-ai-soft text-ai mx-auto mb-3 d-flex align-items-center justify-content-center rounded-4" style="width: 80px; height: 80px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
       </div>
       <h3 class="fw-bold text-dark mb-2">No new recommendations right now</h3>
       <p class="text-muted mb-4 max-w-md mx-auto">Continue logging your activities in the Journal, or check back later to generate new personalized insights.</p>
-      <button class="btn btn-teal rounded-pill px-4 fw-bold shadow-sm" (click)="generateRecommendations()" [disabled]="isGenerating() || rateLimited()">
+      <button class="btn btn-ai rounded-pill px-4 fw-bold shadow-sm" (click)="generateRecommendations()" [disabled]="isGenerating() || rateLimited()">
         Generate Recommendations
       </button>
     </div>
@@ -231,14 +240,14 @@
              [style.background]="!rec.isRead ? 'linear-gradient(to right, #f0fdfa, #ffffff)' : ''"
              (mouseenter)="markAsRead(rec)">
 
-          <div *ngIf="!rec.isRead" class="position-absolute top-0 end-0 bg-teal text-white fs-xs fw-bold px-3 py-1 rounded-bl-3">
+          <div *ngIf="!rec.isRead" class="position-absolute top-0 end-0 bg-ai text-white fs-xs fw-bold px-3 py-1 rounded-bl-3">
             NEW
           </div>
 
           <div class="card-body p-4 d-flex flex-column">
             <div class="d-flex align-items-start mb-3">
               <div class="icon-circle shadow-sm me-3 flex-shrink-0" [class]="getCategoryColor(rec.category) + ' text-white'" style="width: 48px; height: 48px;">
-                <lucide-angular [img]="LightbulbIcon" size="24"></lucide-angular>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
               </div>
               <div>
                 <span class="badge bg-surface-hover text-dark border mb-2 fs-xs tracking-wide text-uppercase">{{ rec.category }}</span>
@@ -279,20 +288,20 @@
 
   <!-- Tab: History -->
   <div *ngIf="activeTab() === 'history'" class="animate-fade-in">
-    <div class="card bg-white rounded-4 shadow-sm border-0 mb-4 p-3">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div class="d-flex align-items-center gap-2">
-           <div class="icon-circle bg-surface-hover text-muted" style="width: 36px; height: 36px;">
-              <lucide-angular [img]="FilterIcon" size="16"></lucide-angular>
-           </div>
-           <span class="fw-bold text-dark">Filter History</span>
-        </div>
-        <select class="form-select w-auto border-0 bg-surface shadow-sm rounded-pill px-4 fw-medium text-dark" [ngModel]="historyFilter()" (ngModelChange)="historyFilter.set($event); onHistoryFilterChange()" style="min-width: 200px;">
-          <option value="ALL">All Types</option>
-          <option value="JOURNAL_SUMMARY">Journal Summary</option>
-          <option value="SUSTAINABILITY_INSIGHT">Sustainability Insights</option>
-          <option value="RECOMMENDATION">Recommendations</option>
-        </select>
+    <div class="d-inline-flex align-items-center gap-2 bg-white rounded-pill shadow-sm border-0 mb-4 px-4 py-2">
+      <lucide-angular [img]="FilterIcon" size="16" class="text-muted"></lucide-angular>
+      <span class="fw-bold text-dark fs-7 text-nowrap">Filter History :</span>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-link text-decoration-none fw-bold text-ai p-0 d-flex align-items-center gap-1 shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          {{ historyFilter() === 'ALL' ? 'All Types' : (historyFilter() === 'JOURNAL_SUMMARY' ? 'Journal Summary' : (historyFilter() === 'SUSTAINABILITY_INSIGHT' ? 'Sustainability Insights' : 'Recommendations')) }}
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ms-1"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <ul class="dropdown-menu shadow-lg border-0 rounded-4 mt-2 py-2 dropdown-menu-premium" style="min-width: 220px;">
+          <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'ALL'" [class.text-ai]="historyFilter() === 'ALL'" (click)="historyFilter.set('ALL'); onHistoryFilterChange()">All Types</button></li>
+          <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'JOURNAL_SUMMARY'" [class.text-ai]="historyFilter() === 'JOURNAL_SUMMARY'" (click)="historyFilter.set('JOURNAL_SUMMARY'); onHistoryFilterChange()">Journal Summary</button></li>
+          <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'SUSTAINABILITY_INSIGHT'" [class.text-ai]="historyFilter() === 'SUSTAINABILITY_INSIGHT'" (click)="historyFilter.set('SUSTAINABILITY_INSIGHT'); onHistoryFilterChange()">Sustainability Insights</button></li>
+          <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'RECOMMENDATION'" [class.text-ai]="historyFilter() === 'RECOMMENDATION'" (click)="historyFilter.set('RECOMMENDATION'); onHistoryFilterChange()">Recommendations</button></li>
+        </ul>
       </div>
     </div>
 
@@ -354,10 +363,10 @@
 
             <ng-container *ngIf="item.contentType === 'RECOMMENDATION'">
                <div class="row g-3">
-                 <div class="col-md-6" *ngFor="let rec of item.parsedContent">
+                 <div class="col-12" *ngFor="let rec of item.parsedContent">
                     <div class="d-flex align-items-start">
-                      <div class="me-2 mt-1 text-teal">
-                        <lucide-angular [img]="LightbulbIcon" size="16"></lucide-angular>
+                      <div class="me-2 mt-1 text-ai flex-shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
                       </div>
                       <div>
                         <p class="text-dark fw-medium fs-7 mb-1 lh-sm">{{ rec.recommendation.split('\n\nWhy this is recommended: ')[0] }}</p>
@@ -520,8 +529,8 @@
              <div class="row g-3">
                <div class="col-12" *ngFor="let rec of selectedHistoryItem().parsedContent">
                   <div class="d-flex align-items-start p-3 bg-white border rounded-3 hover-translate-y transition-all">
-                    <div class="icon-circle bg-teal-soft text-teal me-3 flex-shrink-0" style="width: 40px; height: 40px;">
-                      <lucide-angular [img]="LightbulbIcon" size="20"></lucide-angular>
+                    <div class="icon-circle bg-ai-soft text-ai me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
                     </div>
                     <div class="flex-grow-1">
                       <div class="d-flex justify-content-between align-items-start mb-2">
@@ -552,3 +561,7 @@
     </div>
   </div>
 </div>
+
+
+
+

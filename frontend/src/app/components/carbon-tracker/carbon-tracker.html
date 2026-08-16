@@ -26,11 +26,11 @@
     <!-- 1. HERO SECTION -->
       <div class="hero-premium position-relative overflow-hidden mb-4 rounded-4 shadow-sm">
         <div class="row align-items-center position-relative z-1 p-4 p-lg-5">
-          <div class="col-lg-6">
+          <div class="col-lg-6 align-self-start pt-2">
             <h1 class="hero-title text-dark fw-bold mb-2">Carbon <span class="text-leaf">Journal</span></h1>
             <p class="text-slate-muted mb-4 fs-6">Track your daily activities and understand your carbon footprint in real time.</p>
-            <div class="d-none d-xl-block">
-              <span class="fst-italic text-leaf fw-bold">"Every small action counts<br>for a big change."</span>
+            <div class="d-none d-xl-block mt-4">
+              <span class="fst-italic text-leaf fw-bold d-block mt-2">"Every small action counts for a big change."</span>
             </div>
           </div>
 
@@ -41,8 +41,8 @@
                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 22 12 12"></path></svg>
                  </div>
                  <div>
-                   <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Total Emission <span class="text-lowercase">(This Month)</span></div>
-                   <div class="fs-3 fw-bold lh-1 text-white">{{ summary()?.totalEmission || 0 | number:'1.0-2' }} <span class="fs-6 text-white-50">kg</span></div>
+                   <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Total Emission<br><span class="text-lowercase">(This Month)</span></div>
+                   <div class="fs-3 fw-bold lh-1 text-white">{{ summary()?.totalEmission || 0 | number:'1.0-2' }} <span class="fs-6 text-white-50">kgCO₂e</span></div>
                  </div>
                </div>
                <div class="stat-pill d-flex align-items-center gap-3">
@@ -50,8 +50,8 @@
                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
                  </div>
                  <div>
-                   <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Total Entries</div>
-                   <div class="fs-3 fw-bold lh-1 text-white">{{ monthEntriesCount() || 0 }} <span class="fs-6 text-white-50">This Month</span></div>
+                   <div class="fs-xs fw-bold text-muted text-uppercase tracking-wide mb-1">Total Entries<br><span class="text-lowercase">(This Month)</span></div>
+                   <div class="fs-3 fw-bold lh-1 text-white">{{ monthEntriesCount() || 0 }}</div>
                  </div>
                </div>
                <div class="stat-pill d-flex align-items-center gap-3">
@@ -261,7 +261,7 @@
           <svg width="16" height="16" class="text-muted me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 22 12 12"></path></svg>
           <div class="d-flex flex-column flex-grow-1 justify-content-center">
             <span class="text-muted" style="font-size: 0.65rem; line-height: 1; pointer-events: none;">Category</span>
-            <span class="fw-bold fs-7 text-dark text-truncate" style="max-width: 100px; line-height: 1.2;">{{ getCategoryName(filterCategory) || 'Category' }}</span>
+            <span class="fw-bold fs-7 text-dark text-truncate" style="max-width: 100px; line-height: 1.2;">{{ getCategoryName(filterCategory) || 'All' }}</span>
           </div>
           <svg width="14" height="14" class="text-muted position-absolute end-0 me-3 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
 
@@ -281,7 +281,7 @@
           <svg width="16" height="16" class="text-muted me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
           <div class="d-flex flex-column flex-grow-1 justify-content-center">
             <span class="text-muted" style="font-size: 0.65rem; line-height: 1; pointer-events: none;">Sub Category</span>
-            <span class="fw-bold fs-7 text-dark text-truncate" style="max-width: 110px; line-height: 1.2;">{{ getSubCategoryName(filterSubCategory) || 'Sub Category' }}</span>
+            <span class="fw-bold fs-7 text-dark text-truncate" style="max-width: 110px; line-height: 1.2;">{{ getSubCategoryName(filterSubCategory) || 'All' }}</span>
           </div>
           <svg width="14" height="14" class="text-muted position-absolute end-0 me-3 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
 
@@ -833,3 +833,25 @@
     </form>
   </div>
 </div>
+
+<!-- QUICK ENTRY CONFIRM MODAL -->
+<div class="modal-overlay" *ngIf="quickEntryConfirmEntry">
+  <div class="modal-content card-premium border-0 shadow-lg rounded-4 overflow-hidden animate-page mx-auto" style="max-width: 500px; width: 95%;">
+    <div class="modal-header border-0 bg-surface pb-0">
+      <h5 class="modal-title fw-bold text-dark">Quick Entry Confirmation</h5>
+      <button type="button" class="btn-close shadow-none" (click)="cancelQuickLog()" [disabled]="isSubmitting()" aria-label="Close"></button>
+    </div>
+    <div class="modal-body bg-surface text-muted py-4">
+      <p class="mb-0">Are you sure you want to quickly log <strong>{{ quickEntryConfirmEntry.subType }} ({{ quickEntryConfirmEntry.quantity }} {{ quickEntryConfirmEntry.unit }})</strong> right now?</p>
+    </div>
+    <div class="modal-footer border-0 bg-surface pt-0 d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-light fw-bold px-4 rounded-pill" (click)="cancelQuickLog()" [disabled]="isSubmitting()">Cancel</button>
+      <button type="button" class="btn btn-outline-teal fw-bold px-4 rounded-pill" (click)="confirmQuickLogEdit()" [disabled]="isSubmitting()">Edit</button>
+      <button type="button" class="btn btn-teal fw-bold px-4 rounded-pill d-flex align-items-center" (click)="confirmQuickLogAdd()" [disabled]="isSubmitting()">
+        <span *ngIf="isSubmitting()" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        Add Entry
+      </button>
+    </div>
+  </div>
+</div>
+

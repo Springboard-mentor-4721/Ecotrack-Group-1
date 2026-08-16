@@ -9,8 +9,8 @@ import { CommonModule } from '@angular/common';
     <div class="text-dark rounded-4 p-4 p-md-5 mb-4 position-relative overflow-hidden shadow-sm" style="background: var(--hero-gradient); border: 1px solid var(--border-color);">
       
       <div class="position-relative z-1 row align-items-center">
-        <div class="col-lg-6">
-          <h1 class="fw-bold fs-2 mb-2 text-primary">Challenge <span style="color: var(--color-leaf);">Mission Control</span></h1>
+        <div class="col-lg-6 align-self-start pt-2">
+          <h1 class="fw-bold fs-1 mb-2 text-primary">Challenge <span style="color: var(--color-leaf);">Mission Control</span></h1>
           <p class="fs-6 mb-4 text-muted" style="max-width: 600px;">
             Track your active challenges, stay within budgets, and continue making progress toward your sustainability goals.
           </p>

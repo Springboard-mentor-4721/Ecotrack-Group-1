@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges, signal } from '@angular/cor
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ReportService } from '../../../services/report.service';
 import { CarbonAnalyticsDTO, CarbonEntryPageDTO } from '../../../models/report.models';
-import { LucideAngularModule, Cloud, Leaf, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, CircleAlert, ChartNoAxesColumn, CloudOff, Info } from 'lucide-angular';
+import { LucideAngularModule, Cloud, Leaf, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, CircleAlert, ChartNoAxesColumn, CloudOff, Info, Factory, Calendar, Flame, ClipboardList } from 'lucide-angular';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { finalize } from 'rxjs/operators';
@@ -30,6 +30,11 @@ export class CarbonAnalytics implements OnChanges {
   BarChartIcon = ChartNoAxesColumn;
   CloudOffIcon = CloudOff;
   InfoIcon = Info;
+  
+  FactoryIcon = Factory;
+  CalendarIcon = Calendar;
+  FlameIcon = Flame;
+  ClipboardListIcon = ClipboardList;
 
   analyticsData = signal<CarbonAnalyticsDTO | null>(null);
   entriesData = signal<CarbonEntryPageDTO | null>(null);
@@ -188,6 +193,19 @@ export class CarbonAnalytics implements OnChanges {
 
   getCategoryColor(index: number): string {
     return this.categoryChartColors[index % this.categoryChartColors.length];
+  }
+
+  formatQuantity(amountStr: string): string {
+    if (!amountStr) return '';
+    const parts = amountStr.trim().split(' ');
+    if (parts.length >= 2) {
+      const num = parseFloat(parts[0]);
+      if (!isNaN(num)) {
+        // Formats to string, automatically dropping trailing insignificant zeros
+        return `${num} ${parts.slice(1).join(' ')}`;
+      }
+    }
+    return amountStr;
   }
 
   onPageChange(page: number): void {

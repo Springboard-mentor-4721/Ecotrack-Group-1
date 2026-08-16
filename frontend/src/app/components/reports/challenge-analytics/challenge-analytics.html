@@ -1,274 +1,254 @@
-
-<div class="space-y-6">
+<div class="space-y-6 animate-fade-in pb-8">
 
   <!-- KPI Row -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <!-- Participated -->
-    <div class="card-premium p-6 flex flex-col justify-between group">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-          <lucide-icon [img]="TargetIcon" size="24" strokeWidth="2"></lucide-icon>
-        </div>
+    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 relative group flex flex-col items-center text-center">
+      <div class="p-2 rounded-lg bg-blue-50 text-blue-500 transition-transform group-hover:scale-110 mb-3">
+        <lucide-icon [img]="SwordsIcon" size="20" strokeWidth="2.5"></lucide-icon>
       </div>
-      <div>
-        <p class="text-sm font-medium text-gray-500 mb-1">Participated</p>
-        <div class="flex items-baseline gap-2">
-          <h3 class="text-3xl font-bold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.totalParticipated || 0 }}</h3>
-          <div *ngIf="isLoadingAnalytics()" class="h-9 w-16 bg-gray-200 rounded animate-pulse"></div>
-        </div>
+      <h3 class="text-[11px] font-bold text-gray-500 tracking-wider uppercase mb-3">Participation</h3>
+      <div class="flex items-baseline gap-2 mt-auto justify-center">
+        <h3 class="text-4xl font-extrabold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.totalParticipated || 0 }}</h3>
+        <div *ngIf="isLoadingAnalytics()" class="h-10 w-16 bg-gray-100 rounded animate-pulse"></div>
       </div>
+      <p class="text-xs font-medium text-gray-400 mt-1">Challenges joined</p>
     </div>
 
     <!-- Completed -->
-    <div class="card-premium p-6 flex flex-col justify-between group">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-          <lucide-icon [img]="CircleCheckIcon" size="24" strokeWidth="2"></lucide-icon>
-        </div>
-        
+    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 relative group flex flex-col items-center text-center">
+      <div class="p-2 rounded-lg bg-emerald-50 text-emerald-500 transition-transform group-hover:scale-110 mb-3">
+        <lucide-icon [img]="CircleCheckIcon" size="20" strokeWidth="2.5"></lucide-icon>
+      </div>
+      <h3 class="text-[11px] font-bold text-gray-500 tracking-wider uppercase mb-3">Completed</h3>
+      <div class="flex items-baseline gap-2 mt-auto justify-center">
+        <h3 class="text-4xl font-extrabold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.completedChallenges || 0 }}</h3>
+        <div *ngIf="isLoadingAnalytics()" class="h-10 w-16 bg-gray-100 rounded animate-pulse"></div>
         <ng-container *ngIf="!isLoadingAnalytics() && analyticsData()!.completionDirection">
-          <span *ngIf="analyticsData()!.completionDirection === 'IMPROVED'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
-            <lucide-icon [img]="ArrowUpRightIcon" size="14" class="mr-1"></lucide-icon>
+          <span *ngIf="analyticsData()!.completionDirection === 'IMPROVED'" class="inline-flex items-center text-xs font-bold text-emerald-600">
+            <lucide-icon [img]="ArrowUpRightIcon" size="14" class="mr-0.5"></lucide-icon>
             {{ analyticsData()!.completionChangePercentage }}%
           </span>
-          <span *ngIf="analyticsData()!.completionDirection === 'DECREASED'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700">
-            <lucide-icon [img]="ArrowDownRightIcon" size="14" class="mr-1"></lucide-icon>
+          <span *ngIf="analyticsData()!.completionDirection === 'DECREASED'" class="inline-flex items-center text-xs font-bold text-red-600">
+            <lucide-icon [img]="ArrowDownRightIcon" size="14" class="mr-0.5"></lucide-icon>
             {{ analyticsData()!.completionChangePercentage }}%
-          </span>
-          <span *ngIf="analyticsData()!.completionDirection === 'NO_CHANGE'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
-            <lucide-icon [img]="MinusIcon" size="14" class="mr-1"></lucide-icon>
-            0%
           </span>
         </ng-container>
       </div>
-      <div>
-        <p class="text-sm font-medium text-gray-500 mb-1">Completed</p>
-        <div class="flex items-baseline gap-2">
-          <h3 class="text-3xl font-bold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.completedChallenges || 0 }}</h3>
-          <div *ngIf="isLoadingAnalytics()" class="h-9 w-16 bg-gray-200 rounded animate-pulse"></div>
-        </div>
+      <p class="text-xs font-medium text-gray-400 mt-1">Successfully finished</p>
+    </div>
+
+    <!-- Failed -->
+    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 relative group flex flex-col items-center text-center">
+      <div class="p-2 rounded-lg bg-red-50 text-red-500 transition-transform group-hover:scale-110 mb-3">
+        <lucide-icon [img]="XCircleIcon" size="20" strokeWidth="2.5"></lucide-icon>
       </div>
+      <h3 class="text-[11px] font-bold text-gray-500 tracking-wider uppercase mb-3">Failed</h3>
+      <div class="flex items-baseline gap-2 mt-auto justify-center">
+        <h3 class="text-4xl font-extrabold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.failedChallenges || 0 }}</h3>
+        <div *ngIf="isLoadingAnalytics()" class="h-10 w-16 bg-gray-100 rounded animate-pulse"></div>
+      </div>
+      <p class="text-xs font-medium text-gray-400 mt-1">Unsuccessful attempts</p>
     </div>
 
     <!-- Completion Rate -->
-    <div class="card-premium p-6 flex flex-col justify-between group">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-          <lucide-icon [img]="TargetIcon" size="24" strokeWidth="2"></lucide-icon>
-        </div>
+    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 relative group flex flex-col items-center text-center">
+      <div class="p-2 rounded-lg bg-indigo-50 text-indigo-500 transition-transform group-hover:scale-110 mb-3">
+        <lucide-icon [img]="PieChartIcon" size="20" strokeWidth="2.5"></lucide-icon>
       </div>
-      <div>
-        <p class="text-sm font-medium text-gray-500 mb-1">Completion Rate</p>
-        <div class="flex items-baseline gap-2">
-          <h3 class="text-3xl font-bold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.completionRate || 0 }}%</h3>
-          <div *ngIf="isLoadingAnalytics()" class="h-9 w-16 bg-gray-200 rounded animate-pulse"></div>
-        </div>
+      <h3 class="text-[11px] font-bold text-gray-500 tracking-wider uppercase mb-3">Completion Rate</h3>
+      <div class="flex items-baseline gap-1 mt-auto justify-center">
+        <h3 class="text-4xl font-extrabold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.completionRate || 0 }}</h3>
+        <span *ngIf="!isLoadingAnalytics()" class="text-lg font-bold text-gray-400">%</span>
+        <div *ngIf="isLoadingAnalytics()" class="h-10 w-16 bg-gray-100 rounded animate-pulse"></div>
       </div>
+      <p class="text-xs font-medium text-gray-400 mt-1">Of active challenges</p>
     </div>
 
     <!-- XP Earned -->
-    <div class="card-premium p-6 flex flex-col justify-between group">
-      <div class="flex justify-between items-start mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-          <lucide-icon [img]="FlameIcon" size="24" strokeWidth="2"></lucide-icon>
-        </div>
-
+    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 relative group flex flex-col items-center text-center">
+      <div class="p-2 rounded-lg bg-amber-50 text-amber-500 transition-transform group-hover:scale-110 mb-3">
+        <lucide-icon [img]="FlameIcon" size="20" strokeWidth="2.5"></lucide-icon>
+      </div>
+      <h3 class="text-[11px] font-bold text-gray-500 tracking-wider uppercase mb-3">Total XP</h3>
+      <div class="flex items-baseline gap-2 mt-auto justify-center">
+        <h3 class="text-4xl font-extrabold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.totalXpEarned || 0 }}</h3>
+        <div *ngIf="isLoadingAnalytics()" class="h-10 w-16 bg-gray-100 rounded animate-pulse"></div>
         <ng-container *ngIf="!isLoadingAnalytics() && analyticsData()!.xpDirection">
-          <span *ngIf="analyticsData()!.xpDirection === 'IMPROVED'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
-            <lucide-icon [img]="ArrowUpRightIcon" size="14" class="mr-1"></lucide-icon>
+          <span *ngIf="analyticsData()!.xpDirection === 'IMPROVED'" class="inline-flex items-center text-xs font-bold text-emerald-600">
+            <lucide-icon [img]="ArrowUpRightIcon" size="14" class="mr-0.5"></lucide-icon>
             {{ analyticsData()!.xpChangePercentage }}%
           </span>
-          <span *ngIf="analyticsData()!.xpDirection === 'DECREASED'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700">
-            <lucide-icon [img]="ArrowDownRightIcon" size="14" class="mr-1"></lucide-icon>
+          <span *ngIf="analyticsData()!.xpDirection === 'DECREASED'" class="inline-flex items-center text-xs font-bold text-red-600">
+            <lucide-icon [img]="ArrowDownRightIcon" size="14" class="mr-0.5"></lucide-icon>
             {{ analyticsData()!.xpChangePercentage }}%
-          </span>
-          <span *ngIf="analyticsData()!.xpDirection === 'NO_CHANGE'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
-            <lucide-icon [img]="MinusIcon" size="14" class="mr-1"></lucide-icon>
-            0%
           </span>
         </ng-container>
       </div>
-      <div>
-        <p class="text-sm font-medium text-gray-500 mb-1">XP Earned</p>
-        <div class="flex items-baseline gap-2">
-          <h3 class="text-3xl font-bold text-gray-900" *ngIf="!isLoadingAnalytics()">{{ analyticsData()!.totalXpEarned || 0 }}</h3>
-          <div *ngIf="isLoadingAnalytics()" class="h-9 w-16 bg-gray-200 rounded animate-pulse"></div>
-        </div>
-      </div>
+      <p class="text-xs font-medium text-gray-400 mt-1">Earned this period</p>
     </div>
   </div>
 
   <!-- Error State Analytics -->
-  <div *ngIf="analyticsError()" class="p-4 bg-red-50 border border-red-100 rounded-xl flex items-start text-red-600">
-    <lucide-icon [img]="TriangleAlertIcon" size="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
-    <p>{{ analyticsError() }}</p>
+  <div *ngIf="analyticsError()" class="p-5 bg-red-50 border border-red-100 rounded-xl flex items-center text-red-700 shadow-sm">
+    <div class="bg-red-100 p-2 rounded-lg mr-4">
+      <lucide-icon [img]="TriangleAlertIcon" size="20" strokeWidth="2.5"></lucide-icon>
+    </div>
+    <p class="font-medium text-sm">{{ analyticsError() }}</p>
   </div>
 
-  <!-- Charts Row -->
+  <!-- Challenge Analytics -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" [class.hidden]="analyticsError() || (isLoadingAnalytics() && !analyticsData())">
     
-    <!-- Trend Chart -->
-    <div class="card-premium p-6 lg:col-span-2 flex flex-col">
-      <h3 class="text-lg font-semibold text-gray-900 mb-1">Completion Velocity</h3>
-      <p class="text-sm text-gray-500 mb-6">Challenge completions over this period.</p>
+    <!-- Trend Chart (Left 65%) -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm lg:col-span-2 flex flex-col h-96">
+      <div class="mb-6">
+        <h3 class="text-base font-bold text-gray-900">Completion Velocity</h3>
+        <p class="text-sm font-medium text-gray-500 mt-0.5">Challenge completions over this period.</p>
+      </div>
       
-      <div class="flex-1 w-full h-64 relative">
+      <div class="flex-1 w-full relative">
         <canvas #trendChart></canvas>
         <!-- Empty State overlay for chart -->
-        <div *ngIf="!isLoadingAnalytics() && analyticsData()!.completionTrend?.length === 0" class="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
-          <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
-            <lucide-icon [img]="TargetIcon" size="24"></lucide-icon>
+        <div *ngIf="!isLoadingAnalytics() && analyticsData()!.completionTrend?.length === 0" class="absolute inset-0 flex flex-col items-center justify-center bg-white/95 z-10 rounded-lg">
+          <div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-300 mb-3 shadow-sm">
+            <lucide-icon [img]="TrophyIcon" size="20" strokeWidth="2"></lucide-icon>
           </div>
-          <p class="text-gray-500 font-medium">No challenge completions recorded.</p>
+          <h4 class="text-sm font-bold text-gray-700 mb-1">No completion trend available</h4>
+          <p class="text-xs font-medium text-gray-400 text-center max-w-xs">Complete more challenges to see your completion velocity over time.</p>
         </div>
       </div>
     </div>
 
-    <!-- Status Distribution -->
-    <div class="card-premium p-6 flex flex-col">
-      <h3 class="text-lg font-semibold text-gray-900 mb-1">Participant Status</h3>
-      <p class="text-sm text-gray-500 mb-6">Breakdown of challenge participation.</p>
+    <!-- Status Distribution (Right 35%) -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col h-96">
+      <div class="mb-6">
+        <h3 class="text-base font-bold text-gray-900">Participation Status</h3>
+        <p class="text-sm font-medium text-gray-500 mt-0.5">Breakdown of challenge participation.</p>
+      </div>
       
-      <div class="flex-1 w-full h-64 relative">
+      <div class="flex-1 w-full relative flex items-center justify-center">
         <canvas #statusChart></canvas>
+        <div *ngIf="!isLoadingAnalytics() && analyticsData()!.totalParticipated === 0" class="absolute inset-0 flex flex-col items-center justify-center bg-white/95 z-10 rounded-lg">
+          <div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-300 mb-3 shadow-sm">
+            <lucide-icon [img]="CircleDotIcon" size="20" strokeWidth="2"></lucide-icon>
+          </div>
+          <h4 class="text-sm font-bold text-gray-700 mb-1">No participation data</h4>
+          <p class="text-xs font-medium text-gray-400 text-center">Join challenges to see distribution.</p>
+        </div>
       </div>
     </div>
     
   </div>
 
-  <!-- Insights / XP Note Row -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" *ngIf="!isLoadingAnalytics() && !analyticsError()">
-    <div class="card-premium p-6 border-l-4 border-l-blue-500">
-      <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-        <lucide-icon [img]="TargetIcon" size="20" class="text-blue-500 mr-2"></lucide-icon>
-        Key Insights
-      </h3>
-      <ul class="space-y-3">
-        <li *ngFor="let insight of analyticsData()!.insights" class="flex items-start">
-          <lucide-icon [img]="CircleDotIcon" size="16" class="text-gray-400 mr-2 mt-1 flex-shrink-0"></lucide-icon>
-          <span class="text-gray-600 leading-relaxed">{{ insight }}</span>
-        </li>
-        <li *ngIf="!analyticsData()!.insights?.length" class="text-gray-500 italic text-sm">
-          No significant insights generated for this period.
-        </li>
-      </ul>
-    </div>
-    
-    <div class="card-premium p-6 border-l-4 border-l-amber-500">
-      <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-        <lucide-icon [img]="FlameIcon" size="20" class="text-amber-500 mr-2"></lucide-icon>
-        XP Activity Integrity
-      </h3>
-      <p class="text-gray-600 mb-3 text-sm leading-relaxed">
-        Challenge XP is retrieved strictly from the <span class="font-medium">XP Ledger</span> ensuring M34 compliance. The value displayed corresponds to <code>CHALLENGE_COMPLETED</code> events during this period.
-      </p>
-      <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 flex items-center justify-between mt-auto">
-         <span class="text-sm font-medium text-gray-700">Total Validated XP</span>
-         <span class="text-amber-600 font-bold">{{ analyticsData()!.totalXpEarned || 0 }}</span>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Performance Table Section -->
-  <div class="card-premium p-0 overflow-hidden flex flex-col">
-    <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col mt-2">
+    <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h3 class="text-lg font-semibold text-gray-900">Challenge Performance</h3>
-        <p class="text-sm text-gray-500 mt-1">Detailed list of challenges joined in this period.</p>
+        <h3 class="text-base font-bold text-gray-900">Challenge Performance</h3>
+        <p class="text-xs font-medium text-gray-500 mt-0.5">Detailed view of challenge participation and progress.</p>
       </div>
     </div>
 
     <!-- Error State -->
-    <div *ngIf="performanceError()" class="p-6">
-      <div class="bg-red-50 border border-red-100 rounded-xl p-4 flex items-start text-red-600">
-        <lucide-icon [img]="TriangleAlertIcon" size="20" class="mr-3 flex-shrink-0 mt-0.5"></lucide-icon>
-        <p>{{ performanceError() }}</p>
+    <div *ngIf="performanceError()" class="p-8">
+      <div class="bg-red-50 border border-red-100 rounded-xl p-4 flex items-center text-red-600 shadow-sm max-w-lg mx-auto">
+        <lucide-icon [img]="TriangleAlertIcon" size="20" class="mr-3 flex-shrink-0" strokeWidth="2.5"></lucide-icon>
+        <p class="text-sm font-medium">{{ performanceError() }}</p>
       </div>
     </div>
 
     <!-- Table -->
     <div class="overflow-x-auto" *ngIf="!performanceError()">
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-gray-50 border-b border-gray-100">
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Challenge Name</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined Date</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Reward</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Progress</th>
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead class="bg-white border-b border-gray-100">
+          <tr>
+            <th class="px-6 py-3.5 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider w-1/4">Challenge</th>
+            <th class="px-6 py-3.5 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Type</th>
+            <th class="px-6 py-3.5 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-3.5 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider text-center">Status</th>
+            <th class="px-6 py-3.5 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider text-right">XP</th>
+            <th class="px-6 py-3.5 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider w-48">Progress</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-gray-50">
           
           <!-- Loading State -->
           <ng-container *ngIf="isLoadingPerformance()">
             <tr *ngFor="let i of [1,2,3,4,5]">
               <td class="px-6 py-4"><div class="h-4 bg-gray-100 rounded w-3/4 animate-pulse"></div></td>
-              <td class="px-6 py-4"><div class="h-4 bg-gray-100 rounded w-1/2 animate-pulse"></div></td>
-              <td class="px-6 py-4"><div class="h-4 bg-gray-100 rounded w-24 animate-pulse"></div></td>
-              <td class="px-6 py-4"><div class="h-6 bg-gray-100 rounded-full w-20 animate-pulse"></div></td>
-              <td class="px-6 py-4"><div class="h-4 bg-gray-100 rounded w-12 animate-pulse"></div></td>
-              <td class="px-6 py-4"><div class="h-2 bg-gray-100 rounded-full w-full animate-pulse"></div></td>
+              <td class="px-6 py-4"><div class="h-5 bg-gray-100 rounded-md w-20 animate-pulse"></div></td>
+              <td class="px-6 py-4"><div class="h-3 bg-gray-100 rounded w-24 animate-pulse"></div></td>
+              <td class="px-6 py-4"><div class="h-6 bg-gray-100 rounded-full w-20 mx-auto animate-pulse"></div></td>
+              <td class="px-6 py-4"><div class="h-4 bg-gray-100 rounded w-12 ml-auto animate-pulse"></div></td>
+              <td class="px-6 py-4"><div class="h-1.5 bg-gray-100 rounded-full w-full animate-pulse"></div></td>
             </tr>
           </ng-container>
 
           <!-- Empty State -->
           <tr *ngIf="!isLoadingPerformance() && performanceData()!.challenges?.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center">
+            <td colspan="6" class="px-6 py-16 text-center">
               <div class="flex flex-col items-center justify-center text-gray-400">
-                <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
-                  <lucide-icon [img]="TargetIcon" size="32"></lucide-icon>
+                <div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center mb-3 shadow-sm text-gray-300">
+                  <lucide-icon [img]="TargetIcon" size="20"></lucide-icon>
                 </div>
-                <h4 class="text-lg font-medium text-gray-900 mb-1">No challenges found</h4>
-                <p class="text-sm">You didn't participate in any challenges during this period.</p>
+                <h4 class="text-sm font-bold text-gray-700 mb-1">No challenge data available</h4>
+                <p class="text-xs font-medium">Complete or join challenges to build your challenge analytics.</p>
               </div>
             </td>
           </tr>
 
           <!-- Data Rows -->
           <ng-container *ngIf="!isLoadingPerformance() && performanceData()!.challenges">
-            <tr *ngFor="let challenge of performanceData()!.challenges" class="hover:bg-gray-50/50 transition-colors">
-              <td class="px-6 py-4">
-                <p class="font-medium text-gray-900">{{ challenge.title }}</p>
+            <tr *ngFor="let challenge of performanceData()!.challenges" class="hover:bg-gray-50/70 transition-colors group">
+              <td class="px-6 py-3.5">
+                <p class="font-bold text-gray-900 text-sm">{{ challenge.title }}</p>
               </td>
-              <td class="px-6 py-4">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+              <td class="px-6 py-3.5">
+                <span class="inline-flex items-center px-2 py-1 rounded bg-gray-50 text-[10px] font-bold text-gray-500 border border-gray-200 tracking-wide uppercase shadow-sm">
                   {{ challenge.category }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                {{ challenge.joinedDate }}
+              <td class="px-6 py-3.5">
+                <p class="text-xs font-medium text-gray-400">{{ challenge.joinedDate }}</p>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border"
+              <td class="px-6 py-3.5 text-center">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase border"
                   [ngClass]="{
-                    'bg-blue-50 text-blue-700 border-blue-200': challenge.status === 'ACTIVE',
-                    'bg-green-50 text-green-700 border-green-200': challenge.status === 'COMPLETED',
-                    'bg-red-50 text-red-700 border-red-200': challenge.status === 'FAILED',
-                    'bg-gray-50 text-gray-700 border-gray-200': challenge.status === 'DROPPED'
+                    'bg-blue-50 text-blue-600 border-blue-200': challenge.status === 'ACTIVE',
+                    'bg-emerald-50 text-emerald-600 border-emerald-200': challenge.status === 'COMPLETED',
+                    'bg-red-50 text-red-600 border-red-200': challenge.status === 'FAILED',
+                    'bg-gray-50 text-gray-500 border-gray-200': challenge.status === 'DROPPED' || challenge.status === 'EXPIRED'
                   }">
                   {{ challenge.status }}
                 </span>
               </td>
-              <td class="px-6 py-4">
-                <div class="flex items-center text-amber-600 font-medium text-sm whitespace-nowrap">
-                  <lucide-icon [img]="FlameIcon" size="14" class="mr-1"></lucide-icon>
-                  {{ challenge.rewardXp }} XP
+              <td class="px-6 py-3.5 text-right">
+                <div class="inline-flex items-center text-amber-600 font-bold text-xs bg-amber-50/50 px-2 py-1 rounded-md border border-amber-100/50">
+                  <lucide-icon [img]="FlameIcon" size="12" class="mr-1"></lucide-icon>
+                  {{ challenge.rewardXp }}
                 </div>
               </td>
-              <td class="px-6 py-4 w-48">
+              <td class="px-6 py-3.5">
                 <div class="flex items-center gap-3">
-                  <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500"
                       [style.width.%]="challenge.progressPercentage"
                       [ngClass]="{
-                        'bg-green-500': challenge.progressPercentage === 100,
+                        'bg-emerald-500': challenge.progressPercentage === 100,
                         'bg-blue-500': challenge.progressPercentage < 100
                       }">
                     </div>
                   </div>
-                  <span class="text-xs font-medium text-gray-600 min-w-[32px] text-right">{{ challenge.progressPercentage | number:'1.0-0' }}%</span>
+                  <span class="text-[11px] font-extrabold w-8 text-right"
+                    [ngClass]="{
+                        'text-emerald-600': challenge.progressPercentage === 100,
+                        'text-gray-500': challenge.progressPercentage < 100
+                      }">
+                    {{ challenge.progressPercentage | number:'1.0-0' }}%
+                  </span>
                 </div>
               </td>
             </tr>
@@ -278,23 +258,23 @@
     </div>
 
     <!-- Pagination -->
-    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50" *ngIf="!isLoadingPerformance() && performanceData()!.totalPages && performanceData()!.totalPages > 1">
-      <p class="text-sm text-gray-500">
-        Showing page <span class="font-medium text-gray-900">{{ (performanceData()!.currentPage || 0) + 1 }}</span> of <span class="font-medium text-gray-900">{{ performanceData()!.totalPages }}</span>
+    <div class="px-6 py-3.5 border-t border-gray-100 flex items-center justify-between bg-gray-50/50" *ngIf="!isLoadingPerformance() && performanceData()!.totalPages && performanceData()!.totalPages > 1">
+      <p class="text-[11px] font-bold text-gray-400 tracking-wide">
+        SHOWING PAGE <span class="text-gray-900">{{ (performanceData()!.currentPage || 0) + 1 }}</span> OF <span class="text-gray-900">{{ performanceData()!.totalPages }}</span>
       </p>
       
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5">
         <button 
           (click)="changePage((performanceData()!.currentPage || 0) - 1)"
           [disabled]="(performanceData()!.currentPage || 0) === 0"
-          class="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          <lucide-icon [img]="ChevronLeftIcon" size="18"></lucide-icon>
+          class="p-1.5 rounded-md border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:shadow-none transition-all shadow-sm">
+          <lucide-icon [img]="ChevronLeftIcon" size="16"></lucide-icon>
         </button>
         <button 
           (click)="changePage((performanceData()!.currentPage || 0) + 1)"
           [disabled]="!performanceData()!.hasNext"
-          class="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          <lucide-icon [img]="ChevronRightIcon" size="18"></lucide-icon>
+          class="p-1.5 rounded-md border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:shadow-none transition-all shadow-sm">
+          <lucide-icon [img]="ChevronRightIcon" size="16"></lucide-icon>
         </button>
       </div>
     </div>

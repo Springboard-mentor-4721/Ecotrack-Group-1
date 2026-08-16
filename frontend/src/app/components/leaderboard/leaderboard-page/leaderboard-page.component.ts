@@ -41,6 +41,7 @@ export class LeaderboardPageComponent implements OnInit {
   challengePage = signal<Page<LeaderboardEntry> | null>(null);
   challengeError = signal<string | null>(null);
   challengeErrorIs403 = signal(false);
+  isDropdownOpen = signal(false);
 
   selectedChallengeParticipant = computed(() => {
     const challenges = this.myChallenges();
@@ -186,19 +187,26 @@ export class LeaderboardPageComponent implements OnInit {
     this.loadGlobalLeaderboard();
   }
 
-  onChallengeSelect(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    if (target.value) {
-      this.selectedChallengeId.set(Number(target.value));
-      this.currentPage.set(0);
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { challengeId: this.selectedChallengeId() },
-        queryParamsHandling: 'merge'
-      });
-      this.loadSelectedChallengeDetail();
-      this.loadChallengeLeaderboard();
-    }
+  toggleDropdown() {
+    this.isDropdownOpen.update(v => !v);
+  }
+
+  selectCustomChallenge(id: number) {
+    this.selectedChallengeId.set(id);
+    this.isDropdownOpen.set(false);
+    this.currentPage.set(0);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { challengeId: this.selectedChallengeId() },
+      queryParamsHandling: 'merge'
+    });
+    this.loadSelectedChallengeDetail();
+    this.loadChallengeLeaderboard();
+  }
+
+  getSelectedChallengeTitle(): string {
+    const participant = this.selectedChallengeParticipant();
+    return participant ? participant.challengeTitle : 'Select Challenge';
   }
 
   loadGlobalLeaderboard() {

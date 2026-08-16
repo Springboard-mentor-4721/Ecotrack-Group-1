@@ -164,6 +164,23 @@ public class PdfExportService {
             document.add(new Paragraph("EcoScore Status", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
             document.add(new Paragraph("Current EcoScore: " + report.getCurrentEcoScore()));
             document.add(new Paragraph("Current Rank: " + report.getCurrentRank()));
+            document.add(new Paragraph(" "));
+            
+            if (report.getXpTransactions() != null && !report.getXpTransactions().isEmpty()) {
+                document.add(new Paragraph("XP Activity", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
+                document.add(new Paragraph(" "));
+                
+                PdfPTable table = new PdfPTable(3);
+                table.setWidthPercentage(100);
+                addTableHeader(table, "Date", "Activity", "XP Amount");
+
+                for (com.ecotrack.report.dto.XpTransactionDTO tx : report.getXpTransactions()) {
+                    table.addCell(tx.getTimestamp());
+                    table.addCell(tx.getDescription());
+                    table.addCell((tx.getAmount() > 0 ? "+" : "") + tx.getAmount());
+                }
+                document.add(table);
+            }
 
             document.close();
             return out.toByteArray();

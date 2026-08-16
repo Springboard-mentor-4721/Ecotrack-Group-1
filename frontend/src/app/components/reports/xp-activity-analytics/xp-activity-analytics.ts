@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../../../services/report.service';
 import { XpActivityPageDTO } from '../../../models/report.models';
-import { LucideAngularModule, Flame, Info, ChevronLeft, ChevronRight, Leaf, Target, Trophy, Calendar, Medal, Plus, RefreshCw } from 'lucide-angular';
+import { LucideAngularModule, Flame, Info, ChevronLeft, ChevronRight, Leaf, Target, Trophy, Calendar, Medal, Plus, RefreshCw, Trash2, CheckCircle, Star } from 'lucide-angular';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -23,6 +23,10 @@ export class XpActivityAnalytics implements OnChanges {
   ChevronLeftIcon = ChevronLeft;
   InfoIcon = Info;
   FlameIcon = Flame;
+  Trash2Icon = Trash2;
+  CheckCircleIcon = CheckCircle;
+  StarIcon = Star;
+  
   @Input() startDate: string = '';
   @Input() endDate: string = '';
 
@@ -43,6 +47,9 @@ export class XpActivityAnalytics implements OnChanges {
   readonly Medal = Medal;
   readonly Plus = Plus;
   readonly RefreshCw = RefreshCw;
+  readonly Trash2 = Trash2;
+  readonly CheckCircle = CheckCircle;
+  readonly Star = Star;
 
   constructor(private reportService: ReportService) {}
 
@@ -87,25 +94,44 @@ export class XpActivityAnalytics implements OnChanges {
     }
   }
 
+  getDisplayLabel(source: string, fallback: string): string {
+    switch (source) {
+      case 'CARBON_ENTRY': return 'Carbon activity logged';
+      case 'GOAL_COMPLETED': return 'Goal completed';
+      case 'CHALLENGE_COMPLETED': return 'Challenge completed';
+      case 'STREAK_BONUS': return 'Streak bonus';
+      case 'DAILY_LOGIN': return 'Daily login';
+      case 'BADGE_BONUS': return 'Badge unlocked';
+      case 'CARBON_ENTRY_DELETED': return 'Carbon activity removed';
+      case 'GOAL_DELETED': return 'Goal removed';
+      default: return fallback && fallback.trim() !== '' ? fallback : 'Activity update';
+    }
+  }
+
   getIconForSource(source: string): any {
     switch(source) {
       case 'CARBON_ENTRY': return this.Leaf;
-      case 'GOAL_COMPLETED': return this.Target;
+      case 'GOAL_COMPLETED': return this.CheckCircle;
       case 'CHALLENGE_COMPLETED': return this.Trophy;
       case 'STREAK_BONUS': return this.Flame;
       case 'DAILY_LOGIN': return this.Calendar;
       case 'BADGE_BONUS': return this.Medal;
-      default: return this.Plus;
+      case 'CARBON_ENTRY_DELETED':
+      case 'GOAL_DELETED': return this.Trash2;
+      default: return this.Info;
     }
   }
   
-  getColorForSource(source: string): string {
+  getColorForSource(source: string, amount: number): string {
+    if (amount < 0) {
+      return 'text-red-500 bg-red-50';
+    }
     switch(source) {
-      case 'CARBON_ENTRY': return 'text-green-500 bg-green-50';
-      case 'GOAL_COMPLETED': return 'text-blue-500 bg-blue-50';
-      case 'CHALLENGE_COMPLETED': return 'text-purple-500 bg-purple-50';
-      case 'STREAK_BONUS': return 'text-orange-500 bg-orange-50';
-      case 'DAILY_LOGIN': return 'text-gray-500 bg-gray-50';
+      case 'CARBON_ENTRY': return 'text-emerald-500 bg-emerald-50';
+      case 'GOAL_COMPLETED': return 'text-emerald-500 bg-emerald-50';
+      case 'CHALLENGE_COMPLETED': return 'text-indigo-500 bg-indigo-50';
+      case 'STREAK_BONUS': return 'text-amber-500 bg-amber-50';
+      case 'DAILY_LOGIN': return 'text-blue-500 bg-blue-50';
       case 'BADGE_BONUS': return 'text-amber-500 bg-amber-50';
       default: return 'text-gray-500 bg-gray-50';
     }

@@ -65,6 +65,7 @@ public class ReportService {
     private final CarbonEntryRepository carbonEntryRepository;
     private final GoalRepository goalRepository;
     private final com.ecotrack.goal.repository.GoalProgressRepository goalProgressRepository;
+    private final com.ecotrack.goal.service.CarbonProgressService carbonProgressService;
     private final ChallengeParticipantRepository challengeParticipantRepository;
     private final UserGamificationProfileRepository gamificationProfileRepository;
     private final com.ecotrack.gamification.repository.XpLedgerRepository xpLedgerRepository;
@@ -254,8 +255,34 @@ public class ReportService {
         long totalGoals = activeGoals + completedGoals;
 
         Map<String, Long> statusDistribution = new HashMap<>();
-        statusDistribution.put(GoalStatus.ACTIVE.name(), activeGoals);
-        statusDistribution.put(GoalStatus.ACHIEVED.name(), completedGoals);
+        List<Goal> allGoals = goalRepository.findByUserId(userId, org.springframework.data.domain.Pageable.unpaged()).getContent();
+
+        for (Goal g : allGoals) {
+            boolean isActiveInPeriod = g.getStatus() == GoalStatus.ACTIVE && !g.getCreatedAt().toLocalDate().isAfter(endDate) && !g.getTargetDate().isBefore(startDate);
+            boolean isCompletedInPeriod = g.getStatus() == GoalStatus.ACHIEVED && g.getUpdatedAt() != null && !g.getUpdatedAt().isBefore(start) && !g.getUpdatedAt().isAfter(end);
+            
+            if (isActiveInPeriod || isCompletedInPeriod) {
+                String computedStatus = g.getStatus().name();
+                
+                if (g.getGoalType().isAutomatic()) {
+                    BigDecimal used = carbonProgressService.calculateDynamicProgress(g);
+                    BigDecimal limit = g.getTargetValue() != null ? g.getTargetValue() : BigDecimal.ZERO;
+                    boolean pastEnd = g.getTargetDate().isBefore(LocalDate.now());
+                    
+                    if (used.compareTo(limit) >= 0) {
+                        computedStatus = "EXCEEDED";
+                    } else if (pastEnd && used.compareTo(limit) <= 0) {
+                        computedStatus = "BUDGET_COMPLETED";
+                    } else if (used.compareTo(limit.multiply(new BigDecimal("0.75"))) >= 0) {
+                        computedStatus = "NEAR_LIMIT";
+                    } else {
+                        computedStatus = "WITHIN_BUDGET";
+                    }
+                }
+                
+                statusDistribution.put(computedStatus, statusDistribution.getOrDefault(computedStatus, 0L) + 1);
+            }
+        }
 
         BigDecimal completionRate = BigDecimal.ZERO;
         if (totalGoals > 0) {
@@ -352,17 +379,55 @@ public class ReportService {
         Page<Goal> goalsPage = goalRepository.findByUserId(userId, PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending()));
 
         List<GoalPerformancePageDTO.GoalPerformanceDTO> dtos = goalsPage.getContent().stream().map(g -> {
-            BigDecimal progressInPeriod = goalProgressRepository.sumProgressByGoalIdAndDateRange(g.getId(), startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
-
-            BigDecimal cumulativeProgress = goalProgressRepository.sumTotalProgressByGoalId(g.getId());
-
-            BigDecimal progressPct = BigDecimal.ZERO;
-            if (g.getTargetValue() != null && g.getTargetValue().compareTo(BigDecimal.ZERO) > 0) {
-                progressPct = cumulativeProgress.divide(g.getTargetValue(), 4, RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(100));
-            }
-            if (progressPct.compareTo(new BigDecimal("100")) > 0) {
-                progressPct = new BigDecimal("100");
+            boolean isAutomatic = g.getGoalType().isAutomatic();
+            
+            BigDecimal progressInPeriod = null;
+            BigDecimal cumulativeProgress = null;
+            BigDecimal progressPct = null;
+            
+            BigDecimal budgetUsedInPeriod = null;
+            BigDecimal budgetCumulativeUsed = null;
+            BigDecimal budgetRemaining = null;
+            BigDecimal budgetUsagePercentage = null;
+            
+            if (isAutomatic) {
+                // Determine usage using CarbonProgressService (which acts cumulatively by default over the goal's lifetime)
+                // For 'InPeriod', we should arguably use a different calculation, but for now we mimic the lifetime usage
+                // because budget goals apply over their whole lifetime. We can use calculateDynamicProgress to get total usage.
+                
+                // Let's create a temporary goal with the requested period to get the period's usage
+                Goal periodGoal = new Goal();
+                periodGoal.setUser(g.getUser());
+                periodGoal.setGoalType(g.getGoalType());
+                periodGoal.setCreatedAt(startDate.atStartOfDay());
+                periodGoal.setTargetDate(endDate);
+                
+                budgetUsedInPeriod = carbonProgressService.calculateDynamicProgress(periodGoal);
+                budgetCumulativeUsed = carbonProgressService.calculateDynamicProgress(g);
+                
+                budgetRemaining = g.getTargetValue().subtract(budgetCumulativeUsed);
+                if (budgetRemaining.compareTo(BigDecimal.ZERO) < 0) {
+                    budgetRemaining = BigDecimal.ZERO;
+                }
+                
+                if (g.getTargetValue() != null && g.getTargetValue().compareTo(BigDecimal.ZERO) > 0) {
+                    budgetUsagePercentage = budgetCumulativeUsed.divide(g.getTargetValue(), 4, RoundingMode.HALF_UP)
+                            .multiply(BigDecimal.valueOf(100));
+                } else {
+                    budgetUsagePercentage = BigDecimal.ZERO;
+                }
+            } else {
+                progressInPeriod = goalProgressRepository.sumProgressByGoalIdAndDateRange(g.getId(), startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
+                cumulativeProgress = goalProgressRepository.sumTotalProgressByGoalId(g.getId());
+                
+                progressPct = BigDecimal.ZERO;
+                if (g.getTargetValue() != null && g.getTargetValue().compareTo(BigDecimal.ZERO) > 0) {
+                    progressPct = cumulativeProgress.divide(g.getTargetValue(), 4, RoundingMode.HALF_UP)
+                            .multiply(BigDecimal.valueOf(100));
+                }
+                if (progressPct.compareTo(new BigDecimal("100")) > 0) {
+                    progressPct = new BigDecimal("100");
+                }
             }
 
             boolean needsAttention = g.getStatus() == GoalStatus.ACTIVE && g.getTargetDate().isBefore(LocalDate.now());
@@ -371,11 +436,16 @@ public class ReportService {
                     .goalId(g.getId())
                     .goalName(g.getTitle())
                     .goalType(g.getGoalType().name())
+                    .isAutomatic(isAutomatic)
                     .targetValue(g.getTargetValue())
                     .unit(g.getUnit())
                     .progressInPeriod(progressInPeriod)
                     .cumulativeProgress(cumulativeProgress)
                     .progressPercentage(progressPct)
+                    .budgetUsedInPeriod(budgetUsedInPeriod)
+                    .budgetCumulativeUsed(budgetCumulativeUsed)
+                    .budgetRemaining(budgetRemaining)
+                    .budgetUsagePercentage(budgetUsagePercentage)
                     .targetDate(g.getTargetDate().toString())
                     .status(g.getStatus().name())
                     .needsAttention(needsAttention)
@@ -534,6 +604,7 @@ public class ReportService {
                 .endDate(endDate.format(DATE_FORMATTER))
                 .totalParticipated(totalParticipated)
                 .completedChallenges(completedChallenges)
+                .failedChallenges(statusDistribution.getOrDefault("FAILED", 0L))
                 .completionRate(completionRate)
                 .totalXpEarned(totalXpEarned)
                 .previousPeriodCompleted(prevCompleted)
@@ -751,6 +822,32 @@ public class ReportService {
 
         UserGamificationProfile profile = gamificationProfileRepository.findByUserId(userId).orElse(null);
 
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(LocalTime.MAX);
+        
+        org.springframework.data.domain.Pageable unpaged = org.springframework.data.domain.Pageable.unpaged();
+        org.springframework.data.domain.Page<com.ecotrack.gamification.entity.XpLedger> xpPage = xpLedgerRepository.findByUser_IdAndAwardedAtBetweenOrderByAwardedAtDesc(userId, start, end, unpaged);
+        
+        List<com.ecotrack.report.dto.XpTransactionDTO> txList = xpPage.getContent().stream()
+                .map(x -> com.ecotrack.report.dto.XpTransactionDTO.builder()
+                        .id(x.getId())
+                        .amount(x.getXpAwarded())
+                        .source(x.getSourceType().name())
+                        .description(switch (x.getSourceType()) {
+                            case CARBON_ENTRY -> "Carbon Entry";
+                            case GOAL_COMPLETED -> "Goal Completed";
+                            case CHALLENGE_COMPLETED -> "Challenge Completed";
+                            case STREAK_BONUS -> "Streak Bonus";
+                            case DAILY_LOGIN -> "Daily Login";
+                            case BADGE_BONUS -> "Badge Bonus";
+                            case CARBON_ENTRY_DELETED -> "Carbon Entry Deleted";
+                            case GOAL_DELETED -> "Goal Deleted";
+                            default -> x.getSourceType().name();
+                        })
+                        .timestamp(x.getAwardedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                        .build())
+                .collect(Collectors.toList());
+
         return SustainabilityReportDTO.builder()
                 .startDate(startDate.format(DATE_FORMATTER))
                 .endDate(endDate.format(DATE_FORMATTER))
@@ -761,6 +858,7 @@ public class ReportService {
                 .xpEarned(challenges.getTotalXpEarned())
                 .currentEcoScore(profile != null && profile.getCurrentEcoScore() != null ? profile.getCurrentEcoScore().intValue() : 0)
                 .currentRank(profile != null ? "Level " + profile.getCurrentLevel() : "NONE")
+                .xpTransactions(txList)
                 .build();
     }
 

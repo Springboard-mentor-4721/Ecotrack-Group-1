@@ -5,8 +5,8 @@
   <div class="sidebar-nav px-3 flex-grow-1 overflow-y-auto mt-2">
 
     <!-- WORKSPACE -->
-    <div class="nav-section mb-4" *ngIf="!isAdmin">
-      <span class="nav-section-title px-3 mb-2 d-block">WORKSPACE</span>
+    <div class="nav-section mb-1" *ngIf="!isAdmin">
+
       <ul class="nav flex-column gap-1">
         <li class="nav-item">
           <a class="nav-link" [routerLink]="isSuspended ? null : '/dashboard'" [class.disabled-link]="isSuspended"
@@ -52,8 +52,14 @@
             routerLinkActive="active">
             <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
+              <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+              <line x1="13" y1="19" x2="19" y2="13"></line>
+              <line x1="16" y1="16" x2="20" y2="20"></line>
+              <line x1="19" y1="21" x2="21" y2="19"></line>
+              <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline>
+              <line x1="5" y1="14" x2="9" y2="18"></line>
+              <line x1="7" y1="17" x2="4" y2="20"></line>
+              <line x1="3" y1="19" x2="5" y2="21"></line>
             </svg>
             <span class="flex-grow-1">Challenges</span>
             <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
@@ -94,9 +100,16 @@
             routerLinkActive="active">
             <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 16v-4"></path>
-              <path d="M12 8h.01"></path>
+              <!-- Rounded square -->
+              <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path>
+              <!-- A -->
+              <path d="M7 16l2.5-7 2.5 7"></path>
+              <path d="M8.5 13.5h3"></path>
+              <!-- i -->
+              <path d="M14 16v-4"></path>
+              <circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle>
+              <!-- Sparkle -->
+              <path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path>
             </svg>
             <span class="flex-grow-1">Recommendations</span>
             <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
@@ -107,8 +120,13 @@
             routerLinkActive="active">
             <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 3v18h18"></path>
-              <path d="M18 9l-5 5-3-3-4 4"></path>
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              <path d="M7 10h10"></path>
+              <path d="M7 14h10"></path>
+              <path d="M7 18h10"></path>
+              <path d="M13 14l2-2 2 2" stroke-width="1.5"></path>
+              <circle cx="9" cy="15" r="2" stroke-width="1.5"></circle>
             </svg>
             <span class="flex-grow-1">Reports</span>
             <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
@@ -118,8 +136,8 @@
     </div>
 
     <!-- ADMINISTRATION -->
-    <div class="nav-section mb-4" *ngIf="isAdmin">
-      <span class="nav-section-title px-3 mb-2 d-block">ADMINISTRATION</span>
+    <div class="nav-section mb-1" *ngIf="isAdmin">
+
       <ul class="nav flex-column gap-1">
         <li class="nav-item">
           <a class="nav-link" [routerLink]="isSuspended ? null : '/admin/dashboard'" [class.disabled-link]="isSuspended" routerLinkActive="active">
@@ -137,8 +155,14 @@
             [class.disabled-link]="isSuspended" routerLinkActive="active">
             <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
+              <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+              <line x1="13" y1="19" x2="19" y2="13"></line>
+              <line x1="16" y1="16" x2="20" y2="20"></line>
+              <line x1="19" y1="21" x2="21" y2="19"></line>
+              <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline>
+              <line x1="5" y1="14" x2="9" y2="18"></line>
+              <line x1="7" y1="17" x2="4" y2="20"></line>
+              <line x1="3" y1="19" x2="5" y2="21"></line>
             </svg>
             <span class="flex-grow-1">Challenges</span>
             <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
@@ -173,8 +197,8 @@
     </div>
 
     <!-- ACCOUNT -->
-    <div class="nav-section mb-4">
-      <span class="nav-section-title px-3 mb-2 d-block">ACCOUNT</span>
+    <div class="nav-section mb-1">
+
       <ul class="nav flex-column gap-1">
         <li class="nav-item">
           <a class="nav-link" routerLink="/profile" routerLinkActive="active">

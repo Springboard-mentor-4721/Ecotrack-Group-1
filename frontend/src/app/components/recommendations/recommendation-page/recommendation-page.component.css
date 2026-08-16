@@ -1,1 +1,25 @@
-/* recommendation-page styles */
+/* AI theme colors */
+.bg-ai-gradient {
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6) !important;
+}
+.text-ai {
+  color: #6366f1 !important;
+}
+.bg-ai {
+  background-color: #6366f1 !important;
+}
+.bg-ai-soft {
+  background-color: #e0e7ff !important;
+}
+.border-ai {
+  border-color: #e0e7ff !important;
+}
+.btn-ai {
+  background-color: #6366f1 !important;
+  color: white !important;
+  border: none !important;
+}
+.btn-ai:hover {
+  background-color: #4f46e5 !important;
+  color: white !important;
+}

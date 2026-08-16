@@ -379,8 +379,8 @@
         <div class="card bg-surface border-0 rounded-3 p-3 mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fs-sm fw-600 text-muted">Status</span>
-            <span *ngIf="selectedBadge()?.isEarned" class="badge bg-emerald-light text-emerald fw-bold px-2 py-1">Unlocked</span>
-            <span *ngIf="!selectedBadge()?.isEarned" class="badge bg-light text-secondary fw-bold px-2 py-1"><svg width="12" height="12" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Locked</span>
+            <span *ngIf="selectedBadge()?.isEarned" class="badge bg-emerald-light text-emerald fw-bold px-2 py-1 d-inline-flex align-items-center justify-content-center">Unlocked</span>
+            <span *ngIf="!selectedBadge()?.isEarned" class="badge bg-light text-secondary fw-bold px-2 py-1 d-inline-flex align-items-center justify-content-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Locked</span>
           </div>
 
           <div class="d-flex justify-content-between align-items-center" [class.mb-2]="selectedBadge()?.type !== 'CHALLENGE'" *ngIf="selectedBadge()?.isEarned && selectedBadge()?.awardedAt">

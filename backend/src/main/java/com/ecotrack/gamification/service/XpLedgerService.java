@@ -71,12 +71,43 @@ public class XpLedgerService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void revokeXp(Long userId, Integer xpAmount, XpSourceType sourceType, Long sourceId, String correlationId) {
+        if (xpAmount <= 0) {
+            return;
+        }
+
+        userRepository.findById(userId).ifPresent(user -> {
+            XpLedger ledger = XpLedger.builder()
+                    .user(user)
+                    .xpAwarded(-xpAmount)
+                    .sourceType(sourceType)
+                    .sourceId(sourceId)
+                    .build();
+
+            xpLedgerRepository.save(ledger);
+            
+            Long totalXp = xpLedgerRepository.findSumByUserId(userId);
+            log.info("Revoked {} XP from user {} for {} (sourceId: {})", xpAmount, userId, sourceType, sourceId);
+
+            eventPublisher.publishEvent(new XPGrantedEvent(userId, -xpAmount, totalXp, correlationId));
+        });
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCarbonEntryCreated(CarbonEntryCreatedEvent event) {
         int cap = configService.getInt("MAX_DAILY_CARBON_ENTRY_CAP", 3);
         int xp = configService.getInt("CARBON_ENTRY_XP", 25);
         
         awardXpWithCap(event.getUserId(), xp, XpSourceType.CARBON_ENTRY, event.getEntryId(), cap, event.getCorrelationId());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleCarbonEntryDeleted(com.ecotrack.event.CarbonEntryDeletedEvent event) {
+        int xp = configService.getInt("CARBON_ENTRY_XP", 25);
+        
+        revokeXp(event.getUserId(), xp, XpSourceType.CARBON_ENTRY_DELETED, event.getEntryId(), java.util.UUID.randomUUID().toString());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -89,6 +120,14 @@ public class XpLedgerService {
         int xp = configService.getInt("GOAL_COMPLETION_XP", 100);
         
         awardXp(event.getUserId(), xp, XpSourceType.GOAL_COMPLETED, event.getGoalId(), event.getCorrelationId());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleGoalDeleted(com.ecotrack.event.GoalDeletedEvent event) {
+        int xp = configService.getInt("GOAL_COMPLETION_XP", 100);
+        
+        revokeXp(event.getUserId(), xp, XpSourceType.GOAL_DELETED, event.getGoalId(), event.getCorrelationId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

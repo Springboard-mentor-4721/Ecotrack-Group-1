@@ -7,9 +7,8 @@ import { CarbonAnalytics } from './carbon-analytics/carbon-analytics';
 import { GoalsAnalytics } from './goals-analytics/goals-analytics';
 import { ChallengeAnalytics } from './challenge-analytics/challenge-analytics';
 import { SustainabilityAnalytics } from './sustainability-analytics/sustainability-analytics';
-import { XpActivityAnalytics } from './xp-activity-analytics/xp-activity-analytics';
 import { ReportService } from '../../services/report.service';
-import { LucideAngularModule, FileText, Download } from 'lucide-angular';
+import { LucideAngularModule, FileText, Download, X } from 'lucide-angular';
 
 @Component({
   selector: 'app-reports',
@@ -23,8 +22,7 @@ import { LucideAngularModule, FileText, Download } from 'lucide-angular';
     CarbonAnalytics,
     GoalsAnalytics,
     ChallengeAnalytics,
-    SustainabilityAnalytics,
-    XpActivityAnalytics
+    SustainabilityAnalytics
   ],
   providers: [DatePipe],
   templateUrl: './reports.html',
@@ -33,10 +31,26 @@ import { LucideAngularModule, FileText, Download } from 'lucide-angular';
 export class ReportsComponent implements OnInit {
   FileTextIcon = FileText;
   DownloadIcon = Download;
+  XIcon = X;
+  
+  showExportModal = false;
+  pendingExportFormat: 'PDF' | 'EXCEL' | 'CSV' | null = null;
   currentTab: 'overview' | 'carbon' | 'goals' | 'challenges' | 'sustainability' | 'xp-activity' = 'overview';
 
   startDate: string = '';
   endDate: string = '';
+
+  get currentTabName(): string {
+    const tabMap: Record<string, string> = {
+      'overview': 'Overview Analytics',
+      'carbon': 'Carbon Analytics',
+      'goals': 'Goals Analytics',
+      'challenges': 'Challenges Analytics',
+      'sustainability': 'Eco Progress',
+      'xp-activity': 'XP Activity'
+    };
+    return tabMap[this.currentTab] || 'Analytics';
+  }
 
   constructor(private reportService: ReportService) {}
 
@@ -53,7 +67,23 @@ export class ReportsComponent implements OnInit {
     this.endDate = dates.endDate;
   }
 
-  exportReport(format: 'PDF' | 'EXCEL'): void {
+  openExportModal(format: 'PDF' | 'EXCEL' | 'CSV'): void {
+    this.pendingExportFormat = format;
+    this.showExportModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeExportModal(): void {
+    this.showExportModal = false;
+    this.pendingExportFormat = null;
+    document.body.style.overflow = '';
+  }
+
+  confirmExport(): void {
+    if (!this.pendingExportFormat) return;
+    const format = this.pendingExportFormat;
+    this.closeExportModal();
+
     // Will be handled in Phase 8, but preserving the structure
     // We can use the currentTab if it's one of the old ones, or block it for now
     let type = this.currentTab;
@@ -67,7 +97,7 @@ export class ReportsComponent implements OnInit {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          const ext = format === 'PDF' ? 'pdf' : 'xlsx';
+          const ext = format === 'PDF' ? 'pdf' : format === 'CSV' ? 'csv' : 'xlsx';
           a.download = `ecotrack-${this.currentTab}-report-${this.startDate}-to-${this.endDate}.${ext}`;
           a.click();
           window.URL.revokeObjectURL(url);

@@ -42,7 +42,7 @@ Each module contains its own dedicated documentation covering project structure,
 - Jeevan Marshal P
 - Gokul S
 - Anushka Kumari
-- Bhavana Chappa
+
 
 ---
 

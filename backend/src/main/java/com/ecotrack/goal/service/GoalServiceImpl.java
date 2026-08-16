@@ -187,6 +187,7 @@ public class GoalServiceImpl implements GoalService {
         Goal goal = goalRepository.findByIdAndUserId(goalId, userId)
                 .orElseThrow(() -> new GoalNotFoundException("Goal not found or does not belong to user"));
         goalRepository.delete(goal);
+        eventPublisher.publishEvent(new com.ecotrack.event.GoalDeletedEvent(userId, goalId, java.util.UUID.randomUUID().toString()));
     }
 
     @Override
@@ -322,13 +323,11 @@ public class GoalServiceImpl implements GoalService {
         
         for (Goal goal : activeAutoGoals) {
             BigDecimal currentProgress = progressMap.getOrDefault(goal.getId(), BigDecimal.ZERO);
-            if (currentProgress.compareTo(goal.getTargetValue()) >= 0) {
-                log.info("Automatic Goal {} target reached! Transitioning to ACHIEVED.", goal.getId());
-                Goal goalToUpdate = goalRepository.findById(goal.getId()).get();
-                goalToUpdate.setStatus(GoalStatus.ACHIEVED);
-                goalRepository.save(goalToUpdate);
-                eventPublisher.publishEvent(new GoalCompletedEvent(goalToUpdate.getUser().getId(), goalToUpdate.getId(), java.util.UUID.randomUUID().toString()));
-            }
+            // For budget goals (automatic), going over the target is a failure.
+            // We should NOT mark it as ACHIEVED here.
+            // If we want to mark it as failed, we could set it to ABANDONED or EXPIRED,
+            // or simply leave it ACTIVE until the target date passes.
+            // The frontend logic treats it as a budget where lower is better.
         }
     }
 }

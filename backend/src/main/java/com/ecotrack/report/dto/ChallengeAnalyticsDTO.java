@@ -20,6 +20,7 @@ public class ChallengeAnalyticsDTO {
     // Summary KPIs
     private long totalParticipated;
     private long completedChallenges;
+    private long failedChallenges;
     private BigDecimal completionRate; // Percentage
     private long totalXpEarned;
     

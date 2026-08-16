@@ -3,19 +3,22 @@ import { CommonModule } from '@angular/common';
 import { ReportService } from '../../../services/report.service';
 import { SustainabilityAnalyticsDTO } from '../../../models/report.models';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
-import { LucideAngularModule, Leaf, Target, Trophy, Flame, TrendingUp, TrendingDown, Minus, Info, ArrowRight, Activity, ArrowUpRight, ArrowDownRight, CircleDot } from 'lucide-angular';
+import { LucideAngularModule, Leaf, Target, Trophy, Flame, TrendingUp, TrendingDown, Minus, Info, ArrowRight, Activity, ArrowUpRight, ArrowDownRight, CircleDot, CircleCheck, Swords } from 'lucide-angular';
 import { RouterModule } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+import { XpActivityAnalytics } from '../xp-activity-analytics/xp-activity-analytics';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-sustainability-analytics',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterModule],
+  imports: [CommonModule, LucideAngularModule, RouterModule, XpActivityAnalytics],
   templateUrl: './sustainability-analytics.html'
 })
 export class SustainabilityAnalytics implements OnChanges, AfterViewInit {
+  SwordsIcon = Swords;
+  CircleCheckIcon = CircleCheck;
   CircleDotIcon = CircleDot;
   ArrowDownRightIcon = ArrowDownRight;
   ArrowUpRightIcon = ArrowUpRight;
@@ -52,6 +55,7 @@ export class SustainabilityAnalytics implements OnChanges, AfterViewInit {
   readonly ArrowUpRight = ArrowUpRight;
   readonly ArrowDownRight = ArrowDownRight;
   readonly CircleDot = CircleDot;
+  readonly CircleCheck = CircleCheck;
 
   constructor(private reportService: ReportService) {}
 
@@ -116,24 +120,36 @@ export class SustainabilityAnalytics implements OnChanges, AfterViewInit {
           {
             label: 'Current Period',
             data: currentData,
-            backgroundColor: '#10b981', // green-500
-            borderRadius: 4
+            backgroundColor: '#10b981', // emerald-500
+            borderRadius: 6,
+            maxBarThickness: 48,
+            borderSkipped: false
           },
           {
             label: 'Previous Period',
             data: prevData,
-            backgroundColor: '#9ca3af', // gray-400
-            borderRadius: 4
+            backgroundColor: '#e5e7eb', // gray-200
+            borderRadius: 6,
+            maxBarThickness: 48,
+            borderSkipped: false
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: { top: 10, bottom: 10 }
+        },
         plugins: {
           legend: {
             position: 'top',
-            labels: { font: { family: "'Inter', sans-serif" } }
+            labels: { 
+              font: { family: "'Inter', sans-serif", size: 12, weight: 'bold' },
+              usePointStyle: true,
+              boxWidth: 8,
+              padding: 20
+            }
           },
           tooltip: {
             backgroundColor: 'rgba(17, 24, 39, 0.9)',

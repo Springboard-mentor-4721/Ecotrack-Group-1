@@ -19,9 +19,7 @@ import { forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 
-import { RecentAchievementsComponent } from './widgets/recent-achievements/recent-achievements.component';
 import { EcoTipCardComponent } from './widgets/eco-tip-card/eco-tip-card.component';
-import { UnifiedInsightsPanelComponent } from './widgets/unified-insights-panel/unified-insights-panel.component';
 import { AiFeatureState } from '../../models/ai-feature-state.model';
 import { EcoTipResponse } from '../../models/ai-models';
 import { EcoScoreColorPipe } from '../../shared/pipes/eco-score-color.pipe';
@@ -45,8 +43,6 @@ import {
     LoadingSkeletonComponent, 
     BaseChartDirective,
     EcoTipCardComponent,
-    UnifiedInsightsPanelComponent,
-    RecentAchievementsComponent,
     EcoScoreColorPipe,
     LucideAngularModule
   ],
@@ -322,6 +318,15 @@ export class DashboardComponent implements OnInit {
       return `Top source: ${top.name} \u00B7 ${top.percentage.toFixed(0)}%`;
     }
     return 'Last 30 Days';
+  });
+
+  xpProgressPercent = computed(() => {
+    const profile = this.dashboardSummary()?.gamificationProfile;
+    if (!profile || !profile.nextLevelXp) return 0;
+    const currentProgress = profile.lifetimeEcoXp - profile.currentLevelBaseXp;
+    const requiredForNext = profile.nextLevelXp - profile.currentLevelBaseXp;
+    if (requiredForNext <= 0) return 100;
+    return Math.min((currentProgress / requiredForNext) * 100, 100);
   });
 
   getMetricUnit(metric: string | undefined): string {

@@ -995,8 +995,17 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
     return shortcuts;
   }
 
-  quickLog(entry: CarbonEntryResponse): void {
+  quickEntryConfirmEntry: any = null;
+
+  quickLog(entry: any): void {
     if (this.isSubmitting()) return;
+    this.quickEntryConfirmEntry = entry;
+  }
+
+  confirmQuickLogAdd(): void {
+    if (!this.quickEntryConfirmEntry || this.isSubmitting()) return;
+    const entry = this.quickEntryConfirmEntry;
+    this.quickEntryConfirmEntry = null;
 
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
@@ -1029,6 +1038,39 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
           this.handleBackendErrors(err, 'Failed to log quick entry.');
         }
       });
+  }
+
+  confirmQuickLogEdit(): void {
+    if (!this.quickEntryConfirmEntry) return;
+    const entry = this.quickEntryConfirmEntry;
+    this.quickEntryConfirmEntry = null;
+
+    this.isEditing = false;
+    this.showAddEntryCard = true;
+    document.body.style.overflow = 'hidden';
+    this.currentEditingId = null;
+
+    this.entryForm.get('categoryId')?.setValue(entry.categoryId, { emitEvent: false });
+    const category = this.categories.find(c => c.id === entry.categoryId);
+    this.availableSubTypes = category?.subCategories || [];
+
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const eDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    const eTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    this.entryForm.patchValue({
+      subCategoryId: entry.subCategoryId,
+      quantity: entry.quantity,
+      unit: entry.unit,
+      entryDateDate: eDate,
+      entryDateTime: eTime,
+      notes: ''
+    });
+  }
+
+  cancelQuickLog(): void {
+    this.quickEntryConfirmEntry = null;
   }
 
   showToast(message: string, type: 'success' | 'error'): void {

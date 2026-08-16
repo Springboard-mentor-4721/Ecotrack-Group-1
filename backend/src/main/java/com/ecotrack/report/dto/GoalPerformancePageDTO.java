@@ -30,11 +30,22 @@ public class GoalPerformancePageDTO {
         private Long goalId;
         private String goalName;
         private String goalType; // MANUAL, AUTO
+        @com.fasterxml.jackson.annotation.JsonProperty("isAutomatic")
+        private boolean isAutomatic;
         private BigDecimal targetValue;
         private String unit;
+        
+        // Manual Goal fields
         private BigDecimal progressInPeriod;
         private BigDecimal cumulativeProgress;
         private BigDecimal progressPercentage;
+        
+        // Automatic Budget fields
+        private BigDecimal budgetUsedInPeriod;
+        private BigDecimal budgetCumulativeUsed;
+        private BigDecimal budgetRemaining;
+        private BigDecimal budgetUsagePercentage;
+        
         private String targetDate;
         private String status;
         private boolean needsAttention;

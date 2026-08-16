@@ -29,4 +29,7 @@ public class SustainabilityReportDTO {
     // Current state gamification
     private int currentEcoScore;
     private String currentRank;
+
+    // XP Activity
+    private java.util.List<XpTransactionDTO> xpTransactions;
 }

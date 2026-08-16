@@ -167,11 +167,21 @@ export interface GoalPerformanceDTO {
   goalId: number;
   goalName: string;
   goalType: string;
+  isAutomatic: boolean;
   targetValue: number;
   unit: string;
+  
+  // Manual Goal fields
   progressInPeriod: number;
   cumulativeProgress: number;
   progressPercentage: number;
+  
+  // Automatic Budget fields
+  budgetUsedInPeriod: number;
+  budgetCumulativeUsed: number;
+  budgetRemaining: number;
+  budgetUsagePercentage: number;
+  
   targetDate: string;
   status: string;
   needsAttention: boolean;
@@ -193,6 +203,7 @@ export interface ChallengeAnalyticsDTO {
   endDate: string;
   totalParticipated: number;
   completedChallenges: number;
+  failedChallenges: number;
   completionRate: number;
   totalXpEarned: number;
   previousPeriodCompleted: number;

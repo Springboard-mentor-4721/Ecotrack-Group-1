@@ -5,6 +5,7 @@ import com.ecotrack.report.dto.ChallengeReportDTO;
 import com.ecotrack.report.dto.ExportFormat;
 import com.ecotrack.report.dto.GoalReportDTO;
 import com.ecotrack.report.dto.SustainabilityReportDTO;
+import com.ecotrack.report.service.CsvExportService;
 import com.ecotrack.report.service.ExcelExportService;
 import com.ecotrack.report.service.PdfExportService;
 import com.ecotrack.report.service.ReportService;
@@ -33,6 +34,7 @@ public class ReportController {
     private final ReportService reportService;
     private final PdfExportService pdfExportService;
     private final ExcelExportService excelExportService;
+    private final CsvExportService csvExportService;
     private final UserRepository userRepository;
 
 
@@ -79,6 +81,9 @@ public class ReportController {
         } else if (format == ExportFormat.EXCEL) {
             byte[] excel = excelExportService.exportCarbonReport(report);
             return createFileResponse(excel, "ecotrack-carbon-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        } else if (format == ExportFormat.CSV) {
+            byte[] csv = csvExportService.exportCarbonReport(report);
+            return createFileResponse(csv, "ecotrack-carbon-report-" + startDate + "-to-" + endDate + ".csv", MediaType.valueOf("text/csv"));
         }
 
         return ResponseEntity.ok(report);
@@ -128,6 +133,9 @@ public class ReportController {
         } else if (format == ExportFormat.EXCEL) {
             byte[] excel = excelExportService.exportGoalReport(report);
             return createFileResponse(excel, "ecotrack-goals-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        } else if (format == ExportFormat.CSV) {
+            byte[] csv = csvExportService.exportGoalReport(report);
+            return createFileResponse(csv, "ecotrack-goals-report-" + startDate + "-to-" + endDate + ".csv", MediaType.valueOf("text/csv"));
         }
 
         return ResponseEntity.ok(report);
@@ -177,6 +185,9 @@ public class ReportController {
         } else if (format == ExportFormat.EXCEL) {
             byte[] excel = excelExportService.exportChallengeReport(report);
             return createFileResponse(excel, "ecotrack-challenges-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        } else if (format == ExportFormat.CSV) {
+            byte[] csv = csvExportService.exportChallengeReport(report);
+            return createFileResponse(csv, "ecotrack-challenges-report-" + startDate + "-to-" + endDate + ".csv", MediaType.valueOf("text/csv"));
         }
 
         return ResponseEntity.ok(report);
@@ -212,6 +223,9 @@ public class ReportController {
         } else if (format == ExportFormat.EXCEL) {
             byte[] excel = excelExportService.exportSustainabilityReport(report);
             return createFileResponse(excel, "ecotrack-sustainability-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        } else if (format == ExportFormat.CSV) {
+            byte[] csv = csvExportService.exportSustainabilityReport(report);
+            return createFileResponse(csv, "ecotrack-sustainability-report-" + startDate + "-to-" + endDate + ".csv", MediaType.valueOf("text/csv"));
         }
 
         return ResponseEntity.ok(report);

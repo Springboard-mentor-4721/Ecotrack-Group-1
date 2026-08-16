@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Target, Activity, Users, Settings, Hand } from 'lucide-angular';
+import { LucideAngularModule, Trophy, Swords, Users, Settings, Hand } from 'lucide-angular';
 
 @Component({
   selector: 'app-challenge-quick-stats-widget',
@@ -11,8 +11,8 @@ import { LucideAngularModule, Target, Activity, Users, Settings, Hand } from 'lu
 export class ChallengeQuickStatsWidgetComponent {
   @Input() challenge: any;
   
-  readonly TargetIcon = Target;
-  readonly ActivityIcon = Activity;
+  readonly TargetIcon = Trophy;
+  readonly ActivityIcon = Swords;
   readonly UsersIcon = Users;
   readonly SettingsIcon = Settings;
   readonly HandIcon = Hand;

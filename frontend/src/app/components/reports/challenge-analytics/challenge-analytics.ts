@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReportService } from '../../../services/report.service';
 import { ChallengeAnalyticsDTO, ChallengePerformancePageDTO } from '../../../models/report.models';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
-import { LucideAngularModule, Trophy, Flame, Target, CircleCheck, ArrowUpRight, ArrowDownRight, Minus, TriangleAlert, ChevronLeft, ChevronRight, CircleDot } from 'lucide-angular';
+import { LucideAngularModule, Trophy, Flame, Target, CircleCheck, ArrowUpRight, ArrowDownRight, Minus, TriangleAlert, ChevronLeft, ChevronRight, CircleDot, Swords, PieChart, XCircle } from 'lucide-angular';
 import { finalize } from 'rxjs/operators';
 
 Chart.register(...registerables);
@@ -15,6 +15,9 @@ Chart.register(...registerables);
   templateUrl: './challenge-analytics.html'
 })
 export class ChallengeAnalytics implements OnChanges, AfterViewInit {
+  SwordsIcon = Swords;
+  PieChartIcon = PieChart;
+  XCircleIcon = XCircle;
   CircleDotIcon = CircleDot;
   ChevronRightIcon = ChevronRight;
   ChevronLeftIcon = ChevronLeft;

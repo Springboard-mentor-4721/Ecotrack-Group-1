@@ -22,7 +22,7 @@ import { finalize } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-goals',
@@ -33,6 +33,7 @@ import { Router } from '@angular/router';
     ReactiveFormsModule,
     LoadingSkeletonComponent,
     EmptyStateComponent,
+    RouterModule,
   ],
   templateUrl: './goals.html',
   styleUrls: ['./goals.css'],

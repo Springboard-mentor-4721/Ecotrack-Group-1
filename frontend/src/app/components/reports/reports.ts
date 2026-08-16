@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { AnalyticsFilter } from './analytics-filter/analytics-filter';
 import { AnalyticsNavigation } from './analytics-navigation/analytics-navigation';
 import { OverviewAnalytics } from './overview-analytics/overview-analytics';
@@ -52,10 +53,32 @@ export class ReportsComponent implements OnInit {
     return tabMap[this.currentTab] || 'Analytics';
   }
 
-  constructor(private reportService: ReportService) {}
+  constructor(
+    private reportService: ReportService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     // Initial dates set by filter component
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        const allowedTabs = ['overview', 'carbon', 'goals', 'challenges', 'sustainability', 'xp-activity'];
+        if (allowedTabs.includes(params['tab'])) {
+          this.currentTab = params['tab'] as any;
+        }
+      }
+    });
+
+    this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        setTimeout(() => {
+          const element = document.getElementById(fragment);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
+    });
   }
 
   onTabChanged(tab: any): void {

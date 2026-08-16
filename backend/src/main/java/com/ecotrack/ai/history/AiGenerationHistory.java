@@ -52,7 +52,6 @@ public class AiGenerationHistory {
 
     public enum ContentType {
         JOURNAL_SUMMARY,
-        SUSTAINABILITY_INSIGHT,
         RECOMMENDATION
     }
 

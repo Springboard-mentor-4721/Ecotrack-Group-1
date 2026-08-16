@@ -34,6 +34,7 @@ public class AiRecommendationService {
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final com.ecotrack.ai.history.AiGenerationHistoryRepository historyRepository;
+    private final com.ecotrack.ai.history.AiHistoryCleanupService cleanupService;
 
     @Value("${app.ai.recommendation.cooldown-minutes:1}")
     private int cooldownMinutes;
@@ -78,13 +79,7 @@ public class AiRecommendationService {
         
         UserContextDTO context = contextAssemblyService.assembleContext(userId, previousRecommendations);
         
-        // Zero-data short circuit
-        if (context.getEligibleTargets() == null || context.getEligibleTargets().isEmpty()) {
-            log.info("No eligible targets for user {}, returning deterministic starter tips.", userId);
-            List<Recommendation> fallback = getFallbackRecommendations(userId);
-            recommendationRepository.deleteByUserId(userId);
-            return recommendationRepository.saveAll(fallback).stream().map(this::mapToDTO).collect(Collectors.toList());
-        }
+        // Removed zero-data short circuit to allow AI to generate onboarding tips
 
         String prompt = promptBuilderService.buildPrompt(context);
         
@@ -108,12 +103,8 @@ public class AiRecommendationService {
                 String recommendation = (String) map.get("recommendation");
                 String rationale = (String) map.get("rationale");
                 
-                // Validate against eligible targets
-                boolean isValidTarget = context.getEligibleTargets().stream()
-                    .anyMatch(t -> t.getCategoryCode().equals(catCode) && t.getSubCategoryName().equals(subCat));
-                
-                if (!isValidTarget || recommendation == null || catCode == null) {
-                    log.warn("Discarding invalid or hallucinated recommendation target: {} / {}", catCode, subCat);
+                if (recommendation == null || catCode == null || recommendation.isBlank()) {
+                    log.warn("Discarding invalid recommendation: missing category or text");
                     continue;
                 }
                 
@@ -171,6 +162,7 @@ public class AiRecommendationService {
             history.setGenerationSource("MANUAL");
             history.setGeneratedAt(LocalDateTime.now());
             historyRepository.save(history);
+            cleanupService.cleanupOldHistory(userId);
         } catch (Exception e) {
             log.warn("Failed to persist AI history for recommendations, user {}", userId, e);
         }

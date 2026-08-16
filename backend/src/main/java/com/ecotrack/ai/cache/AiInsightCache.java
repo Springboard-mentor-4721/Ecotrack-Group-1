@@ -38,8 +38,7 @@ public class AiInsightCache {
     private GenerationSource generationSource;
 
     public enum InsightType {
-        SMART_SUGGESTION, DAILY_TIP, TREND_PREDICTION, JOURNAL_SUMMARY, BEHAVIORAL_INSIGHT,
-        AI_SUSTAINABILITY_INSIGHTS
+        SMART_SUGGESTION, DAILY_TIP, TREND_PREDICTION, JOURNAL_SUMMARY, BEHAVIORAL_INSIGHT
     }
 
     public enum GenerationSource {

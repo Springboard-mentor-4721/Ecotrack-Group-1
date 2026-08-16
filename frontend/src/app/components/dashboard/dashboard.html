@@ -128,9 +128,9 @@
       <!-- Monthly Impact -->
       <div class="col-lg-4">
         <div class="impact-feature-card hover-elevate h-100 p-4 rounded-4 d-flex flex-column justify-content-center position-relative overflow-hidden shadow-sm" style="min-height: 220px;">
-          <div class="position-relative z-1 text-center text-lg-start">
+          <div class="position-relative z-1 text-center">
             <span class="text-uppercase fw-bold tracking-wider fs-xs mb-3 d-block text-muted">Current Month</span>
-            <div class="d-flex align-items-baseline justify-content-center justify-content-lg-start gap-2 mb-4">
+            <div class="d-flex align-items-baseline justify-content-center gap-2 mb-4">
               <span class="display-3 fw-black text-dark lh-1" style="letter-spacing: -0.04em;">{{ dashboardSummary()!.userSummary.monthlyEmission > 0 ? (dashboardSummary()!.userSummary.monthlyEmission | number:'1.0-1') : '0' }}</span>
               <span class="fw-bold fs-6 text-muted">kgCO2e</span>
             </div>
@@ -142,12 +142,10 @@
                <svg *ngIf="emissionsChangePercent()! > 0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
                {{ Math.abs(emissionsChangePercent() || 0) | number:'1.0-1' }}% vs last month
             </div>
-            <div class="fs-xs text-muted mt-2" *ngIf="emissionsChangePercent() === null">
+            <div class="fs-xs text-muted mt-2 mx-auto" *ngIf="emissionsChangePercent() === null">
               Keep logging to unlock month-over-month insights.
             </div>
           </div>
-          <!-- Decorative leaf background -->
-          <svg class="position-absolute bottom-0 end-0 text-success opacity-5 w-50 h-50 mb-n4 me-n4 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66l.95-2.3c.48.17 1.04.3 1.71.3C13.19 20 19 18.5 22 13V3h-9.98c0 0-.01.27-.02.4C12 3.65 12 4.41 12 5c0 3 2 5 2 5s-2-2-4-2c-3.14 0-4.66 1.9-5.18 3.5C7 11.23 8.35 12 10 12c1 0 2-.42 2-1c0 0 2 2 5c0 .35-.04.68-.1 1c1.23-1.63 2.1-4.07 2.1-7h1v-1z"/></svg>
         </div>
       </div>
       
@@ -181,26 +179,24 @@
 
     <div class="row g-4 mb-5 animate-stagger-item align-items-stretch">
       <!-- Source Distribution -->
-      <div class="col-lg-5">
+      <div class="col-lg-7">
         <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
-          <div class="d-flex flex-column gap-3 mb-4">
-            <div class="fw-bold fs-5 text-dark text-start">Source Distribution</div>
-            <div class="d-flex justify-content-center w-100">
-               <div class="fs-xs fw-medium text-slate-muted bg-light px-3 py-1 rounded">{{ topSourceInsight() }}</div>
-            </div>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="fw-bold fs-5 text-dark">Source Distribution</div>
+            <div class="fs-xs fw-medium text-slate-muted bg-light px-3 py-1 rounded">{{ topSourceInsight() }}</div>
           </div>
           
           <ng-container *ngIf="carbonSources().length > 1; else singleDoughnut">
-            <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-              <div class="position-relative mb-4 mt-2" style="height: 240px; width: 240px;">
+            <div class="d-flex flex-column flex-xl-row align-items-center justify-content-center gap-4 flex-grow-1 mt-2">
+              <div class="position-relative flex-shrink-0" style="height: 240px; width: 240px;">
                 <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" [type]="doughnutChartType"></canvas>
                 <div class="position-absolute top-50 start-50 translate-middle text-center">
                   <span class="fw-bold text-dark d-block lh-1 fs-4">{{ dashboardSummary()!.userSummary.monthlyEmission | number:'1.0-0' }}</span>
                   <span class="fs-xs text-muted" style="font-size: 0.65rem;">kgCO2e</span>
                 </div>
               </div>
-              <div class="w-100 px-3 px-xl-4 mt-auto">
-                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-light" *ngFor="let source of carbonSources()">
+              <div class="w-100 flex-grow-1">
+                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-light" *ngFor="let source of carbonSources()">
                   <div class="d-flex align-items-center gap-2">
                     <span class="rounded-circle d-inline-block" [style.backgroundColor]="source.color" style="width: 8px; height: 8px;"></span>
                     <span class="fw-bold text-dark fs-sm">{{ source.name }}</span>
@@ -236,7 +232,7 @@
       </div>
       
       <!-- Recent Carbon Entries -->
-      <div class="col-lg-7">
+      <div class="col-lg-5">
         <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="fw-bold text-dark fs-5 mb-0">Recent Carbon Entries</div>
@@ -245,7 +241,7 @@
           
           <div class="d-flex flex-column flex-grow-1">
              <div *ngIf="dashboardSummary()!.recentActivities.length > 0; else emptyEntries">
-               <div class="history-list-item d-flex align-items-center justify-content-between py-3 border-bottom border-light" *ngFor="let entry of dashboardSummary()!.recentActivities.slice(0, 5); let last = last" [class.border-bottom-0]="last">
+               <div class="history-list-item d-flex align-items-center justify-content-between py-2 border-bottom border-light" *ngFor="let entry of dashboardSummary()!.recentActivities.slice(0, 6); let last = last" [class.border-bottom-0]="last">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-light rounded-circle p-2 text-slate-muted shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                     <ng-container [ngSwitch]="entry.category">
@@ -389,17 +385,18 @@
 
     <div class="row g-4 mb-0 animate-stagger-item align-items-stretch">
       <!-- Recent Achievements -->
-      <div class="col-lg-8">
+      <div class="col-lg-7">
         <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="fw-bold text-dark fs-5 mb-0">Recent Achievements</div>
+            <a routerLink="/achievements" class="text-teal text-decoration-none fw-bold fs-xs hover-teal">View All</a>
           </div>
           
           <div class="d-flex flex-column flex-grow-1">
              <div *ngIf="dashboardSummary()!.recentBadges && dashboardSummary()!.recentBadges.length > 0; else emptyAchievements">
                <div class="d-flex flex-wrap gap-3 mb-3">
-                  <div class="bg-light rounded-4 px-3 py-3 d-flex align-items-center gap-3 border border-light shadow-sm flex-grow-1 flex-md-grow-0" style="min-width: 200px;" *ngFor="let badge of dashboardSummary()!.recentBadges.slice(0,4)">
-                    <img [src]="'assets/badges/' + badge.name + '.png'" [alt]="badge.name" style="width: 56px; height: 56px; object-fit: contain;">
+                  <div class="bg-light rounded-4 p-3 py-4 d-flex flex-column align-items-center justify-content-center text-center gap-3 border border-light shadow-sm hover-elevate transition-all flex-grow-1 flex-md-grow-0 cursor-default" style="min-width: 150px; flex-basis: 30%;" *ngFor="let badge of dashboardSummary()!.recentBadges.slice(0,3)">
+                    <img [src]="'assets/badges/' + badge.name + '.png'" [alt]="badge.name" style="width: 72px; height: 72px; object-fit: contain;">
                     <div>
                       <span class="fw-bold text-dark fs-sm d-block lh-1 mb-1">{{ badge.name }}</span>
                       <span class="fs-xs fw-medium text-slate-muted">{{ badge.awardedAt | date:'MMM d, y' }}</span>
@@ -420,8 +417,8 @@
       </div>
       
       <!-- Quick Actions -->
-      <div class="col-lg-4">
-        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column">
+      <div class="col-lg-5">
+        <div class="bg-white rounded-4 shadow-sm hover-elevate p-4 h-100 d-flex flex-column text-center">
           <div class="fw-bold text-dark fs-5 mb-4">Quick Actions</div>
           <div class="row g-3 flex-grow-1">
             <div class="col-12">
@@ -431,7 +428,7 @@
               </a>
             </div>
             
-            <div class="col-6">
+            <div class="col-4">
               <a routerLink="/goals" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 text-decoration-none transition-all hover:-translate-y-0.5 h-100" style="background-color: #f1f5f9; color: #475569;">
                 <div class="text-slate-muted bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
@@ -439,8 +436,23 @@
                 <span class="fw-bold fs-xs text-center">Goals</span>
               </a>
             </div>
+
+            <div class="col-4">
+              <a routerLink="/reports" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 text-decoration-none transition-all hover:-translate-y-0.5 h-100" style="background-color: #f1f5f9; color: #475569;">
+                <div class="text-info bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    <path d="M7 10h10"></path>
+                    <path d="M7 14h10"></path>
+                    <path d="M7 18h10"></path>
+                  </svg>
+                </div>
+                <span class="fw-bold fs-xs text-center">Reports & Analytics</span>
+              </a>
+            </div>
             
-            <div class="col-6">
+            <div class="col-4">
               <a routerLink="/challenges" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 rounded-4 text-decoration-none transition-all hover:-translate-y-0.5 h-100" style="background-color: #f1f5f9; color: #475569;">
                 <div class="text-warning bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -455,21 +467,6 @@
                   </svg>
                 </div>
                 <span class="fw-bold fs-xs text-center">Challenges</span>
-              </a>
-            </div>
-
-            <div class="col-12">
-              <a routerLink="/reports" class="d-flex align-items-center justify-content-center gap-2 p-3 rounded-4 text-decoration-none transition-all hover:-translate-y-0.5 h-100" style="background-color: #f1f5f9; color: #475569;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                  <path d="M7 10h10"></path>
-                  <path d="M7 14h10"></path>
-                  <path d="M7 18h10"></path>
-                  <path d="M13 14l2-2 2 2" stroke-width="1.5"></path>
-                  <circle cx="9" cy="15" r="2" stroke-width="1.5"></circle>
-                </svg>
-                <span class="fw-bold fs-sm">Reports & Analytics</span>
               </a>
             </div>
           </div>

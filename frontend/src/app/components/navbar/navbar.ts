@@ -1,5 +1,5 @@
 import { Component, OnInit, HostListener, ElementRef, Output, EventEmitter, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
@@ -10,7 +10,7 @@ import { NotificationBellComponent } from './notification-bell/notification-bell
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, NotificationBellComponent],
+  imports: [CommonModule, RouterModule, NotificationBellComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -86,9 +86,11 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    sessionStorage.clear();
-    this.router.navigate(['/'], { replaceUrl: true });
+    if (window.confirm('Are you sure you want to log out?')) {
+      this.authService.logout();
+      sessionStorage.clear();
+      this.router.navigate(['/'], { replaceUrl: true });
+    }
   }
 
   toggleTheme(): void {

@@ -118,10 +118,6 @@
             <h1 class="hero-name m-0">{{ profile.name }}</h1>
             <span *ngIf="profile.role === 'ADMIN'" class="badge bg-danger text-white px-2 py-1 fs-xs fw-bold rounded">ADMIN</span>
           </div>
-          <p class="hero-title text-emerald fw-bold m-0 d-flex align-items-center gap-1 mb-4">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            Sustainability Explorer
-          </p>
           
           <div class="xp-progress-section">
             <div class="d-flex justify-content-between align-items-end mb-2">
@@ -171,13 +167,27 @@
       </div>
     </div>
 
-    <div class="row g-4">
+    <!-- ===============================
+         TAB NAVIGATION
+         =============================== -->
+    <ul class="nav nav-pills custom-tabs mb-4 gap-2" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold px-4 py-2 rounded-pill" [class.active]="activeTab() === 'overview'" (click)="activeTab.set('overview')" type="button" role="tab" [attr.aria-selected]="activeTab() === 'overview'">Overview & Achievements</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold px-4 py-2 rounded-pill" [class.active]="activeTab() === 'settings'" (click)="activeTab.set('settings')" type="button" role="tab" [attr.aria-selected]="activeTab() === 'settings'">Settings & Preferences</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
       <!-- ===============================
-           SECTION 2: LEFT COLUMN
+           TAB 1: OVERVIEW & ACHIEVEMENTS
            =============================== -->
-      <div class="col-lg-8 d-flex flex-column gap-4">
-        
-        <!-- BADGE SHOWCASE -->
+      <div class="tab-pane fade" [class.show]="activeTab() === 'overview'" [class.active]="activeTab() === 'overview'" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-lg-8 d-flex flex-column gap-4">
+            
+            <!-- BADGE SHOWCASE -->
         <div class="premium-card animate-stagger-item" *ngIf="gamificationProfile() as gamificationProfile">
           <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <div>
@@ -233,13 +243,68 @@
               <h2 class="fw-black text-dark m-0" style="font-size: 2.5rem; opacity: 0.8;">{{ gamificationProfile.longestStreak }}</h2>
               <p class="fs-6 fw-bold text-muted m-0">Longest Streak</p>
             </div>
-          </div>
-          <div class="mt-4 pt-3 border-top text-center">
-             <p class="fs-xs fw-bold text-muted m-0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> 7-day visual forecast requires additional backend timeline data.</p>
-          </div>
-        </div>
+          </div> <!-- closes row -->
+        </div> <!-- closes premium-card -->
+      </div> <!-- closes col-lg-8 -->
+      
+      <!-- TAB 1 RIGHT COLUMN -->
+      <div class="col-lg-4 d-flex flex-column gap-4">
+            <!-- XP HISTORY -->
+            <div class="premium-card animate-stagger-item h-100 flex-grow-1">
+              <div class="section-header mb-4 border-bottom pb-3 d-flex justify-content-between align-items-center">
+                <h4 class="section-title text-dark m-0">XP History</h4>
+              </div>
+              
+              <div class="activity-feed">
+                <div *ngIf="recentActivity().length === 0" class="text-center py-4 bg-surface rounded-4">
+                  <p class="text-muted fs-7 m-0">No recent activity.</p>
+                </div>
+                
+                <div class="xp-history-item d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom" *ngFor="let activity of recentActivity(); let last = last" [class.border-bottom]="!last">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="source-icon rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;"
+                         [ngClass]="{
+                           'bg-emerald-light text-emerald': activity.sourceType === 'GOAL_COMPLETED',
+                           'bg-blue-light text-blue': activity.sourceType === 'CHALLENGE_COMPLETED',
+                           'bg-yellow-light text-yellow-600': activity.sourceType === 'BADGE_BONUS',
+                           'bg-orange-light text-orange': activity.sourceType === 'STREAK_BONUS' || activity.sourceType === 'DAILY_LOGIN',
+                           'bg-slate-light text-slate': activity.sourceType === 'CARBON_ENTRY',
+                           'bg-danger text-white': activity.sourceType.includes('DELETED')
+                         }">
+                      <svg *ngIf="activity.sourceType === 'GOAL_COMPLETED'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                      <svg *ngIf="activity.sourceType === 'CHALLENGE_COMPLETED'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1z"></path></svg>
+                      <svg *ngIf="activity.sourceType === 'BADGE_BONUS'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                      <svg *ngIf="activity.sourceType === 'STREAK_BONUS' || activity.sourceType === 'DAILY_LOGIN'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
+                      <svg *ngIf="activity.sourceType === 'CARBON_ENTRY'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path></svg>
+                      <svg *ngIf="activity.sourceType.includes('DELETED')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </div>
+                    <div class="d-flex flex-column">
+                      <span class="text-dark fw-bold fs-7">{{ formatSourceType(activity.sourceType) }}</span>
+                      <span class="text-muted fs-xs">{{ activity.awardedAt | date:'MMM d, y h:mm a' }}</span>
+                    </div>
+                  </div>
+                  <div class="badge fw-bold px-2 py-1 fs-7"
+                       [ngClass]="activity.xpAwarded > 0 ? 'bg-emerald-light text-emerald' : 'bg-danger text-white'">
+                    {{ activity.xpAwarded > 0 ? '+' : '' }}{{ activity.xpAwarded }} XP
+                  </div>
+                </div>
+                
+                <div class="d-flex justify-content-center mt-3 pt-3 border-top" *ngIf="recentActivity().length > 0">
+                  <a routerLink="/reports" [queryParams]="{tab: 'sustainability'}" fragment="xp-activity" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold">View all activity</a>
+                </div>
+              </div> <!-- closes activity-feed -->
+            </div> <!-- closes premium-card -->
+          </div> <!-- closes col-lg-4 -->
+        </div> <!-- closes row -->
+      </div> <!-- END TAB 1 -->
 
-        <!-- PERSONAL INFORMATION -->
+      <!-- ===============================
+           TAB 2: SETTINGS & PREFERENCES
+           =============================== -->
+      <div class="tab-pane fade" [class.show]="activeTab() === 'settings'" [class.active]="activeTab() === 'settings'" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-lg-8 d-flex flex-column gap-4">
+            <!-- PERSONAL INFORMATION -->
         <div class="premium-card h-100 animate-stagger-item">
           <div class="section-header mb-4 border-bottom pb-3">
             <h4 class="section-title text-dark m-0">Personal Information</h4>
@@ -303,150 +368,105 @@
             </div>
           </form>
         </div>
-        
-        <!-- NOTIFICATION PREFERENCES -->
-        <div class="premium-card animate-stagger-item">
-          <div class="section-header mb-4 border-bottom pb-3">
-            <h4 class="section-title text-dark m-0">Notification Preferences</h4>
-            <p class="section-subtitle text-muted m-0 mt-1">Manage how you receive alerts and updates.</p>
           </div>
-          
-          <div *ngIf="prefSuccessMessage()" class="alert alert-success fs-7 p-2 mb-3">{{ prefSuccessMessage() }}</div>
-          <div *ngIf="prefErrorMessage()" class="alert alert-danger fs-7 p-2 mb-3">{{ prefErrorMessage() }}</div>
 
-          <div class="preferences-list d-flex flex-column gap-3 mb-4">
-            <div class="row px-3 pb-2 border-bottom d-none d-md-flex text-muted fs-xs fw-bold text-uppercase">
-              <div class="col-6">Event Type</div>
-              <div class="col-3 text-center">In-App</div>
-              <div class="col-3 text-center">Email</div>
-            </div>
-            
-            <div class="row align-items-center px-3 py-2 bg-surface rounded" *ngFor="let pref of notificationPrefs(); let i = index">
-              <div class="col-12 col-md-6 mb-2 mb-md-0">
-                <span class="text-dark fw-600 fs-7">{{ getPrefLabel(pref.eventType) }}</span>
+          <div class="col-lg-4 d-flex flex-column gap-4">
+            <!-- ACCOUNT DETAILS -->
+            <div class="premium-card account-card bg-surface animate-stagger-item">
+              <div class="section-header mb-4 border-bottom pb-3">
+                <h4 class="section-title text-dark m-0">Account Details</h4>
               </div>
-              <div class="col-6 col-md-3 d-flex justify-content-md-center align-items-center gap-2">
-                <span class="d-md-none text-muted fs-xs fw-bold">In-App: </span>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input cursor-pointer" type="checkbox" [checked]="pref.inAppEnabled" (change)="togglePref(i, 'inApp')" aria-label="In-App notification">
+    
+              <div class="read-only-fields d-flex flex-column gap-4">
+                <div class="ro-field d-flex align-items-center flex-wrap gap-2">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Full Name
+                    <span class="ms-auto">:</span>
+                  </span>
+                  <span class="ro-value text-dark fw-bold m-0">{{ profile.name }}</span>
+                </div>
+                
+                <div class="ro-field d-flex align-items-center flex-wrap gap-2">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    Email Address
+                    <span class="ms-auto">:</span>
+                  </span>
+                  <span class="ro-value text-dark fw-bold m-0">{{ profile.email }}</span>
+                </div>
+    
+                <div class="ro-field d-flex align-items-center flex-wrap gap-2">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Status
+                    <span class="ms-auto">:</span>
+                  </span>
+                  <span class="ro-value fw-bold m-0" [ngClass]="profile.status === 'SUSPENDED' ? 'text-danger' : 'text-emerald'">
+                    {{ profile.status || 'ACTIVE' }}
+                  </span>
+                </div>
+                
+                <div class="ro-field d-flex align-items-center flex-wrap gap-2">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Member Since
+                    <span class="ms-auto">:</span>
+                  </span>
+                  <span class="ro-value fw-bold text-dark m-0">
+                    {{ profile.profileCreatedAt ? (profile.profileCreatedAt | date:'longDate') : 'N/A' }}
+                  </span>
                 </div>
               </div>
-              <div class="col-6 col-md-3 d-flex justify-content-md-center align-items-center gap-2">
-                <span class="d-md-none text-muted fs-xs fw-bold">Email: </span>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input cursor-pointer" type="checkbox" [checked]="pref.emailEnabled" (change)="togglePref(i, 'email')" aria-label="Email notification">
+            </div>
+            
+            <!-- NOTIFICATION PREFERENCES -->
+            <div class="premium-card animate-stagger-item">
+              <div class="section-header mb-4 border-bottom pb-3">
+                <h4 class="section-title text-dark m-0">Notification Preferences</h4>
+                <p class="section-subtitle text-muted m-0 mt-1">Manage how you receive alerts and updates.</p>
+              </div>
+              
+              <div *ngIf="prefSuccessMessage()" class="alert alert-success fs-7 p-2 mb-3">{{ prefSuccessMessage() }}</div>
+              <div *ngIf="prefErrorMessage()" class="alert alert-danger fs-7 p-2 mb-3">{{ prefErrorMessage() }}</div>
+
+              <div class="preferences-list d-flex flex-column gap-3 mb-4">
+                <div class="row px-3 pb-2 border-bottom d-none d-xl-flex text-muted fs-xs fw-bold text-uppercase">
+                  <div class="col-12 col-xl-6 mb-2 mb-xl-0">Event Type</div>
+                  <div class="col-6 col-xl-3 text-center">In-App</div>
+                  <div class="col-6 col-xl-3 text-center">Email</div>
+                </div>
+                
+                <div class="row align-items-center px-3 py-2 bg-surface rounded" *ngFor="let pref of notificationPrefs(); let i = index">
+                  <div class="col-12 col-xl-6 mb-2 mb-xl-0">
+                    <span class="text-dark fw-600 fs-7">{{ getPrefLabel(pref.eventType) }}</span>
+                  </div>
+                  <div class="col-6 col-xl-3 d-flex justify-content-start justify-content-xl-center align-items-center gap-2">
+                    <span class="d-xl-none text-muted fs-xs fw-bold">In-App: </span>
+                    <div class="form-check form-switch m-0">
+                      <input class="form-check-input cursor-pointer" type="checkbox" [checked]="pref.inAppEnabled" (change)="togglePref(i, 'inApp')" aria-label="In-App notification">
+                    </div>
+                  </div>
+                  <div class="col-6 col-xl-3 d-flex justify-content-start justify-content-xl-center align-items-center gap-2">
+                    <span class="d-xl-none text-muted fs-xs fw-bold">Email: </span>
+                    <div class="form-check form-switch m-0">
+                      <input class="form-check-input cursor-pointer" type="checkbox" [checked]="pref.emailEnabled" (change)="togglePref(i, 'email')" aria-label="Email notification">
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <div class="form-actions border-top pt-4 d-flex justify-content-end gap-3">
-            <button type="button" class="btn-profile-submit" [disabled]="isSavingPrefs()" (click)="savePreferences()">
-              <span *ngIf="isSavingPrefs()" class="spinner-border spinner-border-sm me-2"></span>
-              {{ isSavingPrefs() ? 'Saving...' : 'Save Preferences' }}
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ===============================
-           SECTION 3: RIGHT COLUMN
-           =============================== -->
-      <div class="col-lg-4 d-flex flex-column gap-4">
-        
-        <!-- XP HISTORY -->
-        <div class="premium-card animate-stagger-item">
-          <div class="section-header mb-4 border-bottom pb-3 d-flex justify-content-between align-items-center">
-            <h4 class="section-title text-dark m-0">XP History</h4>
-          </div>
-          
-          <div class="activity-feed">
-            <div *ngIf="recentActivity().length === 0" class="text-center py-4 bg-surface rounded-4">
-              <p class="text-muted fs-7 m-0">No recent activity.</p>
-            </div>
-            
-            <div class="xp-history-item d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom" *ngFor="let activity of recentActivity(); let last = last" [class.border-bottom]="!last">
-              <div class="d-flex align-items-center gap-3">
-                <div class="source-icon rounded-circle d-flex align-items-center justify-content-center" style="width:36px; height:36px;"
-                     [ngClass]="{
-                       'bg-emerald-light text-emerald': activity.sourceType === 'GOAL_COMPLETED',
-                       'bg-blue-light text-blue': activity.sourceType === 'CHALLENGE_COMPLETED',
-                       'bg-yellow-light text-yellow-600': activity.sourceType === 'BADGE_BONUS',
-                       'bg-orange-light text-orange': activity.sourceType === 'STREAK_BONUS' || activity.sourceType === 'DAILY_LOGIN',
-                       'bg-slate-light text-slate': activity.sourceType === 'CARBON_ENTRY',
-                       'text-danger bg-danger bg-opacity-10': activity.sourceType.includes('DELETED')
-                     }">
-                  <svg *ngIf="activity.sourceType === 'GOAL_COMPLETED'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-                  <svg *ngIf="activity.sourceType === 'CHALLENGE_COMPLETED'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1z"></path></svg>
-                  <svg *ngIf="activity.sourceType === 'BADGE_BONUS'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                  <svg *ngIf="activity.sourceType === 'STREAK_BONUS' || activity.sourceType === 'DAILY_LOGIN'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
-                  <svg *ngIf="activity.sourceType === 'CARBON_ENTRY'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path></svg>
-                  <svg *ngIf="activity.sourceType.includes('DELETED')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                </div>
-                <div class="d-flex flex-column">
-                  <span class="text-dark fw-bold fs-7">{{ formatSourceType(activity.sourceType) }}</span>
-                  <span class="text-muted fs-xs">{{ activity.awardedAt | date:'MMM d, y h:mm a' }}</span>
-                </div>
+              
+              <div class="form-actions border-top pt-4 d-flex justify-content-end gap-3">
+                <button type="button" class="btn-profile-submit" [disabled]="isSavingPrefs()" (click)="savePreferences()">
+                  <span *ngIf="isSavingPrefs()" class="spinner-border spinner-border-sm me-2"></span>
+                  {{ isSavingPrefs() ? 'Saving...' : 'Save' }}
+                </button>
               </div>
-              <div class="badge fw-bold px-2 py-1 fs-7"
-                   [ngClass]="activity.xpAwarded > 0 ? 'bg-emerald-light text-emerald' : 'text-danger bg-danger bg-opacity-10'">
-                {{ activity.xpAwarded > 0 ? '+' : '' }}{{ activity.xpAwarded }} XP
-              </div>
-            </div>
-            
-            <div class="d-flex justify-content-center mt-3 pt-3 border-top" *ngIf="recentActivity().length > 0">
-              <a href="/dashboard" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold">View all activity</a>
-            </div>
-          </div>
-        </div>
-        
-        <!-- ACCOUNT DETAILS -->
-        <div class="premium-card account-card bg-surface animate-stagger-item">
-          <div class="section-header mb-4 border-bottom pb-3">
-            <h4 class="section-title text-dark m-0">Account Details</h4>
-          </div>
-
-          <div class="read-only-fields d-flex flex-column gap-4">
-            <div class="ro-field">
-              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                Full Name
-              </span>
-              <span class="ro-value text-dark fw-bold">{{ profile.name }}</span>
-            </div>
-            
-            <div class="ro-field">
-              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                Email Address
-              </span>
-              <span class="ro-value text-dark fw-bold">{{ profile.email }}</span>
-            </div>
-
-            <div class="ro-field">
-              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                Status
-              </span>
-              <span class="ro-value fw-bold" [ngClass]="profile.status === 'SUSPENDED' ? 'text-danger' : 'text-emerald'">
-                {{ profile.status || 'ACTIVE' }}
-              </span>
-            </div>
-            
-            <div class="ro-field">
-              <span class="ro-label text-muted fs-7 d-flex align-items-center gap-2 mb-1">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                Member Since
-              </span>
-              <span class="ro-value fw-bold text-dark">
-                {{ profile.profileCreatedAt ? (profile.profileCreatedAt | date:'longDate') : 'N/A' }}
-              </span>
             </div>
           </div>
         </div>
-        
-      </div>
-    </div>
+      </div> <!-- END TAB 2 -->
+
+    </div> <!-- END TAB CONTENT -->
   </ng-container>
 </div>

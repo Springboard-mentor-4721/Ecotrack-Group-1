@@ -11,6 +11,7 @@ import { JournalSummaryResponse } from '../../../models/ai-models';
 import { finalize } from 'rxjs/operators';
 import { LucideAngularModule, Lightbulb, Leaf, Zap, RefreshCw, History, FileText, Activity, AlertTriangle, Filter, Cpu, X } from 'lucide-angular';
 import { AiSkeletonLineComponent } from '../../../shared/components/ai-skeleton-line/ai-skeleton-line.component';
+import { DashboardService } from '../../../services/dashboard.service';
 
 @Component({
   selector: 'app-recommendation-page',
@@ -70,7 +71,8 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
   constructor(
     private recommendationService: RecommendationService,
     private aiService: AiService,
-    private carbonEntryService: CarbonEntryService
+    private carbonEntryService: CarbonEntryService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit(): void {
@@ -91,6 +93,32 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
   loadHistory(page: number): void {
     this.isHistoryLoading.set(true);
     this.historyError.set('');
+    
+    if (this.historyFilter() === 'DAILY_ECO_TIP') {
+      this.dashboardService.getEcoTip()
+        .pipe(finalize(() => {
+          this.isHistoryLoading.set(false);
+        }))
+        .subscribe({
+          next: (res) => {
+            const simulatedItem = {
+              contentType: 'DAILY_ECO_TIP',
+              title: 'Daily Eco Tip',
+              generatedAt: new Date().toISOString(),
+              parsedContent: { tipText: res.tipText, relatedCategory: res.relatedCategory }
+            };
+            this.historyItems.set([simulatedItem]);
+            this.historyPage.set(0);
+            this.historyTotalPages.set(1);
+          },
+          error: (err) => {
+            this.historyError.set('Failed to load Daily Eco Tip.');
+            console.error(err);
+          }
+        });
+      return;
+    }
+
     this.aiService.getAiHistory(this.historyFilter(), page, this.historyPageSize())
       .pipe(finalize(() => {
         this.isHistoryLoading.set(false);
@@ -298,13 +326,26 @@ export class RecommendationPageComponent implements OnInit, OnDestroy {
 
   getCategoryColor(category: string): string {
     const cat = category?.toUpperCase() || '';
-    if (cat.includes('ENERGY') || cat.includes('ELECTRICITY')) return 'text-warning';
-    if (cat.includes('TRANSPORT')) return 'text-primary';
-    if (cat.includes('WASTE')) return 'text-danger';
-    if (cat.includes('FOOD')) return 'text-success';
-    if (cat.includes('FUEL')) return 'text-danger';
-    if (cat.includes('WATER')) return 'text-info';
-    if (cat.includes('SHOPPING')) return 'text-secondary';
-    return 'text-teal';
+    if (cat.includes('ENERGY') || cat.includes('ELECTRICITY')) return 'text-warning bg-warning bg-opacity-10';
+    if (cat.includes('TRANSPORT')) return 'text-primary bg-primary bg-opacity-10';
+    if (cat.includes('WASTE')) return 'text-danger bg-danger bg-opacity-10';
+    if (cat.includes('FOOD')) return 'text-success bg-success bg-opacity-10';
+    if (cat.includes('FUEL')) return 'text-danger bg-danger bg-opacity-10';
+    if (cat.includes('WATER')) return 'text-info bg-info bg-opacity-10';
+    if (cat.includes('SHOPPING')) return 'text-secondary bg-secondary bg-opacity-10';
+    return 'text-teal bg-teal bg-opacity-10';
+  }
+
+  getCategoryIconKey(category: string): string {
+    const cat = category?.toUpperCase() || '';
+    if (cat.includes('ENERGY') || cat.includes('ELECTRICITY')) return 'Electricity';
+    if (cat.includes('TRANSPORT')) return 'Transportation';
+    if (cat.includes('WASTE')) return 'Waste';
+    if (cat.includes('FOOD')) return 'Food';
+    if (cat.includes('FUEL')) return 'Fuel';
+    if (cat.includes('WATER')) return 'Water Usage';
+    if (cat.includes('SHOPPING')) return 'Online Shopping';
+    if (cat.includes('TRAVEL')) return 'Travel';
+    return 'Default';
   }
 }

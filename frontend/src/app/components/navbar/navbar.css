@@ -132,3 +132,8 @@
 .toggle-thumb svg {
   transition: opacity 0.2s ease;
 }
+
+.logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: var(--color-danger) !important;
+}

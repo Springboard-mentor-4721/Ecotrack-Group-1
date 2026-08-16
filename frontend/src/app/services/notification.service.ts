@@ -40,8 +40,16 @@ export class NotificationService {
     return this.http.get<NotificationPreference>(`${this.apiUrl}/api/notifications/preferences/${eventType}`);
   }
 
+  getAllPreferences(): Observable<NotificationPreference[]> {
+    return this.http.get<NotificationPreference[]>(`${this.apiUrl}/api/notifications/preferences`);
+  }
+
   updatePreference(preference: NotificationPreference): Observable<NotificationPreference> {
     return this.http.put<NotificationPreference>(`${this.apiUrl}/api/notifications/preferences`, preference);
+  }
+
+  updateBulkPreferences(preferences: NotificationPreference[]): Observable<NotificationPreference[]> {
+    return this.http.put<NotificationPreference[]>(`${this.apiUrl}/api/notifications/preferences/bulk`, { preferences });
   }
 
   triggerUnreadCountRefresh(): void {

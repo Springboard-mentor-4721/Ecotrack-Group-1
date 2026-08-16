@@ -15,14 +15,14 @@ import { LucideAngularModule, Lightbulb, Zap, Calendar } from 'lucide-angular';
     <div class="card-premium border-0 rounded-4 shadow-sm d-flex flex-column overflow-hidden position-relative group" 
          style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,253,244,0.9) 100%); backdrop-filter: blur(10px); border-left: 4px solid #0d9488 !important;">
       
-      <div class="p-3 d-flex flex-column position-relative z-1">
-        <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="p-2 px-3 d-flex flex-column position-relative z-1">
+        <div class="d-flex align-items-center justify-content-between mb-2">
           <h6 class="fw-bold text-teal text-uppercase tracking-wider fs-xs mb-0 d-flex align-items-center gap-2">
             <span class="text-teal d-flex"><lucide-angular [img]="CalendarIcon" size="16"></lucide-angular></span>
             Today's Eco Tip
           </h6>
-          <span class="text-slate-muted fs-xs fw-medium d-flex align-items-center gap-1 bg-white bg-opacity-50 px-2 py-1 rounded-pill border border-light shadow-sm">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal">
+          <span class="fs-xs fw-medium d-flex align-items-center gap-1 bg-white bg-opacity-50 px-2 py-1 rounded-pill border border-light shadow-sm" style="color: #6366f1;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path>
               <path d="M7 16l2.5-7 2.5 7"></path>
               <path d="M8.5 13.5h3"></path>

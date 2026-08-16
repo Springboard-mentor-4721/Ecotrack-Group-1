@@ -246,8 +246,18 @@
 
           <div class="card-body p-4 d-flex flex-column">
             <div class="d-flex align-items-start mb-3">
-              <div class="icon-circle shadow-sm me-3 flex-shrink-0" [class]="getCategoryColor(rec.category) + ' text-white'" style="width: 48px; height: 48px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
+              <div class="icon-circle shadow-sm me-3 flex-shrink-0" [class]="getCategoryColor(rec.category)" style="width: 48px; height: 48px; padding: 12px;">
+                <ng-container [ngSwitch]="getCategoryIconKey(rec.category)">
+                  <svg *ngSwitchCase="'Electricity'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  <svg *ngSwitchCase="'Online Shopping'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                  <svg *ngSwitchCase="'Transportation'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                  <svg *ngSwitchCase="'Fuel'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5" /><path d="M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16" /><path d="M2 21h13" /><path d="M3 9h11" /></svg>
+                  <svg *ngSwitchCase="'Food'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8" /><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7" /><path d="m2.1 21.8 6.4-6.3" /><path d="m19 5-7 7" /></svg>
+                  <svg *ngSwitchCase="'Waste'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 11v6" /><path d="M14 11v6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                  <svg *ngSwitchCase="'Water Usage'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7 2.9 7 2.9s-2.15 6.16-2.29 6.16c-1.14.93-1.71 2.03-1.71 3.19 0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 1 14 8.5c1.14.93 1.71 2.03 1.71 3.19 0 2.22-1.8 4.05-4 4.05-3.12 0-5.32-3.18-5.32-3.18"/></svg>
+                  <svg *ngSwitchCase="'Travel'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></svg>
+                  <svg *ngSwitchDefault width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
+                </ng-container>
               </div>
               <div>
                 <span class="badge bg-surface-hover text-dark border mb-2 fs-xs tracking-wide text-uppercase">{{ rec.category }}</span>
@@ -293,13 +303,13 @@
       <span class="fw-bold text-dark fs-7 text-nowrap">Filter History :</span>
       <div class="dropdown">
         <button class="btn btn-sm btn-link text-decoration-none fw-bold text-ai p-0 d-flex align-items-center gap-1 shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ historyFilter() === 'ALL' ? 'All Types' : (historyFilter() === 'JOURNAL_SUMMARY' ? 'Journal Summary' : (historyFilter() === 'SUSTAINABILITY_INSIGHT' ? 'Sustainability Insights' : 'Recommendations')) }}
+          {{ historyFilter() === 'ALL' ? 'All Types' : (historyFilter() === 'JOURNAL_SUMMARY' ? 'Journal Summary' : (historyFilter() === 'DAILY_ECO_TIP' ? 'Daily Eco Tip' : 'Recommendations')) }}
           <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ms-1"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
         <ul class="dropdown-menu shadow-lg border-0 rounded-4 mt-2 py-2 dropdown-menu-premium" style="min-width: 220px;">
           <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'ALL'" [class.text-ai]="historyFilter() === 'ALL'" (click)="historyFilter.set('ALL'); onHistoryFilterChange()">All Types</button></li>
           <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'JOURNAL_SUMMARY'" [class.text-ai]="historyFilter() === 'JOURNAL_SUMMARY'" (click)="historyFilter.set('JOURNAL_SUMMARY'); onHistoryFilterChange()">Journal Summary</button></li>
-          <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'SUSTAINABILITY_INSIGHT'" [class.text-ai]="historyFilter() === 'SUSTAINABILITY_INSIGHT'" (click)="historyFilter.set('SUSTAINABILITY_INSIGHT'); onHistoryFilterChange()">Sustainability Insights</button></li>
+          <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'DAILY_ECO_TIP'" [class.text-ai]="historyFilter() === 'DAILY_ECO_TIP'" (click)="historyFilter.set('DAILY_ECO_TIP'); onHistoryFilterChange()">Daily Eco Tip</button></li>
           <li><button class="dropdown-item fw-500 py-2 px-3 transition-all" [class.bg-ai-soft]="historyFilter() === 'RECOMMENDATION'" [class.text-ai]="historyFilter() === 'RECOMMENDATION'" (click)="historyFilter.set('RECOMMENDATION'); onHistoryFilterChange()">Recommendations</button></li>
         </ul>
       </div>
@@ -339,7 +349,7 @@
           <div class="d-flex align-items-center mb-1">
             <h6 class="mb-0 fw-bold fs-6"
                  [class.text-primary]="item.contentType === 'JOURNAL_SUMMARY'"
-                 [class.text-emerald]="item.contentType === 'SUSTAINABILITY_INSIGHT'"
+                 [class.text-emerald]="item.contentType === 'DAILY_ECO_TIP'"
                  [class.text-amber]="item.contentType === 'RECOMMENDATION'">
               {{ item.title }}
             </h6>
@@ -356,9 +366,11 @@
                <p class="mb-0 text-dark opacity-75 fs-6 lh-base">{{ item.parsedContent?.summaryText || 'N/A' }}</p>
             </ng-container>
 
-            <ng-container *ngIf="item.contentType === 'SUSTAINABILITY_INSIGHT'">
-               <p class="fw-bold text-dark fs-6 mb-2">{{ item.parsedContent?.summary || 'N/A' }}</p>
-               <p class="text-muted mb-0 lh-sm">{{ item.parsedContent?.trendInterpretation || '' }}</p>
+            <ng-container *ngIf="item.contentType === 'DAILY_ECO_TIP'">
+               <div class="d-flex align-items-center gap-2 mb-2" *ngIf="item.parsedContent?.relatedCategory">
+                 <span class="badge bg-surface-hover text-dark border fs-xs tracking-wide text-uppercase">{{ item.parsedContent.relatedCategory }}</span>
+               </div>
+               <p class="fw-medium text-dark fs-6 mb-0">{{ item.parsedContent?.tipText || 'N/A' }}</p>
             </ng-container>
 
             <ng-container *ngIf="item.contentType === 'RECOMMENDATION'">
@@ -428,7 +440,7 @@
         <div class="pe-3">
           <h5 class="modal-title fw-bold text-dark mb-1 fs-5"
                [class.text-primary]="selectedHistoryItem().contentType === 'JOURNAL_SUMMARY'"
-               [class.text-emerald]="selectedHistoryItem().contentType === 'SUSTAINABILITY_INSIGHT'"
+               [class.text-emerald]="selectedHistoryItem().contentType === 'DAILY_ECO_TIP'"
                [class.text-amber]="selectedHistoryItem().contentType === 'RECOMMENDATION'">
             {{ selectedHistoryItem().title }} Details
           </h5>
@@ -486,41 +498,16 @@
              </div>
           </ng-container>
 
-          <!-- Sustainability Insight Details -->
-          <ng-container *ngIf="selectedHistoryItem().contentType === 'SUSTAINABILITY_INSIGHT'">
+
+
+          <!-- Daily Eco Tip Details -->
+          <ng-container *ngIf="selectedHistoryItem().contentType === 'DAILY_ECO_TIP'">
              <div class="mb-4">
-               <h6 class="fw-bold text-dark mb-2 fs-6">Insight Summary</h6>
-               <p class="text-dark fs-5 fw-medium lh-base mb-0">{{ selectedHistoryItem().parsedContent?.summary || 'N/A' }}</p>
-             </div>
-
-             <div class="mb-4">
-               <h6 class="fw-bold text-dark mb-2 fs-6">Trend Interpretation</h6>
-               <p class="text-muted mb-0 lh-lg">{{ selectedHistoryItem().parsedContent?.trendInterpretation || 'N/A' }}</p>
-             </div>
-
-             <div class="row g-4 mb-4">
-               <div class="col-md-6" *ngIf="selectedHistoryItem().parsedContent?.positiveBehaviors?.length > 0">
-                 <h6 class="fw-bold text-success mb-3 fs-6">Positive Behaviors</h6>
-                 <ul class="list-group list-group-flush rounded-3 border border-success border-opacity-25">
-                   <li class="list-group-item bg-success bg-opacity-10 text-success border-bottom border-success border-opacity-25" *ngFor="let pos of selectedHistoryItem().parsedContent.positiveBehaviors">
-                     {{ pos }}
-                   </li>
-                 </ul>
+               <div class="d-flex align-items-center gap-2 mb-3" *ngIf="selectedHistoryItem().parsedContent?.relatedCategory">
+                 <span class="badge bg-surface-hover text-dark border fs-xs tracking-wide text-uppercase">Category: {{ selectedHistoryItem().parsedContent.relatedCategory }}</span>
                </div>
-               <div class="col-md-6" *ngIf="selectedHistoryItem().parsedContent?.areasForImprovement?.length > 0">
-                 <h6 class="fw-bold text-warning mb-3 fs-6">Areas for Improvement</h6>
-                 <ul class="list-group list-group-flush rounded-3 border border-warning border-opacity-25">
-                   <li class="list-group-item bg-warning bg-opacity-10 text-warning border-bottom border-warning border-opacity-25" *ngFor="let area of selectedHistoryItem().parsedContent.areasForImprovement">
-                     {{ area }}
-                   </li>
-                 </ul>
-               </div>
-             </div>
-
-             <div *ngIf="selectedHistoryItem().parsedContent?.priorityLevel">
-               <span class="badge bg-dark fw-medium px-3 py-2 rounded-pill fs-xs tracking-wide">
-                 Priority: {{ selectedHistoryItem().parsedContent.priorityLevel }}
-               </span>
+               <h6 class="fw-bold text-dark mb-2 fs-6">Tip</h6>
+               <p class="mb-0 text-dark opacity-75 fs-6 lh-lg">{{ selectedHistoryItem().parsedContent?.tipText || 'N/A' }}</p>
              </div>
           </ng-container>
 
@@ -529,8 +516,18 @@
              <div class="row g-3">
                <div class="col-12" *ngFor="let rec of selectedHistoryItem().parsedContent">
                   <div class="d-flex align-items-start p-3 bg-white border rounded-3 hover-translate-y transition-all">
-                    <div class="icon-circle bg-ai-soft text-ai me-3 flex-shrink-0" style="width: 40px; height: 40px;">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
+                    <div class="icon-circle me-3 flex-shrink-0" [class]="getCategoryColor(rec.category)" style="width: 40px; height: 40px; padding: 10px;">
+                      <ng-container [ngSwitch]="getCategoryIconKey(rec.category)">
+                        <svg *ngSwitchCase="'Electricity'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        <svg *ngSwitchCase="'Online Shopping'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                        <svg *ngSwitchCase="'Transportation'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                        <svg *ngSwitchCase="'Fuel'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5" /><path d="M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16" /><path d="M2 21h13" /><path d="M3 9h11" /></svg>
+                        <svg *ngSwitchCase="'Food'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8" /><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7" /><path d="m2.1 21.8 6.4-6.3" /><path d="m19 5-7 7" /></svg>
+                        <svg *ngSwitchCase="'Waste'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 11v6" /><path d="M14 11v6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                        <svg *ngSwitchCase="'Water Usage'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7 2.9 7 2.9s-2.15 6.16-2.29 6.16c-1.14.93-1.71 2.03-1.71 3.19 0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 1 14 8.5c1.14.93 1.71 2.03 1.71 3.19 0 2.22-1.8 4.05-4 4.05-3.12 0-5.32-3.18-5.32-3.18"/></svg>
+                        <svg *ngSwitchCase="'Travel'" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></svg>
+                        <svg *ngSwitchDefault width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path><path d="M7 16l2.5-7 2.5 7"></path><path d="M8.5 13.5h3"></path><path d="M14 16v-4"></path><circle cx="14" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M18 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor" stroke="none"></path></svg>
+                      </ng-container>
                     </div>
                     <div class="flex-grow-1">
                       <div class="d-flex justify-content-between align-items-start mb-2">
@@ -548,7 +545,7 @@
           </ng-container>
 
           <!-- Raw Data Fallback -->
-          <ng-container *ngIf="!['JOURNAL_SUMMARY', 'SUSTAINABILITY_INSIGHT', 'RECOMMENDATION'].includes(selectedHistoryItem().contentType)">
+          <ng-container *ngIf="!['JOURNAL_SUMMARY', 'RECOMMENDATION'].includes(selectedHistoryItem().contentType)">
             <pre class="bg-dark text-light p-3 rounded-3 fs-7 overflow-auto">{{ selectedHistoryItem().contentJson }}</pre>
           </ng-container>
         </div>

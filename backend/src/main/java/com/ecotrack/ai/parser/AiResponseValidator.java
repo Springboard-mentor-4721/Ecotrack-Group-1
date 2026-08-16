@@ -7,7 +7,6 @@ import com.ecotrack.tracking.ai.dto.SmartSuggestionResponse;
 import com.ecotrack.dashboard.ai.dto.EcoTipResponse;
 import com.ecotrack.tracking.ai.dto.JournalSummaryResponse;
 import com.ecotrack.dashboard.ai.dto.BehavioralInsightsResponse;
-import com.ecotrack.dashboard.ai.dto.AiInsightsResponse;
 
 @Component
 public class AiResponseValidator {
@@ -61,12 +60,6 @@ public class AiResponseValidator {
                     throw new AiValidationException("Insight pattern text must not be blank");
                 }
             });
-        }
-    }
-
-    public void validate(AiInsightsResponse r) {
-        if (r == null || r.summary() == null || r.summary().isBlank()) {
-            throw new AiValidationException("AiInsightsResponse summary must not be null or blank");
         }
     }
 

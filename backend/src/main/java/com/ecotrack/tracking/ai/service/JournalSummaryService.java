@@ -7,8 +7,9 @@ import com.ecotrack.ai.parser.AiResponseValidator;
 import com.ecotrack.ai.parser.AiJsonCodec;
 import com.ecotrack.ai.cache.AiInsightCache;
 import com.ecotrack.ai.cache.AiInsightCacheRepository;
-import com.ecotrack.ai.history.AiGenerationHistory;
 import com.ecotrack.ai.history.AiGenerationHistoryRepository;
+import com.ecotrack.ai.history.AiHistoryCleanupService;
+import com.ecotrack.ai.history.AiGenerationHistory;
 import com.ecotrack.tracking.ai.dto.JournalSummaryContext;
 import com.ecotrack.tracking.ai.dto.JournalSummaryResponse;
 import com.ecotrack.tracking.ai.prompt.JournalSummaryPromptBuilder;
@@ -30,6 +31,7 @@ public class JournalSummaryService {
     private final AiResponseValidator validator;
     private final AiInsightCacheRepository cacheRepository;
     private final AiGenerationHistoryRepository historyRepository;
+    private final AiHistoryCleanupService cleanupService;
     private final AiJsonCodec codec;
 
     public JournalSummaryService(AiClientPort aiClientPort,
@@ -38,6 +40,7 @@ public class JournalSummaryService {
                                  AiResponseValidator validator,
                                  AiInsightCacheRepository cacheRepository,
                                  AiGenerationHistoryRepository historyRepository,
+                                 AiHistoryCleanupService cleanupService,
                                  AiJsonCodec codec) {
         this.aiClientPort = aiClientPort;
         this.aiProperties = aiProperties;
@@ -45,6 +48,7 @@ public class JournalSummaryService {
         this.validator = validator;
         this.cacheRepository = cacheRepository;
         this.historyRepository = historyRepository;
+        this.cleanupService = cleanupService;
         this.codec = codec;
     }
 
@@ -109,6 +113,7 @@ public class JournalSummaryService {
             history.setReferenceKey(refKey);
             history.setGeneratedAt(LocalDateTime.now());
             historyRepository.save(history);
+            cleanupService.cleanupOldHistory(userId);
         } catch (Exception e) {
             log.warn("Failed to persist AI history for user {}", userId, e);
         }

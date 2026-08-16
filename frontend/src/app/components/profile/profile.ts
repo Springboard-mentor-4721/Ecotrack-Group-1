@@ -1,4 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
@@ -18,7 +19,7 @@ import { BadgeEmblemComponent } from '../../shared/components/badge-emblem/badge
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LoadingSkeletonComponent, ImageCropperComponent, EcoScoreColorPipe, BadgeEmblemComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, LoadingSkeletonComponent, ImageCropperComponent, EcoScoreColorPipe, BadgeEmblemComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })
@@ -28,6 +29,8 @@ export class ProfileComponent implements OnInit {
   gamificationProfile = signal<GamificationProfile | null>(null);
   recentBadges = signal<Badge[]>([]);
   recentActivity = signal<XpLedgerEntry[]>([]);
+
+  activeTab = signal<'overview' | 'settings'>('overview');
 
   notificationPrefs = signal<NotificationPreference[]>([]);
   prefSuccessMessage = signal('');
@@ -81,12 +84,8 @@ export class ProfileComponent implements OnInit {
       profile: this.profileService.getMyProfile(),
       gamification: this.gamificationService.getProfile(),
       badges: this.gamificationService.getBadges(),
-      xpHistory: this.gamificationService.getXpHistory(0, 5),
-      prefBadge: this.notificationService.getPreference('BADGE_EARNED'),
-      prefChallenge: this.notificationService.getPreference('CHALLENGE_COMPLETED'),
-      prefGoal: this.notificationService.getPreference('GOAL_ACHIEVED'),
-      prefLevel: this.notificationService.getPreference('LEVEL_UP'),
-      prefStreak: this.notificationService.getPreference('STREAK_MILESTONE')
+      xpHistory: this.gamificationService.getXpHistory(0, 6),
+      allPrefs: this.notificationService.getAllPreferences()
     }).pipe(finalize(() => {
       this.isLoading.set(false);
     })).subscribe({
@@ -96,9 +95,9 @@ export class ProfileComponent implements OnInit {
         this.recentBadges.set(data.badges.filter(b => b.isEarned).slice(0, 4));
         this.recentActivity.set(data.xpHistory.content);
 
-        this.notificationPrefs.set([
-          data.prefBadge, data.prefChallenge, data.prefGoal, data.prefLevel, data.prefStreak
-        ]);
+        // Sort preferences to keep them consistent
+        const sortedPrefs = data.allPrefs.sort((a, b) => a.eventType.localeCompare(b.eventType));
+        this.notificationPrefs.set(sortedPrefs);
 
         this.profileForm.patchValue({
           bio: this.profile()?.bio || '',
@@ -366,14 +365,14 @@ export class ProfileComponent implements OnInit {
     this.prefSuccessMessage.set('');
     this.prefErrorMessage.set('');
 
-    const updates = this.notificationPrefs().map(pref => this.notificationService.updatePreference(pref));
-    forkJoin(updates)
+    this.notificationService.updateBulkPreferences(this.notificationPrefs())
       .pipe(finalize(() => {
         this.isSavingPrefs.set(false);
       }))
       .subscribe({
-        next: () => {
+        next: (updatedPrefs) => {
           this.prefSuccessMessage.set('Notification preferences updated.');
+          this.notificationPrefs.set(updatedPrefs.sort((a, b) => a.eventType.localeCompare(b.eventType)));
           setTimeout(() => { this.prefSuccessMessage.set(''); }, 3000);
         },
         error: (err) => {

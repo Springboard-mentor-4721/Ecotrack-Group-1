@@ -3,7 +3,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { 
-  AiInsightsResponse, 
   JournalSummaryResponse,
   EcoTipResponse
 } from '../models/ai-models';
@@ -19,16 +18,6 @@ export class AiService {
   getEcoTip(): Observable<EcoTipResponse> {
     return this.http.get<EcoTipResponse>(`${this.apiUrl}/api/dashboard/eco-tip`);
   }
-
-  getLatestInsights(): Observable<AiInsightsResponse> {
-    return this.http.get<AiInsightsResponse>(`${this.apiUrl}/api/dashboard/ai/insights`);
-  }
-
-  generateInsights(): Observable<AiInsightsResponse> {
-    return this.http.post<AiInsightsResponse>(`${this.apiUrl}/api/dashboard/ai/insights/generate`, null);
-  }
-
-
 
   getJournalSummary(): Observable<JournalSummaryResponse> {
     return this.http.get<JournalSummaryResponse>(`${this.apiUrl}/api/carbon/journal-summary`);

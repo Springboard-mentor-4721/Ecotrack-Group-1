@@ -6,6 +6,7 @@ import com.ecotrack.ai.parser.AiResponseValidator;
 import com.ecotrack.ai.cache.AiInsightCacheRepository;
 import com.ecotrack.ai.parser.AiJsonCodec;
 import com.ecotrack.ai.history.AiGenerationHistoryRepository;
+import com.ecotrack.ai.history.AiHistoryCleanupService;
 import com.ecotrack.tracking.ai.dto.JournalSummaryContext;
 import com.ecotrack.tracking.ai.dto.JournalSummaryResponse;
 import com.ecotrack.tracking.ai.prompt.JournalSummaryPromptBuilder;
@@ -19,7 +20,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
@@ -31,6 +31,7 @@ class JournalSummaryServiceTest {
     private EcoTrackAiProperties aiProperties;
     private AiInsightCacheRepository cacheRepository;
     private AiGenerationHistoryRepository historyRepository;
+    private AiHistoryCleanupService cleanupService;
     private AiJsonCodec codec;
 
     @BeforeEach
@@ -49,9 +50,10 @@ class JournalSummaryServiceTest {
         AiResponseValidator validator = Mockito.mock(AiResponseValidator.class);
         cacheRepository = Mockito.mock(AiInsightCacheRepository.class);
         historyRepository = Mockito.mock(AiGenerationHistoryRepository.class);
+        cleanupService = Mockito.mock(AiHistoryCleanupService.class);
         codec = Mockito.mock(AiJsonCodec.class);
 
-        service = new JournalSummaryService(aiClientPort, aiProperties, promptBuilder, validator, cacheRepository, historyRepository, codec);
+        service = new JournalSummaryService(aiClientPort, aiProperties, promptBuilder, validator, cacheRepository, historyRepository, cleanupService, codec);
     }
 
     @Test

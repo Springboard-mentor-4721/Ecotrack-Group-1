@@ -47,6 +47,16 @@ public interface CarbonEntryRepository extends JpaRepository<CarbonEntry, Long> 
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
+    @Query("SELECT c.subCategory.category.code AS categoryCode, SUM(c.emissionKgco2e) AS totalVolume, COUNT(c.id) AS entryCount " +
+           "FROM CarbonEntry c " +
+           "WHERE c.user.id = :userId " +
+           "AND c.entryDate >= :startDate " +
+           "GROUP BY c.subCategory.category.code " +
+           "ORDER BY totalVolume DESC")
+    List<com.ecotrack.recommendation.dto.CategorySummaryProjection> getCategorySummaries(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate);
+
     @Query("SELECT c.subCategory.category.code AS categoryCode, c.subCategory.name AS subCategoryName, SUM(c.emissionKgco2e) AS totalValue " +
            "FROM CarbonEntry c " +
            "WHERE c.user.id = :userId " +

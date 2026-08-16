@@ -13,7 +13,29 @@ import java.util.List;
 @Builder
 public class UserContextDTO {
     private Long userId;
-    private List<EligibleTargetDTO> eligibleTargets;
+    private List<CategorySummaryDTO> categorySummaries;
+    private List<GoalSummaryDTO> goals;
     private List<String> lifestyleConstraints;
     private List<String> previousRecommendations;
+    private List<EligibleTargetDTO> eligibleTargets; // Deprecated, kept for backward compatibility if needed
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CategorySummaryDTO {
+        private String categoryCode;
+        private Double totalVolume;
+        private Long entryCount;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class GoalSummaryDTO {
+        private String title;
+        private String type;
+        private Double targetValue;
+        private Double currentValue;
+        private String status;
+    }
 }

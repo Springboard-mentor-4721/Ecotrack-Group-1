@@ -1,0 +1,24 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "main",
+    "milestone_1",
+    "milestone_2",
+    "milestone_3",
+    "milestone_4"
+  ],
+  "parent": {
+    "main": null,
+    "milestone_1": "main",
+    "milestone_2": "main",
+    "milestone_3": "main",
+    "milestone_4": "main"
+  },
+  "order": [
+    "main",
+    "milestone_1",
+    "milestone_2",
+    "milestone_3",
+    "milestone_4"
+  ]
+}

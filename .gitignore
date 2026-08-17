@@ -14,9 +14,9 @@ frontend/update_frontend_ts.ps1
 
 # IDEs
 .idea/
-.vscode/
 
 # OS files
+temp_auto_push.bat
 .DS_Store
 Thumbs.db
 
@@ -36,3 +36,5 @@ M5_Leaderboard_Frontend_Implementation_Report.md
 M5_Leaderboard_UI_Fix_Report.md
 pdf_text_clean.txt
 pdf_text.txt
+.gitignore
+branch_structure.json

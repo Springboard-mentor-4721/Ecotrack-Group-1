@@ -97,4 +97,20 @@ public interface CarbonEntryRepository extends JpaRepository<CarbonEntry, Long> 
             @Param("endDate") LocalDateTime endDate);
 
     List<CarbonEntry> findTop5ByUserIdOrderByEntryDateDesc(Long userId);
+
+    // --- Admin Analytics Aggregations ---
+
+    @Query("SELECT COALESCE(SUM(c.emissionKgco2e), 0.0) FROM CarbonEntry c")
+    Double getTotalPlatformCarbonImpact();
+
+    @Query("SELECT COALESCE(SUM(c.emissionKgco2e), 0.0) FROM CarbonEntry c WHERE c.entryDate >= :startDate AND c.entryDate < :endDate")
+    Double getPeriodPlatformCarbonImpact(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO(c.subCategory.category.name, CAST(SUM(c.emissionKgco2e) AS double)) " +
+           "FROM CarbonEntry c WHERE c.entryDate >= :startDate AND c.entryDate < :endDate GROUP BY c.subCategory.category.name")
+    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO> getImpactByCategory(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsTrendPointDTO(CAST(FUNCTION('DATE', c.entryDate) AS string), CAST(SUM(c.emissionKgco2e) AS double)) " +
+           "FROM CarbonEntry c WHERE c.entryDate >= :startDate AND c.entryDate < :endDate GROUP BY CAST(FUNCTION('DATE', c.entryDate) AS string) ORDER BY CAST(FUNCTION('DATE', c.entryDate) AS string)")
+    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsTrendPointDTO> getPeriodCarbonTrend(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }

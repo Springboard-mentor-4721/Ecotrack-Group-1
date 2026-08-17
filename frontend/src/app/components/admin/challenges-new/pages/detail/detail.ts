@@ -62,7 +62,7 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
         <div class="p-4 p-md-5">
           <div class="row mb-4">
             <div class="col-12 col-md-8">
-              <span class="badge bg-light text-dark border px-2 py-1 mb-2">{{ c.progressMetric }}</span>
+              <span class="badge bg-light text-dark border px-2 py-1 mb-2">{{ formatProgressMetric(c.progressMetric) }}</span>
               <h2 class="fw-bolder mb-3" style="font-size: 2.2rem;">{{ c.title }}</h2>
               <p class="text-muted fs-5 lh-base">{{ c.description }}</p>
             </div>
@@ -94,9 +94,12 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
               </div>
             </div>
             <div class="col-6 col-md-3">
-              <div class="info-block border rounded p-3 h-100">
-                <span class="text-muted fs-sm fw-bold text-uppercase d-block mb-1">Participants</span>
-                <span class="fw-bold fs-5">{{ c.participantCount || 0 }}</span>
+              <div class="info-block border rounded p-3 h-100 participants-block" [routerLink]="['/admin/challenges', c.id, 'participants']">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="text-muted fs-sm fw-bold text-uppercase d-block">Participants</span>
+                  <span class="material-icons fs-6 text-muted link-icon">arrow_forward</span>
+                </div>
+                <span class="fw-bold fs-5 text-primary">{{ c.participantCount || 0 }}</span>
               </div>
             </div>
           </div>
@@ -143,6 +146,11 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
     .btn-outline { background: white; border: 1px solid #cbd5e1; color: #334155; }
     .btn-outline:hover:not([disabled]) { background: #f1f5f9; }
     .btn-outline[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    .participants-block { cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: block; }
+    .participants-block:hover { background-color: #f8fafc; border-color: #cbd5e1 !important; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .participants-block .link-icon { transition: transform 0.2s ease; }
+    .participants-block:hover .link-icon { color: #0f172a !important; transform: translateX(2px); }
 
     .detail-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     .status-banner { padding: 0.5rem 1.5rem; color: white; text-align: center; letter-spacing: 1px; font-size: 0.85rem; }
@@ -234,6 +242,11 @@ export class DetailComponent implements OnInit {
     const template = DEFAULT_CHALLENGE_TEMPLATES.find(t => t.title === c.title);
     if (template && template.goalUnit) return template.goalUnit;
     return c.progressMetric === 'ENTRY_COUNT' ? 'entries' : (c.progressMetric === 'CARBON_EMISSION' ? 'kg CO₂' : 'units');
+  }
+
+  formatProgressMetric(metric: string): string {
+    if (!metric) return '';
+    return metric === 'ENTRY_COUNT' ? 'Entry Count' : (metric === 'CARBON_EMISSION' ? 'Carbon Emission' : (metric === 'QUANTITY' ? 'Quantity' : metric));
   }
 
   loadChallenge(id: number) {

@@ -152,7 +152,7 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" [routerLink]="isSuspended ? null : '/admin/challenges'"
-            [class.disabled-link]="isSuspended" routerLinkActive="active">
+            [class.disabled-link]="isSuspended" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
             <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
@@ -193,6 +193,17 @@
             <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="isSuspended ? null : '/admin/challenges/analytics'" [class.disabled-link]="isSuspended" routerLinkActive="active">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            <span class="flex-grow-1">Analytics</span>
+            <i class="bi bi-lock-fill ms-auto text-muted" *ngIf="isSuspended"></i>
+          </a>
+        </li>
       </ul>
     </div>
 
@@ -201,7 +212,7 @@
 
       <ul class="nav flex-column gap-1">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/profile" routerLinkActive="active">
+          <a class="nav-link" [routerLink]="isAdmin ? '/admin/settings' : '/profile'" routerLinkActive="active">
             <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

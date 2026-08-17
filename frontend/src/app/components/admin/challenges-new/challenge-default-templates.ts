@@ -41,7 +41,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'cleaning_services',
-    badgeColor: '#10b981'
+    badgeColor: '#10b981',
+    badgeId: 119
   },
   {
     id: 'carbon-reduction',
@@ -62,7 +63,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'co2',
-    badgeColor: '#3b82f6'
+    badgeColor: '#3b82f6',
+    badgeId: 113
   },
   {
     id: 'car-free-weekend',
@@ -84,7 +86,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'directions_car_filled',
-    badgeColor: '#10b981'
+    badgeColor: '#10b981',
+    badgeId: 114
   },
   {
     id: 'community-cleanup',
@@ -127,7 +130,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'pedal_bike',
-    badgeColor: '#10b981'
+    badgeColor: '#10b981',
+    badgeId: 104
   },
   {
     id: 'digital-detox',
@@ -148,7 +152,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'phonelink_off',
-    badgeColor: '#8b5cf6'
+    badgeColor: '#8b5cf6',
+    badgeId: 115
   },
   {
     id: 'eco-commute',
@@ -170,7 +175,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'emoji_transportation',
-    badgeColor: '#10b981'
+    badgeColor: '#10b981',
+    badgeId: 116
   },
   {
     id: 'public-transport-week',
@@ -192,7 +198,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'directions_bus',
-    badgeColor: '#3b82f6'
+    badgeColor: '#3b82f6',
+    badgeId: 101
   },
   {
     id: 'reduce-waste-recycling',
@@ -214,7 +221,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'recycling',
-    badgeColor: '#f59e0b'
+    badgeColor: '#f59e0b',
+    badgeId: 107
   },
   {
     id: 'save-electricity',
@@ -236,7 +244,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'bolt',
-    badgeColor: '#eab308'
+    badgeColor: '#eab308',
+    badgeId: 106
   },
   {
     id: 'tree-plantation',
@@ -257,7 +266,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'park',
-    badgeColor: '#10b981'
+    badgeColor: '#10b981',
+    badgeId: 105
   },
   {
     id: 'walk-more',
@@ -279,7 +289,8 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'directions_walk',
-    badgeColor: '#10b981'
+    badgeColor: '#10b981',
+    badgeId: 117
   },
   {
     id: 'water-saver',
@@ -301,6 +312,7 @@ export const DEFAULT_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     defaultStatus: 'UPCOMING',
     defaultVisibility: 'PUBLIC',
     icon: 'water_drop',
-    badgeColor: '#3b82f6'
+    badgeColor: '#3b82f6',
+    badgeId: 108
   }
 ];

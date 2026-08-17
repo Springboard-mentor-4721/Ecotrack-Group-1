@@ -38,7 +38,7 @@ public class ReportController {
     private final UserRepository userRepository;
 
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/carbon/analytics")
     public ResponseEntity<?> getCarbonAnalyticsReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -50,7 +50,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/carbon/entries")
     public ResponseEntity<?> getCarbonEntriesReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -64,7 +64,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/carbon")
     public ResponseEntity<?> getCarbonReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -90,7 +90,7 @@ public class ReportController {
     }
 
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/goals/analytics")
     public ResponseEntity<?> getGoalAnalyticsReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -102,7 +102,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/goals/performance")
     public ResponseEntity<?> getGoalPerformanceReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -116,7 +116,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/goals")
     public ResponseEntity<?> getGoalReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -142,7 +142,7 @@ public class ReportController {
     }
 
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/challenges/analytics")
     public ResponseEntity<?> getChallengeAnalyticsReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -154,7 +154,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/challenges/performance")
     public ResponseEntity<?> getChallengePerformanceReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -168,7 +168,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/challenges")
     public ResponseEntity<?> getChallengeReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -194,7 +194,7 @@ public class ReportController {
     }
 
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/sustainability/analytics")
     public ResponseEntity<?> getSustainabilityAnalyticsReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -206,7 +206,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/sustainability")
     public ResponseEntity<?> getSustainabilityReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -231,7 +231,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/overview")
     public ResponseEntity<?> getOverviewReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -243,7 +243,7 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/xp")
     public ResponseEntity<?> getXpActivityReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

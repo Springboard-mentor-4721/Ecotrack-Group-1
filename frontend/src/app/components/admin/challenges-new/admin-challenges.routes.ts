@@ -37,5 +37,9 @@ export const routes: Routes = [
   {
     path: ':id',
     component: DetailComponent
+  },
+  {
+    path: ':id/participants',
+    loadComponent: () => import('./pages/participants/participants.component').then(m => m.ParticipantsComponent)
   }
 ];

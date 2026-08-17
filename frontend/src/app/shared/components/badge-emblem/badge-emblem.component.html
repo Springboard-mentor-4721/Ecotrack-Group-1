@@ -4,7 +4,7 @@
      
   <!-- Background Hexagon SVG (Only shown if NO artwork PNG is present) -->
   <svg *ngIf="!artworkUrl" viewBox="0 0 100 100" class="badge-bg w-100 h-100 position-absolute top-0 start-0"
-       [style.filter]="badge?.isEarned ? 'none' : 'grayscale(100%) brightness(0.9)'">
+       [style.filter]="(badge?.isEarned || forceUnlocked) ? 'none' : 'grayscale(100%) brightness(0.9)'">
     <defs>
       <linearGradient [id]="'bgGrad-' + (badge?.id || 'default')" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" [attr.stop-color]="rarityGradientStart" />
@@ -44,13 +44,13 @@
          [style.width.px]="size" 
          [style.height.px]="size" 
          style="object-fit: contain; transition: all 0.3s ease;" 
-         [style.opacity]="badge?.isEarned ? '1' : '0.6'"
-         [style.filter]="badge?.isEarned ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.15))' : 'grayscale(100%) brightness(80%) drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'"
+         [style.opacity]="(badge?.isEarned || forceUnlocked) ? '1' : '0.6'"
+         [style.filter]="(badge?.isEarned || forceUnlocked) ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.15))' : 'grayscale(100%) brightness(80%) drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'"
          />
          
     <!-- Fallback Bootstrap Icon -->
     <i *ngIf="!artworkUrl" class="bi" [ngClass]="iconClass" [style.font-size.px]="size * 0.45" 
-       [style.filter]="badge?.isEarned ? 'drop-shadow(0px 2px 3px rgba(0,0,0,0.3))' : 'grayscale(100%) brightness(0.7) drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'"></i>
+       [style.filter]="(badge?.isEarned || forceUnlocked) ? 'drop-shadow(0px 2px 3px rgba(0,0,0,0.3))' : 'grayscale(100%) brightness(0.7) drop-shadow(0px 2px 3px rgba(0,0,0,0.2))'"></i>
   </div>
   
   <!-- Status Overlay (Lock) -->

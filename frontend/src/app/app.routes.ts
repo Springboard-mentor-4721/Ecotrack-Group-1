@@ -77,7 +77,13 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
-        component: ProfileComponent
+        component: ProfileComponent,
+        canActivate: [userGuard, suspendedGuard]
+      },
+      {
+        path: 'admin/settings',
+        loadComponent: () => import('./components/admin/settings/admin-settings.component').then(m => m.AdminSettingsComponent),
+        canActivate: [adminGuard, suspendedGuard]
       },
 
       {

@@ -1,14 +1,17 @@
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Badge Management</h2>
-    <button class="btn btn-primary d-flex align-items-center gap-2" (click)="openCreateModal()">
+<div class="page-container admin-page animate-page pt-4">
+  <div class="premium-hero mb-4 animate-stagger-item mt-2">
+    <div class="hero-content">
+      <h1 class="hero-title text-dark tracking-tight mb-1 fs-3 fw-black">Badge Management</h1>
+      <p class="fs-7 text-muted mb-0">Create and manage gamification badges for participants.</p>
+    </div>
+    <button class="btn-primary-gradient d-flex align-items-center gap-2" (click)="openCreateModal()">
       <lucide-angular [img]="PlusIcon" size="18"></lucide-angular>
       Create Badge
     </button>
   </div>
 
   <!-- Tabs -->
-  <ul class="nav nav-tabs mb-4">
+  <ul class="nav premium-tabs justify-content-center animate-stagger-item">
     <li class="nav-item">
       <a class="nav-link cursor-pointer" [class.active]="activeTab() === 'GENERIC'" (click)="setTab('GENERIC')">Generic Badges</a>
     </li>
@@ -33,73 +36,71 @@
     </div>
   </div>
 
-  <div class="card shadow-sm border-0" *ngIf="!isLoading()">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-light">
-            <tr>
-              <th class="border-0 px-4 py-3">Badge Info</th>
-              <th class="border-0 py-3">Category</th>
-              <th class="border-0 py-3" *ngIf="activeTab() === 'GENERIC'">Rarity</th>
-              <th class="border-0 py-3">Criteria</th>
-              <th class="border-0 py-3">Status</th>
-              <th class="border-0 py-3 text-end px-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="badges().length === 0">
-              <td [attr.colspan]="activeTab() === 'GENERIC' ? 6 : 5" class="text-center py-4 text-muted">No badges found in this category.</td>
-            </tr>
-            <tr *ngFor="let badge of badges()">
-              <td class="px-4">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                    <lucide-angular [img]="AwardIcon" size="20" class="text-primary"></lucide-angular>
-                  </div>
-                  <div>
-                    <div class="fw-bold">{{ badge.name }}</div>
-                    <div class="small text-muted text-truncate" style="max-width: 250px;" title="{{ badge.description }}">
-                      {{ badge.description }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>{{ badge.category }}</td>
-              <td *ngIf="activeTab() === 'GENERIC'">
-                <span [class]="getRarityClass(badge.rarity)">{{ badge.rarity }}</span>
-              </td>
-              <td>
-                <div class="small" *ngIf="badge.type === 'GENERIC'">
-                  <div class="fw-bold">{{ badge.criteriaType }}</div>
-                  <div class="text-muted">Threshold: {{ badge.criteriaThreshold }}</div>
-                </div>
-                <div class="small" *ngIf="badge.type === 'CHALLENGE'">
-                  <span class="badge bg-secondary">Challenge Specific</span>
-                </div>
-              </td>
-              <td>
-                <span class="badge" [ngClass]="badge.isHidden ? 'bg-secondary' : 'bg-success'">
-                  {{ badge.isHidden ? 'Hidden' : 'Visible' }}
-                </span>
-                <span class="badge bg-info ms-1" *ngIf="badge.isRepeatable">Repeatable</span>
-              </td>
-              <td class="text-end px-4">
-                <div class="btn-group shadow-sm">
-                  <button class="btn btn-sm btn-light border" title="Edit" (click)="openEditModal(badge)">
-                    <lucide-angular [img]="EditIcon" size="16"></lucide-angular>
-                  </button>
-                  <button class="btn btn-sm btn-light border text-warning" title="Disable (Hide)" 
-                          *ngIf="!badge.isHidden" 
-                          (click)="disableBadge(badge.id)">
-                    <lucide-angular [img]="DisableIcon" size="16"></lucide-angular>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="badge-list animate-stagger-item" *ngIf="!isLoading()">
+    <div class="d-none d-md-grid directory-header px-4 py-3" [style.grid-template-columns]="activeTab() === 'GENERIC' ? '3fr 2fr 1fr 2fr 1fr 1fr' : '3fr 2fr 2fr 1fr 1fr'" style="gap: 1rem;">
+      <span style="padding-left: 60px;">Badge Info</span>
+      <span class="text-center">Category</span>
+      <span class="text-center" *ngIf="activeTab() === 'GENERIC'">Rarity</span>
+      <span class="text-center">Criteria</span>
+      <span class="text-center">Status</span>
+      <span class="text-end">Actions</span>
+    </div>
+
+    <div *ngIf="badges().length === 0" class="text-center py-5 text-muted bg-surface">
+      <div class="d-flex flex-column align-items-center">
+        <lucide-angular [img]="AwardIcon" size="48" class="text-muted opacity-50 mb-3"></lucide-angular>
+        <h5 class="fw-bold">No Badges Found</h5>
+        <p class="fs-7">There are no badges configured in this category yet.</p>
       </div>
+    </div>
+
+    <div class="badge-card px-4 py-3 d-grid align-items-center" *ngFor="let badge of badges()" [style.grid-template-columns]="activeTab() === 'GENERIC' ? '3fr 2fr 1fr 2fr 1fr 1fr' : '3fr 2fr 2fr 1fr 1fr'" style="gap: 1rem;">
+      
+      <div class="d-flex align-items-center gap-3" style="min-width: 0;">
+        <app-badge-emblem [badge]="$any(badge)" [size]="44" [forceUnlocked]="true"></app-badge-emblem>
+        <div class="overflow-hidden">
+          <h6 class="fw-bold mb-0 text-primary text-truncate">{{ badge.name }}</h6>
+          <span class="fs-xs text-muted d-block text-truncate" title="{{ badge.description }}">{{ badge.description }}</span>
+        </div>
+      </div>
+      
+      <div class="fw-bold fs-xs text-muted text-uppercase tracking-wide text-center">{{ badge.category }}</div>
+      
+      <div *ngIf="activeTab() === 'GENERIC'" class="text-center">
+        <span class="badge rounded-pill fw-bold px-3 py-1 text-uppercase border" 
+              [ngClass]="'badge-' + badge.rarity.toLowerCase()">
+          {{ badge.rarity }}
+        </span>
+      </div>
+      
+      <div class="fs-xs text-center">
+        <div *ngIf="badge.type === 'GENERIC'">
+          <div class="fw-bold text-dark">{{ formatEnumStr(badge.criteriaType) }}</div>
+          <div class="text-muted">Threshold: {{ badge.criteriaThreshold }}</div>
+        </div>
+        <div *ngIf="badge.type === 'CHALLENGE'">
+          <span class="badge bg-surface-hover text-muted border px-2 py-1">Challenge Specific</span>
+        </div>
+      </div>
+      
+      <div class="d-flex gap-1 flex-wrap justify-content-center">
+        <span class="badge rounded-pill fw-bold fs-xs px-3 py-1"
+              [style.background]="!badge.isHidden ? 'rgba(16,185,129,0.1)' : 'rgba(100,116,139,0.1)'"
+              [style.color]="!badge.isHidden ? '#059669' : '#475569'">
+          {{ badge.isHidden ? 'Hidden' : 'Visible' }}
+        </span>
+        <span class="badge rounded-pill bg-primary fw-bold fs-xs px-2 py-1 text-white" style="opacity: 0.8" *ngIf="badge.isRepeatable">Repeatable</span>
+      </div>
+      
+      <div class="badge-actions d-flex justify-content-end gap-2">
+        <button class="btn-premium btn-premium-action px-2" title="Edit" (click)="openEditModal(badge)">
+          <lucide-angular [img]="EditIcon" size="16"></lucide-angular>
+        </button>
+        <button class="btn-premium btn-premium-danger px-2" title="Disable (Hide)" *ngIf="!badge.isHidden" (click)="disableBadge(badge.id)">
+          <lucide-angular [img]="DisableIcon" size="16"></lucide-angular>
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -122,111 +123,134 @@
 <!-- Badge Modal -->
 <div class="modal fade" id="badgeModal" tabindex="-1" aria-labelledby="badgeModalLabel" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-light">
-        <h5 class="modal-title fw-bold" id="badgeModalLabel">
+    <div class="modal-content premium-modal border-0 shadow">
+      <div class="modal-header premium-modal-header">
+        <h5 class="modal-title premium-modal-title" id="badgeModalLabel">
           {{ isEditing() ? 'Edit Badge' : 'Create New Badge' }}
         </h5>
         <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
       </div>
       
       <form [formGroup]="badgeForm" (ngSubmit)="saveBadge()">
-        <div class="modal-body">
+        <div class="modal-body premium-modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label fw-bold">Name</label>
-              <input type="text" class="form-control" formControlName="name" placeholder="e.g. Tree Hugger"
+              <label class="premium-label">Name</label>
+              <input type="text" class="form-control premium-input" formControlName="name" placeholder="e.g. Tree Hugger"
                      [ngClass]="{'is-invalid': badgeForm.get('name')?.invalid && badgeForm.get('name')?.touched}">
               <div class="invalid-feedback">A valid name is required (max 100 chars).</div>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label fw-bold">Badge Type</label>
-              <select class="form-select" formControlName="type"
-                      [ngClass]="{'is-invalid': badgeForm.get('type')?.invalid && badgeForm.get('type')?.touched}">
-                <option value="GENERIC">Generic Achievement</option>
-                <option value="CHALLENGE">Challenge Badge</option>
-              </select>
-              <div class="invalid-feedback">Type is required.</div>
+              <label class="premium-label">Badge Type</label>
+              <div class="dropdown">
+                <button type="button" class="btn text-start w-100 form-control premium-input premium-select" 
+                        [ngClass]="{'is-invalid': badgeForm.get('type')?.invalid && badgeForm.get('type')?.touched}"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ getOptionLabel(badgeTypes, badgeForm.get('type')?.value, 'Select Type') }}
+                </button>
+                <ul class="dropdown-menu w-100 border-0 shadow-lg mt-1" style="border-radius: 12px; padding: 0.5rem; max-height: 300px; overflow-y: auto;">
+                  <li *ngFor="let opt of badgeTypes">
+                    <a class="dropdown-item py-2 px-3 rounded cursor-pointer" 
+                       [class.active-item]="badgeForm.get('type')?.value === opt.value"
+                       (click)="setFormValue('type', opt.value)">{{ opt.label }}</a>
+                  </li>
+                </ul>
+                <div class="invalid-feedback">Type is required.</div>
+              </div>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label fw-bold">Category</label>
-              <select class="form-select" formControlName="category"
-                      [ngClass]="{'is-invalid': badgeForm.get('category')?.invalid && badgeForm.get('category')?.touched}">
-                <option value="" disabled>Select Category</option>
-                <option value="TRACKING">TRACKING</option>
-                <option value="GOALS">GOALS</option>
-                <option value="ENGAGEMENT">ENGAGEMENT</option>
-                <!-- Extended categories for challenges -->
-                <option value="Transportation">Transportation</option>
-                <option value="Food">Food</option>
-                <option value="Waste">Waste</option>
-                <option value="Community">Community</option>
-                <option value="Energy">Energy</option>
-                <option value="Water">Water</option>
-              </select>
-              <div class="invalid-feedback">Category is required.</div>
+              <label class="premium-label">Category</label>
+              <div class="dropdown">
+                <button type="button" class="btn text-start w-100 form-control premium-input premium-select" 
+                        [ngClass]="{'is-invalid': badgeForm.get('category')?.invalid && badgeForm.get('category')?.touched}"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ getOptionLabel(categories, badgeForm.get('category')?.value, 'Select Category') }}
+                </button>
+                <ul class="dropdown-menu w-100 border-0 shadow-lg mt-1" style="border-radius: 12px; padding: 0.5rem; max-height: 250px; overflow-y: auto;">
+                  <li *ngFor="let opt of categories">
+                    <a class="dropdown-item py-2 px-3 rounded cursor-pointer" 
+                       [class.active-item]="badgeForm.get('category')?.value === opt.value"
+                       (click)="setFormValue('category', opt.value)">{{ opt.label }}</a>
+                  </li>
+                </ul>
+                <div class="invalid-feedback">Category is required.</div>
+              </div>
             </div>
             
             <div class="col-12">
-              <label class="form-label fw-bold">Description</label>
-              <textarea class="form-control" formControlName="description" rows="2" placeholder="Describe the badge..."
+              <label class="premium-label">Description</label>
+              <textarea class="form-control premium-input" formControlName="description" rows="2" placeholder="Describe the badge..."
                         [ngClass]="{'is-invalid': badgeForm.get('description')?.invalid && badgeForm.get('description')?.touched}"></textarea>
               <div class="invalid-feedback">Description is required.</div>
             </div>
             
             <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'GENERIC'">
-              <label class="form-label fw-bold">Rarity</label>
-              <select class="form-select" formControlName="rarity"
-                      [ngClass]="{'is-invalid': badgeForm.get('rarity')?.invalid && badgeForm.get('rarity')?.touched}">
-                <option value="" disabled>Select Rarity</option>
-                <option value="COMMON">Common</option>
-                <option value="RARE">Rare</option>
-                <option value="EPIC">Epic</option>
-                <option value="LEGENDARY">Legendary</option>
-              </select>
-              <div class="invalid-feedback">Please select a rarity.</div>
+              <label class="premium-label">Rarity</label>
+              <div class="dropdown">
+                <button type="button" class="btn text-start w-100 form-control premium-input premium-select" 
+                        [ngClass]="{'is-invalid': badgeForm.get('rarity')?.invalid && badgeForm.get('rarity')?.touched}"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ getOptionLabel(rarities, badgeForm.get('rarity')?.value, 'Select Rarity') }}
+                </button>
+                <ul class="dropdown-menu w-100 border-0 shadow-lg mt-1" style="border-radius: 12px; padding: 0.5rem; max-height: 250px; overflow-y: auto;">
+                  <li *ngFor="let opt of rarities">
+                    <a class="dropdown-item py-2 px-3 rounded cursor-pointer" 
+                       [class.active-item]="badgeForm.get('rarity')?.value === opt.value"
+                       (click)="setFormValue('rarity', opt.value)">{{ opt.label }}</a>
+                  </li>
+                </ul>
+                <div class="invalid-feedback">Please select a rarity.</div>
+              </div>
             </div>
             
             <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'GENERIC'">
-              <label class="form-label fw-bold">Criteria Type</label>
-              <select class="form-select" formControlName="criteriaType"
-                      [ngClass]="{'is-invalid': badgeForm.get('criteriaType')?.invalid && badgeForm.get('criteriaType')?.touched}">
-                <option value="" disabled>Select Criteria Type</option>
-                <option value="CARBON_ENTRIES_COUNT">CARBON_ENTRIES_COUNT</option>
-                <option value="GOAL_COMPLETED_COUNT">GOAL_COMPLETED_COUNT</option>
-                <option value="STREAK_DAYS">STREAK_DAYS</option>
-                <option value="CHALLENGE_COMPLETED_COUNT">CHALLENGE_COMPLETED_COUNT</option>
-                <option value="CATEGORY_SPECIALIST">CATEGORY_SPECIALIST</option>
-              </select>
-              <div class="invalid-feedback">Criteria Type is required.</div>
+              <label class="premium-label">Criteria Type</label>
+              <div class="dropdown">
+                <button type="button" class="btn text-start w-100 form-control premium-input premium-select" 
+                        [ngClass]="{'is-invalid': badgeForm.get('criteriaType')?.invalid && badgeForm.get('criteriaType')?.touched}"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ getOptionLabel(criteriaTypes, badgeForm.get('criteriaType')?.value, 'Select Criteria Type') }}
+                </button>
+                <ul class="dropdown-menu w-100 border-0 shadow-lg mt-1" style="border-radius: 12px; padding: 0.5rem; max-height: 250px; overflow-y: auto;">
+                  <li *ngFor="let opt of criteriaTypes">
+                    <a class="dropdown-item py-2 px-3 rounded cursor-pointer" 
+                       [class.active-item]="badgeForm.get('criteriaType')?.value === opt.value"
+                       (click)="setFormValue('criteriaType', opt.value)">{{ opt.label }}</a>
+                  </li>
+                </ul>
+                <div class="invalid-feedback">Criteria Type is required.</div>
+              </div>
             </div>
 
             <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'GENERIC'">
-              <label class="form-label fw-bold">Criteria Threshold</label>
-              <input type="number" class="form-control" formControlName="criteriaThreshold" min="1"
+              <label class="premium-label">Criteria Threshold</label>
+              <input type="number" class="form-control premium-input" formControlName="criteriaThreshold" min="1"
                      [ngClass]="{'is-invalid': badgeForm.get('criteriaThreshold')?.invalid && badgeForm.get('criteriaThreshold')?.touched}">
               <div class="invalid-feedback">Target value must be at least 1.</div>
             </div>
 
             <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'CHALLENGE'">
-              <label class="form-label fw-bold">Icon Identifier</label>
-              <input type="text" class="form-control" formControlName="icon" placeholder="e.g. Bus, Leaf">
+              <label class="premium-label">Icon Identifier</label>
+              <input type="text" class="form-control premium-input" formControlName="icon" placeholder="e.g. Bus, Leaf">
             </div>
 
             <div class="col-md-4" *ngIf="badgeForm.get('type')?.value === 'CHALLENGE'">
-              <label class="form-label fw-bold">Semantic Color</label>
-              <select class="form-select" formControlName="color">
-                <option value="">Select Color</option>
-                <option value="blue">Blue</option>
-                <option value="teal">Teal</option>
-                <option value="green">Green</option>
-                <option value="emerald">Emerald</option>
-                <option value="amber">Amber</option>
-                <option value="orange">Orange</option>
-                <option value="violet">Violet</option>
-              </select>
+              <label class="premium-label">Semantic Color</label>
+              <div class="dropdown">
+                <button type="button" class="btn text-start w-100 form-control premium-input premium-select" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ getOptionLabel(colors, badgeForm.get('color')?.value, 'Select Color') }}
+                </button>
+                <ul class="dropdown-menu w-100 border-0 shadow-lg mt-1" style="border-radius: 12px; padding: 0.5rem; max-height: 200px; overflow-y: auto;">
+                  <li *ngFor="let opt of colors">
+                    <a class="dropdown-item py-2 px-3 rounded cursor-pointer" 
+                       [class.active-item]="badgeForm.get('color')?.value === opt.value"
+                       (click)="setFormValue('color', opt.value)">{{ opt.label }}</a>
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div class="col-12">
@@ -242,9 +266,9 @@
           </div>
         </div>
         
-        <div class="modal-footer bg-light">
-          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="isSaving()">Cancel</button>
-          <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" [disabled]="isSaving()">
+        <div class="modal-footer premium-modal-footer">
+          <button type="button" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 10px; font-weight: 600;" (click)="closeModal()" [disabled]="isSaving()">Cancel</button>
+          <button type="submit" class="btn-primary-gradient d-flex align-items-center gap-2" [disabled]="isSaving()">
             <span *ngIf="isSaving()" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isEditing() ? 'Save Changes' : 'Create Badge' }}
           </button>

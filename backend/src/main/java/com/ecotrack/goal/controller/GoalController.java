@@ -32,7 +32,7 @@ public class GoalController {
     private final GoalOptimizationService goalOptimizationService;
     private final UserRepository userRepository;
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<GoalResponse> createGoal(
             @Valid @RequestBody GoalRequest request,
@@ -43,7 +43,7 @@ public class GoalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/optimize")
     public ResponseEntity<GoalOptimizationResponse> optimizeGoal(
             @Valid @RequestBody GoalRequest request,
@@ -54,7 +54,7 @@ public class GoalController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping
     public ResponseEntity<Page<GoalResponse>> getUserGoals(
             Pageable pageable,
@@ -65,7 +65,7 @@ public class GoalController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
     public ResponseEntity<GoalResponse> getGoalById(
             @PathVariable Long id,
@@ -76,7 +76,7 @@ public class GoalController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
     public ResponseEntity<GoalResponse> updateGoal(
             @PathVariable Long id,
@@ -88,7 +88,7 @@ public class GoalController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGoal(
             @PathVariable Long id,
@@ -99,7 +99,7 @@ public class GoalController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/progress")
     public ResponseEntity<GoalProgressResponse> recordProgress(
             @PathVariable Long id,
@@ -111,7 +111,7 @@ public class GoalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}/analytics")
     public ResponseEntity<GoalAnalyticsResponse> getGoalAnalytics(
             @PathVariable Long id,

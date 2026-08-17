@@ -86,11 +86,9 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
-    if (window.confirm('Are you sure you want to log out?')) {
-      this.authService.logout();
-      sessionStorage.clear();
-      this.router.navigate(['/'], { replaceUrl: true });
-    }
+    this.authService.logout();
+    sessionStorage.clear();
+    this.router.navigate(['/'], { replaceUrl: true });
   }
 
   toggleTheme(): void {

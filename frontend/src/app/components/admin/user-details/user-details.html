@@ -27,11 +27,12 @@
     </div>
   </div>
 
-  <!-- Breadcrumbs -->
-  <div class="mb-4 d-flex align-items-center gap-2 text-muted animate-fade-in">
-    <a routerLink="/admin/users" class="text-indigo text-decoration-none hover-indigo">User Directory</a>
-    <i class="bi bi-chevron-right fs-7"></i>
-    <span class="text-dark fw-bold">Account Details</span>
+  <!-- Header / Breadcrumbs -->
+  <div class="mb-4 d-flex flex-column align-items-start gap-3 animate-fade-in">
+    <a routerLink="/admin/users" class="btn btn-sm rounded-3 fw-bold d-inline-flex align-items-center gap-2 px-3 py-2 border shadow-sm text-dark" style="background: var(--bg-surface); transition: all 0.2s ease;" onmouseover="this.style.color='#4f46e5'; this.style.transform='translateX(-2px)'" onmouseout="this.style.color=''; this.style.transform='translateX(0)'">
+      <span style="font-size: 1.1em;">&larr;</span> Go Back
+    </a>
+    <h2 class="text-dark fw-bold mb-0" style="font-size: 1.8rem;">Account Details</h2>
   </div>
 
   <!-- LOADING STATE -->
@@ -76,10 +77,10 @@
         </div>
 
         <div class="admin-hero-details flex-grow-1 pb-2">
-          <div class="d-flex justify-content-between align-items-start w-100">
+          <div class="d-flex justify-content-between align-items-center w-100">
             <div>
               <h2 class="fw-bold text-dark mb-1">{{ user.name }}</h2>
-              <p class="text-muted mb-2"><i class="bi bi-envelope-fill me-2"></i>{{ user.email }}</p>
+              <p class="text-muted mb-2">{{ user.email }}</p>
 
               <div class="d-flex gap-2">
                 <span class="badge rounded-pill fw-bold fs-xs px-3 py-1" [ngClass]="user.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-surface-hover text-dark border'">
@@ -131,20 +132,20 @@
 
           <div class="ro-grid">
             <div class="ro-item">
-              <span class="ro-label text-secondary">Bio</span>
-              <span class="ro-value text-primary" [ngClass]="{'text-muted fst-italic': !user.bio}">
+              <span class="ro-label">Bio</span>
+              <span class="ro-value" [ngClass]="{'text-muted fst-italic': !user.bio}">
                 {{ user.bio || 'No bio provided' }}
               </span>
             </div>
             <div class="ro-item">
-              <span class="ro-label text-secondary">Location</span>
-              <span class="ro-value text-primary" [ngClass]="{'text-muted fst-italic': !user.location}">
+              <span class="ro-label">Location</span>
+              <span class="ro-value" [ngClass]="{'text-muted fst-italic': !user.location}">
                 {{ user.location || 'Unknown' }}
               </span>
             </div>
             <div class="ro-item">
-              <span class="ro-label text-secondary">Lifestyle Preferences</span>
-              <span class="ro-value text-primary" [ngClass]="{'text-muted fst-italic': !user.lifestylePreferences}">
+              <span class="ro-label">Lifestyle Preferences</span>
+              <span class="ro-value" [ngClass]="{'text-muted fst-italic': !user.lifestylePreferences}">
                 {{ user.lifestylePreferences || 'None set' }}
               </span>
             </div>
@@ -156,44 +157,31 @@
         <div class="premium-card h-100 bg-surface border rounded-4 p-4">
           <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-shield-check me-2 text-indigo"></i>System Information</h5>
 
-          <div class="ro-item">
-            <div class="text-center mb-4 pb-4 border-bottom">
-              <div class="user-avatar mx-auto mb-3 d-flex align-items-center justify-content-center fw-bold rounded-circle fs-3"
-                   [style.width.px]="80" [style.height.px]="80"
-                   [style.background]="user.role === 'ADMIN' ? 'rgba(239,68,68,0.12)' : 'rgba(59,130,246,0.12)'"
-                   [style.color]="user.role === 'ADMIN' ? '#dc2626' : '#2563eb'">
-                {{ user.name.charAt(0).toUpperCase() }}
-              </div>
-              <h4 class="fw-bold mb-1 text-primary">{{ user.name }}</h4>
-              <p class="text-muted fs-7 mb-0">{{ user.email }}</p>
+          <div class="d-flex flex-column">
+            <div class="info-row">
+              <span class="text-muted fs-7 fw-bold">Role</span>
+              <span class="badge rounded-pill fw-bold fs-xs px-3 py-1"
+                    [ngClass]="user.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-surface-hover text-primary border'">
+                {{ user.role }}
+              </span>
             </div>
 
-            <div class="d-flex flex-column gap-3">
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted fs-7 fw-bold">Role</span>
-                <span class="badge rounded-pill fw-bold fs-xs px-3 py-1"
-                      [ngClass]="user.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-surface-hover text-primary border'">
-                  {{ user.role }}
-                </span>
-              </div>
+            <div class="info-row">
+              <span class="text-muted fs-7 fw-bold">Status</span>
+              <span class="badge rounded-pill fw-bold fs-xs px-3 py-1 d-flex align-items-center gap-1"
+                    [style.background]="user.status === 'ACTIVE' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'"
+                    [style.color]="user.status === 'ACTIVE' ? '#047857' : '#dc2626'"
+                    [style.border]="'none'">
+                <span class="rounded-circle d-inline-block"
+                  [style.background]="user.status === 'ACTIVE' ? '#10b981' : '#ef4444'"
+                  style="width: 6px; height: 6px;"></span>
+                {{ user.status }}
+              </span>
+            </div>
 
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted fs-7 fw-bold">Status</span>
-                <span class="badge rounded-pill fw-bold fs-xs px-3 py-1 d-flex align-items-center gap-1"
-                      [style.background]="user.status === 'ACTIVE' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'"
-                      [style.color]="user.status === 'ACTIVE' ? '#047857' : '#dc2626'"
-                      [style.border]="'none'">
-                  <span class="rounded-circle d-inline-block"
-                    [style.background]="user.status === 'ACTIVE' ? '#10b981' : '#ef4444'"
-                    style="width: 6px; height: 6px;"></span>
-                  {{ user.status }}
-                </span>
-              </div>
-
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted fs-7 fw-bold">Account ID</span>
-                <span class="text-primary fw-bold fs-7">#{{ user.id.toString().padStart(4, '0') }}</span>
-              </div>
+            <div class="info-row">
+              <span class="text-muted fs-7 fw-bold">Account ID</span>
+              <span class="text-primary fw-bold fs-7">#{{ user.id.toString().padStart(4, '0') }}</span>
             </div>
           </div>
         </div>
@@ -202,39 +190,137 @@
     </div>
 
     <!-- Activity & Meta Card -->
-    <div class="col-lg-8">
-      <div class="card-premium h-100">
-        <span class="label-muted d-block mb-4">Security & Timeline</span>
+    <div class="row g-4 mb-4 animate-fade-in" style="animation-delay: 0.25s;">
+      <div class="col-12">
+        <div class="premium-card p-4">
+          <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-clock-history me-2 text-indigo"></i>Security & Timeline</h5>
 
-        <div class="row g-4 mb-5">
-          <div class="col-sm-6">
-            <div class="bg-surface border rounded-3 p-3">
-              <span class="text-muted fs-xs fw-bold text-uppercase d-block mb-1">Created At</span>
-              <span class="text-primary fw-bold fs-7">{{ user.createdAt | date:'medium' }}</span>
+          <div class="row g-4">
+            <div class="col-sm-6 col-md-3">
+              <div class="timeline-card text-center">
+                <span class="ro-label d-block mb-1">Created At</span>
+                <span class="text-primary fw-bold fs-7">{{ user.createdAt | date:'MMM d, y, h:mm a' }}</span>
+              </div>
             </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="bg-surface border rounded-3 p-3">
-              <span class="text-muted fs-xs fw-bold text-uppercase d-block mb-1">Last Login</span>
-              <span class="text-primary fw-bold fs-7">{{ user.lastLoginAt ? (user.lastLoginAt | date:'medium') : 'Never' }}</span>
+            <div class="col-sm-6 col-md-3">
+              <div class="timeline-card text-center">
+                <span class="ro-label d-block mb-1">Last Login</span>
+                <span class="text-primary fw-bold fs-7">{{ user.lastLoginAt ? (user.lastLoginAt | date:'MMM d, y, h:mm a') : 'Never' }}</span>
+              </div>
             </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="bg-surface border rounded-3 p-3">
-              <span class="text-muted fs-xs fw-bold text-uppercase d-block mb-1">Email Verified</span>
-              <div class="d-flex align-items-center gap-2 mt-1">
-                <svg *ngIf="user.emailVerified" class="text-emerald" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <svg *ngIf="!user.emailVerified" class="text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                <span class="text-primary fw-bold fs-7">{{ user.emailVerified ? 'Verified' : 'Pending' }}</span>
+            <div class="col-sm-6 col-md-3">
+              <div class="timeline-card text-center">
+                <span class="ro-label d-block mb-1">Email Verified</span>
+                <div class="d-flex align-items-center justify-content-center gap-2 mt-1">
+                  <svg *ngIf="user.emailVerified" class="text-emerald" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <svg *ngIf="!user.emailVerified" class="text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <span class="text-primary fw-bold fs-7">{{ user.emailVerified ? 'Verified' : 'Pending' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="timeline-card text-center">
+                <span class="ro-label d-block mb-1">Auth Method</span>
+                <span class="text-primary fw-bold fs-7">{{ user.oauthProvider || 'LOCAL' }}</span>
               </div>
             </div>
           </div>
-          <div class="col-sm-6">
-            <div class="bg-surface border rounded-3 p-3">
-              <span class="text-muted fs-xs fw-bold text-uppercase d-block mb-1">Authentication Method</span>
-              <span class="text-primary fw-bold fs-7">{{ user.oauthProvider || 'LOCAL' }}</span>
-            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===============================
+         SECTION 3: CHALLENGE HISTORY
+         =============================== -->
+    <div class="row g-4 mb-4 animate-fade-in" style="animation-delay: 0.3s;">
+      <div class="col-12">
+        <div class="premium-card p-4">
+          <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-trophy-fill me-2 text-indigo"></i>Challenge History</h5>
+
+          <div *ngIf="challengesErrorMessage()" class="alert alert-danger">
+            {{ challengesErrorMessage() }}
           </div>
+
+          <div *ngIf="isChallengesLoading()" class="py-3">
+            <app-loading-skeleton type="table"></app-loading-skeleton>
+          </div>
+
+          <ng-container *ngIf="!isChallengesLoading() && !challengesErrorMessage()">
+            <div *ngIf="challengeHistory().length === 0" class="text-center py-5 bg-surface border rounded-4">
+              <svg class="mb-3 text-muted mx-auto" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+              <h5 class="fw-bold text-dark mb-2">No Challenge Participation</h5>
+              <p class="text-muted max-w-sm mx-auto mb-0">This user has not participated in any challenges yet.</p>
+            </div>
+
+            <div *ngIf="challengeHistory().length > 0">
+              <div class="table-responsive rounded-4 border overflow-hidden">
+                <table class="table mb-0 align-middle">
+                  <thead class="bg-surface text-muted fs-7 text-uppercase" style="letter-spacing: 0.05em;">
+                    <tr>
+                      <th class="ps-4 py-3 fw-bold border-bottom-0">Challenge</th>
+                      <th class="py-3 fw-bold border-bottom-0 text-center">Status</th>
+                      <th class="py-3 fw-bold border-bottom-0 text-center">Progress</th>
+                      <th class="py-3 fw-bold border-bottom-0 text-center">Joined</th>
+                      <th class="py-3 fw-bold border-bottom-0 text-center">Completed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let p of challengeHistory()" class="border-bottom transition-all hover-bg-surface">
+                      <td class="ps-4 py-3">
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="challenge-icon-mini bg-surface-hover border rounded-3 d-flex align-items-center justify-content-center text-primary" style="width: 36px; height: 36px;">
+                            <i class="bi bi-flag-fill"></i>
+                          </div>
+                          <div>
+                            <h6 class="mb-0 fw-bold text-dark fs-7">{{ p.challengeTitle || (p.challenge ? p.challenge.title : 'Unknown Challenge') }}</h6>
+                            <span class="fs-xs text-muted">ID: #{{ p.challengeId }}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-3 text-center">
+                        <span class="badge rounded-pill fw-bold fs-xs px-3 py-1"
+                          [ngClass]="{
+                            'bg-success bg-opacity-10 text-success': p.status === 'COMPLETED',
+                            'bg-primary bg-opacity-10 text-primary': p.status === 'ACTIVE',
+                            'bg-warning bg-opacity-10 text-warning': p.status === 'DROPPED',
+                            'bg-danger bg-opacity-10 text-danger': p.status === 'FAILED'
+                          }">
+                          {{ p.status }}
+                        </span>
+                      </td>
+                      <td class="py-3 text-center">
+                        <div class="d-inline-flex flex-column align-items-center">
+                          <span class="fw-bold text-dark fs-7 mb-1">{{ p.progress }} / {{ p.targetValue || (p.challenge ? p.challenge.targetValue : '-') }}</span>
+                          <div class="progress" style="height: 4px; width: 60px;">
+                            <div class="progress-bar bg-primary" [style.width.%]="(p.progress / (p.targetValue || p.challenge?.targetValue || 1)) * 100"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-3 text-center">
+                        <span class="fs-7 text-muted">{{ p.joinedAt | date:'mediumDate' }}</span>
+                      </td>
+                      <td class="py-3 text-center">
+                        <span class="fs-7 text-muted">{{ p.completedAt ? (p.completedAt | date:'mediumDate') : '-' }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Pagination -->
+              <div class="d-flex justify-content-between align-items-center mt-3 px-2" *ngIf="challengesTotalPages() > 1">
+                <button class="btn btn-sm btn-outline-secondary fw-bold" [disabled]="challengesCurrentPage() === 0" (click)="changeChallengePage(challengesCurrentPage() - 1)">
+                  &larr; Previous
+                </button>
+                <span class="text-muted fs-7 fw-bold">
+                  Page {{ challengesCurrentPage() + 1 }} of {{ challengesTotalPages() }}
+                </span>
+                <button class="btn btn-sm btn-outline-secondary fw-bold" [disabled]="challengesCurrentPage() >= challengesTotalPages() - 1" (click)="changeChallengePage(challengesCurrentPage() + 1)">
+                  Next &rarr;
+                </button>
+              </div>
+            </div>
+          </ng-container>
         </div>
       </div>
     </div>

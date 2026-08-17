@@ -40,7 +40,7 @@ export class SustainabilityAnalytics implements OnChanges, AfterViewInit {
   errorMsg = signal('');
 
   @ViewChild('comparisonChart') chartRef!: ElementRef<HTMLCanvasElement>;
-  private chartInstance: Chart | null = null;
+  private chartInstance: any | null = null;
 
   readonly Leaf = Leaf;
   readonly Target = Target;

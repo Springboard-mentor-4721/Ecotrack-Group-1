@@ -25,7 +25,7 @@ public class DashboardController {
     private final com.ecotrack.dashboard.ai.service.BehavioralInsightService behavioralInsightService;
     private final com.ecotrack.tracking.service.CarbonEntryService carbonEntryService;
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/user")
     public ResponseEntity<DashboardResponse> getUserDashboard(Authentication authentication) {
         log.info("Fetching user dashboard data");
@@ -34,7 +34,7 @@ public class DashboardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/summary")
     public ResponseEntity<com.ecotrack.dashboard.dto.DashboardSummaryDTO> getDashboardSummary(Authentication authentication) {
         log.info("Fetching unified dashboard summary");
@@ -43,7 +43,7 @@ public class DashboardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/eco-tip")
     public ResponseEntity<com.ecotrack.dashboard.ai.dto.EcoTipResponse> getEcoTip(Authentication authentication) {
         Long userId = getUserId(authentication);
@@ -53,7 +53,7 @@ public class DashboardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/trend-prediction")
     public ResponseEntity<com.ecotrack.dashboard.ai.dto.TrendPredictionResponse> getTrendPrediction(Authentication authentication) {
         Long userId = getUserId(authentication);
@@ -63,7 +63,7 @@ public class DashboardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/behavioral-insights")
     public ResponseEntity<com.ecotrack.dashboard.ai.dto.BehavioralInsightsResponse> getBehavioralInsights(Authentication authentication) {
         Long userId = getUserId(authentication);

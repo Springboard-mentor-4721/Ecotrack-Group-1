@@ -22,14 +22,14 @@ public class ChallengeController {
     private final com.ecotrack.recommendation.service.ChallengeRecommendationService recommendationService;
     private final UserRepository userRepository;
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/recommended")
     public ResponseEntity<java.util.List<ChallengeDTO>> getRecommendedChallenges(Authentication authentication) {
         Long userId = getUserId(authentication);
         return ResponseEntity.ok(recommendationService.getRecommendedChallenges(userId));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping
     public ResponseEntity<Page<ChallengeDTO>> getChallenges(
             @RequestParam(required = false) String search,
@@ -40,7 +40,7 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.getActiveChallenges(userId, search, evaluationType, trackingMethod, pageable));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
     public ResponseEntity<ChallengeDetailDTO> getChallengeDetail(
             @PathVariable Long id,
@@ -49,7 +49,7 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.getChallengeDetail(id, userId));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/join")
     public ResponseEntity<ChallengeParticipantDTO> joinChallenge(
             @PathVariable Long id,
@@ -58,7 +58,7 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.joinChallenge(id, userId));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/my")
     public ResponseEntity<Page<ChallengeParticipantDTO>> getMyChallenges(
             Pageable pageable,
@@ -67,7 +67,7 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.getUserChallenges(userId, pageable));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}/progress")
     public ResponseEntity<ChallengeParticipantDTO> updateProgress(
             @PathVariable Long id,

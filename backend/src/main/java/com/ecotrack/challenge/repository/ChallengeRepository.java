@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 @Repository
 public interface ChallengeRepository extends JpaRepository<Challenge, Long>, JpaSpecificationExecutor<Challenge> {
     Page<Challenge> findByStatus(ChallengeStatus status, Pageable pageable);
+    long countByStatus(ChallengeStatus status);
     
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query("UPDATE Challenge c SET c.globalProgress = CASE WHEN (c.globalProgress + :delta) < 0 THEN 0 ELSE (c.globalProgress + :delta) END WHERE c.id = :id")
@@ -34,4 +35,12 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long>, Jpa
     List<Challenge> findByStatusAndStartDateBefore(ChallengeStatus status, LocalDateTime dateTime);
     List<Challenge> findByStatusAndEndDateBetween(ChallengeStatus status, LocalDateTime start, LocalDateTime end);
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    // --- Admin Analytics Aggregations ---
+
+    @org.springframework.data.jpa.repository.Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO(CAST(c.status AS string), CAST(COUNT(c) AS double)) FROM Challenge c GROUP BY CAST(c.status AS string)")
+    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO> getStatusDistribution();
+
+    @org.springframework.data.jpa.repository.Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO(cat.name, CAST(COUNT(c) AS double)) FROM Challenge c JOIN com.ecotrack.tracking.entity.CarbonCategory cat ON c.linkedCategoryId = cat.id GROUP BY cat.name")
+    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO> getCategoryDistribution();
 }

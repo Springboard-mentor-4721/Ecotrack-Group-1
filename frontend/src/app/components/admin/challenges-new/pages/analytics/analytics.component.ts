@@ -1,429 +1,732 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef, computed, effect } from '@angular/core';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import { AdminChallengeService } from '../../services/admin-challenge.service';
-import { Challenge, ChallengeStats, ChallengeAnalytics } from '../../../../../models/challenge.models';
-import { forkJoin, catchError, of, finalize } from 'rxjs';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { 
+  AdminAnalyticsService, 
+  AdminAnalyticsFilter, 
+  AdminOverviewAnalyticsDTO, 
+  AdminUserAnalyticsDTO, 
+  AdminGamificationAnalyticsDTO, 
+  AdminBadgeAnalyticsDTO, 
+  AdminChallengeAnalyticsDTO, 
+  AdminSustainabilityAnalyticsDTO,
+  AnalyticsDistributionDTO,
+  AnalyticsTrendPointDTO
+} from '../../../../../services/admin-analytics.service';
+import { catchError, finalize, of } from 'rxjs';
+import { ChartConfiguration, ChartData } from 'chart.js';
 
-import { CarbonCategory } from '../../../../../models/carbon-category.models';
+interface SectionState<T> {
+  data: T | null;
+  loading: boolean;
+  error: boolean;
+}
 
 @Component({
   selector: 'app-admin-challenges-analytics',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterModule, FormsModule, BaseChartDirective],
-  providers: [provideCharts(withDefaultRegisterables())],
-  styleUrls: ['../../shared/badges.css'],
+  providers: [provideCharts(withDefaultRegisterables()), DatePipe, DecimalPipe],
   template: `
     <div class="analytics-container">
       <div class="page-header">
         <div class="title-section">
-          <h1>Challenge Analytics</h1>
-          <p class="subtitle">Comprehensive performance metrics across all Challenges.</p>
+          <h1>Admin Analytics</h1>
+          <p class="subtitle">Monitor EcoTrack platform growth, engagement, gamification, challenges, and environmental impact.</p>
         </div>
         <div class="actions-section">
-          <select [ngModel]="dateRange()" (ngModelChange)="dateRange.set($event)" class="date-filter form-control">
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last 12 months</option>
-            <option value="all">All time</option>
-          </select>
-          <button class="btn btn-outline" title="Coming soon" disabled>
-            <span class="material-icons">download</span> Export CSV
+          <div class="custom-dropdown" tabindex="0" (blur)="isDropdownOpen.set(false)">
+            <div class="dropdown-header form-control" (click)="isDropdownOpen.set(!isDropdownOpen())" [class.active]="isDropdownOpen()">
+              {{ getDropdownLabel(dateRange()) }}
+            </div>
+            <div class="dropdown-options" *ngIf="isDropdownOpen()">
+              <div class="dropdown-option" [class.selected]="dateRange() === 'all'" (mousedown)="selectDateRange('all'); $event.preventDefault();">All Time</div>
+              <div class="dropdown-option" [class.selected]="dateRange() === '7'" (mousedown)="selectDateRange('7'); $event.preventDefault();">Last 7 Days</div>
+              <div class="dropdown-option" [class.selected]="dateRange() === '30'" (mousedown)="selectDateRange('30'); $event.preventDefault();">Last 30 Days</div>
+              <div class="dropdown-option" [class.selected]="dateRange() === '90'" (mousedown)="selectDateRange('90'); $event.preventDefault();">Last 90 Days</div>
+              <div class="dropdown-option" [class.selected]="dateRange() === '365'" (mousedown)="selectDateRange('365'); $event.preventDefault();">This Year</div>
+            </div>
+          </div>
+          <button class="btn btn-outline" [disabled]="isExporting()" (click)="export('pdf')">
+            <span class="material-icons">picture_as_pdf</span> 
+            {{ isExporting() ? 'Exporting...' : 'Export PDF' }}
+          </button>
+          <button class="btn btn-outline" [disabled]="isExporting()" (click)="export('excel')">
+            <span class="material-icons">table_view</span> 
+            {{ isExporting() ? 'Exporting...' : 'Export Excel' }}
+          </button>
+          <button class="btn btn-outline" [disabled]="isExporting()" (click)="export('csv')">
+            <span class="material-icons">text_snippet</span> 
+            {{ isExporting() ? 'Exporting...' : 'Export CSV (Zip)' }}
           </button>
         </div>
       </div>
 
-      <div class="error-banner" *ngIf="apiError()">
-        Failed to load analytics data. <button (click)="loadData()">Retry</button>
+      <!-- Tabs Navigation -->
+      <div class="tabs-container">
+        <button [class.active]="activeTab() === 'overview'" (click)="activeTab.set('overview')">Overview</button>
+        <button [class.active]="activeTab() === 'users'" (click)="activeTab.set('users')">Users</button>
+        <button [class.active]="activeTab() === 'gamification'" (click)="activeTab.set('gamification')">Gamification</button>
+        <button [class.active]="activeTab() === 'badges'" (click)="activeTab.set('badges')">Badges</button>
+        <button [class.active]="activeTab() === 'challenges'" (click)="activeTab.set('challenges')">Challenges</button>
+        <button [class.active]="activeTab() === 'sustainability'" (click)="activeTab.set('sustainability')">Sustainability</button>
       </div>
 
-      <div class="loading-state" *ngIf="loading() && !apiError()">
-        <div class="spinner"></div>
-        <p>Loading analytics...</p>
-      </div>
-
-      <ng-container *ngIf="!loading() && !apiError()">
+      <!-- Overview Section -->
+      <section class="analytics-section" *ngIf="activeTab() === 'overview'">
+        <h2 class="section-title">Platform Overview</h2>
         
-        <div class="stats-row">
+        <div class="loading-state" *ngIf="overview().loading">
+          <div class="spinner"></div><p>Loading Overview...</p>
+        </div>
+        <div class="error-banner" *ngIf="overview().error">
+          Failed to load overview data. <button (click)="loadOverview()">Retry</button>
+        </div>
+
+        <div class="stats-row" *ngIf="overview().data as data">
           <div class="stat-card">
-            <span class="material-icons icon-bg-blue">flag</span>
+            <span class="material-icons icon-bg-blue">group</span>
             <div class="stat-content">
-              <span class="stat-label">Total Challenges</span>
-              <span class="stat-value">{{ stats()?.totalChallenges || 0 }}</span>
+              <span class="stat-label">Total Users</span>
+              <span class="stat-value">{{ data.totalUsers | number }}</span>
             </div>
           </div>
           <div class="stat-card">
-            <span class="material-icons icon-bg-indigo">group</span>
+            <span class="material-icons icon-bg-indigo">check_circle</span>
             <div class="stat-content">
-              <span class="stat-label">Total Participants</span>
-              <span class="stat-value">{{ stats()?.totalParticipants || 0 }}</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <span class="material-icons icon-bg-green">check_circle</span>
-            <div class="stat-content">
-              <span class="stat-label">Avg Completion Rate</span>
-              <span class="stat-value">{{ derivedAvgCompletionRate() }}%</span>
+              <span class="stat-label">Active Users</span>
+              <span class="stat-value">{{ data.activeUsers | number }}</span>
             </div>
           </div>
           <div class="stat-card">
             <span class="material-icons icon-bg-yellow">star</span>
             <div class="stat-content">
               <span class="stat-label">Total XP Distributed</span>
-              <span class="stat-value">{{ derivedTotalXp() }}</span>
+              <span class="stat-value">{{ data.totalXp | number }}</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons icon-bg-blue">military_tech</span>
+            <div class="stat-content">
+              <span class="stat-label">Badges Awarded</span>
+              <span class="stat-value">{{ data.totalBadgesAwarded | number }}</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons icon-bg-green">flag</span>
+            <div class="stat-content">
+              <span class="stat-label">Total Challenges</span>
+              <span class="stat-value">{{ data.totalChallenges | number }}</span>
             </div>
           </div>
           <div class="stat-card">
             <span class="material-icons icon-bg-emerald">eco</span>
             <div class="stat-content">
-              <span class="stat-label">Total CO₂ Impact</span>
-              <span class="stat-value">{{ derivedTotalImpact() }} kg</span>
+              <span class="stat-label">Total Carbon Tracked</span>
+              <span class="stat-value">{{ data.totalCarbonImpact | number:'1.0-2' }} kg</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- User Analytics Section -->
+      <section class="analytics-section" *ngIf="activeTab() === 'users'">
+        <h2 class="section-title">User Analytics</h2>
+
+        <div class="loading-state" *ngIf="users().loading">
+          <div class="spinner"></div><p>Loading User Analytics...</p>
+        </div>
+        <div class="error-banner" *ngIf="users().error">
+          Failed to load user analytics. <button (click)="loadUsers()">Retry</button>
         </div>
 
-        <div class="charts-row">
-          <div class="chart-card">
-            <h3>Category Distribution</h3>
-            <div class="chart-wrapper">
-              <canvas baseChart
-                [data]="categoryChartData"
-                [options]="donutChartOptions"
-                [type]="'doughnut'">
-              </canvas>
+        <ng-container *ngIf="users().data as data">
+          <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Total Users</span>
+                <span class="stat-value">{{ data.totalUsers | number }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">New Users (Period)</span>
+                <span class="stat-value">{{ data.newUsersInPeriod | number }}</span>
+              </div>
             </div>
           </div>
-          <div class="chart-card">
-            <h3>Participation Trend</h3>
-            <div class="chart-wrapper">
-              <canvas baseChart
-                [data]="trendChartData"
-                [options]="lineChartOptions"
-                [type]="'line'">
-              </canvas>
+
+          <div class="charts-row">
+            <div class="chart-card chart-wide">
+              <h3>Registration Trend</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="userTrendData()" [options]="lineChartOptions" [type]="'line'"></canvas>
+              </div>
             </div>
           </div>
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3>Status Distribution</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="userStatusData()" [options]="donutChartOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Role Distribution</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="userRoleData()" [options]="donutChartOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </section>
+
+      <!-- Gamification Section -->
+      <section class="analytics-section" *ngIf="activeTab() === 'gamification'">
+        <h2 class="section-title">Gamification Analytics</h2>
+        
+        <div class="loading-state" *ngIf="gamification().loading">
+          <div class="spinner"></div><p>Loading Gamification Analytics...</p>
+        </div>
+        <div class="error-banner" *ngIf="gamification().error">
+          Failed to load gamification analytics. <button (click)="loadGamification()">Retry</button>
         </div>
 
-        <div class="table-card">
-          <div class="card-header">
-            <h3>Per-Challenge Breakdown</h3>
-            <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" class="form-control status-filter">
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CLOSED">Closed</option>
-            </select>
+        <ng-container *ngIf="gamification().data as data">
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Platform XP</span>
+                <span class="stat-value">{{ data.totalPlatformXp | number }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">XP Awarded (Period)</span>
+                <span class="stat-value">{{ data.xpAwardedInPeriod | number }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Avg Eco Score</span>
+                <span class="stat-value">{{ data.averageEcoScore | number:'1.0-1' }}</span>
+              </div>
+            </div>
           </div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Type & Category</th>
-                  <th>Tracking Method</th>
-                  <th>Status</th>
-                  <th>Date Range</th>
-                  <th>Participants</th>
-                  <th>Completion Rate</th>
-                  <th>XP Awarded</th>
-                  <th class="actions-col">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let c of paginatedChallenges()">
-                  <td class="font-medium">{{ c.title }}</td>
-                  <td>
-                    <span class="type-badge">{{ getProgressMetricConfig(c.progressMetric).label }}</span>
-                    <span class="type-badge category-badge" *ngIf="c.trackingMethod === 'AUTOMATIC'" style="margin-left: 0.5rem; background: #ecfdf5; color: #10b981;">
-                      {{ getCarbonCategoryName(c.linkedCategoryId) }}
-                    </span>
-                  </td>
-                  <td>{{ c.trackingMethod }}</td>
-                  <td>
-                    <span class="status-badge" [ngClass]="c.status.toLowerCase()">
-                      {{ c.status }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="date-cell">
-                      <span>{{ c.startDate | date:'MMM d' }}</span>
-                      <span class="material-icons date-arrow">arrow_right_alt</span>
-                      <span>{{ c.endDate | date:'MMM d' }}</span>
-                    </div>
-                  </td>
-                  <td>{{ c.participantCount || 0 }}</td>
-                  <td>{{ c.globalProgress || 0 }}</td>
-                  <td>{{ (c.participantCount || 0) * c.rewardXp }}</td>
-                  <td class="actions-cell">
-                    <button class="btn-link" (click)="viewInLibrary(c.id)">View</button>
-                  </td>
-                </tr>
-                <tr *ngIf="paginatedChallenges().length === 0">
-                  <td colspan="9" class="empty-cell">No challenges found matching the criteria.</td>
-                </tr>
-              </tbody>
-            </table>
+
+          <div class="charts-row">
+            <div class="chart-card chart-wide">
+              <h3>XP Earned Trend</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="xpTrendData()" [options]="lineChartOptions" [type]="'line'"></canvas>
+              </div>
+            </div>
           </div>
-          <div class="pagination" *ngIf="filteredChallenges().length > pageSize">
-            <button [disabled]="currentPage() === 0" (click)="currentPage.set(currentPage() - 1)">Previous</button>
-            <span>Page {{ currentPage() + 1 }} of {{ Math.ceil(filteredChallenges().length / pageSize) }}</span>
-            <button [disabled]="(currentPage() + 1) * pageSize >= filteredChallenges().length" (click)="currentPage.set(currentPage() + 1)">Next</button>
+
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3>XP Sources</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="xpSourceData()" [options]="donutChartOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Level Distribution</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="levelDistData()" [options]="barChartOptions" [type]="'bar'"></canvas>
+              </div>
+            </div>
           </div>
+        </ng-container>
+      </section>
+
+      <!-- Badge Analytics -->
+      <section class="analytics-section" *ngIf="activeTab() === 'badges'">
+        <h2 class="section-title">Badge Analytics</h2>
+
+        <div class="loading-state" *ngIf="badges().loading">
+          <div class="spinner"></div><p>Loading Badge Analytics...</p>
         </div>
-      </ng-container>
+        <div class="error-banner" *ngIf="badges().error">
+          Failed to load badge analytics. <button (click)="loadBadges()">Retry</button>
+        </div>
+
+        <ng-container *ngIf="badges().data as data">
+          <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Total Badges Awarded</span>
+                <span class="stat-value">{{ data.totalBadgesAwarded | number }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Badges Awarded (Period)</span>
+                <span class="stat-value">{{ data.badgesAwardedInPeriod | number }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3>Most Awarded Badges</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="mostAwardedBadgesData()" [options]="integerBarChartOptions" [type]="'bar'"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Badge Types</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="badgeTypeData()" [options]="donutChartOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </section>
+
+      <!-- Challenge Analytics -->
+      <section class="analytics-section" *ngIf="activeTab() === 'challenges'">
+        <h2 class="section-title">Challenge Analytics</h2>
+
+        <div class="loading-state" *ngIf="challenges().loading">
+          <div class="spinner"></div><p>Loading Challenge Analytics...</p>
+        </div>
+        <div class="error-banner" *ngIf="challenges().error">
+          Failed to load challenge analytics. <button (click)="loadChallenges()">Retry</button>
+        </div>
+
+        <ng-container *ngIf="challenges().data as data">
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Total Challenges</span>
+                <span class="stat-value">{{ data.totalChallenges | number }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Active Challenges</span>
+                <span class="stat-value">{{ data.activeChallenges | number }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">Completed Challenges</span>
+                <span class="stat-value">{{ data.completedChallenges | number }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <span class="stat-label">XP Distributed (Period)</span>
+                <span class="stat-value">{{ data.xpDistributedInPeriod | number }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3>Status Distribution</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="challengeStatusData()" [options]="donutChartOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Category Distribution</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="challengeCategoryData()" [options]="donutChartOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </section>
+
+      <!-- Sustainability Analytics -->
+      <section class="analytics-section" *ngIf="activeTab() === 'sustainability'">
+        <h2 class="section-title">Sustainability Analytics</h2>
+
+        <div class="loading-state" *ngIf="sustainability().loading">
+          <div class="spinner"></div><p>Loading Sustainability Analytics...</p>
+        </div>
+        <div class="error-banner" *ngIf="sustainability().error">
+          Failed to load sustainability analytics. <button (click)="loadSustainability()">Retry</button>
+        </div>
+
+        <ng-container *ngIf="sustainability().data as data">
+          <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat-card">
+              <span class="material-icons icon-bg-emerald">eco</span>
+              <div class="stat-content">
+                <span class="stat-label">Total Tracked Emissions</span>
+                <span class="stat-value">{{ data.totalCarbonImpact | number:'1.0-2' }} kg CO₂e</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <span class="material-icons icon-bg-green">trending_up</span>
+              <div class="stat-content">
+                <span class="stat-label">Tracked Emissions (Period)</span>
+                <span class="stat-value">{{ data.carbonImpactInPeriod | number:'1.0-2' }} kg CO₂e</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="chart-card chart-wide">
+              <h3>Emissions Trend</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="carbonTrendData()" [options]="lineChartOptions" [type]="'line'"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="charts-row">
+            <div class="chart-card chart-wide">
+              <h3>Impact by Category</h3>
+              <div class="chart-wrapper">
+                <canvas baseChart [data]="carbonCategoryData()" [options]="barChartOptions" [type]="'bar'"></canvas>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </section>
+
     </div>
   `,
   styles: [`
-    .analytics-container { padding: 2rem; max-width: 1400px; margin: 0 auto; color: #0f172a; }
-    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
-    .title-section h1 { font-size: 1.875rem; font-weight: 700; margin: 0 0 0.5rem 0; letter-spacing: -0.025em; }
-    .subtitle { color: #64748b; margin: 0; font-size: 1rem; }
+    :host {
+      display: block;
+      background-color: transparent;
+      min-height: calc(100vh - 80px);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .analytics-container { padding: 1.5rem 2rem; max-width: 1440px; margin: 0 auto; color: #0f172a; }
     
-    .actions-section { display: flex; gap: 1rem; align-items: center; }
-    .form-control { padding: 0.5rem 2.5rem 0.5rem 1rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.875rem; background: #fff; appearance: none; }
-    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-    .btn-outline { background: white; border: 1px solid #cbd5e1; color: #475569; }
-    .btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .title-section h1 { font-size: 2rem; font-weight: 800; margin: 0 0 0.25rem 0; letter-spacing: -0.03em; color: #1e293b; }
+    .subtitle { color: #64748b; margin: 0; font-size: 1rem; max-width: 600px; line-height: 1.5; }
     
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-    .stat-card .material-icons { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .actions-section { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
     
-    .icon-bg-blue { background: #dbeafe; color: #2563eb; }
-    .icon-bg-indigo { background: #e0e7ff; color: #4f46e5; }
-    .icon-bg-green { background: #dcfce3; color: #16a34a; }
-    .icon-bg-yellow { background: #fef9c3; color: #ca8a04; }
-    .icon-bg-emerald { background: #d1fae5; color: #059669; }
+    .form-control { width: auto; min-width: 150px; height: 42px; padding: 0 2.5rem 0 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem; font-weight: 500; background: #fff; cursor: pointer; color: #1e293b; transition: all 0.2s; outline: none !important; box-shadow: 0 1px 2px rgba(0,0,0,0.05); -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.65rem auto; box-sizing: border-box; display: flex; align-items: center; }
+    .form-control:focus, .dropdown-header.active { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important; outline: none !important; }
     
-    .stat-content { display: flex; flex-direction: column; }
-    .stat-label { font-size: 0.875rem; color: #64748b; font-weight: 500; margin-bottom: 0.25rem; }
-    .stat-value { font-size: 1.5rem; font-weight: 700; color: #0f172a; line-height: 1; }
+    .custom-dropdown { position: relative; display: inline-block; outline: none; }
+    .dropdown-header { user-select: none; }
+    .dropdown-options { position: absolute; top: calc(100% + 4px); right: 0; min-width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); z-index: 50; overflow: hidden; padding: 0.375rem; animation: dropFadeIn 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+    .dropdown-option { padding: 0.5rem 1rem; font-size: 0.875rem; color: #334155; cursor: pointer; border-radius: 6px; transition: background 0.15s, color 0.15s; font-weight: 500; white-space: nowrap; }
+    .dropdown-option:hover { background: #f8fafc; color: #0f172a; }
+    .dropdown-option.selected { background: #eff6ff; color: #2563eb; font-weight: 600; }
+    @keyframes dropFadeIn { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
     
-    .charts-row { display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-bottom: 2rem; }
-    .chart-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-    .chart-card h3 { margin: 0 0 1.5rem 0; font-size: 1.125rem; color: #0f172a; }
-    .chart-wrapper { position: relative; height: 300px; width: 100%; display: flex; justify-content: center; }
+    .btn { height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); white-space: nowrap; box-sizing: border-box; }
+    .btn .material-icons { font-size: 1.25rem; }
+    .btn-outline { background: white; border-color: #cbd5e1; color: #475569; }
+    .btn-outline:hover:not(:disabled) { background: #f8fafc; border-color: #94a3b8; color: #0f172a; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .btn-outline:disabled { opacity: 0.6; cursor: not-allowed; }
     
-    .table-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; overflow: hidden; }
-    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-    .card-header h3 { margin: 0; font-size: 1.125rem; color: #0f172a; }
+    .tabs-container { display: flex; gap: 0.5rem; margin: 0 auto 2.5rem auto; background: #e2e8f0; padding: 0.375rem; border-radius: 10px; width: fit-content; overflow-x: auto; max-width: 100%; }
+    .tabs-container button { background: transparent; border: none; padding: 0.625rem 1.25rem; font-size: 0.95rem; font-weight: 600; color: #475569; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; }
+    .tabs-container button:hover:not(.active) { color: #1e293b; background: rgba(255,255,255,0.5); }
+    .tabs-container button.active { color: #0f172a; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); }
+
+    .analytics-section { margin-bottom: 2.5rem; animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     
-    .table-responsive { width: 100%; overflow-x: auto; }
-    .data-table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
-    .data-table th { padding: 1rem 1.5rem; background: #f8fafc; color: #475569; font-weight: 600; font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; }
-    .data-table td { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.875rem; }
+    .section-title { display: none; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid rgba(241,245,249,0.8); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden; align-items: center; text-align: center; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08), 0 8px 10px -5px rgba(0,0,0,0.04); border-color: #e2e8f0; }
     
-    .font-medium { font-weight: 500; color: #0f172a; }
-    .type-badge { font-size: 0.75rem; color: #64748b; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; }
-    .date-cell { display: flex; align-items: center; gap: 0.25rem; color: #64748b; }
-    .date-arrow { font-size: 1rem; color: #94a3b8; }
+    .stat-card .material-icons { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; margin: 0 auto; }
     
-    .btn-link { background: none; border: none; color: #2563eb; cursor: pointer; font-weight: 500; padding: 0; }
-    .btn-link:hover { text-decoration: underline; }
+    .icon-bg-blue { background: #eff6ff; color: #3b82f6; }
+    .icon-bg-indigo { background: #eef2ff; color: #6366f1; }
+    .icon-bg-green { background: #f0fdf4; color: #22c55e; }
+    .icon-bg-yellow { background: #fefce8; color: #eab308; }
+    .icon-bg-emerald { background: #ecfdf5; color: #10b981; }
     
-    .empty-cell { text-align: center; color: #64748b; padding: 3rem !important; }
+    .stat-content { display: flex; flex-direction: column; width: 100%; align-items: center; justify-content: center; }
+    .stat-label { font-size: 0.875rem; color: #64748b; font-weight: 600; margin-bottom: 0.25rem; line-height: 1.2; }
+    .stat-value { font-size: 1.875rem; font-weight: 800; color: #0f172a; line-height: 1; letter-spacing: -0.03em; }
     
-    .pagination { padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; background: white; }
-    .pagination button { padding: 0.5rem 1rem; border: 1px solid #cbd5e1; background: white; border-radius: 6px; cursor: pointer; color: #475569; font-size: 0.875rem; }
-    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .pagination span { font-size: 0.875rem; color: #64748b; }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .charts-row .chart-wide { grid-column: span 2; }
     
-    .error-banner { background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border: 1px solid #fca5a5; }
-    .error-banner button { background: white; border: 1px solid #fca5a5; border-radius: 4px; padding: 0.25rem 0.75rem; cursor: pointer; color: #991b1b; }
+    .chart-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid rgba(241,245,249,0.8); transition: box-shadow 0.3s ease; }
+    .chart-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04); }
+    .chart-card h3 { margin: 0 0 1.25rem 0; font-size: 1.125rem; font-weight: 700; color: #1e293b; }
+    .chart-wrapper { position: relative; height: 320px; width: 100%; display: flex; justify-content: center; }
     
-    .loading-state { text-align: center; padding: 4rem; color: #64748b; }
-    .spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid #e2e8f0; border-radius: 50%; border-top-color: #2563eb; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+    .error-banner { background: #fef2f2; color: #991b1b; padding: 1rem 1.25rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border: 1px solid #fecaca; font-weight: 500; font-size: 0.95rem; }
+    .error-banner button { background: white; border: 1px solid #fca5a5; border-radius: 6px; padding: 0.4rem 0.75rem; cursor: pointer; color: #991b1b; font-weight: 600; transition: background 0.2s; font-size: 0.875rem; }
+    .error-banner button:hover { background: #fee2e2; }
+    
+    .loading-state { text-align: center; padding: 4rem 2rem; color: #64748b; background: transparent; margin-bottom: 1.5rem; }
+    .spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid #e2e8f0; border-radius: 50%; border-top-color: #3b82f6; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 1024px) {
+      .charts-row { grid-template-columns: 1fr; }
+      .charts-row .chart-wide { grid-column: span 1; }
+    }
   `]
 })
 export class AnalyticsComponent implements OnInit {
-  Math = Math;
-  private challengeService = inject(AdminChallengeService);
+  private analyticsService = inject(AdminAnalyticsService);
   private destroyRef = inject(DestroyRef);
-  private router = inject(Router);
-
+  
   dateRange = signal<string>('30');
-  statusFilter = signal<string>('');
+  activeTab = signal<string>('overview');
+  isDropdownOpen = signal<boolean>(false);
   
-  loading = signal<boolean>(true);
-  apiError = signal<boolean>(false);
-  
-  stats = signal<ChallengeStats | null>(null);
-  allChallenges = signal<Challenge[]>([]);
-  analytics = signal<ChallengeAnalytics | null>(null);
-  carbonCategories = signal<CarbonCategory[]>([]);
-  
-  currentPage = signal<number>(0);
-  pageSize = 10;
+  overview = signal<SectionState<AdminOverviewAnalyticsDTO>>({ data: null, loading: true, error: false });
+  users = signal<SectionState<AdminUserAnalyticsDTO>>({ data: null, loading: true, error: false });
+  gamification = signal<SectionState<AdminGamificationAnalyticsDTO>>({ data: null, loading: true, error: false });
+  badges = signal<SectionState<AdminBadgeAnalyticsDTO>>({ data: null, loading: true, error: false });
+  challenges = signal<SectionState<AdminChallengeAnalyticsDTO>>({ data: null, loading: true, error: false });
+  sustainability = signal<SectionState<AdminSustainabilityAnalyticsDTO>>({ data: null, loading: true, error: false });
 
-  filteredChallenges = computed(() => {
-    let list = this.allChallenges();
-    const status = this.statusFilter();
-    if (status) {
-      list = list.filter(c => c.status === status);
-    }
-    // Default sort by real Participants
-    return list.sort((a, b) => (b.participantCount || 0) - (a.participantCount || 0));
-  });
-
-  paginatedChallenges = computed(() => {
-    const list = this.filteredChallenges();
-    const start = this.currentPage() * this.pageSize;
-    return list.slice(start, start + this.pageSize);
-  });
-
-  // Derived stats
-  derivedAvgCompletionRate = computed(() => {
-    if (this.allChallenges().length === 0) return 0;
-    return Math.round(this.allChallenges().reduce((acc, c) => acc + (Number(c.globalProgress) || 0), 0) / this.allChallenges().length);
-  });
-
-  derivedTotalXp = computed(() => {
-    return this.allChallenges().reduce((acc, c) => acc + ((c.participantCount || 0) * c.rewardXp), 0);
-  });
-
-  derivedTotalImpact = computed(() => {
-    return this.allChallenges().reduce((acc, c) => acc + (c.globalProgress || 0), 0);
-  });
-
-  categoryChartData: ChartConfiguration<'doughnut'>['data'] = {
-    labels: ['COMMUNITY', 'SEASONAL'],
-    datasets: [
-      {
-        data: [65, 35], // Mock fallback
-        backgroundColor: ['#2563eb', '#10b981'],
-        borderWidth: 0
-      }
-    ]
-  };
-  
-  donutChartOptions: ChartConfiguration<'doughnut'>['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '70%',
-    plugins: {
-      legend: { position: 'bottom' }
-    }
-  };
-
-  trendChartData: ChartConfiguration<'line'>['data'] = {
-    labels: ['W1', 'W2', 'W3', 'W4'],
-    datasets: [
-      {
-        data: [0,0,0,0], // Initial empty
-        label: 'New Participants',
-        fill: true,
-        tension: 0.4,
-        borderColor: '#2563eb',
-        backgroundColor: 'rgba(37, 99, 235, 0.1)'
-      }
-    ]
-  };
-
+  // Chart Options
   lineChartOptions: ChartConfiguration<'line'>['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
+    responsive: true, maintainAspectRatio: false,
     plugins: { legend: { position: 'bottom' } },
-    scales: {
-      y: { beginAtZero: true, border: { dash: [4, 4] }, grid: { color: '#e2e8f0' } },
-      x: { grid: { display: false } }
+    scales: { y: { beginAtZero: true, grid: { color: '#e2e8f0' } }, x: { grid: { display: false } } }
+  };
+  donutChartOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true, maintainAspectRatio: false, cutout: '70%',
+    plugins: { 
+      legend: { 
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: { family: "'Inter', sans-serif", size: 12 }
+        }
+      } 
     }
   };
+  barChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  };
+  integerBarChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { 
+      y: { 
+        beginAtZero: true, 
+        ticks: { precision: 0, stepSize: 1 } 
+      } 
+    }
+  };
+
+  private chartColors = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f43f5e', '#6366f1'];
+
+  // User Charts
+  userTrendData = computed<ChartData<'line'>>(() => this.buildTrendChart(this.users().data?.registrationTrend, 'Registrations', '#2563eb'));
+  userStatusData = computed<ChartData<'doughnut'>>(() => this.buildDonutChart(this.users().data?.statusDistribution));
+  userRoleData = computed<ChartData<'doughnut'>>(() => this.buildDonutChart(this.users().data?.roleDistribution));
+
+  // Gamification Charts
+  xpTrendData = computed<ChartData<'line'>>(() => this.buildTrendChart(this.gamification().data?.xpEarnedTrend, 'XP Earned', '#f59e0b'));
+  xpSourceData = computed<ChartData<'doughnut'>>(() => this.buildDonutChart(this.gamification().data?.xpSourceDistribution));
+  levelDistData = computed<ChartData<'bar'>>(() => this.buildBarChart(this.gamification().data?.levelDistribution, 'Users per Level', '#8b5cf6'));
+
+  // Badge Charts
+  mostAwardedBadgesData = computed<ChartData<'bar'>>(() => this.buildBarChart(this.badges().data?.mostAwardedBadges, 'Awards', '#ec4899'));
+  badgeTypeData = computed<ChartData<'doughnut'>>(() => this.buildDonutChart(this.badges().data?.badgeTypeDistribution));
+
+  // Challenge Charts
+  challengeStatusData = computed<ChartData<'doughnut'>>(() => this.buildDonutChart(this.challenges().data?.statusDistribution));
+  challengeCategoryData = computed<ChartData<'doughnut'>>(() => this.buildDonutChart(this.challenges().data?.categoryDistribution));
+
+  // Sustainability Charts
+  carbonTrendData = computed<ChartData<'line'>>(() => this.buildTrendChart(this.sustainability().data?.carbonTrend, 'Emissions (kg)', '#10b981'));
+  carbonCategoryData = computed<ChartData<'bar'>>(() => this.buildBarChart(this.sustainability().data?.impactByCategory, 'Emissions (kg)', '#14b8a6'));
+
+  isExporting = signal<boolean>(false);
 
   ngOnInit() {
-    this.loadData();
+    this.loadAllData();
   }
 
-  loadData() {
-    this.loading.set(true);
-    this.apiError.set(false);
-    
-    forkJoin({
-      stats: this.challengeService.getChallengeStats(),
-      analytics: this.challengeService.getChallengeAnalytics(),
-      // Fetch up to 100 for the analytics breakdown per UX-07 MVP specification
-      challenges: this.challengeService.getChallenges(0, 100),
-      categories: this.challengeService.getCarbonCategories().pipe(catchError(() => of([])))
-    }).pipe(
+  onDateRangeChange(range: string) {
+    this.dateRange.set(range);
+    this.loadAllData();
+  }
+
+  selectDateRange(range: string) {
+    this.dateRange.set(range);
+    this.isDropdownOpen.set(false);
+    this.loadAllData();
+  }
+
+  getDropdownLabel(val: string): string {
+    const labels: Record<string, string> = {
+      'all': 'All Time',
+      '7': 'Last 7 Days',
+      '30': 'Last 30 Days',
+      '90': 'Last 90 Days',
+      '365': 'This Year'
+    };
+    return labels[val] || 'Last 30 Days';
+  }
+
+  getFilter(): AdminAnalyticsFilter {
+    const range = this.dateRange();
+    if (range === 'all') return {};
+    const d = new Date();
+    d.setDate(d.getDate() - parseInt(range, 10));
+    return { startDate: d.toISOString() }; 
+  }
+
+  export(format: 'pdf' | 'excel' | 'csv') {
+    if (this.isExporting()) return;
+    this.isExporting.set(true);
+
+    const filter = this.getFilter();
+    let url = `/api/admin/analytics/export/${format}`;
+    if (filter.startDate) {
+      url += `?startDate=${encodeURIComponent(filter.startDate)}`;
+    }
+
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    // For proper auth headers in a real app, this might need an HttpClient call that returns a Blob, 
+    // but a direct link works if auth is cookie-based. Since we use JWT, we need HttpClient.
+    this.analyticsService.downloadExport(format, filter).pipe(
       takeUntilDestroyed(this.destroyRef),
       catchError(err => {
-        this.apiError.set(true);
+        alert('Export failed. Please try again.');
+        this.isExporting.set(false);
         return of(null);
-      }),
-      finalize(() => this.loading.set(false))
-    ).subscribe(result => {
-      if (result) {
-        this.stats.set(result.stats);
-        this.analytics.set(result.analytics);
-        this.allChallenges.set(result.challenges.content);
-        if (result.categories) this.carbonCategories.set(result.categories);
-        this.updateCharts(result.challenges.content, result.analytics);
+      })
+    ).subscribe(blob => {
+      if (blob) {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        
+        const ext = format === 'excel' ? 'xlsx' : (format === 'csv' ? 'zip' : format);
+        link.download = `ecotrack-admin-analytics-${new Date().toISOString().split('T')[0]}.${ext}`;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
       }
+      this.isExporting.set(false);
     });
   }
 
-  updateCharts(challenges: Challenge[], analytics: ChallengeAnalytics) {
-    // Compute category distribution
-    const catMap = new Map<string, number>();
-    challenges.forEach(c => {
-      const label = c.trackingMethod === 'AUTOMATIC' 
-        ? this.getCarbonCategoryName(c.linkedCategoryId) 
-        : this.getProgressMetricConfig(c.progressMetric).label;
-      catMap.set(label, (catMap.get(label) || 0) + 1);
-    });
-    
-    this.categoryChartData = {
-      labels: Array.from(catMap.keys()),
+  loadAllData() {
+    this.loadOverview();
+    this.loadUsers();
+    this.loadGamification();
+    this.loadBadges();
+    this.loadChallenges();
+    this.loadSustainability();
+  }
+
+  loadOverview() {
+    this.overview.update(s => ({ ...s, loading: true, error: false }));
+    this.analyticsService.getOverview(this.getFilter()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(() => { this.overview.update(s => ({ ...s, error: true, loading: false })); return of(null); })
+    ).subscribe(data => { if (data) this.overview.set({ data, loading: false, error: false }); });
+  }
+
+  loadUsers() {
+    this.users.update(s => ({ ...s, loading: true, error: false }));
+    this.analyticsService.getUserAnalytics(this.getFilter()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(() => { this.users.update(s => ({ ...s, error: true, loading: false })); return of(null); })
+    ).subscribe(data => { if (data) this.users.set({ data, loading: false, error: false }); });
+  }
+
+  loadGamification() {
+    this.gamification.update(s => ({ ...s, loading: true, error: false }));
+    this.analyticsService.getGamificationAnalytics(this.getFilter()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(() => { this.gamification.update(s => ({ ...s, error: true, loading: false })); return of(null); })
+    ).subscribe(data => { if (data) this.gamification.set({ data, loading: false, error: false }); });
+  }
+
+  loadBadges() {
+    this.badges.update(s => ({ ...s, loading: true, error: false }));
+    this.analyticsService.getBadgeAnalytics(this.getFilter()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(() => { this.badges.update(s => ({ ...s, error: true, loading: false })); return of(null); })
+    ).subscribe(data => { if (data) this.badges.set({ data, loading: false, error: false }); });
+  }
+
+  loadChallenges() {
+    this.challenges.update(s => ({ ...s, loading: true, error: false }));
+    this.analyticsService.getChallengeAnalytics(this.getFilter()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(() => { this.challenges.update(s => ({ ...s, error: true, loading: false })); return of(null); })
+    ).subscribe(data => { if (data) this.challenges.set({ data, loading: false, error: false }); });
+  }
+
+  loadSustainability() {
+    this.sustainability.update(s => ({ ...s, loading: true, error: false }));
+    this.analyticsService.getSustainabilityAnalytics(this.getFilter()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(() => { this.sustainability.update(s => ({ ...s, error: true, loading: false })); return of(null); })
+    ).subscribe(data => { if (data) this.sustainability.set({ data, loading: false, error: false }); });
+  }
+
+  private buildTrendChart(trend: AnalyticsTrendPointDTO[] | undefined, label: string, color: string): ChartData<'line'> {
+    if (!trend || trend.length === 0) return { labels: [], datasets: [] };
+    return {
+      labels: trend.map(t => t.label),
       datasets: [{
-        data: Array.from(catMap.values()),
-        backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
+        label,
+        data: trend.map(t => t.value),
+        borderColor: color,
+        backgroundColor: color + '20',
+        fill: true,
+        tension: 0.4
+      }]
+    };
+  }
+
+  private formatLabel(str: string): string {
+    if (!str) return '';
+    return str.replace(/_/g, ' ')
+              .toLowerCase()
+              .split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+  }
+
+  private buildDonutChart(dist: AnalyticsDistributionDTO[] | undefined): ChartData<'doughnut'> {
+    if (!dist || dist.length === 0) return { labels: [], datasets: [] };
+    return {
+      labels: dist.map(d => this.formatLabel(d.category)),
+      datasets: [{
+        data: dist.map(d => d.value),
+        backgroundColor: this.chartColors.slice(0, dist.length),
         borderWidth: 0
       }]
     };
-
-    // Use participationByMonth for trend chart if available, otherwise mock
-    const labels = Object.keys(analytics.participationByMonth);
-    const data = Object.values(analytics.participationByMonth) as number[];
-    
-    if (labels.length > 0) {
-      this.trendChartData = {
-        labels,
-        datasets: [{
-          data,
-          label: 'New Participants',
-          fill: true,
-          tension: 0.4,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)'
-        }]
-      };
-    }
   }
 
-  viewInLibrary(id: number) {
-    // Wait for route navigation, the viewChallenge logic in LibraryComponent is handled by query parameters in an ideal world,
-    // but per MVP we navigate to library and they can manually view.
-    this.router.navigate(['/admin/challenges', 'library']);
-  }
-
-
-
-  getProgressMetricConfig(metric: string): any {
-    if (metric === 'CARBON_EMISSION') return { bgClass: 'bg-seasonal', icon: 'co2', label: 'Emission' };
-    if (metric === 'QUANTITY') return { bgClass: 'bg-community', icon: 'bar_chart', label: 'Quantity' };
-    return { bgClass: 'bg-community', icon: 'check_circle', label: 'Count' };
-  }
-
-  getCarbonCategoryName(id: number | null | undefined): string {
-    if (!id) return 'General';
-    const cat = this.carbonCategories().find(c => c.id === id);
-    return cat ? cat.name : 'General';
+  private buildBarChart(dist: AnalyticsDistributionDTO[] | undefined, label: string, color: string): ChartData<'bar'> {
+    if (!dist || dist.length === 0) return { labels: [], datasets: [] };
+    return {
+      labels: dist.map(d => this.formatLabel(d.category)),
+      datasets: [{
+        label,
+        data: dist.map(d => d.value),
+        backgroundColor: color,
+        borderRadius: 4
+      }]
+    };
   }
 }

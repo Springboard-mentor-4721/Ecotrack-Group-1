@@ -17,9 +17,17 @@ import { environment } from '../../../../environments/environment';
 export class AdminUserDetailsComponent implements OnInit {
   user = signal<UserDetailResponse | null>(null);
   isLoading = signal(true);
+  isChallengesLoading = signal(false);
   errorMessage = signal('');
+  challengesErrorMessage = signal('');
   imgFailed = signal(false);
   showStatusConfirm = signal(false);
+  
+  challengeHistory = signal<any[]>([]);
+  challengesTotalElements = signal(0);
+  challengesTotalPages = signal(0);
+  challengesCurrentPage = signal(0);
+  challengesPageSize = 5;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,6 +39,7 @@ export class AdminUserDetailsComponent implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.loadUserDetails(+idParam);
+      this.loadChallengeHistory(+idParam, 0);
     } else {
       this.router.navigate(['/admin/users']);
     }
@@ -51,6 +60,31 @@ export class AdminUserDetailsComponent implements OnInit {
           this.errorMessage.set('Failed to load user details.');
         }
       });
+  }
+
+  loadChallengeHistory(userId: number, page: number): void {
+    this.isChallengesLoading.set(true);
+    this.challengesErrorMessage.set('');
+    this.adminService.getUserChallengeHistory(userId, page, this.challengesPageSize)
+      .pipe(finalize(() => this.isChallengesLoading.set(false)))
+      .subscribe({
+        next: (data) => {
+          this.challengeHistory.set(data.content);
+          this.challengesTotalElements.set(data.totalElements);
+          this.challengesTotalPages.set(data.totalPages);
+          this.challengesCurrentPage.set(data.number);
+        },
+        error: (err) => {
+          this.challengesErrorMessage.set('Failed to load challenge history.');
+        }
+      });
+  }
+
+  changeChallengePage(newPage: number): void {
+    const currentUser = this.user();
+    if (currentUser && newPage >= 0 && newPage < this.challengesTotalPages()) {
+      this.loadChallengeHistory(currentUser.id, newPage);
+    }
   }
 
   initiateToggleStatus(): void {

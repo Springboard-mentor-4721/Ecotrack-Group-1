@@ -34,7 +34,7 @@ public class CarbonEntryController {
     private final com.ecotrack.ai.parser.AiJsonCodec codec;
     private final com.ecotrack.tracking.ai.service.JournalSummaryService trackingAiService;
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<CarbonEntryResponse> createEntry(
             @Valid @RequestBody CreateCarbonEntryRequest request,
@@ -45,7 +45,7 @@ public class CarbonEntryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> updateEntry(
             @PathVariable Long id,
@@ -57,7 +57,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(
             @PathVariable Long id,
@@ -68,7 +68,7 @@ public class CarbonEntryController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
     public ResponseEntity<CarbonEntryResponse> getEntryById(
             @PathVariable Long id,
@@ -78,7 +78,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping
     public ResponseEntity<Page<CarbonEntryResponse>> getUserEntries(
             @RequestParam(value = "category", required = false) Long categoryId,
@@ -97,7 +97,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/summary")
     public ResponseEntity<CarbonSummaryResponse> getDashboardSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -108,7 +108,7 @@ public class CarbonEntryController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}/smart-suggestion")
     public ResponseEntity<com.ecotrack.tracking.ai.dto.SmartSuggestionResponse> getSmartSuggestion(
             @PathVariable Long id,
@@ -124,7 +124,7 @@ public class CarbonEntryController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/journal-summary")
     public ResponseEntity<com.ecotrack.tracking.ai.dto.JournalSummaryResponse> getJournalSummary(
             @RequestParam(defaultValue = "weekly") String timeframe,
@@ -147,7 +147,7 @@ public class CarbonEntryController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/ai/journal-summary")
     public ResponseEntity<com.ecotrack.tracking.ai.dto.JournalSummaryResponse> generateJournalSummary(
             @RequestParam(defaultValue = "weekly") String timeframe,

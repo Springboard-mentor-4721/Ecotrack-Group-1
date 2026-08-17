@@ -22,6 +22,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final AdminUserMapper adminUserMapper;
+    private final com.ecotrack.challenge.repository.ChallengeRepository challengeRepository;
 
     @Transactional(readOnly = true)
     public Page<UserSummaryResponse> getUsers(Pageable pageable, String search) {
@@ -63,18 +64,55 @@ public class AdminService {
         return adminUserMapper.toDetailResponse(user, profile);
     }
 
+    @Transactional
+    public UserDetailResponse updateUserRole(Long adminId, Long targetUserId, com.ecotrack.common.enums.Role newRole) {
+        if (adminId.equals(targetUserId)) {
+            throw new IllegalArgumentException("Cannot modify own role");
+        }
+
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (newRole == com.ecotrack.common.enums.Role.USER && userRepository.countByRole(com.ecotrack.common.enums.Role.ADMIN) <= 1) {
+            throw new IllegalArgumentException("Cannot demote last admin");
+        }
+
+        user.setRole(newRole);
+        userRepository.save(user);
+
+        UserProfile profile = userProfileRepository.findByUser_Id(targetUserId).orElse(null);
+        return adminUserMapper.toDetailResponse(user, profile);
+    }
+
     @Transactional(readOnly = true)
     public AdminDashboardResponse getDashboardSummary() {
         long totalUsers = userRepository.count();
         long activeUsers = userRepository.countByStatus(Status.ACTIVE);
         long suspendedUsers = userRepository.countByStatus(Status.SUSPENDED);
         long adminUsers = userRepository.countByRole(com.ecotrack.common.enums.Role.ADMIN);
+        long totalParticipants = userRepository.countByRole(com.ecotrack.common.enums.Role.USER);
 
         return AdminDashboardResponse.builder()
                 .totalUsers(totalUsers)
                 .activeUsers(activeUsers)
                 .suspendedUsers(suspendedUsers)
                 .adminUsers(adminUsers)
+                .totalParticipants(totalParticipants)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public com.ecotrack.admin.dto.response.AdminDashboardPulseDTO getDashboardPulse() {
+        long totalUsers = userRepository.count();
+        long activeChallenges = challengeRepository.countByStatus(com.ecotrack.challenge.enums.ChallengeStatus.ACTIVE);
+        long upcomingChallenges = challengeRepository.countByStatus(com.ecotrack.challenge.enums.ChallengeStatus.UPCOMING);
+        long completedChallenges = challengeRepository.countByStatus(com.ecotrack.challenge.enums.ChallengeStatus.COMPLETED);
+
+        return com.ecotrack.admin.dto.response.AdminDashboardPulseDTO.builder()
+                .totalUsers(totalUsers)
+                .activeChallengesCount(activeChallenges)
+                .upcomingChallengesCount(upcomingChallenges)
+                .completedChallengesCount(completedChallenges)
                 .build();
     }
 }

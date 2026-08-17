@@ -7,12 +7,14 @@ import { finalize } from 'rxjs/operators';
 
 import { LucideAngularModule, Edit, EyeOff, Plus, Award, Target } from 'lucide-angular';
 
+import { BadgeEmblemComponent } from '../../../../shared/components/badge-emblem/badge-emblem.component';
+
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-admin-badge-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, BadgeEmblemComponent],
   templateUrl: './admin-badge-list.component.html',
   styleUrls: ['./admin-badge-list.component.css']
 })
@@ -44,6 +46,55 @@ export class AdminBadgeListComponent implements OnInit {
   isEditing = signal<boolean>(false);
   currentBadgeId = signal<number | null>(null);
   badgeModal: any;
+
+  // Dropdown Configs
+  badgeTypes = [
+    { value: 'GENERIC', label: 'Generic Achievement' },
+    { value: 'CHALLENGE', label: 'Challenge Badge' }
+  ];
+  categories = [
+    { value: 'TRACKING', label: 'Tracking' },
+    { value: 'GOALS', label: 'Goals' },
+    { value: 'ENGAGEMENT', label: 'Engagement' },
+    { value: 'Transportation', label: 'Transportation' },
+    { value: 'Food', label: 'Food' },
+    { value: 'Waste', label: 'Waste' },
+    { value: 'Community', label: 'Community' },
+    { value: 'Energy', label: 'Energy' },
+    { value: 'Water', label: 'Water' }
+  ];
+  rarities = [
+    { value: 'COMMON', label: 'Common' },
+    { value: 'RARE', label: 'Rare' },
+    { value: 'EPIC', label: 'Epic' },
+    { value: 'LEGENDARY', label: 'Legendary' }
+  ];
+  criteriaTypes = [
+    { value: 'CARBON_ENTRIES_COUNT', label: 'Carbon Entries Count' },
+    { value: 'GOAL_COMPLETED_COUNT', label: 'Goals Completed' },
+    { value: 'STREAK_DAYS', label: 'Consecutive Streak Days' },
+    { value: 'CHALLENGE_COMPLETED_COUNT', label: 'Challenges Completed' },
+    { value: 'CATEGORY_SPECIALIST', label: 'Category Specialist' }
+  ];
+  colors = [
+    { value: 'blue', label: 'Blue' },
+    { value: 'teal', label: 'Teal' },
+    { value: 'green', label: 'Green' },
+    { value: 'emerald', label: 'Emerald' },
+    { value: 'amber', label: 'Amber' },
+    { value: 'orange', label: 'Orange' },
+    { value: 'violet', label: 'Violet' }
+  ];
+
+  getOptionLabel(options: any[], value: string, placeholder: string): string {
+    const opt = options.find(o => o.value === value);
+    return opt ? opt.label : placeholder;
+  }
+
+  setFormValue(field: string, value: string): void {
+    this.badgeForm.get(field)?.setValue(value);
+    this.badgeForm.get(field)?.markAsTouched();
+  }
 
   constructor(
     private adminService: AdminService,
@@ -94,6 +145,13 @@ export class AdminBadgeListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadBadges(this.currentPage());
+  }
+
+  formatEnumStr(val: string | undefined): string {
+    if (!val) return '';
+    return val.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
   }
 
   ngAfterViewInit(): void {

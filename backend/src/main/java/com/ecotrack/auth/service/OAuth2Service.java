@@ -31,11 +31,7 @@ public class OAuth2Service {
                     User newUser = new User();
                     newUser.setEmail(userInfo.email());
                     newUser.setName(userInfo.name());
-                    if ("jeevanmarshal.dev@gmail.com".equalsIgnoreCase(userInfo.email())) {
-                        newUser.setRole(Role.ADMIN);
-                    } else {
-                        newUser.setRole(Role.USER);
-                    }
+                    newUser.setRole(Role.USER);
                     newUser.setStatus(Status.ACTIVE);
                     return newUser;
                 });

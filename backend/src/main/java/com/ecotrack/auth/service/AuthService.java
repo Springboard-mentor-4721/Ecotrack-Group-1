@@ -75,11 +75,7 @@ public class AuthService {
         user.setPasswordHash(hashedPassword);
 
         // Set default values
-        if ("jeevanmarshal.dev@gmail.com".equalsIgnoreCase(request.getEmail())) {
-            user.setRole(Role.ADMIN);
-        } else {
-            user.setRole(Role.USER);
-        }
+        user.setRole(Role.USER);
         user.setStatus(Status.ACTIVE);
         user.setEmailVerified(false);
         user.setOauthProvider(com.ecotrack.common.enums.OAuthProvider.LOCAL);

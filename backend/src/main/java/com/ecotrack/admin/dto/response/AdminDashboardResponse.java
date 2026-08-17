@@ -14,4 +14,5 @@ public class AdminDashboardResponse {
     private long activeUsers;
     private long suspendedUsers;
     private long adminUsers;
+    private long totalParticipants;
 }

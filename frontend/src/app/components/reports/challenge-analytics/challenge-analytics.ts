@@ -47,8 +47,8 @@ export class ChallengeAnalytics implements OnChanges, AfterViewInit {
   @ViewChild('trendChart') trendChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('statusChart') statusChartRef!: ElementRef<HTMLCanvasElement>;
 
-  private trendChartInstance: Chart | null = null;
-  private statusChartInstance: Chart | null = null;
+  private trendChartInstance: any | null = null;
+  private statusChartInstance: any | null = null;
 
   readonly Trophy = Trophy;
   readonly Flame = Flame;

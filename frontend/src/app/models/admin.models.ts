@@ -36,6 +36,7 @@ export interface AdminDashboardResponse {
   activeUsers: number;
   suspendedUsers: number;
   adminUsers: number;
+  totalParticipants: number;
 }
 
 export type { AdminBadge, BadgeDefinitionRequest } from './gamification.models';

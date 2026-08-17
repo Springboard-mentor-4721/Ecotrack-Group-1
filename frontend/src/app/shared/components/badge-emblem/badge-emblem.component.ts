@@ -13,6 +13,7 @@ export class BadgeEmblemComponent implements OnInit, OnChanges {
   @Input() badge!: Badge;
   @Input() size: number = 80;
   @Input() showStatusOverlay: boolean = false; // To show the small lock icon if locked
+  @Input() forceUnlocked: boolean = false; // To force full color (e.g. for Admin panel)
 
   // Derived properties
   public iconClass: string = 'bi-star-fill';
@@ -91,7 +92,14 @@ export class BadgeEmblemComponent implements OnInit, OnChanges {
       'bag': 'assets/badges/Conscious Shopper.png',
       'energy': 'assets/badges/Clean Energy Hero.png',
       'watt': 'assets/badges/Clean Energy Hero.png',
-      'dreamer': 'assets/badges/Green Dreamer.png'
+      'dreamer': 'assets/badges/Green Dreamer.png',
+      'carbon crusher': 'assets/badges/Carbon Crusher.png',
+      'car-free champion': 'assets/badges/Car-Free Champion.png',
+      'digital eco hero': 'assets/badges/Digital Eco Hero.png',
+      'eco commuter': 'assets/badges/Eco Commuter.png',
+      'walking warrior': 'assets/badges/Walking Warrior.png',
+      'green lifestyle champion': 'assets/badges/Green Lifestyle Champion.png',
+      'beach guardian': 'assets/badges/Beach Guardian.png'
     };
 
     const ICON_TO_ARTWORK_MAP: Record<string, string> = {

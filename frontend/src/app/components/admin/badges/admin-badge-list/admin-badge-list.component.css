@@ -1,1 +1,259 @@
-/* admin-badge-list styles */
+/* BADGE LIST CSS - PREMIUM SAAS */
+
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem 4rem 1rem;
+}
+
+/* Typography & Helpers */
+.tracking-tight { letter-spacing: -0.03em; }
+.tracking-wide { letter-spacing: 0.05em; }
+.fs-7 { font-size: 14px; }
+.fs-xs { font-size: 13px; }
+
+/* Theme Bindings */
+.text-dark { color: var(--text-primary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.bg-surface { background-color: var(--bg-surface) !important; }
+.bg-surface-hover { background-color: var(--bg-surface-hover) !important; }
+
+/* Hero Banner */
+.premium-hero {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+@media (max-width: 768px) {
+  .premium-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+}
+
+/* Premium Tabs */
+.premium-tabs {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+.premium-tabs .nav-link {
+  color: var(--text-muted);
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+.premium-tabs .nav-link:hover {
+  color: var(--text-primary);
+  border-color: rgba(0,0,0,0.1);
+}
+.premium-tabs .nav-link.active {
+  color: #8b5cf6;
+  border-color: #8b5cf6;
+  background: transparent;
+}
+
+/* Directory */
+.badge-list {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* Directory Header */
+.directory-header {
+  background: rgba(0,0,0,0.01);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Card Row */
+.badge-card {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-surface);
+}
+.badge-card:last-child {
+  border-bottom: none;
+}
+.badge-card:hover {
+  background: var(--bg-surface-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  position: relative;
+  z-index: 10;
+}
+
+/* Avatar */
+.badge-avatar {
+  border: 2px solid var(--bg-surface);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+}
+.badge-card:hover .badge-avatar {
+  transform: scale(1.05);
+}
+
+/* Premium Buttons */
+.btn-premium {
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0.4rem 1rem;
+  transition: all 0.2s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-premium-action {
+  background: rgba(59, 130, 246, 0.08);
+  color: #2563eb;
+}
+.btn-premium-action:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+}
+.btn-premium-danger {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+.btn-premium-danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+
+/* Primary Button */
+.btn-primary-gradient {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  transition: all 0.2s ease;
+}
+.btn-primary-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+/* Rarity Badges Override */
+.badge-common { background: rgba(100, 116, 139, 0.1); color: #475569; }
+.badge-rare { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+.badge-epic { background: rgba(168, 85, 247, 0.1); color: #9333ea; }
+.badge-legendary { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+
+/* Grid Override for Mobile */
+@media (max-width: 768px) {
+  .badge-card {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+    text-align: center;
+  }
+  .badge-card .d-flex {
+    flex-direction: column;
+    justify-content: center;
+  }
+  .badge-actions {
+    justify-content: center !important;
+  }
+}
+
+/* Modal Refinements */
+.premium-modal {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+}
+.premium-modal-header {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.25rem 2rem;
+}
+.premium-modal-title {
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.premium-modal-body {
+  padding: 2rem;
+}
+.premium-modal-footer {
+  padding: 1.25rem 2rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface);
+}
+
+/* Premium Form Controls */
+.premium-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+.premium-input {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+.premium-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+  background-color: #fff;
+}
+.premium-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+.premium-select option {
+  padding: 12px;
+  background: #fff;
+  color: #333;
+}
+
+/* Custom Dropdown Overrides */
+.dropdown-menu .dropdown-item {
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+.dropdown-menu .dropdown-item:hover, .dropdown-menu .dropdown-item:focus {
+  background-color: var(--bg-surface-hover);
+  color: #8b5cf6;
+}
+.dropdown-menu .dropdown-item.active-item {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  font-weight: 600;
+}

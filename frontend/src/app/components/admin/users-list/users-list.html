@@ -1,57 +1,111 @@
-<div class="page-container admin-page animate-page">
 
-  <!-- Status Confirm Modal -->
-  <div class="modal-backdrop fade show" *ngIf="showStatusConfirm()" style="z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
-  <div class="modal fade show d-block" tabindex="-1" *ngIf="showStatusConfirm()" style="z-index: 1051;" role="dialog" aria-modal="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-      <div class="modal-content bg-surface border-0 text-center shadow-lg">
-        <div class="modal-body p-4">
-          <div class="mb-3" [ngClass]="userToUpdate()?.status === 'ACTIVE' ? 'text-danger' : 'text-success'">
-            <svg *ngIf="userToUpdate()?.status === 'ACTIVE'" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            <svg *ngIf="userToUpdate()?.status === 'SUSPENDED'" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
-          </div>
-          <h5 class="text-dark fw-bold mb-2">Are you sure?</h5>
-          <p class="text-muted fs-7 mb-4">
-            You are about to {{ userToUpdate()?.status === 'ACTIVE' ? 'suspend' : 'activate' }} the account for <strong>{{ userToUpdate()?.name }}</strong>.
-          </p>
-          <div class="d-flex justify-content-center gap-3">
-            <button type="button" class="btn btn-light w-50" (click)="cancelStatusToggle()">Cancel</button>
-            <button type="button" class="btn w-50"
-              [ngClass]="userToUpdate()?.status === 'ACTIVE' ? 'btn-danger' : 'btn-success'"
-              (click)="confirmToggleStatus()">
-              {{ userToUpdate()?.status === 'ACTIVE' ? 'Suspend' : 'Activate' }}
-            </button>
-          </div>
+<!-- Status Confirm Modal -->
+<div class="modal-backdrop fade show" *ngIf="showStatusConfirm()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showStatusConfirm()" style="z-index: 1051;" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content bg-surface border-0 text-center shadow-lg">
+      <div class="modal-body p-4">
+        <div class="mb-3 d-flex justify-content-center" [ngClass]="userToUpdate()?.status === 'ACTIVE' ? 'text-danger' : 'text-success'">
+          <svg *ngIf="userToUpdate()?.status === 'ACTIVE'" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <svg *ngIf="userToUpdate()?.status === 'SUSPENDED'" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+        </div>
+        <h5 class="text-dark fw-bold mb-2">Are you sure?</h5>
+        <p class="text-muted fs-7 mb-4">
+          You are about to {{ userToUpdate()?.status === 'ACTIVE' ? 'suspend' : 'activate' }} the account for <strong>{{ userToUpdate()?.name }}</strong>.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-light w-50" (click)="cancelStatusToggle()">Cancel</button>
+          <button type="button" class="btn w-50"
+            [ngClass]="userToUpdate()?.status === 'ACTIVE' ? 'btn-danger' : 'btn-success'"
+            (click)="confirmToggleStatus()">
+            {{ userToUpdate()?.status === 'ACTIVE' ? 'Suspend' : 'Activate' }}
+          </button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
+<!-- Role Confirm Modal -->
+<div class="modal-backdrop fade show" *ngIf="showRoleConfirm()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1050; background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);"></div>
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showRoleConfirm()" style="z-index: 1051;" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content bg-surface border-0 text-center shadow-lg">
+      <div class="modal-body p-4">
+        <div class="mb-3 d-flex justify-content-center" [ngClass]="roleToUpdate()?.role === 'ADMIN' ? 'text-primary' : 'text-danger'">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <h5 class="text-dark fw-bold mb-2">Change Role?</h5>
+        <p class="text-muted fs-7 mb-4">
+          You are about to make <strong>{{ roleToUpdate()?.name }}</strong> a {{ roleToUpdate()?.role === 'ADMIN' ? 'USER' : 'ADMIN' }}.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-light w-50" (click)="cancelRoleToggle()">Cancel</button>
+          <button type="button" class="btn w-50"
+            [ngClass]="roleToUpdate()?.role === 'ADMIN' ? 'btn-primary' : 'btn-danger'"
+            (click)="confirmToggleRole()">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-container admin-page animate-page pt-4" (click)="closeDropdown()">
   <!-- ===============================
        SECTION 1: ADMIN HERO
        =============================== -->
-  <div class="admin-hero mb-4 animate-stagger-item">
-    <div class="d-flex align-items-center justify-content-between pb-3 border-bottom">
-      <div>
-        <h1 class="hero-title text-dark tracking-tight mb-1 fs-3">Command Center</h1>
-        <p class="fs-7 text-muted mb-0">Monitor platform health, manage users, and secure the ecosystem.</p>
-      </div>
+  <div class="premium-hero mb-4 animate-stagger-item mt-2">
+    <div class="hero-content">
+      <h1 class="hero-title text-dark tracking-tight mb-1 fs-3 fw-black">Command Center</h1>
+      <p class="fs-7 text-muted mb-0">Monitor platform health, manage users, and secure the ecosystem.</p>
+    </div>
 
-      <!-- Search Experience -->
-      <div class="input-wrapper position-relative" style="max-width: 320px;">
-        <svg class="input-icon position-absolute text-muted ms-3" style="top: 50%; transform: translateY(-50%);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input
-          type="text"
-          class="form-control form-control-sm rounded bg-surface border px-5 py-2 fs-7"
-          [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
-          (keyup.enter)="onSearch()"
-          placeholder="Search users...">
-      </div>
+    <!-- Search Experience -->
+    <div class="input-wrapper position-relative" style="width: 100%; max-width: 320px;">
+      <svg class="input-icon position-absolute" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input
+        type="text"
+        class="form-control premium-search w-100"
+        [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+        (keyup.enter)="onSearch()"
+        placeholder="Search accounts...">
     </div>
   </div>
 
   <div class="alert alert-danger mb-4 mx-auto max-w-lg" *ngIf="errorMessage()">
     {{ errorMessage() }}
+  </div>
+
+  <!-- ===============================
+       ACCOUNT SUMMARY
+       =============================== -->
+  <div class="row g-3 mb-4 animate-stagger-item" *ngIf="dashboardSummary() as summary">
+    <div class="col-6 col-md-3">
+      <div class="premium-card p-3 d-flex flex-column align-items-center text-center h-100">
+        <span class="text-muted fs-xs fw-bold text-uppercase mb-1">Total Accounts</span>
+        <span class="fs-4 fw-black text-dark">{{ summary.totalUsers }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="premium-card p-3 d-flex flex-column align-items-center text-center h-100">
+        <span class="text-muted fs-xs fw-bold text-uppercase mb-1">Users</span>
+        <span class="fs-4 fw-black text-dark">{{ summary.totalParticipants }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="premium-card p-3 d-flex flex-column align-items-center text-center h-100">
+        <span class="text-muted fs-xs fw-bold text-uppercase mb-1">Administrators</span>
+        <span class="fs-4 fw-black text-dark">{{ summary.adminUsers }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="premium-card p-3 d-flex flex-column align-items-center text-center h-100">
+        <span class="text-muted fs-xs fw-bold text-uppercase mb-1">Active</span>
+        <span class="fs-4 fw-black text-emerald">{{ summary.activeUsers }}</span>
+      </div>
+    </div>
   </div>
 
   <!-- LOADING STATE -->
@@ -68,22 +122,21 @@
          =============================== -->
     <div class="directory-container animate-stagger-item">
 
-      <div class="d-flex justify-content-between align-items-end mb-4 px-1">
-        <h4 class="fw-bold mb-0 text-dark">User Directory</h4>
-        <span class="text-muted fs-7 fw-bold">{{ totalElements() }} Accounts Found</span>
+      <div class="d-flex justify-content-center mb-4 px-1">
+        <span class="text-muted fw-bold" style="font-size: 1.1rem;">{{ totalElements() }} Accounts Found</span>
       </div>
 
       <div class="user-list bg-surface border rounded-4 overflow-hidden shadow-sm" *ngIf="users().length > 0; else emptyUsers">
 
         <!-- Directory Header -->
-        <div class="d-none d-md-grid text-muted fs-xs fw-bold tracking-wide text-uppercase border-bottom px-4 py-2 bg-surface-hover" style="grid-template-columns: 3fr 2fr 2fr; gap: 1rem;">
-          <span>User Details</span>
-          <span>Status & Role</span>
-          <span class="text-end">Actions</span>
+        <div class="d-none d-md-grid directory-header px-4 py-3" style="grid-template-columns: 2fr 3fr 2fr; gap: 1rem;">
+          <span style="padding-left: 60px;">User Details</span>
+          <span class="text-center">Status & Role</span>
+          <span class="text-center">Actions</span>
         </div>
 
         <!-- Directory Card Rows -->
-        <div class="user-card border-bottom px-4 py-3 d-grid align-items-center transition-all bg-surface hover-bg-surface-light" *ngFor="let user of users(); let last = last" [class.border-bottom-0]="last" style="grid-template-columns: 3fr 2fr 2fr; gap: 1rem;">
+        <div class="user-card px-4 py-3 d-grid align-items-center" *ngFor="let user of users(); let last = last" style="grid-template-columns: 2fr 3fr 2fr; gap: 1rem;">
 
           <div class="d-flex align-items-center gap-3">
             <!-- Profile Image Avatar -->
@@ -109,33 +162,53 @@
             </div>
           </div>
 
-          <div class="user-badges d-none d-md-flex gap-2">
-            <span class="badge rounded-pill fw-bold fs-xs px-3 py-1" [ngClass]="user.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-surface-hover text-primary border'">
+          <div class="user-badges d-none d-md-flex justify-content-center gap-2">
+            <span class="badge rounded-pill fw-bold fs-xs px-3 py-1 d-flex align-items-center" [ngClass]="user.role === 'ADMIN' ? 'bg-danger text-white' : 'bg-surface-hover text-primary border'">
               {{ user.role }}
             </span>
-            <span class="badge rounded-pill fw-bold fs-xs px-3 py-1 d-flex align-items-center gap-1"
-              [style.background]="user.status === 'ACTIVE' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'"
-              [style.color]="user.status === 'ACTIVE' ? '#047857' : '#dc2626'"
+            <span class="badge rounded-pill fw-bold fs-xs px-3 py-1 d-flex align-items-center gap-2"
+              [style.background]="user.status === 'ACTIVE' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'"
+              [style.color]="user.status === 'ACTIVE' ? '#059669' : '#dc2626'"
               [style.border]="'none'">
               <span class="rounded-circle d-inline-block"
                 [style.background]="user.status === 'ACTIVE' ? '#10b981' : '#ef4444'"
-                style="width: 6px; height: 6px;"></span>
+                style="width: 6px; height: 6px; box-shadow: 0 0 4px currentColor;"></span>
               {{ user.status }}
             </span>
           </div>
 
-          <div class="user-actions d-flex justify-content-end gap-2">
-            <a [routerLink]="['/admin/users', user.id]" class="btn btn-sm bg-surface bg-surface-hover border fw-bold text-primary fs-7 px-3 d-flex align-items-center gap-2 transition-all">
+          <div class="user-actions d-flex justify-content-center gap-2 position-relative">
+            <a [routerLink]="['/admin/users', user.id]" class="btn-premium btn-premium-view text-decoration-none">
               View
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>
 
             <button
-              class="btn btn-sm fw-bold fs-7 px-3 transition-all"
-              [ngClass]="user.status === 'ACTIVE' ? 'btn-outline-danger' : 'btn-outline-success'"
-              (click)="initiateToggleStatus(user)">
-              {{ user.status === 'ACTIVE' ? 'Suspend' : 'Activate' }}
+              class="btn-premium"
+              [ngClass]="user.role === 'ADMIN' ? 'btn-premium-demote' : 'btn-premium-promote'"
+              (click)="initiateToggleRole(user)">
+              {{ user.role === 'ADMIN' ? 'Demote' : 'Promote' }}
             </button>
+
+            <button class="btn-premium btn-premium-view px-2" (click)="toggleDropdown(user.id, $event)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
+            </button>
+
+            <!-- Custom Dropdown Menu -->
+            <div class="dropdown-menu shadow-lg border-0 position-absolute end-0 mt-5 p-2" 
+                 style="min-width: 180px; z-index: 100; border-radius: 12px; background: var(--bg-surface);"
+                 [class.show]="openDropdownId() === user.id"
+                 [style.display]="openDropdownId() === user.id ? 'block' : 'none'"
+                 (click)="$event.stopPropagation()">
+              <button
+                class="dropdown-item rounded d-flex align-items-center gap-2 fw-bold fs-7 text-danger py-2 transition-all"
+                style="background: transparent; border: none; width: 100%; text-align: left;"
+                onmouseover="this.style.background='rgba(239,68,68,0.08)'"
+                onmouseout="this.style.background='transparent'"
+                (click)="initiateToggleStatus(user); closeDropdown()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                {{ user.status === 'ACTIVE' ? 'Suspend Account' : 'Activate Account' }}
+              </button>
+            </div>
           </div>
         </div>
 

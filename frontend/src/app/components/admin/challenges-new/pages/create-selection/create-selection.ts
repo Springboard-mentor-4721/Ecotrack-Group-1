@@ -54,26 +54,25 @@ import { environment } from '../../../../../../environments/environment';
                 <p class="text-muted fs-sm mb-4 flex-grow-1 lh-sm">{{ t.description }}</p>
                 
                 <div class="metrics-grid grid mb-3 p-3 bg-light rounded-3" style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
-                  <div class="metric-item d-flex flex-column">
+                  <div class="metric-item d-flex flex-column align-items-center text-center">
                     <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Goal Target</span>
                     <span class="fw-bold fs-6 text-dark">{{ t.goalTarget }} {{ t.goalUnit }}</span>
                   </div>
-                  <div class="metric-item d-flex flex-column">
+                  <div class="metric-item d-flex flex-column align-items-center text-center">
                     <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Duration</span>
                     <span class="fw-bold fs-6 text-dark">{{ t.durationDays }} Days</span>
                   </div>
-                  <div class="metric-item d-flex flex-column">
+                  <div class="metric-item d-flex flex-column align-items-center text-center">
                     <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Reward</span>
                     <span class="fw-bold fs-6 text-warning d-flex align-items-center"><span class="material-icons fs-6 me-1">star</span>{{ t.rewardXP }} XP</span>
                   </div>
-                  <div class="metric-item d-flex flex-column">
+                  <div class="metric-item d-flex flex-column align-items-center text-center">
                     <span class="text-uppercase text-muted fw-bold" style="font-size:0.65rem; letter-spacing:0.5px;">Difficulty</span>
                     <span class="fw-bold fs-6 text-dark">{{ t.difficulty }}</span>
                   </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center pt-2">
-                  <div></div>
+                <div class="d-flex justify-content-center pt-2">
                   <button class="btn btn-dark rounded-pill fw-bold px-4" (click)="useTemplate(t)">Use Template</button>
                 </div>
               </div>
@@ -153,7 +152,8 @@ export class CreateSelectionComponent {
       rewardXp: t.rewardXP,
       targetValue: t.goalTarget,
       imageUrl: t.imagePath,
-      durationDays: t.durationDays
+      durationDays: t.durationDays,
+      badgeId: t.badgeId || null
     };
     
     // Calculate dates based on durationDays (in local timezone)

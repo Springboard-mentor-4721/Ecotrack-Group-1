@@ -43,7 +43,7 @@ import { RouterModule } from '@angular/router';
             <tr *ngFor="let challenge of challenges" [class.archived]="challenge.status === 'ARCHIVED'">
               <td class="title-cell">
                 <strong>{{ challenge.title }}</strong>
-                <span class="type-badge">{{ challenge.progressMetric }}</span>
+                <span class="type-badge">{{ formatProgressMetric(challenge.progressMetric) }}</span>
               </td>
               <td><span class="status-badge" [ngClass]="challenge.status.toLowerCase()">{{ challenge.status }}</span></td>
               <td>{{ challenge.trackingMethod }}</td>
@@ -174,4 +174,9 @@ export class OverviewRecentComponent {
   
   @Output() onView = new EventEmitter<number>();
   @Output() onEdit = new EventEmitter<number>();
+
+  formatProgressMetric(metric: string): string {
+    if (!metric) return '';
+    return metric === 'ENTRY_COUNT' ? 'Entry Count' : (metric === 'CARBON_EMISSION' ? 'Carbon Emission' : (metric === 'QUANTITY' ? 'Quantity' : metric));
+  }
 }

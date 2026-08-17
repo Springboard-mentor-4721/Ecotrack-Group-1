@@ -1,9 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, signal, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../services/admin.service';
-import { UserSummaryResponse } from '../../../models/admin.models';
+import { UserSummaryResponse, AdminDashboardResponse } from '../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
 import { LoadingSkeletonComponent } from '../../../shared/ui/loading-skeleton/loading-skeleton.component';
 
@@ -16,7 +16,7 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './users-list.html',
   styleUrls: ['./users-list.css']
 })
-export class AdminUsersListComponent implements OnInit {
+export class AdminUsersListComponent implements OnInit, OnDestroy {
   users = signal<(UserSummaryResponse & { _imgFailed?: boolean })[]>([]);
   searchQuery = signal('');
   
@@ -28,15 +28,31 @@ export class AdminUsersListComponent implements OnInit {
   showStatusConfirm = signal(false);
   userToUpdate = signal<(UserSummaryResponse & { _imgFailed?: boolean }) | null>(null);
   
+  dashboardSummary = signal<AdminDashboardResponse | null>(null);
+  openDropdownId = signal<number | null>(null);
+  
   isLoading = signal(false);
   errorMessage = signal('');
 
   constructor(
-    private adminService: AdminService
+    private adminService: AdminService,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
     this.loadUsers();
+    this.loadDashboardSummary();
+  }
+
+  ngOnDestroy(): void {
+    this.document.body.style.overflow = '';
+  }
+
+  loadDashboardSummary(): void {
+    this.adminService.getDashboardSummary().subscribe({
+      next: (summary) => this.dashboardSummary.set(summary),
+      error: (err) => console.error('Failed to load dashboard summary', err)
+    });
   }
 
   loadUsers(): void {
@@ -72,11 +88,13 @@ export class AdminUsersListComponent implements OnInit {
   initiateToggleStatus(user: any): void {
     this.userToUpdate.set(user);
     this.showStatusConfirm.set(true);
+    this.document.body.style.overflow = 'hidden';
   }
 
   cancelStatusToggle(): void {
     this.showStatusConfirm.set(false);
     this.userToUpdate.set(null);
+    this.document.body.style.overflow = '';
   }
 
   confirmToggleStatus(): void {
@@ -87,6 +105,7 @@ export class AdminUsersListComponent implements OnInit {
       next: () => {
         this.showStatusConfirm.set(false);
         this.userToUpdate.set(null);
+        this.document.body.style.overflow = '';
         this.loadUsers();
       },
       error: (err) => {
@@ -94,6 +113,44 @@ export class AdminUsersListComponent implements OnInit {
         this.errorMessage.set(err.error?.message || 'Failed to update user status');
         this.showStatusConfirm.set(false);
         this.userToUpdate.set(null);
+        this.document.body.style.overflow = '';
+        setTimeout(() => this.errorMessage.set(''), 5000);
+      }
+    });
+  }
+
+  showRoleConfirm = signal(false);
+  roleToUpdate = signal<(UserSummaryResponse & { _imgFailed?: boolean }) | null>(null);
+
+  initiateToggleRole(user: any): void {
+    this.roleToUpdate.set(user);
+    this.showRoleConfirm.set(true);
+    this.document.body.style.overflow = 'hidden';
+  }
+
+  cancelRoleToggle(): void {
+    this.showRoleConfirm.set(false);
+    this.roleToUpdate.set(null);
+    this.document.body.style.overflow = '';
+  }
+
+  confirmToggleRole(): void {
+    if (!this.roleToUpdate()) return;
+    
+    const newRole = this.roleToUpdate()!.role === 'ADMIN' ? 'USER' : 'ADMIN';
+    this.adminService.updateUserRole(this.roleToUpdate()!.id, newRole).subscribe({
+      next: () => {
+        this.showRoleConfirm.set(false);
+        this.roleToUpdate.set(null);
+        this.document.body.style.overflow = '';
+        this.loadUsers();
+      },
+      error: (err) => {
+        console.error('Failed to update role', err);
+        this.errorMessage.set(err.error?.message || 'Failed to update user role');
+        this.showRoleConfirm.set(false);
+        this.roleToUpdate.set(null);
+        this.document.body.style.overflow = '';
         setTimeout(() => this.errorMessage.set(''), 5000);
       }
     });
@@ -104,5 +161,18 @@ export class AdminUsersListComponent implements OnInit {
     if (url.startsWith('http')) return url;
     const base = environment.apiUrl || 'http://localhost:8080';
     return `${base}/${url.replace(/^\//, '')}`;
+  }
+
+  toggleDropdown(userId: number, event: Event): void {
+    event.stopPropagation();
+    if (this.openDropdownId() === userId) {
+      this.openDropdownId.set(null);
+    } else {
+      this.openDropdownId.set(userId);
+    }
+  }
+
+  closeDropdown(): void {
+    this.openDropdownId.set(null);
   }
 }

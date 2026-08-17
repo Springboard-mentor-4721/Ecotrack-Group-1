@@ -34,9 +34,7 @@ export class SidebarComponent implements OnInit {
   }
 
   logout() {
-    if (window.confirm('Are you sure you want to log out?')) {
-      this.authService.logout();
-      this.router.navigate(['/']);
-    }
+    this.authService.logout();
+    this.router.navigate(['/']);
   }
 }

@@ -35,4 +35,5 @@ export interface ChallengeTemplate {
   defaultVisibility: string;
   icon: string;
   badgeColor: string;
+  badgeId?: number;
 }

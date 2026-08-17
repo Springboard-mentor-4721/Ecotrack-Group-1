@@ -106,18 +106,36 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
                 <div class="form-group">
-                  <label for="startDate">Start Date <span class="required">*</span></label>
-                  <input id="startDate" type="datetime-local" class="premium-input icon-right" formControlName="startDate" [attr.aria-invalid]="isInvalid('startDate')" aria-describedby="start-error" [min]="minDate" />
-                  <div id="start-error" class="validation-error" *ngIf="isInvalid('startDate')">Valid start date is required.</div>
+                  <label>Start Date <span class="required">*</span></label>
+                  <div class="custom-dropdown" tabindex="0">
+                    <div class="premium-input dropdown-header" (click)="openCustomDatePicker('start', $event)" [class.active]="activeDateField === 'start'" [attr.aria-invalid]="isInvalid('startDate')">
+                      <span [class.text-muted]="!wizardForm.get('startDate')?.value">{{ formatDisplayDateTime(wizardForm.get('startDate')?.value) }}</span>
+                      <span class="material-icons" style="color: #64748b;">calendar_today</span>
+                    </div>
+                    <div *ngIf="activeDateField === 'start'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
+                    <ng-container *ngIf="activeDateField === 'start'">
+                      <ng-container *ngTemplateOutlet="datePickerTemplate; context: { field: 'start' }"></ng-container>
+                    </ng-container>
+                  </div>
+                  <div class="validation-error" *ngIf="isInvalid('startDate')">Valid start date is required.</div>
                 </div>
                 <div class="form-group">
                   <label for="durationDays">Duration (Days)</label>
                   <input id="durationDays" type="number" class="premium-input" formControlName="durationDays" min="1" placeholder="e.g. 7" />
                 </div>
                 <div class="form-group">
-                  <label for="endDate">End Date <span class="required">*</span></label>
-                  <input id="endDate" type="datetime-local" class="premium-input icon-right" formControlName="endDate" [attr.aria-invalid]="isInvalid('endDate')" aria-describedby="end-error" [min]="wizardForm.get('startDate')?.value || minDate" />
-                  <div id="end-error" class="validation-error" *ngIf="isInvalid('endDate')">Valid end date is required.</div>
+                  <label>End Date <span class="required">*</span></label>
+                  <div class="custom-dropdown" tabindex="0">
+                    <div class="premium-input dropdown-header" (click)="openCustomDatePicker('end', $event)" [class.active]="activeDateField === 'end'" [attr.aria-invalid]="isInvalid('endDate')">
+                      <span [class.text-muted]="!wizardForm.get('endDate')?.value">{{ formatDisplayDateTime(wizardForm.get('endDate')?.value) }}</span>
+                      <span class="material-icons" style="color: #64748b;">calendar_today</span>
+                    </div>
+                    <div *ngIf="activeDateField === 'end'" class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1040; cursor: default;" (click)="closeCustomPickers(); $event.stopPropagation()"></div>
+                    <ng-container *ngIf="activeDateField === 'end'">
+                      <ng-container *ngTemplateOutlet="datePickerTemplate; context: { field: 'end' }"></ng-container>
+                    </ng-container>
+                  </div>
+                  <div class="validation-error" *ngIf="isInvalid('endDate')">Valid end date is required.</div>
                 </div>
               </div>
 
@@ -186,10 +204,16 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
                 <div style="margin-bottom: 1rem;">
                   <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Category Filter</label>
-                  <select class="premium-input" style="max-width: 400px;" (change)="multiSourceFilterCategoryId = $any($event.target).value">
-                    <option value="ALL" [selected]="multiSourceFilterCategoryId === 'ALL'">All Categories</option>
-                    <option *ngFor="let cat of automaticCategories()" [value]="cat.id" [selected]="multiSourceFilterCategoryId == cat.id">{{ cat.name }}</option>
-                  </select>
+                  <div class="custom-dropdown" tabindex="0" (blur)="isCatDropdownOpen = false" style="max-width: 400px; display: block;">
+                    <div class="premium-input dropdown-header" (click)="isCatDropdownOpen = !isCatDropdownOpen" [class.active]="isCatDropdownOpen">
+                      {{ getCategoryLabel(multiSourceFilterCategoryId) }}
+                      <span class="material-icons">arrow_drop_down</span>
+                    </div>
+                    <div class="dropdown-options" *ngIf="isCatDropdownOpen">
+                      <div class="dropdown-option" [class.selected]="multiSourceFilterCategoryId === 'ALL'" (mousedown)="multiSourceFilterCategoryId = 'ALL'; isCatDropdownOpen = false; $event.preventDefault();">All Categories</div>
+                      <div class="dropdown-option" *ngFor="let cat of automaticCategories()" [class.selected]="multiSourceFilterCategoryId == cat.id" (mousedown)="multiSourceFilterCategoryId = cat.id; isCatDropdownOpen = false; $event.preventDefault();">{{ cat.name }}</div>
+                    </div>
+                  </div>
                 </div>
 
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; background: white; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 8px;">
@@ -220,11 +244,17 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
               <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Progress Measurement</h4>
               <div style="margin-bottom: 1rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                 <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Metric</label>
-                <select class="premium-input" formControlName="progressMetric" style="max-width: 400px;">
-                  <option value="CARBON_EMISSION">Carbon Emissions (kgCO2e)</option>
-                  <option value="QUANTITY">Physical Quantity (e.g. km, litres, kg)</option>
-                  <option value="ENTRY_COUNT">Number of Entries (e.g. actions, trips)</option>
-                </select>
+                <div class="custom-dropdown" tabindex="0" (blur)="isMetricDropdownOpen = false" style="max-width: 400px; display: block;">
+                  <div class="premium-input dropdown-header" (click)="isMetricDropdownOpen = !isMetricDropdownOpen" [class.active]="isMetricDropdownOpen">
+                    {{ getMetricLabel(wizardForm.get('progressMetric')?.value) }}
+                    <span class="material-icons">arrow_drop_down</span>
+                  </div>
+                  <div class="dropdown-options" *ngIf="isMetricDropdownOpen">
+                    <div class="dropdown-option" [class.selected]="wizardForm.get('progressMetric')?.value === 'CARBON_EMISSION'" (mousedown)="wizardForm.patchValue({progressMetric: 'CARBON_EMISSION'}); isMetricDropdownOpen = false; $event.preventDefault();">Carbon Emissions (kgCO2e)</div>
+                    <div class="dropdown-option" [class.selected]="wizardForm.get('progressMetric')?.value === 'QUANTITY'" (mousedown)="wizardForm.patchValue({progressMetric: 'QUANTITY'}); isMetricDropdownOpen = false; $event.preventDefault();">Physical Quantity (e.g. km, litres, kg)</div>
+                    <div class="dropdown-option" [class.selected]="wizardForm.get('progressMetric')?.value === 'ENTRY_COUNT'" (mousedown)="wizardForm.patchValue({progressMetric: 'ENTRY_COUNT'}); isMetricDropdownOpen = false; $event.preventDefault();">Number of Entries (e.g. actions, trips)</div>
+                  </div>
+                </div>
               </div>
               <div style="font-size: 0.875rem; color: #0f172a; margin-bottom: 1rem; padding: 0.75rem; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block;">
                 Derived Unit: <strong>{{ derivedUnitLabel }}</strong>
@@ -294,12 +324,18 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
               <div style="margin-bottom: 2rem;">
                 <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Challenge Badge (Optional)</label>
-                <select class="premium-input" formControlName="badgeId">
-                  <option [ngValue]="null">No Badge</option>
-                  <option *ngFor="let badge of challengeBadges" [ngValue]="badge.id">
-                    {{ badge.name }} ({{ badge.rarity }})
-                  </option>
-                </select>
+                <div class="custom-dropdown" tabindex="0" (blur)="isBadgeDropdownOpen = false" style="width: 100%; display: block;">
+                  <div class="premium-input dropdown-header" (click)="isBadgeDropdownOpen = !isBadgeDropdownOpen" [class.active]="isBadgeDropdownOpen">
+                    {{ getBadgeLabel(wizardForm.get('badgeId')?.value) }}
+                    <span class="material-icons">arrow_drop_down</span>
+                  </div>
+                  <div class="dropdown-options" *ngIf="isBadgeDropdownOpen">
+                    <div class="dropdown-option" [class.selected]="wizardForm.get('badgeId')?.value === null" (mousedown)="wizardForm.patchValue({badgeId: null}); isBadgeDropdownOpen = false; $event.preventDefault();">No Badge</div>
+                    <div class="dropdown-option" *ngFor="let badge of challengeBadges" [class.selected]="wizardForm.get('badgeId')?.value === badge.id" (mousedown)="wizardForm.patchValue({badgeId: badge.id}); isBadgeDropdownOpen = false; $event.preventDefault();">
+                      {{ badge.name }}
+                    </div>
+                  </div>
+                </div>
                 <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
                   Select a Challenge-specific badge to award upon completion. Generic milestone badges are not available here.
                 </div>
@@ -366,7 +402,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                     </div>
                   </div>
 
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                  <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem;">
 
                 <div class="review-row" *ngIf="wizardForm.value.maxParticipants">
                   <span class="material-icons review-icon">group</span>
@@ -450,6 +486,58 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
         </form>
 
+        <ng-template #datePickerTemplate let-field="field">
+          <div class="custom-dp-popup-inner" style="display:flex; gap:1rem; background:white; padding:1.5rem; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); border:1px solid #e2e8f0; width:max-content; position:absolute; z-index:1100; margin-top:0.5rem; top: 100%; left: 0;" (mousedown)="$event.stopPropagation()">
+             <div style="min-width:240px;">
+               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.5rem;">
+                 <button type="button" style="background:none; border:none; cursor:pointer;" (click)="prevMonth($event)"><span class="material-icons">chevron_left</span></button>
+                 <span style="font-weight:600; font-size:0.9rem;">{{ currentMonthDate | date:'MMMM yyyy' }}</span>
+                 <button type="button" style="background:none; border:none; cursor:pointer;" (click)="nextMonth($event)"><span class="material-icons">chevron_right</span></button>
+               </div>
+               <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:0.25rem; text-align:center; margin-bottom:0.5rem;">
+                 <span *ngFor="let day of weekDays" style="font-size:0.75rem; color:#64748b; font-weight:600;">{{ day }}</span>
+               </div>
+               <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:0.25rem; text-align:center;">
+                 <div *ngFor="let d of calendarDays" (click)="!isDateDisabled(d.date, field) && selectDate(d.date, field, $event)"
+                      style="font-size:0.875rem; padding:0.25rem; border-radius:50%;"
+                      [style.cursor]="isDateDisabled(d.date, field) ? 'not-allowed' : 'pointer'"
+                      [style.opacity]="isDateDisabled(d.date, field) ? '0.3' : '1'"
+                      [style.background]="isDateSelected(d.date, field) ? '#10b981' : 'transparent'"
+                      [style.color]="isDateSelected(d.date, field) ? 'white' : (d.isCurrentMonth ? '#0f172a' : '#cbd5e1')">
+                   {{ d.day }}
+                 </div>
+               </div>
+               <div style="display:flex; justify-content:center; margin-top:0.75rem; border-top:1px solid #f1f5f9; padding-top:0.75rem;">
+                 <button type="button" (click)="selectToday(field, $event)" style="background:none; border:none; color:#10b981; font-weight:600; cursor:pointer; font-size:0.875rem;">Today</button>
+               </div>
+             </div>
+             <div style="border-left:1px solid #f1f5f9; padding-left:1rem; display:flex; flex-direction:column;">
+               <span style="font-weight:600; font-size:0.9rem; margin-bottom:1rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.5rem; text-align:center;">Time</span>
+               <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center;">
+                 <div style="display:flex; flex-direction:column; align-items:center;">
+                   <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeHour(1, field)">expand_less</span>
+                   <span style="font-size:1.5rem; font-weight:bold; padding:0.25rem 0.5rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; color:#0f172a; width: 3rem; text-align: center; user-select: none;">{{ selectedHour }}</span>
+                   <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeHour(-1, field)">expand_more</span>
+                 </div>
+                 <span style="font-size:1.5rem; font-weight:bold; color:#0f172a; margin-top: -1rem;">:</span>
+                 <div style="display:flex; flex-direction:column; align-items:center;">
+                   <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeMinute(1, field)">expand_less</span>
+                   <span style="font-size:1.5rem; font-weight:bold; padding:0.25rem 0.5rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; color:#0f172a; width: 3rem; text-align: center; user-select: none;">{{ selectedMinute }}</span>
+                   <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeMinute(-1, field)">expand_more</span>
+                 </div>
+                 <div style="display:flex; flex-direction:column; align-items:center; margin-left:0.5rem; gap:0.25rem;">
+                   <button type="button" (click)="setAmPm('AM', field)" [style.background]="selectedAmPm === 'AM' ? '#10b981' : '#f8fafc'" [style.color]="selectedAmPm === 'AM' ? 'white' : '#64748b'" style="border:1px solid #e2e8f0; border-radius:4px; padding:0.25rem 0.5rem; font-weight:bold; cursor:pointer; font-size:0.875rem; transition:all 0.2s; width: 100%;">AM</button>
+                   <button type="button" (click)="setAmPm('PM', field)" [style.background]="selectedAmPm === 'PM' ? '#10b981' : '#f8fafc'" [style.color]="selectedAmPm === 'PM' ? 'white' : '#64748b'" style="border:1px solid #e2e8f0; border-radius:4px; padding:0.25rem 0.5rem; font-weight:bold; cursor:pointer; font-size:0.875rem; transition:all 0.2s; width: 100%;">PM</button>
+                 </div>
+               </div>
+               <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:0.75rem;">
+                 <button type="button" (click)="selectTimeNow(field, $event)" style="background:none; border:none; color:#10b981; font-weight:600; cursor:pointer; font-size:0.875rem;">Now</button>
+                 <button type="button" class="btn-outline-green" style="padding:0.35rem 1rem;" (click)="closeCustomPickers()">Done</button>
+               </div>
+             </div>
+          </div>
+        </ng-template>
+
         <!-- WIZARD FOOTER -->
         <div class="wizard-footer">
           <button class="btn-cancel" *ngIf="currentStep() === 1" (click)="cancel()">Cancel</button>
@@ -473,7 +561,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
   `,
   styles: [`
     .wizard-page {
-      background: #f4f7fa; min-height: 100vh; padding: 2rem; font-family: 'Inter', sans-serif;
+      background: transparent; min-height: 100vh; padding: 2rem; font-family: 'Inter', sans-serif;
     }
     .wizard-header-top {
       margin-bottom: 1.5rem; max-width: 1200px; margin-left: auto; margin-right: auto; display: flex; justify-content: space-between; align-items: center; position: relative;
@@ -524,33 +612,48 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     @media (max-width: 900px) { .split-layout { grid-template-columns: 1fr; } }
 
     .form-group { margin-bottom: 1.5rem; position: relative; }
-    .form-group label { display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.5rem; color: #334155; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.625rem; color: #1e293b; letter-spacing: -0.01em; }
     .required { color: #ef4444; }
 
     .premium-input {
-      width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem 1rem;
-      font-size: 0.9375rem; color: #0f172a; transition: 0.2s; font-family: inherit;
+      width: 100%; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.875rem 1.25rem;
+      font-size: 0.95rem; font-weight: 500; color: #0f172a; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+      font-family: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.02); background: #f8fafc;
     }
-    .premium-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px #ecfdf5; }
-    .premium-input[aria-invalid="true"] { border-color: #ef4444; box-shadow: 0 0 0 3px #fef2f2; }
-    .premium-input[aria-invalid="true"]:focus { border-color: #ef4444; box-shadow: 0 0 0 3px #fef2f2; }
-    .validation-error { color: #ef4444; font-size: 0.75rem; margin-top: 0.35rem; font-weight: 500; display: block; }
+    .premium-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: #fff; }
+    .premium-input[aria-invalid="true"] { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); background: #fef2f2; }
+    .premium-input[aria-invalid="true"]:focus { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); }
+    .validation-error { color: #ef4444; font-size: 0.8125rem; margin-top: 0.5rem; font-weight: 500; display: block; animation: fadeIn 0.2s; }
+    .premium-input::-webkit-calendar-picker-indicator { cursor: pointer; filter: opacity(0.6); transition: filter 0.2s; padding: 4px; border-radius: 4px; }
+    .premium-input::-webkit-calendar-picker-indicator:hover { filter: opacity(1); background: rgba(0,0,0,0.05); }
 
-    .premium-input::placeholder { color: #94a3b8; }
-    textarea.premium-input { resize: vertical; }
-    .char-count { text-align: right; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+    .premium-input::placeholder { color: #94a3b8; font-weight: 400; }
+    textarea.premium-input { resize: vertical; line-height: 1.5; }
+    .char-count { text-align: right; font-size: 0.8125rem; color: #94a3b8; margin-top: 0.5rem; font-weight: 500; }
+
+    .custom-dropdown { position: relative; outline: none; }
+    .dropdown-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    .dropdown-header.active { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: #fff; }
+    .dropdown-header .material-icons { color: #64748b; transition: transform 0.2s; }
+    .dropdown-header.active .material-icons { transform: rotate(180deg); color: #10b981; }
+    
+    .dropdown-options { position: absolute; top: calc(100% + 4px); left: 0; width: 100%; min-width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); z-index: 50; overflow: hidden; padding: 0.375rem; animation: dropFadeIn 0.15s cubic-bezier(0.4, 0, 0.2, 1); max-height: 250px; overflow-y: auto; }
+    .dropdown-option { padding: 0.75rem 1rem; font-size: 0.875rem; color: #334155; cursor: pointer; border-radius: 6px; transition: background 0.15s, color 0.15s; font-weight: 500; }
+    .dropdown-option:hover { background: #f8fafc; color: #0f172a; }
+    .dropdown-option.selected { background: #ecfdf5; color: #10b981; font-weight: 600; }
+    @keyframes dropFadeIn { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
-    .cover-upload-area { display: flex; gap: 1.5rem; align-items: center; }
-    .cover-preview { width: 140px; height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-    .cover-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+    .cover-upload-area { display: flex; gap: 1.5rem; align-items: center; margin-top: 0.5rem; }
+    .cover-preview { width: 160px; height: 90px; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+    .cover-actions { display: flex; flex-direction: column; gap: 0.75rem; justify-content: center; }
     .btn-outline-green {
       background: white; border: 1px solid #cbd5e1; color: #10b981; font-weight: 600; font-size: 0.875rem;
-      padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.625rem 1.25rem; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
-    .btn-outline-green:hover { background: #f8fafc; border-color: #10b981; }
-    .help-text { font-size: 0.75rem; color: #64748b; }
+    .btn-outline-green:hover { background: #f0fdf4; border-color: #10b981; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1); }
+    .help-text { font-size: 0.8125rem; color: #64748b; font-weight: 500; }
 
     /* PREVIEW CARD */
     .preview-card {
@@ -579,7 +682,6 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     }
     .btn-next:hover { background: #047857; }
     .btn-next:disabled { opacity: 0.7; cursor: not-allowed; background: #94a3b8; }
-
     .tracking-card {
       border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; display: flex; gap: 1rem; cursor: pointer; transition: 0.2s;
     }
@@ -596,6 +698,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     .tracking-card.active .tc-radio { border: none; }
     .tc-radio .material-icons { color: #10b981; font-size: 24px; }
 
+
     .review-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
     .review-icon { color: #64748b; font-size: 1.5rem; }
     .review-row small { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
@@ -609,8 +712,28 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   private toast = inject(ToastService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  isCatDropdownOpen = false;
+  isMetricDropdownOpen = false;
+  isBadgeDropdownOpen = false;
 
+  getCategoryLabel(val: any): string {
+    if (val === 'ALL') return 'All Categories';
+    const cat = this.automaticCategories().find(c => c.id == val);
+    return cat ? cat.name : 'All Categories';
+  }
 
+  getMetricLabel(val: string): string {
+    if (val === 'CARBON_EMISSION') return 'Carbon Emissions (kgCO2e)';
+    if (val === 'QUANTITY') return 'Physical Quantity (e.g. km, litres, kg)';
+    if (val === 'ENTRY_COUNT') return 'Number of Entries (e.g. actions, trips)';
+    return 'Select Metric';
+  }
+
+  getBadgeLabel(badgeId: any): string {
+    if (!badgeId) return 'No Badge';
+    const badge = this.challengeBadges.find(b => b.id === badgeId);
+    return badge ? badge.name : 'No Badge';
+  }
   currentStep = signal<number>(1);
   submitting = signal<boolean>(false);
   isSaved = false;
@@ -650,6 +773,19 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     maxParticipants: [''],
     badgeId: [null]
   });
+
+  // CUSTOM CALENDAR LOGIC PROPERTIES
+  activeDateField: 'start' | 'end' | null = null;
+  currentMonthDate: Date = new Date();
+  weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  calendarDays: { date: Date, day: number, isCurrentMonth: boolean }[] = [];
+  todayDate = new Date();
+  
+  hours = Array.from({length: 12}, (_, i) => (i + 1).toString().padStart(2, '0'));
+  minutes = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'));
+  selectedHour: string = '12';
+  selectedMinute: string = '00';
+  selectedAmPm: string = 'AM';
 
   constructor() {
     const nav = this.router.getCurrentNavigation();
@@ -740,6 +876,217 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  // CUSTOM CALENDAR METHODS
+  openCustomDatePicker(field: 'start' | 'end', event: Event) {
+    event.stopPropagation();
+    if (this.activeDateField === field) {
+      this.closeCustomPickers();
+      return;
+    }
+    this.activeDateField = field;
+    this.isCatDropdownOpen = false;
+    this.isMetricDropdownOpen = false;
+    this.isBadgeDropdownOpen = false;
+
+    let currentVal = field === 'start' ? this.wizardForm.get('startDate')?.value : this.wizardForm.get('endDate')?.value;
+    let d = currentVal ? new Date(currentVal) : new Date();
+    
+    this.currentMonthDate = new Date(d.getFullYear(), d.getMonth(), 1);
+    this.generateCalendar(this.currentMonthDate);
+
+    let h = d.getHours();
+    this.selectedAmPm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    h = h ? h : 12;
+    this.selectedHour = h.toString().padStart(2, '0');
+    this.selectedMinute = d.getMinutes().toString().padStart(2, '0');
+  }
+
+  closeCustomPickers() {
+    this.activeDateField = null;
+  }
+
+  generateCalendar(date: Date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    this.calendarDays = [];
+    for (let i = firstDay - 1; i >= 0; i--) {
+      this.calendarDays.push({ date: new Date(year, month - 1, daysInPrevMonth - i), day: daysInPrevMonth - i, isCurrentMonth: false });
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      this.calendarDays.push({ date: new Date(year, month, i), day: i, isCurrentMonth: true });
+    }
+    const remainingDays = 42 - this.calendarDays.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      this.calendarDays.push({ date: new Date(year, month + 1, i), day: i, isCurrentMonth: false });
+    }
+  }
+
+  prevMonth(event: Event) {
+    event.stopPropagation();
+    this.currentMonthDate = new Date(this.currentMonthDate.getFullYear(), this.currentMonthDate.getMonth() - 1, 1);
+    this.generateCalendar(this.currentMonthDate);
+  }
+
+  nextMonth(event: Event) {
+    event.stopPropagation();
+    this.currentMonthDate = new Date(this.currentMonthDate.getFullYear(), this.currentMonthDate.getMonth() + 1, 1);
+    this.generateCalendar(this.currentMonthDate);
+  }
+
+  selectDate(d: Date, field: string, event: Event) {
+    event.stopPropagation();
+    let h = parseInt(this.selectedHour, 10);
+    if (this.selectedAmPm === 'PM' && h < 12) h += 12;
+    if (this.selectedAmPm === 'AM' && h === 12) h = 0;
+    d.setHours(h, parseInt(this.selectedMinute, 10));
+
+    if (field === 'start') {
+      this.wizardForm.patchValue({ startDate: this.formatDateTimeLocal(d) });
+    } else {
+      this.wizardForm.patchValue({ endDate: this.formatDateTimeLocal(d) });
+    }
+  }
+  
+  setAmPm(ampm: string, field: string) {
+    this.selectedAmPm = ampm;
+    this.updateTime(field);
+  }
+
+  selectTimeNow(field: string, event: Event) {
+    event.stopPropagation();
+    const now = new Date();
+    
+    let h = now.getHours();
+    this.selectedAmPm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    h = h ? h : 12;
+    this.selectedHour = h.toString().padStart(2, '0');
+    this.selectedMinute = now.getMinutes().toString().padStart(2, '0');
+    
+    this.updateTime(field);
+  }
+
+  updateTime(field: string) {
+    let currentVal = field === 'start' ? this.wizardForm.get('startDate')?.value : this.wizardForm.get('endDate')?.value;
+    if (!currentVal) return;
+    let d = new Date(currentVal);
+    let h = parseInt(this.selectedHour, 10);
+    if (this.selectedAmPm === 'PM' && h < 12) h += 12;
+    if (this.selectedAmPm === 'AM' && h === 12) h = 0;
+    d.setHours(h, parseInt(this.selectedMinute, 10));
+
+    const today = new Date();
+    if (field === 'start') {
+       if (d.getTime() < today.getTime()) {
+           d = today;
+       }
+    } else {
+       const startVal = this.wizardForm.get('startDate')?.value;
+       if (startVal) {
+          const startD = new Date(startVal);
+          if (d.getTime() < startD.getTime()) {
+             d = startD;
+          }
+       } else if (d.getTime() < today.getTime()) {
+          d = today;
+       }
+    }
+
+    let updatedH = d.getHours();
+    this.selectedAmPm = updatedH >= 12 ? 'PM' : 'AM';
+    updatedH = updatedH % 12;
+    updatedH = updatedH ? updatedH : 12;
+    this.selectedHour = updatedH.toString().padStart(2, '0');
+    this.selectedMinute = d.getMinutes().toString().padStart(2, '0');
+
+    if (field === 'start') {
+      this.wizardForm.patchValue({ startDate: this.formatDateTimeLocal(d) });
+    } else {
+      this.wizardForm.patchValue({ endDate: this.formatDateTimeLocal(d) });
+    }
+  }
+
+  formatDisplayDateTime(val: any): string {
+    if (!val) return 'Select Date & Time';
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return 'Select Date & Time';
+    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+
+  isDateSelected(date: Date, field: string): boolean {
+    const val = field === 'start' ? this.wizardForm.get('startDate')?.value : this.wizardForm.get('endDate')?.value;
+    if (!val) return false;
+    const d = new Date(val);
+    return d.getFullYear() === date.getFullYear() && d.getMonth() === date.getMonth() && d.getDate() === date.getDate();
+  }
+
+  isDateDisabled(date: Date, field: string): boolean {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const checkDate = new Date(date);
+    checkDate.setHours(0,0,0,0);
+    
+    if (checkDate.getTime() < today.getTime()) {
+      return true; // past dates disabled
+    }
+
+    if (field === 'end') {
+      const startVal = this.wizardForm.get('startDate')?.value;
+      if (startVal) {
+        const startDate = new Date(startVal);
+        startDate.setHours(0,0,0,0);
+        if (checkDate.getTime() < startDate.getTime()) {
+          return true; // end date cannot be before start date
+        }
+      }
+    }
+    return false;
+  }
+
+  selectToday(field: string, event: Event) {
+    event.stopPropagation();
+    const now = new Date();
+    
+    let h = now.getHours();
+    this.selectedAmPm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    h = h ? h : 12;
+    this.selectedHour = h.toString().padStart(2, '0');
+    this.selectedMinute = now.getMinutes().toString().padStart(2, '0');
+    
+    this.selectDate(now, field, event);
+    this.currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    this.generateCalendar(this.currentMonthDate);
+  }
+
+  changeHour(delta: number, field: string) {
+    let h = parseInt(this.selectedHour, 10);
+    h += delta;
+    if (h > 12) h = 1;
+    if (h < 1) h = 12;
+    this.selectedHour = h.toString().padStart(2, '0');
+    this.updateTime(field);
+  }
+
+  changeMinute(delta: number, field: string) {
+    let m = parseInt(this.selectedMinute, 10);
+    m += delta;
+    if (m > 59) m = 0;
+    if (m < 0) m = 59;
+    this.selectedMinute = m.toString().padStart(2, '0');
+    this.updateTime(field);
+  }
+
+  toggleAmPm(field: string) {
+    this.selectedAmPm = this.selectedAmPm === 'AM' ? 'PM' : 'AM';
+    this.updateTime(field);
   }
 
   private route = inject(ActivatedRoute);

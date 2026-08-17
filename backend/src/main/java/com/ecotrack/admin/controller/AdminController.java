@@ -32,11 +32,18 @@ public class AdminController {
 
     private final AdminService adminService;
     private final UserRepository userRepository;
+    private final com.ecotrack.challenge.service.ChallengeService challengeService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/dashboard")
     public ResponseEntity<AdminDashboardResponse> getDashboardSummary() {
         return ResponseEntity.ok(adminService.getDashboardSummary());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/dashboard/pulse")
+    public ResponseEntity<com.ecotrack.admin.dto.response.AdminDashboardPulseDTO> getDashboardPulse() {
+        return ResponseEntity.ok(adminService.getDashboardPulse());
     }
 
     @GetMapping("/users")
@@ -64,6 +71,24 @@ public class AdminController {
         Long adminId = getUserId(authentication);
         UserDetailResponse response = adminService.updateUserStatus(adminId, id, request.getStatus());
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/users/{id}/role")
+    public ResponseEntity<UserDetailResponse> updateUserRole(
+            @PathVariable Long id,
+            @Valid @RequestBody com.ecotrack.admin.dto.request.UpdateUserRoleRequest request,
+            Authentication authentication) {
+        log.info("Admin updating role for user ID: {} to {}", id, request.getRole());
+        Long adminId = getUserId(authentication);
+        UserDetailResponse response = adminService.updateUserRole(adminId, id, request.getRole());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users/{id}/challenges")
+    public ResponseEntity<Page<com.ecotrack.challenge.dto.ChallengeParticipantDTO>> getUserChallenges(
+            @PathVariable Long id, Pageable pageable) {
+        log.info("Admin fetching challenge history for user ID: {}", id);
+        return ResponseEntity.ok(challengeService.getUserChallenges(id, pageable));
     }
 
     /**

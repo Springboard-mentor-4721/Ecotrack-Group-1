@@ -181,7 +181,7 @@ import { environment } from '../../../../../../environments/environment';
                         [checked]="isAllSelected()"
                         (change)="toggleAll($event)" />
                     </th>
-                    <th style="text-align: center;">Challenge</th>
+                    <th style="text-align: left; padding-left: calc(1rem + 40px + 0.75rem);">Challenge</th>
                     <th>Category</th>
                     <th>Tracking Method</th>
                     <th>Type</th>
@@ -203,8 +203,8 @@ import { environment } from '../../../../../../environments/environment';
                           (click)="$event.stopPropagation()"
                           (change)="toggleSelection(c.id)" />
                       </td>
-                      <td>
-                        <div class="campaign-cell" style="justify-content: center; text-align: left;">
+                      <td style="padding-left: 1rem;">
+                        <div class="campaign-cell" style="justify-content: flex-start; text-align: left;">
                           <div class="campaign-icon" [ngStyle]="{'background': $any(c).imageUrl ? 'url(' + resolveImageUrl($any(c).imageUrl) + ') center/cover no-repeat' : getGradient(c.id)}">
                             <span class="material-icons" style="color: white" *ngIf="!$any(c).imageUrl">flag</span>
                           </div>
@@ -328,8 +328,7 @@ import { environment } from '../../../../../../environments/environment';
 
     .library-container {
       font-family: 'Inter', sans-serif;
-      background: #f8fafc;
-      min-height: 100vh;
+      background: transparent;
       padding: 1.5rem 1rem;
       color: #0f172a;
     }
@@ -439,9 +438,9 @@ import { environment } from '../../../../../../environments/environment';
 
     .campaign-cell { display: flex; align-items: center; gap: 0.75rem; }
     .campaign-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .campaign-info { display: flex; flex-direction: column; max-width: 170px; }
-    .campaign-title { font-weight: 600; color: #0f172a; font-size: 0.9rem; margin-bottom: 0.125rem;}
-    .campaign-desc { font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+    .campaign-info { display: flex; flex-direction: column; max-width: 280px; }
+    .campaign-title { font-weight: 600; color: #0f172a; font-size: 0.9rem; margin-bottom: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .campaign-desc { font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
     .cat-cell { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 500; color: #0f172a; font-size: 0.85rem;}
     .cat-cell .material-icons { font-size: 1.25rem; color: #64748b; }

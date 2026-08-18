@@ -43,11 +43,11 @@ import { ChallengeStats } from '../../../../../../models/challenge.models';
       margin-bottom: 2rem;
     }
     .stat-card {
-      background: var(--surface-card, #ffffff);
+      background: var(--bg-surface);
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      border-left: 4px solid #cbd5e1;
+      border-left: 4px solid var(--border-color);
       transition: transform 0.2s;
     }
     .stat-card:hover {
@@ -60,7 +60,7 @@ import { ChallengeStats } from '../../../../../../models/challenge.models';
     .stat-card.participants { border-color: #f59e0b; }
     
     .stat-title {
-      color: var(--text-secondary, #64748b);
+      color: var(--text-muted);
       font-size: 0.875rem;
       font-weight: 500;
       text-transform: uppercase;
@@ -69,7 +69,7 @@ import { ChallengeStats } from '../../../../../../models/challenge.models';
     .stat-value {
       font-size: 2rem;
       font-weight: 700;
-      color: var(--text-primary, #0f172a);
+      color: var(--text-primary);
       margin-top: 0.5rem;
     }
   `]

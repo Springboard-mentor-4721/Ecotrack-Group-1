@@ -142,6 +142,13 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.2.5</version>
 		</dependency>
+		
+		<!-- XChart for server-side chart generation -->
+		<dependency>
+			<groupId>org.knowm.xchart</groupId>
+			<artifactId>xchart</artifactId>
+			<version>3.8.4</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>

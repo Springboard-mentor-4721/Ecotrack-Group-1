@@ -39,12 +39,17 @@ import { of } from 'rxjs';
     </div>
   `,
   styles: [`
-    .admin-detail-container { padding: 2rem 2.5rem; background: #f8fafc; min-height: 100vh; font-family: 'Inter', sans-serif; }
+    .admin-detail-container { padding: 2rem 2.5rem; background: var(--bg-body); min-height: 100vh; font-family: 'Inter', sans-serif; }
     .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; font-size: 0.875rem; border: none; cursor: pointer; transition: all 0.2s; }
-    .btn-icon { background: none; color: #64748b; padding: 0; font-weight: 600; font-size: 0.9rem; }
-    .btn-icon:hover { color: #0f172a; }
+    .btn-icon { background: none; color: var(--text-muted); padding: 0; font-weight: 600; font-size: 0.9rem; }
+    .btn-icon:hover { color: var(--text-primary); }
     
-    .detail-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .detail-card { background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+    .text-dark { color: var(--text-primary) !important; }
+    .text-muted { color: var(--text-muted) !important; }
+    .bg-light { background-color: var(--bg-surface-hover) !important; }
+    .border-bottom { border-color: var(--border-color) !important; }
   `]
 })
 export class ParticipantsComponent implements OnInit {

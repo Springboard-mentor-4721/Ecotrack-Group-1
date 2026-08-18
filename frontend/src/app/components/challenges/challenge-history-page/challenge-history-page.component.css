@@ -1,34 +1,34 @@
+/* Challenge history page - uses CSS variables for dark mode */
 .history-page {
-  /* Using Tailwind-like tokens or equivalent */
-  background-color: var(--bs-gray-50, #f8fafc);
+  background-color: var(--bg-body);
 }
 
 .text-slate-800 {
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .text-slate-600 {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .text-slate-500 {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .text-slate-400 {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .bg-slate-100 {
-  background-color: #f1f5f9 !important;
+  background-color: var(--bg-surface-hover) !important;
 }
 
 .bg-slate-200 {
-  background-color: #e2e8f0 !important;
+  background-color: var(--border-color) !important;
 }
 
 .bg-slate-50 {
-  background-color: #f8fafc !important;
+  background-color: var(--bg-surface) !important;
 }
 
 .text-emerald {

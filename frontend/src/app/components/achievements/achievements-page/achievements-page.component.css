@@ -1,1 +1,6 @@
 /* achievements-page styles */
+
+.achievement-banner-bg {
+  background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 50%, #fde68a 100%);
+  border-radius: inherit;
+}

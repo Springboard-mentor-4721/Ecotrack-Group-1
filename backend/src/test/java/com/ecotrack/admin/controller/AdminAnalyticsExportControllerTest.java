@@ -62,9 +62,9 @@ public class AdminAnalyticsExportControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void testExportPdfAdmin() throws Exception {
-        when(pdfService.exportPdf(any(), any(), any(), any(), any(), any(), any())).thenReturn(new byte[]{1, 2, 3});
+        when(pdfService.exportPdf(any(), any(), any(), any(), any(), any(), any(), any(com.ecotrack.report.design.ReportTheme.class))).thenReturn(new byte[]{1, 2, 3});
         
-        mockMvc.perform(get("/api/admin/analytics/export/pdf"))
+        mockMvc.perform(get("/api/admin/analytics/export/pdf").param("theme", "EMERALD"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andExpect(header().exists("Content-Disposition"));
@@ -86,9 +86,9 @@ public class AdminAnalyticsExportControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void testExportExcelAdmin() throws Exception {
-        when(excelService.exportExcel(any(), any(), any(), any(), any(), any(), any())).thenReturn(new byte[]{1, 2, 3});
+        when(excelService.exportExcel(any(), any(), any(), any(), any(), any(), any(), any(com.ecotrack.report.design.ReportTheme.class))).thenReturn(new byte[]{1, 2, 3});
         
-        mockMvc.perform(get("/api/admin/analytics/export/excel"))
+        mockMvc.perform(get("/api/admin/analytics/export/excel").param("theme", "EMERALD"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")))
                 .andExpect(header().exists("Content-Disposition"));

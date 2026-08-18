@@ -216,10 +216,10 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   </div>
                 </div>
 
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; background: white; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 8px;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; background: var(--bg-surface-hover); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
                   <div *ngFor="let sub of getFilteredSubcategories()"
                        (click)="toggleSubcategoryId(sub.id)"
-                       style="display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: #0f172a; background: #f8fafc; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid #e2e8f0; cursor: pointer; user-select: none;"
+                       style="display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--text-primary); background: var(--bg-surface); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; user-select: none;"
                        [style.opacity]="resolvedSubcategoryIds.includes(sub.id) ? '1' : '0.5'"
                        [style.borderColor]="resolvedSubcategoryIds.includes(sub.id) ? '#10b981' : '#e2e8f0'">
                     <span class="material-icons" [style.color]="resolvedSubcategoryIds.includes(sub.id) ? '#10b981' : '#64748b'" style="font-size: 1.1rem;">
@@ -256,7 +256,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                   </div>
                 </div>
               </div>
-              <div style="font-size: 0.875rem; color: #0f172a; margin-bottom: 1rem; padding: 0.75rem; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block;">
+              <div style="font-size: 0.875rem; color: var(--text-primary); margin-bottom: 1rem; padding: 0.75rem; background: var(--bg-surface-hover); border-radius: 6px; border: 1px solid var(--border-color); display: inline-block;">
                 Derived Unit: <strong>{{ derivedUnitLabel }}</strong>
               </div>
             </div>
@@ -273,7 +273,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 <!-- Achievement Card -->
                 <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'"
                      (click)="wizardForm.patchValue({challengeEvaluationType: 'ACHIEVEMENT'})" role="radio" [attr.aria-checked]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'" tabindex="0">
-                  <div class="tc-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
+                  <div class="tc-icon-wrapper" style="background: rgba(2,132,199,0.12); color: #0284c7;">
                     <span class="material-icons tc-icon">emoji_events</span>
                   </div>
                   <div class="tc-content">
@@ -290,7 +290,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 <!-- Budget Card -->
                 <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'BUDGET'"
                      (click)="wizardForm.patchValue({challengeEvaluationType: 'BUDGET'})" role="radio" [attr.aria-checked]="wizardForm.get('challengeEvaluationType')?.value === 'BUDGET'" tabindex="0">
-                  <div class="tc-icon-wrapper" style="background: #fef9c3; color: #ca8a04;">
+                  <div class="tc-icon-wrapper" style="background: rgba(202,138,4,0.12); color: #ca8a04;">
                     <span class="material-icons tc-icon">account_balance_wallet</span>
                   </div>
                   <div class="tc-content">
@@ -341,7 +341,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 </div>
               </div>
 
-              <div style="padding: 1rem; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; color: #0369a1; font-size: 0.875rem;">
+              <div style="padding: 1rem; background: var(--bg-surface-hover); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.875rem;">
                 <span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.25rem;">info</span>
                 <span *ngIf="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'">
                   Participants complete this challenge by reaching or exceeding the target of {{ wizardForm.value.targetValue !== null && wizardForm.value.targetValue !== '' ? wizardForm.value.targetValue : '[Target]' }} {{ derivedUnitLabel }}.
@@ -392,7 +392,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                 </div>
 
                 <div style="padding: 2rem;">
-                  <h4 style="margin-top: 0; margin-bottom: 1.5rem; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; font-size: 1.5rem;">{{ wizardForm.value.title || 'Untitled' }}</h4>
+                  <h4 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; font-size: 1.5rem;">{{ wizardForm.value.title || 'Untitled' }}</h4>
 
                   <div class="review-row" style="margin-bottom: 2rem;">
                     <span class="material-icons review-icon">description</span>
@@ -503,7 +503,7 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                       [style.cursor]="isDateDisabled(d.date, field) ? 'not-allowed' : 'pointer'"
                       [style.opacity]="isDateDisabled(d.date, field) ? '0.3' : '1'"
                       [style.background]="isDateSelected(d.date, field) ? '#10b981' : 'transparent'"
-                      [style.color]="isDateSelected(d.date, field) ? 'white' : (d.isCurrentMonth ? '#0f172a' : '#cbd5e1')">
+                      [style.color]="isDateSelected(d.date, field) ? 'white' : (d.isCurrentMonth ? 'var(--text-primary)' : 'var(--text-muted)')">
                    {{ d.day }}
                  </div>
                </div>
@@ -526,8 +526,8 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
                    <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeMinute(-1, field)">expand_more</span>
                  </div>
                  <div style="display:flex; flex-direction:column; align-items:center; margin-left:0.5rem; gap:0.25rem;">
-                   <button type="button" (click)="setAmPm('AM', field)" [style.background]="selectedAmPm === 'AM' ? '#10b981' : '#f8fafc'" [style.color]="selectedAmPm === 'AM' ? 'white' : '#64748b'" style="border:1px solid #e2e8f0; border-radius:4px; padding:0.25rem 0.5rem; font-weight:bold; cursor:pointer; font-size:0.875rem; transition:all 0.2s; width: 100%;">AM</button>
-                   <button type="button" (click)="setAmPm('PM', field)" [style.background]="selectedAmPm === 'PM' ? '#10b981' : '#f8fafc'" [style.color]="selectedAmPm === 'PM' ? 'white' : '#64748b'" style="border:1px solid #e2e8f0; border-radius:4px; padding:0.25rem 0.5rem; font-weight:bold; cursor:pointer; font-size:0.875rem; transition:all 0.2s; width: 100%;">PM</button>
+                   <button type="button" (click)="setAmPm('AM', field)" [style.background]="selectedAmPm === 'AM' ? '#10b981' : 'var(--bg-surface)'" [style.color]="selectedAmPm === 'AM' ? 'white' : 'var(--text-muted)'" style="border:1px solid var(--border-color); border-radius:4px; padding:0.25rem 0.5rem; font-weight:bold; cursor:pointer; font-size:0.875rem; transition:all 0.2s; width: 100%;">AM</button>
+                   <button type="button" (click)="setAmPm('PM', field)" [style.background]="selectedAmPm === 'PM' ? '#10b981' : 'var(--bg-surface)'" [style.color]="selectedAmPm === 'PM' ? 'white' : 'var(--text-muted)'" style="border:1px solid var(--border-color); border-radius:4px; padding:0.25rem 0.5rem; font-weight:bold; cursor:pointer; font-size:0.875rem; transition:all 0.2s; width: 100%;">PM</button>
                  </div>
                </div>
                <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:0.75rem;">
@@ -567,20 +567,20 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
       margin-bottom: 1.5rem; max-width: 1200px; margin-left: auto; margin-right: auto; display: flex; justify-content: space-between; align-items: center; position: relative;
     }
     .back-link {
-      background: none; border: none; font-size: 1rem; font-weight: 600; color: #0f172a;
+      background: none; border: none; font-size: 1rem; font-weight: 600; color: var(--text-primary);
       display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0;
     }
     .back-link .material-icons { color: #10b981; font-size: 1.25rem; }
 
     .wizard-main-container {
-      background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      background: var(--bg-surface); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       max-width: 1200px; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; position: relative;
     }
 
     /* STEPPER */
     .stepper-nav {
       display: flex; align-items: center; justify-content: space-between; padding: 2rem 4rem;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid var(--border-color);
     }
     .step {
       display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer;
@@ -593,16 +593,16 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     .step.active .step-circle { background: #10b981; color: white; border-color: #10b981; }
     .step.completed .step-circle { border-color: #10b981; color: #10b981; }
     .step.completed .step-circle .material-icons { font-size: 1.125rem; }
-    .step-label { font-size: 0.8125rem; font-weight: 600; color: #0f172a; text-align: center; max-width: 80px; }
-    .step:not(.active):not(.completed) .step-label { color: #64748b; font-weight: 500; }
+    .step-label { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 80px; }
+    .step:not(.active):not(.completed) .step-label { color: var(--text-muted); font-weight: 500; }
 
-    .step-line { flex: 1; height: 2px; background: #e2e8f0; margin: 0 1rem; position: relative; top: -16px; }
+    .step-line { flex: 1; height: 2px; background: var(--border-color); margin: 0 1rem; position: relative; top: -16px; }
     .step-line.completed { background: #10b981; }
 
     /* CONTENT AREAS */
     .step-content { padding: 2.5rem 4rem; flex: 1; }
-    .step-title { margin: 0 0 0.5rem 0; font-size: 1.75rem; color: #0f172a; font-weight: 700; }
-    .step-subtitle { color: #64748b; font-size: 0.9375rem; margin-bottom: 2rem; }
+    .step-title { margin: 0 0 0.5rem 0; font-size: 1.75rem; color: var(--text-primary); font-weight: 700; }
+    .step-subtitle { color: var(--text-muted); font-size: 0.9375rem; margin-bottom: 2rem; }
 
     .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -612,15 +612,15 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     @media (max-width: 900px) { .split-layout { grid-template-columns: 1fr; } }
 
     .form-group { margin-bottom: 1.5rem; position: relative; }
-    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.625rem; color: #1e293b; letter-spacing: -0.01em; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.625rem; color: var(--text-secondary); letter-spacing: -0.01em; }
     .required { color: #ef4444; }
 
     .premium-input {
-      width: 100%; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.875rem 1.25rem;
-      font-size: 0.95rem; font-weight: 500; color: #0f172a; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-      font-family: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.02); background: #f8fafc;
+      width: 100%; border: 1px solid var(--border-color); border-radius: 10px; padding: 0.875rem 1.25rem;
+      font-size: 0.95rem; font-weight: 500; color: var(--text-primary); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: var(--bg-surface);
+      font-family: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     }
-    .premium-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: #fff; }
+    .premium-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: var(--bg-surface); }
     .premium-input[aria-invalid="true"] { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); background: #fef2f2; }
     .premium-input[aria-invalid="true"]:focus { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); }
     .validation-error { color: #ef4444; font-size: 0.8125rem; margin-top: 0.5rem; font-weight: 500; display: block; animation: fadeIn 0.2s; }
@@ -633,23 +633,23 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
     .custom-dropdown { position: relative; outline: none; }
     .dropdown-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
-    .dropdown-header.active { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: #fff; }
+    .dropdown-header.active { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: var(--bg-surface); }
     .dropdown-header .material-icons { color: #64748b; transition: transform 0.2s; }
     .dropdown-header.active .material-icons { transform: rotate(180deg); color: #10b981; }
     
-    .dropdown-options { position: absolute; top: calc(100% + 4px); left: 0; width: 100%; min-width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); z-index: 50; overflow: hidden; padding: 0.375rem; animation: dropFadeIn 0.15s cubic-bezier(0.4, 0, 0.2, 1); max-height: 250px; overflow-y: auto; }
-    .dropdown-option { padding: 0.75rem 1rem; font-size: 0.875rem; color: #334155; cursor: pointer; border-radius: 6px; transition: background 0.15s, color 0.15s; font-weight: 500; }
-    .dropdown-option:hover { background: #f8fafc; color: #0f172a; }
-    .dropdown-option.selected { background: #ecfdf5; color: #10b981; font-weight: 600; }
+    .dropdown-options { position: absolute; top: calc(100% + 4px); left: 0; width: 100%; min-width: 100%; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); z-index: 50; overflow: hidden; padding: 0.375rem; animation: dropFadeIn 0.15s cubic-bezier(0.4, 0, 0.2, 1); max-height: 250px; overflow-y: auto; }
+    .dropdown-option { padding: 0.75rem 1rem; font-size: 0.875rem; color: var(--text-secondary); cursor: pointer; border-radius: 6px; transition: background 0.15s, color 0.15s; font-weight: 500; }
+    .dropdown-option:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+    .dropdown-option.selected { background: var(--color-emerald-light, rgba(16, 185, 129, 0.1)); color: #10b981; font-weight: 600; }
     @keyframes dropFadeIn { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
     .cover-upload-area { display: flex; gap: 1.5rem; align-items: center; margin-top: 0.5rem; }
-    .cover-preview { width: 160px; height: 90px; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+    .cover-preview { width: 160px; height: 90px; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
     .cover-actions { display: flex; flex-direction: column; gap: 0.75rem; justify-content: center; }
     .btn-outline-green {
-      background: white; border: 1px solid #cbd5e1; color: #10b981; font-weight: 600; font-size: 0.875rem;
+      background: var(--bg-surface); border: 1px solid var(--border-color); color: #10b981; font-weight: 600; font-size: 0.875rem;
       padding: 0.625rem 1.25rem; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .btn-outline-green:hover { background: #f0fdf4; border-color: #10b981; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1); }
@@ -657,24 +657,24 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
     /* PREVIEW CARD */
     .preview-card {
-      border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; background: #fff;
+      border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; background: var(--bg-surface);
     }
-    .preview-card h4 { margin: 0 0 1rem 0; font-size: 0.875rem; color: #0f172a; font-weight: 700; }
+    .preview-card h4 { margin: 0 0 1rem 0; font-size: 0.875rem; color: var(--text-primary); font-weight: 700; }
     .p-image { height: 120px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
     .p-image .material-icons { font-size: 3rem; color: white; }
-    .p-title { margin: 0 0 1.5rem 0; font-size: 1.125rem; font-weight: 700; color: #0f172a; }
-    .p-desc-section p { margin: 0.25rem 0 0; font-size: 0.875rem; color: #0f172a; line-height: 1.5; }
+    .p-title { margin: 0 0 1.5rem 0; font-size: 1.125rem; font-weight: 700; color: var(--text-primary); }
+    .p-desc-section p { margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
 
     /* FOOTER */
     .wizard-footer {
-      display: flex; padding: 1.5rem 4rem; border-top: 1px solid #f1f5f9; background: white; align-items: center;
+      display: flex; padding: 1.5rem 4rem; border-top: 1px solid var(--border-color); background: var(--bg-surface); align-items: center;
     }
     .spacer { flex: 1; }
     .btn-cancel {
-      background: white; border: 1px solid #e2e8f0; color: #0f172a; padding: 0.75rem 1.5rem;
+      background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.75rem 1.5rem;
       border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
     }
-    .btn-cancel:hover { background: #f8fafc; }
+    .btn-cancel:hover { background: var(--bg-surface-hover); }
 
     .btn-next {
       background: #059669; color: white; border: none; padding: 0.75rem 1.5rem;
@@ -683,14 +683,14 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
     .btn-next:hover { background: #047857; }
     .btn-next:disabled { opacity: 0.7; cursor: not-allowed; background: #94a3b8; }
     .tracking-card {
-      border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; display: flex; gap: 1rem; cursor: pointer; transition: 0.2s;
+      border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; gap: 1rem; cursor: pointer; transition: 0.2s;
     }
     .tracking-card:focus { outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4); }
-    .tracking-card.active { border-color: #10b981; background: #f0fdf4; box-shadow: 0 0 0 1px #10b981; }
-    .tc-icon-wrapper { width: 48px; height: 48px; border-radius: 8px; background: #d1fae5; display: flex; align-items: center; justify-content: center; }
-    .tc-icon-wrapper.manual { background: #f1f5f9; }
+    .tracking-card.active { border-color: #10b981; background: var(--color-emerald-light, rgba(16, 185, 129, 0.1)); box-shadow: 0 0 0 1px #10b981; }
+    .tc-icon-wrapper { width: 48px; height: 48px; border-radius: 8px; background: rgba(16,185,129,0.15); display: flex; align-items: center; justify-content: center; }
+    .tc-icon-wrapper.manual { background: var(--bg-surface-hover); }
     .tc-icon { color: #10b981; font-size: 1.5rem; }
-    .tc-icon-wrapper.manual .tc-icon { color: #64748b; }
+    .tc-icon-wrapper.manual .tc-icon { color: var(--text-muted); }
     .tc-content { flex: 1; }
     .tc-content h5 { margin: 0 0 0.5rem 0; font-size: 1rem; color: #0f172a; }
     .tc-content p { margin: 0; font-size: 0.8125rem; color: #64748b; line-height: 1.4; }
@@ -700,9 +700,9 @@ import { TrackingSourceCode } from '../../../../../models/challenge-template.mod
 
 
     .review-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-    .review-icon { color: #64748b; font-size: 1.5rem; }
-    .review-row small { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
-    .review-row strong { display: block; font-size: 0.875rem; color: #0f172a; }
+    .review-icon { color: var(--text-muted); font-size: 1.5rem; }
+    .review-row small { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .review-row strong { display: block; font-size: 0.875rem; color: var(--text-primary); }
   `]
 })
 export class WizardComponent implements OnInit, CanComponentDeactivate {

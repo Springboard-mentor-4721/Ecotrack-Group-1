@@ -80,7 +80,7 @@ import { environment } from '../../../../../../environments/environment';
 
           <!-- Category Dropdown -->
           <div class="action-dropdown-container" style="min-width: 170px;">
-            <div class="filter-dropdown" (click)="showCategoryDropdown = !showCategoryDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+            <div class="filter-dropdown" (click)="showCategoryDropdown = !showCategoryDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ getCategoryLabel() }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
             </div>
@@ -93,7 +93,7 @@ import { environment } from '../../../../../../environments/environment';
 
           <!-- Tracking Method Dropdown -->
           <div class="action-dropdown-container" style="min-width: 170px;">
-            <div class="filter-dropdown" (click)="showTrackingDropdown = !showTrackingDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+            <div class="filter-dropdown" (click)="showTrackingDropdown = !showTrackingDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ trackingControl.value === '' ? 'Tracking Method' : (trackingControl.value === 'AUTOMATIC' ? 'Automatic' : 'Manual') }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
             </div>
@@ -107,7 +107,7 @@ import { environment } from '../../../../../../environments/environment';
 
           <!-- Type Dropdown -->
           <div class="action-dropdown-container" style="min-width: 170px;">
-            <div class="filter-dropdown" (click)="showTypeDropdown = !showTypeDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+            <div class="filter-dropdown" (click)="showTypeDropdown = !showTypeDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ typeControl.value === '' ? 'Type' : (typeControl.value === 'ACHIEVEMENT' ? 'Achievement' : 'Budget') }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
             </div>
@@ -121,7 +121,7 @@ import { environment } from '../../../../../../environments/environment';
 
           <!-- Sort Dropdown -->
           <div class="action-dropdown-container" style="min-width: 150px;">
-            <div class="filter-dropdown" (click)="showSortDropdown = !showSortDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white;">
+            <div class="filter-dropdown" (click)="showSortDropdown = !showSortDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ getSortLabel() }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
             </div>
@@ -134,7 +134,7 @@ import { environment } from '../../../../../../environments/environment';
             </div>
           </div>
 
-          <button class="btn btn-outline" style="border-color: #cbd5e1; color: #64748b;" (click)="clearFilters()">
+          <button class="btn btn-outline" style="border-color: var(--border-color); color: var(--text-muted);" (click)="clearFilters()">
             <span class="material-icons" style="font-size: 1.1rem;">filter_alt_off</span> Clear Filters
           </button>
         </div>
@@ -142,7 +142,7 @@ import { environment } from '../../../../../../environments/environment';
       </div>
 
       <div class="tabs" style="align-items: center; padding-bottom: 4px;">
-        <button class="btn btn-outline" style="padding: 0.25rem 0.75rem; border-color: #cbd5e1; background: transparent; color: #64748b;" (click)="toggleSelectionMode()">
+        <button class="btn btn-outline" style="padding: 0.25rem 0.75rem; border-color: var(--border-color); background: transparent; color: var(--text-muted);" (click)="toggleSelectionMode()">
           <span class="material-icons" style="font-size: 1.1rem;">check_box</span> Select
         </button>
         <button class="tab" [class.active]="currentTab() === ''" (click)="setTab('')">All ({{ stats()?.totalChallenges || 0 }})</button>
@@ -153,10 +153,10 @@ import { environment } from '../../../../../../environments/environment';
         <button class="tab" [class.active]="currentTab() === 'ARCHIVED'" (click)="setTab('ARCHIVED')">Archived ({{ stats()?.archivedCount || 0 }})</button>
       </div>
 
-      <div class="error-banner" *ngIf="apiError()" style="display: flex; gap: 1rem; align-items: center; background: #fef2f2; padding: 1rem; color: #dc2626; border-radius: 8px; margin-bottom: 2rem;">
+      <div class="error-banner" *ngIf="apiError()" style="display: flex; gap: 1rem; align-items: center; background: rgba(239,68,68,0.1); padding: 1rem; color: #f87171; border-radius: 8px; margin-bottom: 2rem;">
         <span class="material-icons">error_outline</span>
         <p style="margin: 0">Failed to load Challenges. Please try again later.</p>
-        <button class="btn btn-outline" (click)="refresh()" style="margin-left: auto; border-color: #fca5a5; color: #dc2626">Retry</button>
+        <button class="btn btn-outline" (click)="refresh()" style="margin-left: auto; border-color: rgba(239,68,68,0.4); color: #f87171">Retry</button>
       </div>
 
       <div class="content-area">
@@ -182,7 +182,6 @@ import { environment } from '../../../../../../environments/environment';
                         (change)="toggleAll($event)" />
                     </th>
                     <th style="text-align: left; padding-left: calc(1rem + 40px + 0.75rem);">Challenge</th>
-                    <th>Category</th>
                     <th>Tracking Method</th>
                     <th>Type</th>
                     <th>Participants</th>
@@ -214,15 +213,7 @@ import { environment } from '../../../../../../environments/environment';
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <div class="cat-cell" *ngIf="c.trackingMethod === 'AUTOMATIC'">
-                          <span class="material-icons">{{ getCategoryIcon(c.linkedCategoryId) }}</span>
-                          <span>{{ getCarbonCategoryName(c.linkedCategoryId) }}</span>
-                        </div>
-                        <div class="cat-cell text-muted" *ngIf="c.trackingMethod !== 'AUTOMATIC'">
-                          <span>N/A</span>
-                        </div>
-                      </td>
+
                       <td>
                         <span class="badge" [ngClass]="c.trackingMethod === 'AUTOMATIC' ? 'badge-auto' : 'badge-manual'">
                           {{ c.trackingMethod | titlecase }}
@@ -240,10 +231,10 @@ import { environment } from '../../../../../../environments/environment';
                           {{ c.status === 'PENDING' ? 'Draft' : (c.status | titlecase) }}
                         </span>
                       </td>
-                      <td style="color: #0f172a; font-weight: 500; font-size: 0.85rem; white-space: nowrap;">
+                      <td style="color: var(--text-primary); font-weight: 500; font-size: 0.85rem; white-space: nowrap;">
                         {{ c.startDate | date:'dd MMM yyyy' }}
                       </td>
-                      <td style="color: #64748b; font-size: 0.85rem; white-space: nowrap;">
+                      <td style="color: var(--text-muted); font-size: 0.85rem; white-space: nowrap;">
                         {{ c.endDate | date:'dd MMM yyyy' }}
                       </td>
 
@@ -273,7 +264,7 @@ import { environment } from '../../../../../../environments/environment';
                       </td>
                     </tr>
                     <tr *ngIf="expandedRowId() === c.id" class="detail-row">
-                      <td colspan="11" style="padding: 0; background: #f8fafc">
+                      <td colspan="11" style="padding: 0; background: var(--bg-surface-hover)">
                         <app-library-participants [challengeId]="c.id"></app-library-participants>
                       </td>
                     </tr>
@@ -289,14 +280,14 @@ import { environment } from '../../../../../../environments/environment';
               <div class="page-buttons">
                 <button class="btn btn-icon" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)"><span class="material-icons">chevron_left</span></button>
                 <div class="page-numbers" style="display: flex; gap: 0.25rem">
-                  <button class="btn btn-icon" style="background: #f1f5f9; color: #0f172a">{{ currentPage() + 1 }}</button>
+                  <button class="btn btn-icon" style="background: var(--bg-surface-hover); color: var(--text-primary)">{{ currentPage() + 1 }}</button>
                 </div>
                 <button class="btn btn-icon" [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)"><span class="material-icons">chevron_right</span></button>
               </div>
               <div class="rows-per-page">
                 <span style="font-size: 0.875rem; color: #64748b; margin-right: 0.5rem">Rows per page:</span>
                 <div class="action-dropdown-container">
-                  <div class="filter-dropdown" (click)="showPageSizeDropdown = !showPageSizeDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.25rem 0.5rem 0.25rem 0.75rem; min-width: 60px; border-radius: 8px; border: 1px solid #e2e8f0; height: 32px;">
+                  <div class="filter-dropdown" (click)="showPageSizeDropdown = !showPageSizeDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
                     <span>{{ pageSizeControl.value }}</span>
                     <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8; margin-left: 0.25rem;">expand_more</span>
                   </div>
@@ -330,7 +321,7 @@ import { environment } from '../../../../../../environments/environment';
       font-family: 'Inter', sans-serif;
       background: transparent;
       padding: 1.5rem 1rem;
-      color: #0f172a;
+      color: var(--text-primary);
     }
     .header {
       display: flex;
@@ -338,8 +329,8 @@ import { environment } from '../../../../../../environments/environment';
       align-items: center;
       margin-bottom: 2rem;
     }
-    .header-left h1 { font-size: 1.875rem; font-weight: 700; margin: 0; color: #0f172a; letter-spacing: -0.02em; }
-    .header-left p { margin: 0.5rem 0 0; color: #64748b; font-size: 0.95rem; }
+    .header-left h1 { font-size: 1.875rem; font-weight: 700; margin: 0; color: var(--text-primary); letter-spacing: -0.02em; }
+    .header-left p { margin: 0.5rem 0 0; color: var(--text-muted); font-size: 0.95rem; }
     .header-right { display: flex; gap: 0.75rem; }
 
     .btn {
@@ -348,12 +339,12 @@ import { environment } from '../../../../../../environments/environment';
       border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s ease;
     }
     .btn:active { transform: translateY(1px); }
-    .btn-outline { background: white; border: 1px solid #cbd5e1; color: #334155; }
-    .btn-outline:hover { background: #f1f5f9; }
+    .btn-outline { background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-secondary); }
+    .btn-outline:hover { background: var(--bg-surface-hover); }
     .btn-primary { background: #059669; color: white; }
     .btn-primary:hover { background: #047857; }
-    .btn-icon { background: none; border: none; cursor: pointer; color: #64748b; padding: 0.4rem; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
-    .btn-icon:hover:not(:disabled) { background: #f1f5f9; color: #0f172a; }
+    .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0.4rem; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-icon:hover:not(:disabled) { background: var(--bg-surface-hover); color: var(--text-primary); }
     .btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Stats Grid */
@@ -365,9 +356,9 @@ import { environment } from '../../../../../../environments/environment';
     @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .stat-card {
-      background: white; border-radius: 12px; padding: 1.5rem 1.25rem;
+      background: var(--bg-surface); border-radius: 12px; padding: 1.5rem 1.25rem;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--border-color);
       display: flex; flex-direction: column; gap: 0.5rem;
       align-items: center; text-align: center;
       transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -382,9 +373,9 @@ import { environment } from '../../../../../../environments/environment';
       margin-bottom: 0.5rem;
     }
     .stat-icon .material-icons { font-size: 1.5rem; }
-    .stat-label { font-size: 0.8rem; color: #64748b; font-weight: 500; }
-    .stat-value { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem; }
-    .stat-trend { font-size: 0.75rem; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.25rem; color: #94a3b8; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .stat-trend { font-size: 0.75rem; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.25rem; color: var(--text-muted); }
     .stat-trend .positive { color: #16a34a; display: flex; align-items: center; }
     .stat-trend .negative { color: #ef4444; display: flex; align-items: center; }
     .stat-trend .material-icons { font-size: 0.875rem; }
@@ -399,51 +390,51 @@ import { environment } from '../../../../../../environments/environment';
     }
     .search-input input {
       width: 100%; padding: 0.5rem 1rem 0.5rem 2.5rem; border: 1px solid #cbd5e1;
-      border-radius: 8px; font-size: 0.875rem; color: #334155;
+      border-radius: 8px; font-size: 0.875rem; color: #000000ff;
     }
     .search-input input:focus { outline: none; border-color: #059669; }
     .search-input .material-icons { position: absolute; left: 0.75rem; color: #94a3b8; font-size: 1.25rem; }
-    .filter-btn { display: flex; align-items: center; gap: 0.25rem; font-weight: 500; color: #0f172a; }
+    .filter-btn { display: flex; align-items: center; justify-content: center; gap: 0.25rem; font-weight: 500; color: var(--text-primary); }
     .badge-count { background: #059669; color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; margin-left: 0.25rem; }
-    .date-range-btn { display: flex; align-items: center; gap: 0.5rem; color: #334155; font-weight: 500; font-size: 0.875rem; border-color: #cbd5e1; }
+    .date-range-btn { display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-weight: 500; font-size: 0.875rem; border-color: #cbd5e1; }
     .date-range-btn .material-icons { font-size: 1.1rem; color: #64748b; }
     .filter-dropdown {
       padding: 0.5rem 2.25rem 0.5rem 1rem; border: 1px solid #cbd5e1;
-      border-radius: 8px; background-color: white; font-size: 0.875rem; color: #334155; font-weight: 500;
+      border-radius: 8px; background-color: var(--bg-surface); font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;
       outline: none; cursor: pointer; appearance: none;
       background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E');
       background-repeat: no-repeat; background-position: right 0.5rem center;
     }
 
     .tabs {
-      display: flex; gap: 2rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.5rem;
+      display: flex; gap: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;
     }
     .tab {
       background: none; border: none; padding: 0.75rem 0; font-size: 0.9rem;
-      font-weight: 500; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent;
+      font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent;
       margin-bottom: -1px; transition: all 0.2s;
     }
-    .tab:hover { color: #0f172a; }
+    .tab:hover { color: var(--text-primary); }
     .tab.active { color: #059669; border-bottom-color: #059669; font-weight: 600; }
 
-    .table-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
+    .table-card { background: var(--bg-surface); border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
     .table-responsive { }
     .data-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .data-table th { padding: 0.5rem 0.25rem; background: white; color: #64748b; font-weight: 500; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; text-align: center; }
+    .data-table th { padding: 0.5rem 0.25rem; background: var(--bg-surface-hover); color: var(--text-muted); font-weight: 500; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; text-align: center; }
     .data-table th:first-child { border-top-left-radius: 12px; }
     .data-table th:last-child { border-top-right-radius: 12px; }
-    .data-table td { padding: 0.5rem 0.25rem; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.8rem; vertical-align: middle; text-align: center; }
+    .data-table td { padding: 0.5rem 0.25rem; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.8rem; vertical-align: middle; text-align: center; }
     .data-table tbody tr { cursor: pointer; }
-    .data-table tbody tr:hover { background: #f8fafc; }
+    .data-table tbody tr:hover { background: var(--bg-surface-hover); }
 
     .campaign-cell { display: flex; align-items: center; gap: 0.75rem; }
     .campaign-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .campaign-info { display: flex; flex-direction: column; max-width: 280px; }
-    .campaign-title { font-weight: 600; color: #0f172a; font-size: 0.9rem; margin-bottom: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .campaign-desc { font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .campaign-title { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .campaign-desc { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
-    .cat-cell { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 500; color: #0f172a; font-size: 0.85rem;}
-    .cat-cell .material-icons { font-size: 1.25rem; color: #64748b; }
+    .cat-cell { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 500; color: var(--text-primary); font-size: 0.85rem;}
+    .cat-cell .material-icons { font-size: 1.25rem; color: var(--text-muted); }
 
     .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
     .badge-auto { background: #ecfdf5; color: #059669; }
@@ -461,48 +452,50 @@ import { environment } from '../../../../../../environments/environment';
     .progress-cell { display: flex; flex-direction: column; gap: 0.375rem; width: 100px; margin: 0 auto; align-items: center; }
     .progress-text { font-size: 0.75rem; font-weight: 600; color: #0f172a; text-align: center; width: 100%; }
     .progress-bar-bg { width: 100%; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
-    .progress-bar-fill { height: 100%; background: #059669; border-radius: 999px; transition: width 0.3s ease; }
 
-    .custom-checkbox { width: 1.125rem; height: 1.125rem; border-radius: 4px; border: 1px solid #cbd5e1; appearance: none; cursor: pointer; background: white; position: relative; transition: all 0.2s; }
-    .custom-checkbox:checked { background: #059669; border-color: #059669; }
-    .custom-checkbox:checked::after { content: ''; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+    /* Pagination Details */
+    .pagination-details {
+      display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem;
+      background: var(--bg-surface); border-top: 1px solid var(--border-color); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+      color: var(--text-secondary); font-size: 0.875rem;
+    }
+    .rows-per-page { display: flex; align-items: center; }
+
+    .action-dropdown-container { position: relative; }
+    .action-dropdown {
+      position: absolute; right: 0; top: 100%; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding: 0.5rem 0;
+      z-index: 50; min-width: 180px; animation: fadeIn 0.15s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.5rem 1rem; border: none;
+      background: none; text-align: left; font-size: 0.875rem; color: var(--text-primary); cursor: pointer;
+    }
+    .dropdown-item:hover:not([disabled]) {
+      background: var(--bg-surface-hover);
+    }
+    .dropdown-item.active-item { background: var(--bg-surface-hover) !important; font-weight: 600; color: var(--text-primary); }
+    .dropdown-item[disabled] {
+      color: var(--text-muted);
+      cursor: not-allowed;
+      background: transparent;
+    }
+    .dropdown-item .material-icons { font-size: 1.25rem; color: #64748b; }
 
     .pagination-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1rem 1.5rem;
-      background: white;
+      background: var(--bg-surface);
       border-top: 1px solid #e2e8f0;
       border-bottom-left-radius: 12px;
       border-bottom-right-radius: 12px;
     }
     .page-info { color: #64748b; font-size: 0.875rem; }
     .page-buttons { display: flex; gap: 0.5rem; align-items: center; }
-    .rows-per-page { display: flex; align-items: center; }
-
-    .action-dropdown-container { position: relative; }
-    .action-dropdown {
-      position: absolute; right: 0; top: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 8px;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding: 0.5rem 0;
-      min-width: 160px; z-index: 50; animation: fadeIn 0.15s ease-out;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-    .dropdown-item {
-      display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.5rem 1rem; border: none;
-      background: none; text-align: left; font-size: 0.875rem; color: #334155; cursor: pointer;
-    }
-    .dropdown-item:hover:not([disabled]) {
-      background: #f1f5f9;
-    }
-    .dropdown-item.active-item { background: #e2e8f0 !important; font-weight: 600; color: #0f172a; }
-    .dropdown-item[disabled] {
-      color: #94a3b8;
-      cursor: not-allowed;
-      background: transparent;
-    }
-    .dropdown-item .material-icons { font-size: 1.25rem; color: #64748b; }
-
+    
     /* Make table scrollable if it still exceeds screen width */
     .table-responsive { width: 100%; overflow: visible !important; }
   `]

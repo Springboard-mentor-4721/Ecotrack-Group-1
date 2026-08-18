@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { AnalyticsFilter } from './analytics-filter/analytics-filter';
@@ -9,7 +9,8 @@ import { GoalsAnalytics } from './goals-analytics/goals-analytics';
 import { ChallengeAnalytics } from './challenge-analytics/challenge-analytics';
 import { SustainabilityAnalytics } from './sustainability-analytics/sustainability-analytics';
 import { ReportService } from '../../services/report.service';
-import { LucideAngularModule, FileText, Download, X } from 'lucide-angular';
+import { ToastService } from '../../shared/services/toast.service';
+import { LucideAngularModule, FileText, Download, X, ChevronDown } from 'lucide-angular';
 
 @Component({
   selector: 'app-reports',
@@ -33,10 +34,14 @@ export class ReportsComponent implements OnInit {
   FileTextIcon = FileText;
   DownloadIcon = Download;
   XIcon = X;
+  ChevronDownIcon = ChevronDown;
   
   showExportModal = false;
   pendingExportFormat: 'PDF' | 'EXCEL' | 'CSV' | null = null;
   currentTab: 'overview' | 'carbon' | 'goals' | 'challenges' | 'sustainability' | 'xp-activity' = 'overview';
+
+  isExportMenuOpen = false;
+  isExporting = false;
 
   startDate: string = '';
   endDate: string = '';
@@ -55,7 +60,8 @@ export class ReportsComponent implements OnInit {
 
   constructor(
     private reportService: ReportService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -102,12 +108,69 @@ export class ReportsComponent implements OnInit {
     document.body.style.overflow = '';
   }
 
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.relative')) {
+      this.isExportMenuOpen = false;
+    }
+  }
+
+  toggleExportMenu(event: Event) {
+    event.stopPropagation();
+    this.isExportMenuOpen = !this.isExportMenuOpen;
+  }
+
+  downloadOverviewReport(format: string) {
+    this.isExportMenuOpen = false;
+    this.isExporting = true;
+    
+    this.reportService.exportReportBlob('sustainability', format, this.startDate, this.endDate)
+      .subscribe({
+        next: (response) => {
+          this.isExporting = false;
+          if (!response.body) {
+            this.toastService.error('Failed to generate report.');
+            return;
+          }
+          
+          const blob = response.body;
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          
+          let filename = '';
+          const contentDisposition = response.headers.get('Content-Disposition');
+          if (contentDisposition && contentDisposition.includes('filename=')) {
+            const parts = contentDisposition.split('filename=');
+            if (parts.length > 1) {
+              filename = parts[1].split(';')[0].replace(/['"]/g, '');
+            }
+          }
+          
+          if (!filename) {
+            const ext = format === 'PDF' ? 'pdf' : format === 'CSV' ? 'zip' : 'xlsx';
+            filename = `EcoTrack_Overall_Report_${this.startDate}_to_${this.endDate}.${ext}`;
+          }
+          
+          a.download = filename;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.toastService.success('Report downloaded successfully');
+        },
+        error: (err) => {
+          this.isExporting = false;
+          console.error('Export failed', err);
+          this.toastService.error('Unable to generate the report. Please try again.');
+        }
+      });
+  }
+
   confirmExport(): void {
     if (!this.pendingExportFormat) return;
     const format = this.pendingExportFormat;
     this.closeExportModal();
 
-    // Will be handled in Phase 8, but preserving the structure
     // We can use the currentTab if it's one of the old ones, or block it for now
     let type = this.currentTab;
     if (type === 'overview' || type === 'xp-activity') {
@@ -116,16 +179,33 @@ export class ReportsComponent implements OnInit {
 
     this.reportService.exportReportBlob(type, format, this.startDate, this.endDate)
       .subscribe({
-        next: (blob) => {
+        next: (response) => {
+          if (!response.body) return;
+          const blob = response.body;
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          const ext = format === 'PDF' ? 'pdf' : format === 'CSV' ? 'csv' : 'xlsx';
-          a.download = `ecotrack-${this.currentTab}-report-${this.startDate}-to-${this.endDate}.${ext}`;
+          let filename = '';
+          const contentDisposition = response.headers.get('Content-Disposition');
+          if (contentDisposition && contentDisposition.includes('filename=')) {
+            const parts = contentDisposition.split('filename=');
+            if (parts.length > 1) {
+              filename = parts[1].split(';')[0].replace(/['"]/g, '');
+            }
+          }
+          if (!filename) {
+            const ext = format === 'PDF' ? 'pdf' : format === 'CSV' ? 'zip' : 'xlsx';
+            filename = `ecotrack-${this.currentTab}-report-${this.startDate}-to-${this.endDate}.${ext}`;
+          }
+          a.download = filename;
           a.click();
           window.URL.revokeObjectURL(url);
+          this.toastService.success('Report downloaded successfully');
         },
-        error: (err) => console.error('Export failed', err)
+        error: (err) => {
+          console.error('Export failed', err);
+          this.toastService.error('Unable to generate the report. Please try again.');
+        }
       });
   }
 }

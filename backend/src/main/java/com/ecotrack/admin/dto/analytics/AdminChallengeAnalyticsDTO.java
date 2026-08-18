@@ -21,6 +21,6 @@ public class AdminChallengeAnalyticsDTO {
     private long totalParticipants;
     private long xpDistributedInPeriod;
     
-    private List<AnalyticsDistributionDTO> categoryDistribution;
+    private List<AnalyticsDistributionDTO> metricDistribution;
     private List<AnalyticsDistributionDTO> statusDistribution;
 }

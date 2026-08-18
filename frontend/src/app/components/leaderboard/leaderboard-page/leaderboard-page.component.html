@@ -96,17 +96,17 @@
              [class.border-emerald]="currentUserId() === topThree()[1].userId"
              [class.bg-emerald-light]="currentUserId() === topThree()[1].userId"
              [class.bg-opacity-10]="currentUserId() === topThree()[1].userId"
-             style="width: 140px; border-bottom: 5px solid #94a3b8; margin-bottom: 10px; border-radius: 1rem;">
+             style="width: 180px; border-bottom: 5px solid #94a3b8; margin-bottom: 10px; border-radius: 1rem;">
           <div class="position-absolute top-0 start-50 translate-middle badge rounded-circle fw-bold fs-6 d-flex align-items-center justify-content-center border border-white shadow-sm" style="background-color: #94a3b8; color: white; width: 36px; height: 36px;">2</div>
           <img [src]="resolveImageUrl(topThree()[1].profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + topThree()[1].username + '&background=random&color=fff')"
                class="bg-surface rounded-circle shadow-sm border mb-2 mt-3"
                [class.border-emerald]="currentUserId() === topThree()[1].userId"
                style="width: 56px; height: 56px; object-fit: cover;"
                alt="User Avatar">
-          <h6 class="fw-bold text-dark mb-0 text-truncate w-100 px-1 d-flex flex-column align-items-center gap-1">
-            {{ topThree()[1].username }}
-            <span *ngIf="currentUserId() === topThree()[1].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">You</span>
-          </h6>
+          <div class="w-100 d-flex flex-column align-items-center gap-1 px-1">
+            <h6 class="fw-bold text-dark mb-0 text-truncate w-100 text-center">{{ topThree()[1].username }}</h6>
+            <span *ngIf="currentUserId() === topThree()[1].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669; padding: 0.2rem 0.5rem;">You</span>
+          </div>
           <div class="fs-xs text-muted mb-2 mt-1">Level {{ topThree()[1].level || 1 }}</div>
           <div class="fw-bold text-emerald">{{ (filterScore() === 'XP' ? topThree()[1].scoreValue : topThree()[1].metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore() === 'XP' ? 'XP' : 'Eco Score' }}</span></div>
         </div>
@@ -116,17 +116,17 @@
              [class.border-emerald]="currentUserId() === topThree()[0].userId"
              [class.bg-emerald-light]="currentUserId() === topThree()[0].userId"
              [class.bg-opacity-10]="currentUserId() === topThree()[0].userId"
-             style="width: 160px; border-bottom: 5px solid #eab308; z-index: 2; border-radius: 1rem;">
+             style="width: 200px; border-bottom: 5px solid #eab308; z-index: 2; border-radius: 1rem;">
           <div class="position-absolute top-0 start-50 translate-middle badge rounded-circle fw-bold fs-5 d-flex align-items-center justify-content-center border border-white shadow-sm" style="background-color: #eab308; color: white; width: 44px; height: 44px;">1</div>
           <img [src]="resolveImageUrl(topThree()[0].profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + topThree()[0].username + '&background=random&color=fff')"
                class="bg-surface rounded-circle shadow-sm border mb-2 mt-3"
                [class.border-emerald]="currentUserId() === topThree()[0].userId"
                style="width: 72px; height: 72px; object-fit: cover;"
                alt="User Avatar">
-          <h6 class="fw-bold text-dark mb-0 fs-5 text-truncate w-100 px-1 d-flex flex-column align-items-center gap-1">
-            {{ topThree()[0].username }}
-            <span *ngIf="currentUserId() === topThree()[0].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">You</span>
-          </h6>
+          <div class="w-100 d-flex flex-column align-items-center gap-1 px-1">
+            <h6 class="fw-bold text-dark mb-0 fs-5 text-truncate w-100 text-center">{{ topThree()[0].username }}</h6>
+            <span *ngIf="currentUserId() === topThree()[0].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669; padding: 0.2rem 0.5rem;">You</span>
+          </div>
           <div class="fs-xs text-muted mb-2 mt-1">Level {{ topThree()[0].level || 1 }}</div>
           <div class="fw-bold text-emerald fs-5">{{ (filterScore() === 'XP' ? topThree()[0].scoreValue : topThree()[0].metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore() === 'XP' ? 'XP' : 'Eco Score' }}</span></div>
         </div>
@@ -136,17 +136,17 @@
              [class.border-emerald]="currentUserId() === topThree()[2].userId"
              [class.bg-emerald-light]="currentUserId() === topThree()[2].userId"
              [class.bg-opacity-10]="currentUserId() === topThree()[2].userId"
-             style="width: 140px; border-bottom: 5px solid #f97316; margin-bottom: 10px; border-radius: 1rem;">
+             style="width: 180px; border-bottom: 5px solid #f97316; margin-bottom: 10px; border-radius: 1rem;">
           <div class="position-absolute top-0 start-50 translate-middle badge rounded-circle fw-bold fs-6 d-flex align-items-center justify-content-center border border-white shadow-sm" style="background-color: #f97316; color: white; width: 36px; height: 36px;">3</div>
           <img [src]="resolveImageUrl(topThree()[2].profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + topThree()[2].username + '&background=random&color=fff')"
                class="bg-surface rounded-circle shadow-sm border mb-2 mt-3"
                [class.border-emerald]="currentUserId() === topThree()[2].userId"
                style="width: 56px; height: 56px; object-fit: cover;"
                alt="User Avatar">
-          <h6 class="fw-bold text-dark mb-0 text-truncate w-100 px-1 d-flex flex-column align-items-center gap-1">
-            {{ topThree()[2].username }}
-            <span *ngIf="currentUserId() === topThree()[2].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">You</span>
-          </h6>
+          <div class="w-100 d-flex flex-column align-items-center gap-1 px-1">
+            <h6 class="fw-bold text-dark mb-0 text-truncate w-100 text-center">{{ topThree()[2].username }}</h6>
+            <span *ngIf="currentUserId() === topThree()[2].userId" class="badge text-white fs-xs rounded-pill" style="background-color: #059669; padding: 0.2rem 0.5rem;">You</span>
+          </div>
           <div class="fs-xs text-muted mb-2 mt-1">Level {{ topThree()[2].level || 1 }}</div>
           <div class="fw-bold text-emerald">{{ (filterScore() === 'XP' ? topThree()[2].scoreValue : topThree()[2].metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore() === 'XP' ? 'XP' : 'Eco Score' }}</span></div>
         </div>

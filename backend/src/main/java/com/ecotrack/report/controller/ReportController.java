@@ -36,6 +36,26 @@ public class ReportController {
     private final ExcelExportService excelExportService;
     private final CsvExportService csvExportService;
     private final UserRepository userRepository;
+    
+    private void populateUserIdentity(Object report, Long userId) {
+        userRepository.findById(userId).ifPresent(u -> {
+            String fullName = u.getName();
+            String email = u.getEmail();
+            if (report instanceof CarbonReportDTO r) {
+                r.setUserName(fullName);
+                r.setUserEmail(email);
+            } else if (report instanceof GoalReportDTO r) {
+                r.setUserName(fullName);
+                r.setUserEmail(email);
+            } else if (report instanceof ChallengeReportDTO r) {
+                r.setUserName(fullName);
+                r.setUserEmail(email);
+            } else if (report instanceof SustainabilityReportDTO r) {
+                r.setUserName(fullName);
+                r.setUserEmail(email);
+            }
+        });
+    }
 
 
     @PreAuthorize("hasRole('USER')")
@@ -70,16 +90,25 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
+            @RequestParam(defaultValue = "EMERALD") String theme,
             Authentication authentication) {
 
         Long userId = getUserId(authentication);
         CarbonReportDTO report = reportService.getCarbonReport(userId, startDate, endDate);
+        populateUserIdentity(report, userId);
+
+        com.ecotrack.report.design.ReportTheme reportTheme;
+        try {
+            reportTheme = com.ecotrack.report.design.ReportTheme.fromId(theme);
+        } catch (IllegalArgumentException e) {
+            reportTheme = com.ecotrack.report.design.ReportTheme.EMERALD;
+        }
 
         if (format == ExportFormat.PDF) {
-            byte[] pdf = pdfExportService.exportCarbonReport(report);
+            byte[] pdf = pdfExportService.exportCarbonReport(report, reportTheme);
             return createFileResponse(pdf, "ecotrack-carbon-report-" + startDate + "-to-" + endDate + ".pdf", MediaType.APPLICATION_PDF);
         } else if (format == ExportFormat.EXCEL) {
-            byte[] excel = excelExportService.exportCarbonReport(report);
+            byte[] excel = excelExportService.exportCarbonReport(report, reportTheme);
             return createFileResponse(excel, "ecotrack-carbon-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         } else if (format == ExportFormat.CSV) {
             byte[] csv = csvExportService.exportCarbonReport(report);
@@ -122,16 +151,25 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
+            @RequestParam(defaultValue = "EMERALD") String theme,
             Authentication authentication) {
 
         Long userId = getUserId(authentication);
         GoalReportDTO report = reportService.getGoalReport(userId, startDate, endDate);
+        populateUserIdentity(report, userId);
+
+        com.ecotrack.report.design.ReportTheme reportTheme;
+        try {
+            reportTheme = com.ecotrack.report.design.ReportTheme.fromId(theme);
+        } catch (IllegalArgumentException e) {
+            reportTheme = com.ecotrack.report.design.ReportTheme.EMERALD;
+        }
 
         if (format == ExportFormat.PDF) {
-            byte[] pdf = pdfExportService.exportGoalReport(report);
+            byte[] pdf = pdfExportService.exportGoalReport(report, reportTheme);
             return createFileResponse(pdf, "ecotrack-goals-report-" + startDate + "-to-" + endDate + ".pdf", MediaType.APPLICATION_PDF);
         } else if (format == ExportFormat.EXCEL) {
-            byte[] excel = excelExportService.exportGoalReport(report);
+            byte[] excel = excelExportService.exportGoalReport(report, reportTheme);
             return createFileResponse(excel, "ecotrack-goals-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         } else if (format == ExportFormat.CSV) {
             byte[] csv = csvExportService.exportGoalReport(report);
@@ -174,16 +212,25 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
+            @RequestParam(defaultValue = "EMERALD") String theme,
             Authentication authentication) {
 
         Long userId = getUserId(authentication);
         ChallengeReportDTO report = reportService.getChallengeReport(userId, startDate, endDate);
+        populateUserIdentity(report, userId);
+
+        com.ecotrack.report.design.ReportTheme reportTheme;
+        try {
+            reportTheme = com.ecotrack.report.design.ReportTheme.fromId(theme);
+        } catch (IllegalArgumentException e) {
+            reportTheme = com.ecotrack.report.design.ReportTheme.EMERALD;
+        }
 
         if (format == ExportFormat.PDF) {
-            byte[] pdf = pdfExportService.exportChallengeReport(report);
+            byte[] pdf = pdfExportService.exportChallengeReport(report, reportTheme);
             return createFileResponse(pdf, "ecotrack-challenges-report-" + startDate + "-to-" + endDate + ".pdf", MediaType.APPLICATION_PDF);
         } else if (format == ExportFormat.EXCEL) {
-            byte[] excel = excelExportService.exportChallengeReport(report);
+            byte[] excel = excelExportService.exportChallengeReport(report, reportTheme);
             return createFileResponse(excel, "ecotrack-challenges-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         } else if (format == ExportFormat.CSV) {
             byte[] csv = csvExportService.exportChallengeReport(report);
@@ -212,20 +259,31 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "JSON") ExportFormat format,
+            @RequestParam(defaultValue = "EMERALD") String theme,
             Authentication authentication) {
 
         Long userId = getUserId(authentication);
         SustainabilityReportDTO report = reportService.getSustainabilityReport(userId, startDate, endDate);
+        populateUserIdentity(report, userId);
+
+        com.ecotrack.report.design.ReportTheme reportTheme;
+        try {
+            reportTheme = com.ecotrack.report.design.ReportTheme.fromId(theme);
+        } catch (IllegalArgumentException e) {
+            reportTheme = com.ecotrack.report.design.ReportTheme.EMERALD;
+        }
 
         if (format == ExportFormat.PDF) {
-            byte[] pdf = pdfExportService.exportSustainabilityReport(report);
+            byte[] pdf = pdfExportService.exportSustainabilityReport(report, reportTheme);
             return createFileResponse(pdf, "ecotrack-sustainability-report-" + startDate + "-to-" + endDate + ".pdf", MediaType.APPLICATION_PDF);
         } else if (format == ExportFormat.EXCEL) {
-            byte[] excel = excelExportService.exportSustainabilityReport(report);
+            byte[] excel = excelExportService.exportSustainabilityReport(report, reportTheme);
             return createFileResponse(excel, "ecotrack-sustainability-report-" + startDate + "-to-" + endDate + ".xlsx", MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         } else if (format == ExportFormat.CSV) {
             byte[] csv = csvExportService.exportSustainabilityReport(report);
-            return createFileResponse(csv, "ecotrack-sustainability-report-" + startDate + "-to-" + endDate + ".csv", MediaType.valueOf("text/csv"));
+            String safeName = report.getUserName() != null ? report.getUserName().replaceAll("[^a-zA-Z0-9_-]", "") : "User";
+            String filename = "EcoTrack_Overall_Report_" + safeName + "_" + java.time.LocalDate.now().toString() + ".zip";
+            return createFileResponse(csv, filename, MediaType.valueOf("application/zip"));
         }
 
         return ResponseEntity.ok(report);

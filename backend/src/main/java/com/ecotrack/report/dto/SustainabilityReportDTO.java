@@ -14,19 +14,14 @@ import java.math.BigDecimal;
 public class SustainabilityReportDTO {
     private String startDate;
     private String endDate;
+
+    private CarbonReportDTO carbonReport;
+    private GoalReportDTO goalReport;
+    private ChallengeReportDTO challengeReport;
     
-    // Carbon
-    private BigDecimal totalEmissions;
-    
-    // Goals
-    private int totalGoals;
-    private int completedGoals;
-    
-    // Challenges
-    private int completedChallenges;
-    private long xpEarned;
-    
-    // Current state gamification
+    // Gamification
+    private String userName;
+    private String userEmail;
     private int currentEcoScore;
     private String currentRank;
 

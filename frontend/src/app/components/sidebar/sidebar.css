@@ -10,6 +10,34 @@
   z-index: 50;
 }
 
+/* Sidebar header — brand + close button */
+.sidebar-header {
+  height: 64px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.sidebar-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: var(--bg-surface-hover);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+.sidebar-close-btn:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
 .fw-500 {
   font-weight: 500;
 }
@@ -94,15 +122,4 @@
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
 }
 
-/* Responsive */
-@media (max-width: 991px) {
-  .app-sidebar {
-    position: fixed;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .app-sidebar.show {
-    transform: translateX(0);
-  }
-}
+/* Mobile drawer behaviour is handled by main-layout.component.ts */

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './sidebar.css'
 })
 export class SidebarComponent implements OnInit {
+  @Output() closeRequest = new EventEmitter<void>();
   userName = '';
   userEmail = '';
   userRole = '';

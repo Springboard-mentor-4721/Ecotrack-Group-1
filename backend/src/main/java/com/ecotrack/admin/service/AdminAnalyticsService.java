@@ -125,8 +125,8 @@ public class AdminAnalyticsService {
                 .upcomingChallenges(challengeRepository.countByStatus(com.ecotrack.challenge.enums.ChallengeStatus.UPCOMING))
                 .totalParticipants(challengeParticipantRepository.countParticipantsInPeriod(start, end))
                 .xpDistributedInPeriod(xpLedgerRepository.getPlatformXpInPeriodBySource(com.ecotrack.gamification.enums.XpSourceType.CHALLENGE_COMPLETED, start, end))
-                .categoryDistribution(challengeRepository.getCategoryDistribution())
-                .statusDistribution(challengeRepository.getStatusDistribution())
+                .metricDistribution(challengeRepository.getMetricDistribution(start, end))
+                .statusDistribution(challengeRepository.getStatusDistribution(start, end))
                 .build();
     }
 

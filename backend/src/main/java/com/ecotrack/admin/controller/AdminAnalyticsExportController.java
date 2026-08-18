@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -29,7 +30,13 @@ public class AdminAnalyticsExportController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/pdf")
-    public ResponseEntity<byte[]> exportPdf(AdminAnalyticsFilter filter) {
+    public ResponseEntity<byte[]> exportPdf(AdminAnalyticsFilter filter, @RequestParam(defaultValue = "EMERALD") String theme) {
+        com.ecotrack.report.design.ReportTheme reportTheme;
+        try {
+            reportTheme = com.ecotrack.report.design.ReportTheme.fromId(theme);
+        } catch (IllegalArgumentException e) {
+            reportTheme = com.ecotrack.report.design.ReportTheme.EMERALD;
+        }
         byte[] pdf = pdfService.exportPdf(
                 filter,
                 analyticsService.getOverview(),
@@ -37,7 +44,8 @@ public class AdminAnalyticsExportController {
                 analyticsService.getGamificationAnalytics(filter),
                 analyticsService.getBadgeAnalytics(filter),
                 analyticsService.getChallengeAnalytics(filter),
-                analyticsService.getSustainabilityAnalytics(filter)
+                analyticsService.getSustainabilityAnalytics(filter),
+                reportTheme
         );
         String filename = "ecotrack-admin-analytics-" + LocalDate.now() + ".pdf";
         return createFileResponse(pdf, filename, MediaType.APPLICATION_PDF);
@@ -45,7 +53,13 @@ public class AdminAnalyticsExportController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/excel")
-    public ResponseEntity<byte[]> exportExcel(AdminAnalyticsFilter filter) {
+    public ResponseEntity<byte[]> exportExcel(AdminAnalyticsFilter filter, @RequestParam(defaultValue = "EMERALD") String theme) {
+        com.ecotrack.report.design.ReportTheme reportTheme;
+        try {
+            reportTheme = com.ecotrack.report.design.ReportTheme.fromId(theme);
+        } catch (IllegalArgumentException e) {
+            reportTheme = com.ecotrack.report.design.ReportTheme.EMERALD;
+        }
         byte[] excel = excelService.exportExcel(
                 filter,
                 analyticsService.getOverview(),
@@ -53,7 +67,8 @@ public class AdminAnalyticsExportController {
                 analyticsService.getGamificationAnalytics(filter),
                 analyticsService.getBadgeAnalytics(filter),
                 analyticsService.getChallengeAnalytics(filter),
-                analyticsService.getSustainabilityAnalytics(filter)
+                analyticsService.getSustainabilityAnalytics(filter),
+                reportTheme
         );
         String filename = "ecotrack-admin-analytics-" + LocalDate.now() + ".xlsx";
         return createFileResponse(excel, filename, MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));

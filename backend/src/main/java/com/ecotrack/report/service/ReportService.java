@@ -628,10 +628,6 @@ public class ReportService {
                 progressPct = p.getProgress().divide(BigDecimal.valueOf(p.getChallenge().getTargetValue()), 4, RoundingMode.HALF_UP)
                         .multiply(BigDecimal.valueOf(100));
             }
-            if (progressPct.compareTo(new BigDecimal("100")) > 0) {
-                progressPct = new BigDecimal("100");
-            }
-
             return ChallengePerformancePageDTO.ChallengePerformanceDTO.builder()
                     .challengeId(p.getChallenge().getId())
                     .title(p.getChallenge().getTitle())
@@ -851,11 +847,9 @@ public class ReportService {
         return SustainabilityReportDTO.builder()
                 .startDate(startDate.format(DATE_FORMATTER))
                 .endDate(endDate.format(DATE_FORMATTER))
-                .totalEmissions(carbon.getTotalEmissions())
-                .totalGoals(goals.getTotalGoals())
-                .completedGoals(goals.getCompletedGoals())
-                .completedChallenges(challenges.getCompletedChallenges())
-                .xpEarned(challenges.getTotalXpEarned())
+                .carbonReport(carbon)
+                .goalReport(goals)
+                .challengeReport(challenges)
                 .currentEcoScore(profile != null && profile.getCurrentEcoScore() != null ? profile.getCurrentEcoScore().intValue() : 0)
                 .currentRank(profile != null ? "Level " + profile.getCurrentLevel() : "NONE")
                 .xpTransactions(txList)

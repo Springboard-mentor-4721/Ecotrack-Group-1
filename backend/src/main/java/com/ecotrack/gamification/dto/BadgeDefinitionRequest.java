@@ -27,7 +27,6 @@ public class BadgeDefinitionRequest {
     @NotBlank(message = "Description cannot be blank")
     private String description;
 
-    @NotBlank(message = "Rarity cannot be blank")
     @Size(max = 20, message = "Rarity must not exceed 20 characters")
     private String rarity;
 

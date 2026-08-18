@@ -14,6 +14,8 @@ import java.util.List;
 public class ChallengeReportDTO {
     private String startDate;
     private String endDate;
+    private String userName;
+    private String userEmail;
     private int totalParticipated;
     private int completedChallenges;
     private long totalXpEarned;

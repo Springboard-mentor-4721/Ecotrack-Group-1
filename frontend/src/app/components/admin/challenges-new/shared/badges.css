@@ -6,9 +6,9 @@
   font-weight: 600;
   text-transform: uppercase;
 }
-.status-badge.active { background: #d1fae5; color: #065f46; }
-.status-badge.pending { background: #fef3c7; color: #92400e; }
-.status-badge.upcoming { background: #dbeafe; color: #1e40af; }
-.status-badge.completed { background: #ede9fe; color: #5b21b6; }
-.status-badge.closed { background: #fee2e2; color: #991b1b; }
-.status-badge.archived { background: #f1f5f9; color: #475569; }
+.status-badge.active { background: rgba(16, 185, 129, 0.15); color: #059669; }
+.status-badge.pending { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+.status-badge.upcoming { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
+.status-badge.completed { background: rgba(139, 92, 246, 0.15); color: #7c3aed; }
+.status-badge.closed { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+.status-badge.archived { background: var(--bg-surface-hover); color: var(--text-muted); }

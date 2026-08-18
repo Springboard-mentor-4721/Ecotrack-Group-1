@@ -103,6 +103,14 @@ public class BadgeService {
         badgeRepository.save(badge);
     }
 
+    @Transactional
+    public void enableBadge(Long id) {
+        Badge badge = badgeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Badge not found with ID: " + id));
+        badge.setIsHidden(false);
+        badgeRepository.save(badge);
+    }
+
     @Transactional(readOnly = true)
     public Page<AdminBadgeDTO> getAllBadges(BadgeType type, Pageable pageable) {
         if (type != null) {

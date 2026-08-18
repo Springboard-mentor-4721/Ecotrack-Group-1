@@ -5,7 +5,7 @@ import { AdminService } from '../../../../services/admin.service';
 import { AdminBadge, BadgeDefinitionRequest } from '../../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
 
-import { LucideAngularModule, Edit, EyeOff, Plus, Award, Target } from 'lucide-angular';
+import { LucideAngularModule, Edit, EyeOff, Eye, Plus, Award, Target } from 'lucide-angular';
 
 import { BadgeEmblemComponent } from '../../../../shared/components/badge-emblem/badge-emblem.component';
 
@@ -37,6 +37,7 @@ export class AdminBadgeListComponent implements OnInit {
   // Icons
   EditIcon = Edit;
   DisableIcon = EyeOff;
+  EnableIcon = Eye;
   PlusIcon = Plus;
   AwardIcon = Award;
   TargetIcon = Target;
@@ -276,6 +277,27 @@ export class AdminBadgeListComponent implements OnInit {
         error: (err) => {
           console.error('Error disabling badge:', err);
           this.errorMessage.set('Failed to disable badge.');
+          setTimeout(() => {
+            this.errorMessage.set('');
+          }, 3000);
+        }
+      });
+    }
+  }
+
+  enableBadge(id: number): void {
+    if (confirm('Are you sure you want to enable this badge? It will become visible to users again.')) {
+      this.adminService.enableBadge(id).subscribe({
+        next: () => {
+          this.successMessage.set('Badge successfully enabled.');
+          this.loadBadges(this.currentPage());
+          setTimeout(() => {
+            this.successMessage.set('');
+          }, 3000);
+        },
+        error: (err) => {
+          console.error('Error enabling badge:', err);
+          this.errorMessage.set('Failed to enable badge.');
           setTimeout(() => {
             this.errorMessage.set('');
           }, 3000);

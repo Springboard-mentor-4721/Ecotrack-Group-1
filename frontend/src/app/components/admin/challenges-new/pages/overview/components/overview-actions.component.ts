@@ -57,30 +57,30 @@ import { CommonModule } from '@angular/common';
       border-radius: 12px;
       text-decoration: none;
       transition: all 0.2s;
-      color: #0f172a;
-      background: var(--surface-card, #ffffff);
+      color: var(--text-primary);
+      background: var(--bg-surface);
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      border: 1px solid transparent;
+      border: 1px solid var(--border-color);
     }
     .action-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
     .action-card.primary {
-      background: linear-gradient(135deg, #eff6ff, #dbeafe);
-      border-color: #bfdbfe;
+      background: rgba(59, 130, 246, 0.08);
+      border-color: rgba(59, 130, 246, 0.25);
     }
     .action-card.primary .material-icons { color: #2563eb; }
     
     .action-card.secondary {
-      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-      border-color: #e2e8f0;
+      background: var(--bg-surface-hover);
+      border-color: var(--border-color);
     }
-    .action-card.secondary .material-icons { color: #475569; }
+    .action-card.secondary .material-icons { color: var(--text-muted); }
     
     .action-card.tertiary {
-      background: linear-gradient(135deg, #faf5ff, #f3e8ff);
-      border-color: #e9d5ff;
+      background: rgba(168, 85, 247, 0.08);
+      border-color: rgba(168, 85, 247, 0.25);
     }
     .action-card.tertiary .material-icons { color: #9333ea; }
     
@@ -95,7 +95,7 @@ import { CommonModule } from '@angular/common';
     .action-text p {
       margin: 0;
       font-size: 0.875rem;
-      color: #64748b;
+      color: var(--text-muted);
     }
   `]
 })

@@ -77,29 +77,30 @@ import { LoadingSkeletonComponent } from '../../../../../../shared/ui/loading-sk
   styles: [`
     .participants-panel {
       padding: 2rem;
-      background: #ffffff;
-      border-top: 1px solid #e2e8f0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-color);
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
       border-radius: 12px;
       margin-top: 1rem;
     }
     .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    .panel-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; letter-spacing: -0.025em; }
-    .summary-text { margin: 0; color: #64748b; font-size: 0.95rem; font-weight: 500; }
+    .panel-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.025em; }
+    .summary-text { margin: 0; color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
     
-    .table-responsive { width: 100%; overflow-x: auto; background: white; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .table-responsive { width: 100%; overflow-x: auto; background: var(--bg-surface); border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .participants-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
-    .participants-table th { padding: 1rem 1.25rem; background: #f8fafc; color: #64748b; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; }
-    .participants-table td { padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.9rem; vertical-align: middle; }
-    .participants-table tbody tr:hover { background-color: #f8fafc; transition: background-color 0.2s ease; }
+    .participants-table th { padding: 1rem 1.25rem; background: var(--bg-surface-hover); color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-color); }
+    .participants-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.9rem; vertical-align: middle; }
+    .participants-table tbody tr:hover { background-color: var(--bg-surface-hover); transition: background-color 0.2s ease; }
     .participants-table tr:last-child td { border-bottom: none; }
     
-    .user-info { display: flex; align-items: center; gap: 0.75rem; font-weight: 500; color: #0f172a; }
-    .avatar-placeholder { width: 32px; height: 32px; border-radius: 50%; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.875rem; }
-    .progress-val { font-variant-numeric: tabular-nums; font-weight: 500; color: #1e293b; }
-    .date-cell { color: #64748b; }
+    .user-info { display: flex; align-items: center; gap: 0.75rem; font-weight: 500; color: var(--text-primary); }
+    .avatar-placeholder { width: 32px; height: 32px; border-radius: 50%; background: var(--color-purple-light); color: var(--color-purple); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.875rem; }
+    .progress-val { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--text-primary); }
+    .date-cell { color: var(--text-muted); }
     
     .status-badge { font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 9999px; font-weight: 600; letter-spacing: 0.025em; display: inline-flex; align-items: center; justify-content: center; }
+    /* In dark theme, these will need adjustments or variables can be used. For now, keep as is or use global status colors if available. Assuming these light colors are okay or will be overridden by global dark theme rules if needed. */
     .status-badge.active { background: #dcfce3; color: #166534; }
     .status-badge.completed { background: #dbeafe; color: #1e40af; }
     .status-badge.dropped { background: #fee2e2; color: #991b1b; }
@@ -107,15 +108,15 @@ import { LoadingSkeletonComponent } from '../../../../../../shared/ui/loading-sk
     .status-badge.within_budget { background: #e0e7ff; color: #3730a3; }
     .status-badge.exceeded { background: #ffedd5; color: #9a3412; }
     
-    .pagination-controls { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: #f8fafc; border-top: 1px solid #e2e8f0; justify-content: flex-end; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
-    .pagination-controls button { padding: 0.5rem 1rem; border: 1px solid #cbd5e1; background: white; border-radius: 6px; cursor: pointer; color: #475569; font-weight: 500; transition: all 0.2s; }
-    .pagination-controls button:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; color: #1e293b; }
+    .pagination-controls { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: var(--bg-surface-hover); border-top: 1px solid var(--border-color); justify-content: flex-end; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
+    .pagination-controls button { padding: 0.5rem 1rem; border: 1px solid var(--border-color); background: var(--bg-surface); border-radius: 6px; cursor: pointer; color: var(--text-secondary); font-weight: 500; transition: all 0.2s; }
+    .pagination-controls button:hover:not(:disabled) { background: var(--bg-surface-hover); border-color: var(--text-muted); color: var(--text-primary); }
     .pagination-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .page-info { font-size: 0.9rem; color: #64748b; font-weight: 500; }
+    .page-info { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
 
-    .error-banner { color: #991b1b; background: #fee2e2; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-    .error-banner button { background: white; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; color: #991b1b; padding: 0.35rem 1rem; font-weight: 600; transition: all 0.2s; }
-    .error-banner button:hover { background: #fef2f2; }
+    .error-banner { color: var(--text-primary); background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+    .error-banner button { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; color: var(--text-primary); padding: 0.35rem 1rem; font-weight: 600; transition: all 0.2s; }
+    .error-banner button:hover { background: var(--bg-surface-hover); }
   `]
 })
 export class LibraryParticipantsComponent implements OnInit {

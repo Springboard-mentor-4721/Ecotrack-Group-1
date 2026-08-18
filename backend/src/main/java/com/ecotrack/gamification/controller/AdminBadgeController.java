@@ -38,6 +38,12 @@ public class AdminBadgeController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/enable")
+    public ResponseEntity<Void> enableBadge(@PathVariable Long id) {
+        badgeService.enableBadge(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     public ResponseEntity<Page<AdminBadgeDTO>> getAdminBadges(
             @RequestParam(required = false) com.ecotrack.gamification.enums.BadgeType type,

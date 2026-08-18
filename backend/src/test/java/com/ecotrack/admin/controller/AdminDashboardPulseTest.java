@@ -23,6 +23,12 @@ public class AdminDashboardPulseTest {
     private MockMvc mockMvc;
 
     @MockBean
+    private com.ecotrack.security.jwt.JwtService jwtService;
+
+    @MockBean
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    @MockBean
     private AdminService adminService;
 
     @MockBean

@@ -16,6 +16,8 @@ import java.util.Map;
 public class GoalReportDTO {
     private String startDate;
     private String endDate;
+    private String userName;
+    private String userEmail;
     private int totalGoals;
     private int activeGoals;
     private int completedGoals;

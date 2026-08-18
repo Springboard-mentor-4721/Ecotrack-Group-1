@@ -11,13 +11,13 @@
 .tracking-wide { letter-spacing: 0.025em; }
 .fs-xs { font-size: 0.75rem; }
 .fw-black { font-weight: 900; }
-.text-slate-muted { color: #64748b; }
+.text-slate-muted { color: var(--text-muted); }
 .text-teal { color: #0d9488; }
 .backdrop-blur { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 
 /* Section Headers */
 .section-header {
-  border-bottom: 2px solid rgba(0,0,0,0.03);
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 0.75rem;
 }
 
@@ -29,7 +29,7 @@
   box-shadow: 0 10px 40px -10px rgba(13, 148, 136, 0.08);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border-color);
 }
 
 .btn-ecosystem-primary {
@@ -51,50 +51,217 @@
   box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
 }
 
-/* Refined EcoScore Visual */
-.ecoscore-refined-container {
-  width: 280px;
-  height: 280px;
+/* =============================================
+   PREMIUM ECO SCORE WIDGET
+   ============================================= */
+
+/* Outer container — positions all layers */
+.ecoscore-premium-widget {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  /* Entrance animation */
+  animation: ecoscore-entrance 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ecoscore-premium-widget:hover .ecoscore-disc {
+  transform: translateY(-8px) scale(1.04);
+  box-shadow:
+    0 32px 64px -8px rgba(0,0,0,0.20),
+    0 0 0 2px rgba(255,255,255,0.15),
+    0 0 40px -5px rgba(0,0,0,0.08);
+}
+.ecoscore-premium-widget:hover .ecoscore-halo-ring {
+  animation-duration: 3.5s;
+  opacity: 1;
+  border-width: 4px;
+}
+.ecoscore-premium-widget:hover .ecoscore-glow-ring {
+  opacity: 0.65;
+  transform: scale(1.12);
 }
 
-.score-circle-border {
+@keyframes ecoscore-entrance {
+  0%   { opacity: 0; transform: scale(0.85) translateY(20px); filter: blur(6px); }
+  100% { opacity: 1; transform: scale(1) translateY(0);     filter: blur(0); }
+}
+
+/* Ambient glow blob behind the circle */
+.ecoscore-glow-ring {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: -28px;
   border-radius: 50%;
-  background: conic-gradient(from 180deg, currentColor 0%, rgba(255,255,255,0) 50%, currentColor 100%);
-  opacity: 0.15;
-  animation: slow-spin 15s linear infinite;
+  filter: blur(38px);
+  opacity: 0.55;             /* stronger in light theme */
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  animation: ecoscore-breathe 6s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes ecoscore-breathe {
+  0%   { transform: scale(0.90); opacity: 0.45; }
+  100% { transform: scale(1.10); opacity: 0.68; }
 }
 
-@keyframes slow-spin {
-  0% { transform: rotate(0deg); }
+/* Static grey track ring — always visible, sits behind the spinning halo */
+.ecoscore-track-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 3px solid var(--border-color);
+  opacity: 0.5;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Rotating segmented halo — color comes from text-orange-500 etc. via currentColor */
+.ecoscore-halo-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  z-index: 2;
+  animation: ecoscore-spin 9s linear infinite;
+  pointer-events: none;
+  /* background uses the text color class (currentColor) */
+  background: currentColor;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+  /* Segmented arc mask */
+  mask-image: conic-gradient(
+    rgba(0,0,0,1) 0deg 70deg,
+    rgba(0,0,0,0) 70deg 90deg,
+    rgba(0,0,0,1) 90deg 160deg,
+    rgba(0,0,0,0) 160deg 180deg,
+    rgba(0,0,0,1) 180deg 250deg,
+    rgba(0,0,0,0) 250deg 270deg,
+    rgba(0,0,0,1) 270deg 340deg,
+    rgba(0,0,0,0) 340deg 360deg
+  );
+  -webkit-mask-image: conic-gradient(
+    rgba(0,0,0,1) 0deg 70deg,
+    rgba(0,0,0,0) 70deg 90deg,
+    rgba(0,0,0,1) 90deg 160deg,
+    rgba(0,0,0,0) 160deg 180deg,
+    rgba(0,0,0,1) 180deg 250deg,
+    rgba(0,0,0,0) 250deg 270deg,
+    rgba(0,0,0,1) 270deg 340deg,
+    rgba(0,0,0,0) 340deg 360deg
+  );
+  /* Thin ring: mask out the inside so only a border ring shows */
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.ecoscore-premium-widget:hover .ecoscore-halo-ring {
+  animation-duration: 3.5s;
+  opacity: 1;
+}
+@keyframes ecoscore-spin {
+  0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.ecoscore-ambient-glow {
-  filter: blur(40px);
-  animation: slow-breathe 8s ease-in-out infinite alternate;
-  width: 120%;
-  height: 120%;
+/* Main inner disc */
+.ecoscore-disc {
+  position: relative;
+  z-index: 2;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* Light-mode friendly shadow — visible on both white and dark bg */
+  box-shadow:
+    0 4px 6px -2px rgba(0,0,0,0.06),
+    0 12px 36px -8px rgba(0,0,0,0.14),
+    0 24px 60px -12px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.80),
+    inset 0 -1px 0 rgba(0,0,0,0.04);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
 }
 
-@keyframes slow-breathe {
-  0% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.95); }
-  100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.05); }
+/* No white highlight ::before — theme uses bg-surface which already adapts */
+.ecoscore-disc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* Only show in light theme — dark theme hides it */
+  background: radial-gradient(circle at 38% 22%, rgba(255,255,255,0.22), transparent 55%);
+  pointer-events: none;
+}
+[data-theme="dark"] .ecoscore-disc::before {
+  background: none;
 }
 
-/* Score Reveal Animation */
-.score-value-refined {
-  font-size: 4.5rem;
-  letter-spacing: -0.05em;
-  animation: score-reveal 1s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-  animation-delay: 0.1s;
+
+
+/* Text layers */
+.ecoscore-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
 }
 
-@keyframes score-reveal {
-  0% { opacity: 0; transform: translateY(10px) scale(0.9); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+.ecoscore-value {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 4px;
+  animation: ecoscore-value-pop 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: 0.25s;
 }
+@keyframes ecoscore-value-pop {
+  0%   { opacity: 0; transform: scale(0.7) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ecoscore-status {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 10px;
+}
+
+/* Grade pill (A+, A, B, C) */
+.ecoscore-grade-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ecoscore-premium-widget,
+  .ecoscore-glow-ring,
+  .ecoscore-halo-ring,
+  .ecoscore-value,
+  .ecoscore-dot {
+    animation: none !important;
+  }
+  .ecoscore-premium-widget:hover .ecoscore-disc {
+    transform: none;
+  }
+}
+
+
 
 /* Hero Entrance Animations */
 .hero-text-reveal {
@@ -113,39 +280,28 @@
   100% { opacity: 1; filter: blur(0); transform: scale(1); }
 }
 
-/* Prefers Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  .score-circle-border,
-  .ecoscore-ambient-glow,
-  .score-value-refined,
-  .hero-text-reveal,
-  .hero-visual-reveal {
-    animation: none !important;
-  }
-}
-
 /* Horizontal Metrics Bar */
 .supporting-metrics-bar {
-  border: 1px solid rgba(0,0,0,0.04);
+  border: 1px solid var(--border-color);
 }
 .metric-label {
   font-size: 0.85rem;
   text-transform: uppercase;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-muted);
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
 }
 .metric-value {
   font-size: 1.5rem;
   font-weight: 900;
-  color: #0f172a;
+  color: var(--text-primary);
   line-height: 1;
 }
 .metric-divider {
   width: 1px;
   height: 30px;
-  background-color: #e2e8f0;
+  background-color: var(--border-color);
 }
 
 @keyframes pulse-glow {
@@ -155,13 +311,13 @@
 
 /* 2. IMPACT SECTION */
 .impact-feature-card {
-  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-color);
 }
 
 /* 3. LIST STYLES (History) */
 .history-list-item {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-color);
   padding: 1rem 0;
 }
 .history-list-item:last-child {

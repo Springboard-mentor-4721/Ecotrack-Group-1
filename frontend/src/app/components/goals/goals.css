@@ -17,10 +17,10 @@
 .goal-stat-card .stat-label {
   font-size: 13.5px !important;
   font-weight: 500 !important;
-  color: var(--bs-gray-600) !important;
+  color: var(--text-muted) !important;
 }
-[data-bs-theme="dark"] .goal-stat-card .stat-label {
-  color: var(--bs-gray-400) !important;
+[data-theme="dark"] .goal-stat-card .stat-label {
+  color: var(--text-muted) !important;
 }
 .goal-stat-card .stat-icon-wrapper {
   width: 40px;
@@ -28,9 +28,9 @@
   border-radius: 50%;
   background-color: color-mix(in srgb, currentColor 12%, transparent);
 }
-.goal-stat-primary { border-top: 3px solid var(--bs-primary) !important; }
-.goal-stat-primary .stat-number { color: var(--bs-dark) !important; }
-[data-bs-theme="dark"] .goal-stat-primary .stat-number { color: var(--bs-white) !important; }
+.goal-stat-primary { border-top: 3px solid var(--color-emerald) !important; }
+.goal-stat-primary .stat-number { color: var(--text-primary) !important; }
+[data-theme="dark"] .goal-stat-primary .stat-number { color: var(--text-primary) !important; }
 .goal-stat-info { border-top: 3px solid var(--bs-info) !important; }
 .goal-stat-secondary { border-top: 3px solid var(--bs-secondary) !important; }
 .goal-stat-success { border-top: 3px solid var(--bs-success) !important; }

@@ -66,7 +66,7 @@ import { RouterModule } from '@angular/router';
   `,
   styles: [`
     .recent-section {
-      background: var(--surface-card, #ffffff);
+      background: var(--bg-surface);
       border-radius: 12px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
       padding: 1.5rem;
@@ -102,20 +102,20 @@ import { RouterModule } from '@angular/router';
     }
     .challenges-table th {
       padding: 1rem;
-      background: #f8fafc;
-      color: #64748b;
+      background: var(--bg-surface-hover);
+      color: var(--text-muted);
       font-weight: 600;
       font-size: 0.875rem;
-      border-bottom: 2px solid #e2e8f0;
+      border-bottom: 2px solid var(--border-color);
     }
     .challenges-table td {
       padding: 1rem;
-      border-bottom: 1px solid #e2e8f0;
-      color: #334155;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
       font-size: 0.9375rem;
     }
     .challenges-table tbody tr:hover {
-      background: #f8fafc;
+      background: var(--bg-surface-hover);
     }
     .challenges-table tbody tr.archived {
       opacity: 0.6;
@@ -139,14 +139,14 @@ import { RouterModule } from '@angular/router';
       background: none;
       border: none;
       cursor: pointer;
-      color: #64748b;
+      color: var(--text-muted);
       padding: 0.25rem;
       border-radius: 4px;
       transition: background 0.2s;
     }
     .btn-icon:hover {
-      background: #e2e8f0;
-      color: #0f172a;
+      background: var(--bg-surface-hover);
+      color: var(--text-primary);
     }
     
     .loading-state, .empty-state {
@@ -156,7 +156,7 @@ import { RouterModule } from '@angular/router';
     }
     .skeleton-row {
       height: 20px;
-      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background: linear-gradient(90deg, var(--bg-surface-hover) 25%, var(--border-color) 50%, var(--bg-surface-hover) 75%);
       background-size: 200% 100%;
       animation: loading 1.5s infinite;
       margin-bottom: 1rem;

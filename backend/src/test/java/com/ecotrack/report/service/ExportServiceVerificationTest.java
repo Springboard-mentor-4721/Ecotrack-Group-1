@@ -21,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ExportServiceVerificationTest {
 
-    private final PdfExportService pdfExportService = new PdfExportService();
+    private final com.ecotrack.report.design.ReportChartService chartService = new com.ecotrack.report.design.ReportChartService();
+    private final PdfExportService pdfExportService = new PdfExportService(chartService);
     private final ExcelExportService excelExportService = new ExcelExportService();
 
     @Test
@@ -42,7 +43,7 @@ class ExportServiceVerificationTest {
                 ))
                 .build();
 
-        byte[] pdfBytes = pdfExportService.exportCarbonReport(dto);
+        byte[] pdfBytes = pdfExportService.exportCarbonReport(dto, com.ecotrack.report.design.ReportTheme.EMERALD);
         assertTrue(pdfBytes.length > 0);
 
         PdfReader reader = new PdfReader(pdfBytes);
@@ -70,7 +71,7 @@ class ExportServiceVerificationTest {
                 ))
                 .build();
 
-        byte[] excelBytes = excelExportService.exportCarbonReport(dto);
+        byte[] excelBytes = excelExportService.exportCarbonReport(dto, com.ecotrack.report.design.ReportTheme.EMERALD);
         assertTrue(excelBytes.length > 0);
 
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(excelBytes))) {

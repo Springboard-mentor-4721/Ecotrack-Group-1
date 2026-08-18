@@ -1,0 +1,56 @@
+/* Reports Page - Theme-aware styles */
+
+/* Export Buttons */
+.export-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.export-btn:hover {
+  background: var(--bg-surface-hover);
+}
+
+/* Export Dropdown */
+.export-dropdown {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+}
+
+.export-dropdown-header {
+  background: var(--bg-surface-hover);
+}
+
+.export-dropdown-item {
+  color: var(--text-primary);
+}
+
+/* Export Modal */
+.export-modal-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+}
+
+.export-modal-close {
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+}
+
+.export-modal-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+.export-modal-cancel {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 2px solid var(--border-color);
+}
+
+.export-modal-cancel:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-surface-hover);
+}

@@ -1,12 +1,12 @@
-/* Premium Modal Styles */
+/* Premium Modal Styles - Theme-Aware */
 
 .bg-glass {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-surface);
   backdrop-filter: blur(10px);
 }
 
 .shadow-premium {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--border-color);
 }
 
 .bg-gradient-premium {
@@ -22,20 +22,20 @@
 }
 
 .btn-premium-action {
-  background: linear-gradient(145deg, #ffffff, #f3f4f6);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   color: #059669;
   border-radius: 1.5rem;
   padding: 1.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-premium-action:hover:not([disabled]) {
   transform: translateY(-4px) scale(1.02);
   border-color: #10b981;
   box-shadow: 0 12px 20px -5px rgba(16, 185, 129, 0.3);
-  background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+  background: var(--color-emerald-light);
 }
 
 .btn-premium-action:active:not([disabled]) {
@@ -43,17 +43,18 @@
 }
 
 .form-control-premium {
-  background-color: #f8fafc;
+  background-color: var(--bg-surface-hover);
   border: 2px solid transparent;
   border-radius: 1rem;
   padding: 1rem 1.5rem;
   font-size: 1.1rem;
+  color: var(--text-primary);
   transition: all 0.3s ease;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .form-control-premium:focus {
-  background-color: #ffffff;
+  background-color: var(--bg-surface);
   border-color: #10b981;
   box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
   outline: none;
@@ -79,7 +80,7 @@
 
 .btn-premium-submit:disabled {
   opacity: 0.6;
-  background: #cbd5e1;
+  background: var(--text-muted);
   box-shadow: none;
   cursor: not-allowed;
 }
@@ -90,12 +91,14 @@
   font-weight: 600;
   font-size: 1.1rem;
   transition: all 0.2s ease;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  background: var(--bg-surface);
 }
 
 .btn-premium-cancel:hover {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
+  background-color: var(--bg-surface-hover);
+  border-color: var(--text-muted);
 }
 
 .tracking-wide {
@@ -105,8 +108,8 @@
 .input-group-premium {
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
 }
 

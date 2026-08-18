@@ -58,7 +58,7 @@ export interface AdminChallengeAnalyticsDTO {
   completedChallenges: number;
   xpDistributedInPeriod: number;
   statusDistribution: AnalyticsDistributionDTO[];
-  categoryDistribution: AnalyticsDistributionDTO[];
+  metricDistribution: AnalyticsDistributionDTO[];
 }
 
 export interface AdminSustainabilityAnalyticsDTO {

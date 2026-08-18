@@ -99,6 +99,9 @@
         <button class="btn-premium btn-premium-danger px-2" title="Disable (Hide)" *ngIf="!badge.isHidden" (click)="disableBadge(badge.id)">
           <lucide-angular [img]="DisableIcon" size="16"></lucide-angular>
         </button>
+        <button class="btn-premium btn-premium-action px-2" title="Enable (Show)" *ngIf="badge.isHidden" (click)="enableBadge(badge.id)">
+          <lucide-angular [img]="EnableIcon" size="16"></lucide-angular>
+        </button>
       </div>
 
     </div>

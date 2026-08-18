@@ -100,4 +100,8 @@ export class AdminService {
   disableBadge(id: number): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/api/admin/badges/${id}/disable`, {});
   }
+
+  enableBadge(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/api/admin/badges/${id}/enable`, {});
+  }
 }

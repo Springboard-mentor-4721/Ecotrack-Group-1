@@ -17,6 +17,8 @@ import java.util.Map;
 public class CarbonReportDTO {
     private String startDate;
     private String endDate;
+    private String userName;
+    private String userEmail;
     private BigDecimal totalEmissions;
     private Map<String, BigDecimal> emissionsByCategory;
     

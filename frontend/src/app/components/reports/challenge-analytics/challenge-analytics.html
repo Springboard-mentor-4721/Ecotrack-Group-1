@@ -218,11 +218,11 @@
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase border"
                   [ngClass]="{
                     'bg-blue-50 text-blue-600 border-blue-200': challenge.status === 'ACTIVE',
-                    'bg-emerald-50 text-emerald-600 border-emerald-200': challenge.status === 'COMPLETED',
-                    'bg-red-50 text-red-600 border-red-200': challenge.status === 'FAILED',
+                    'bg-emerald-50 text-emerald-600 border-emerald-200': challenge.status === 'COMPLETED' || challenge.status === 'WITHIN_BUDGET',
+                    'bg-red-50 text-red-600 border-red-200': challenge.status === 'FAILED' || challenge.status === 'EXCEEDED',
                     'bg-gray-50 text-gray-500 border-gray-200': challenge.status === 'DROPPED' || challenge.status === 'EXPIRED'
                   }">
-                  {{ challenge.status }}
+                  {{ challenge.status === 'WITHIN_BUDGET' ? 'Within Budget' : (challenge.status === 'EXCEEDED' ? 'Exceeded' : challenge.status) }}
                 </span>
               </td>
               <td class="px-6 py-3.5 text-right">
@@ -235,17 +235,19 @@
                 <div class="flex items-center gap-3">
                   <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500"
-                      [style.width.%]="challenge.progressPercentage"
+                      [style.width.%]="challenge.progressPercentage > 100 ? 100 : challenge.progressPercentage"
                       [ngClass]="{
-                        'bg-emerald-500': challenge.progressPercentage === 100,
-                        'bg-blue-500': challenge.progressPercentage < 100
+                        'bg-red-500': challenge.status === 'EXCEEDED' || challenge.progressPercentage > 100,
+                        'bg-emerald-500': challenge.progressPercentage === 100 && challenge.status !== 'EXCEEDED',
+                        'bg-blue-500': challenge.progressPercentage < 100 && challenge.status !== 'EXCEEDED'
                       }">
                     </div>
                   </div>
                   <span class="text-[11px] font-extrabold w-8 text-right"
                     [ngClass]="{
-                        'text-emerald-600': challenge.progressPercentage === 100,
-                        'text-gray-500': challenge.progressPercentage < 100
+                        'text-red-600': challenge.status === 'EXCEEDED' || challenge.progressPercentage > 100,
+                        'text-emerald-600': challenge.progressPercentage === 100 && challenge.status !== 'EXCEEDED',
+                        'text-gray-500': challenge.progressPercentage < 100 && challenge.status !== 'EXCEEDED'
                       }">
                     {{ challenge.progressPercentage | number:'1.0-0' }}%
                   </span>

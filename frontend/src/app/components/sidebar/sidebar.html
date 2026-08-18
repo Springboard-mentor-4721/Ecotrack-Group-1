@@ -1,5 +1,21 @@
 <div class="app-sidebar bg-surface border-end d-flex flex-column">
 
+  <!-- SIDEBAR HEADER — mobile only (hidden on lg+) -->
+  <div class="sidebar-header px-3 d-flex d-lg-none align-items-center justify-content-between">
+    <!-- Brand -->
+    <div class="d-flex align-items-center gap-2">
+      <img src="/logo.png" alt="EcoTrack Logo" style="width:28px; height:28px; object-fit:contain;">
+      <span class="fw-bold fs-5" style="letter-spacing:-0.02em; color:var(--text-primary);">EcoTrack</span>
+    </div>
+    <!-- Close button -->
+    <button class="sidebar-close-btn" (click)="closeRequest.emit()" aria-label="Close sidebar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
 
   <!-- NAVIGATION -->
   <div class="sidebar-nav px-3 flex-grow-1 overflow-y-auto mt-2">

@@ -38,9 +38,9 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long>, Jpa
 
     // --- Admin Analytics Aggregations ---
 
-    @org.springframework.data.jpa.repository.Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO(CAST(c.status AS string), CAST(COUNT(c) AS double)) FROM Challenge c GROUP BY CAST(c.status AS string)")
-    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO> getStatusDistribution();
+    @org.springframework.data.jpa.repository.Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO(CAST(c.status AS string), CAST(COUNT(c) AS double)) FROM Challenge c WHERE c.createdAt >= :start AND c.createdAt <= :end GROUP BY CAST(c.status AS string)")
+    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO> getStatusDistribution(@org.springframework.data.repository.query.Param("start") LocalDateTime start, @org.springframework.data.repository.query.Param("end") LocalDateTime end);
 
-    @org.springframework.data.jpa.repository.Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO(cat.name, CAST(COUNT(c) AS double)) FROM Challenge c JOIN com.ecotrack.tracking.entity.CarbonCategory cat ON c.linkedCategoryId = cat.id GROUP BY cat.name")
-    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO> getCategoryDistribution();
+    @org.springframework.data.jpa.repository.Query("SELECT new com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO(CAST(c.progressMetric AS string), CAST(COUNT(c) AS double)) FROM Challenge c WHERE c.createdAt >= :start AND c.createdAt <= :end GROUP BY CAST(c.progressMetric AS string)")
+    java.util.List<com.ecotrack.admin.dto.analytics.AnalyticsDistributionDTO> getMetricDistribution(@org.springframework.data.repository.query.Param("start") LocalDateTime start, @org.springframework.data.repository.query.Param("end") LocalDateTime end);
 }

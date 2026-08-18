@@ -121,13 +121,13 @@ export class ReportService {
     return this.http.get<SustainabilityReportDTO>(`${this.apiUrl}/api/reports/sustainability`, { params });
   }
 
-  exportReportBlob(reportType: string, format: string, startDate: string, endDate: string): Observable<Blob> {
+  exportReportBlob(reportType: string, format: string, startDate: string, endDate: string): Observable<import('@angular/common/http').HttpResponse<Blob>> {
     const params = new HttpParams().set('startDate', startDate).set('endDate', endDate).set('format', format);
     let endpoint = 'carbon';
     if (reportType === 'goals') endpoint = 'goals';
     if (reportType === 'challenges') endpoint = 'challenges';
     if (reportType === 'sustainability') endpoint = 'sustainability';
 
-    return this.http.get(`${this.apiUrl}/api/reports/${endpoint}`, { params, responseType: 'blob' });
+    return this.http.get(`${this.apiUrl}/api/reports/${endpoint}`, { params, responseType: 'blob', observe: 'response' });
   }
 }

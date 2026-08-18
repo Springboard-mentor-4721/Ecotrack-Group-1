@@ -1,5 +1,5 @@
 .progress-track {
-  background-color: #f1f5f9;
+  background-color: var(--bg-surface-hover);
   border-radius: var(--ch-radius-pill, 9999px);
   height: 16px;
   overflow: visible; /* to allow box-shadow to be visible */

@@ -115,8 +115,8 @@ public class AdminCsvExportService {
         sb.append("Status Distribution,Value\n");
         for (AnalyticsDistributionDTO d : challenges.getStatusDistribution()) sb.append(escapeCsv(d.getCategory())).append(",").append(d.getValue()).append("\n");
 
-        sb.append("\nCategory Distribution,Value\n");
-        for (AnalyticsDistributionDTO d : challenges.getCategoryDistribution()) sb.append(escapeCsv(d.getCategory())).append(",").append(d.getValue()).append("\n");
+        sb.append("\nProgress Metric Distribution,Value\n");
+        for (AnalyticsDistributionDTO d : challenges.getMetricDistribution()) sb.append(escapeCsv(d.getCategory())).append(",").append(d.getValue()).append("\n");
         return sb.toString();
     }
 

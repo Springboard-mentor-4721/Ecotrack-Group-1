@@ -1,5 +1,5 @@
 .progress-track {
-  background-color: #f1f5f9; /* Slate 100 */
+  background-color: var(--bg-surface-hover);
   border-radius: var(--ch-radius-pill, 9999px);
   height: 16px;
   overflow: hidden;
@@ -33,7 +33,7 @@
 
 .milestone-icon {
   font-size: 14px;
-  color: #94a3b8;
+  color: var(--text-muted);
   line-height: 1;
 }
 

@@ -225,7 +225,7 @@
 .premium-input:focus {
   border-color: #8b5cf6;
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-  background-color: #fff;
+  background-color: var(--bg-surface);
 }
 .premium-select {
   cursor: pointer;
@@ -238,8 +238,8 @@
 }
 .premium-select option {
   padding: 12px;
-  background: #fff;
-  color: #333;
+  background: var(--bg-surface);
+  color: var(--text-primary);
 }
 
 /* Custom Dropdown Overrides */

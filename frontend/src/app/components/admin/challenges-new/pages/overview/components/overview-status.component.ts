@@ -42,7 +42,7 @@ import { CommonModule } from '@angular/common';
       margin-bottom: 1rem;
     }
     .status-card {
-      background: var(--surface-card, #ffffff);
+      background: var(--bg-surface);
       border-radius: 12px;
       padding: 1.5rem;
       display: flex;
@@ -78,17 +78,17 @@ import { CommonModule } from '@angular/common';
       flex-direction: column;
     }
     .status-text strong {
-      color: #0f172a;
+      color: var(--text-primary);
       font-size: 0.9375rem;
     }
     .status-text span {
-      color: #64748b;
+      color: var(--text-muted);
       font-size: 0.875rem;
     }
     .divider {
       width: 1px;
       height: 40px;
-      background: #e2e8f0;
+      background: var(--border-color);
     }
   `]
 })

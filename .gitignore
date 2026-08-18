@@ -45,3 +45,4 @@ plans\EcoTrack_User_Challenge_Module_V2_UI_Design_Blueprint.md
 backend\ARCHITECTURE.md
 
 backend/uploads/profile-images
+backend/render_pdfs.py

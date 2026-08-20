@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AdminService } from '../../../../services/admin.service';
 import { AdminBadge, BadgeDefinitionRequest } from '../../../../models/admin.models';
 import { finalize } from 'rxjs/operators';
+import { ConfirmationDialogService } from '../../../../shared/services/confirmation-dialog.service';
 
 import { LucideAngularModule, Edit, EyeOff, Eye, Plus, Award, Target } from 'lucide-angular';
 
@@ -99,7 +100,8 @@ export class AdminBadgeListComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialog: ConfirmationDialogService
   ) {
     this.badgeForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -265,45 +267,49 @@ export class AdminBadgeListComponent implements OnInit {
   }
 
   disableBadge(id: number): void {
-    if (confirm('Are you sure you want to disable this badge? Users will no longer be able to earn it.')) {
-      this.adminService.disableBadge(id).subscribe({
-        next: () => {
-          this.successMessage.set('Badge successfully disabled.');
-          this.loadBadges(this.currentPage());
-          setTimeout(() => {
-            this.successMessage.set('');
-          }, 3000);
-        },
-        error: (err) => {
-          console.error('Error disabling badge:', err);
-          this.errorMessage.set('Failed to disable badge.');
-          setTimeout(() => {
-            this.errorMessage.set('');
-          }, 3000);
-        }
-      });
-    }
+    this.dialog.confirm('Are you sure you want to disable this badge? Users will no longer be able to earn it.').then((res) => {
+      if (res) {
+        this.adminService.disableBadge(id).subscribe({
+          next: () => {
+            this.successMessage.set('Badge successfully disabled.');
+            this.loadBadges(this.currentPage());
+            setTimeout(() => {
+              this.successMessage.set('');
+            }, 3000);
+          },
+          error: (err) => {
+            console.error('Error disabling badge:', err);
+            this.errorMessage.set('Failed to disable badge.');
+            setTimeout(() => {
+              this.errorMessage.set('');
+            }, 3000);
+          }
+        });
+      }
+    });
   }
 
   enableBadge(id: number): void {
-    if (confirm('Are you sure you want to enable this badge? It will become visible to users again.')) {
-      this.adminService.enableBadge(id).subscribe({
-        next: () => {
-          this.successMessage.set('Badge successfully enabled.');
-          this.loadBadges(this.currentPage());
-          setTimeout(() => {
-            this.successMessage.set('');
-          }, 3000);
-        },
-        error: (err) => {
-          console.error('Error enabling badge:', err);
-          this.errorMessage.set('Failed to enable badge.');
-          setTimeout(() => {
-            this.errorMessage.set('');
-          }, 3000);
-        }
-      });
-    }
+    this.dialog.confirm('Are you sure you want to enable this badge? It will become visible to users again.').then((res) => {
+      if (res) {
+        this.adminService.enableBadge(id).subscribe({
+          next: () => {
+            this.successMessage.set('Badge successfully enabled.');
+            this.loadBadges(this.currentPage());
+            setTimeout(() => {
+              this.successMessage.set('');
+            }, 3000);
+          },
+          error: (err) => {
+            console.error('Error enabling badge:', err);
+            this.errorMessage.set('Failed to enable badge.');
+            setTimeout(() => {
+              this.errorMessage.set('');
+            }, 3000);
+          }
+        });
+      }
+    });
   }
 
   getRarityClass(rarity: string): string {

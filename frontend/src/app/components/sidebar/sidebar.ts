@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { ConfirmationDialogService } from '../../shared/services/confirmation-dialog.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -18,7 +19,11 @@ export class SidebarComponent implements OnInit {
   isAdmin = false;
   isSuspended = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private dialog: ConfirmationDialogService
+  ) {}
 
   ngOnInit() {
     const token = this.authService.getToken();
@@ -35,7 +40,11 @@ export class SidebarComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    this.dialog.confirm('Are you sure you want to log out?').then((res) => {
+      if (res) {
+        this.authService.logout();
+        this.router.navigate(['/']);
+      }
+    });
   }
 }

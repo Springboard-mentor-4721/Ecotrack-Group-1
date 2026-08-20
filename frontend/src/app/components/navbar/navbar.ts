@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { environment } from '../../../environments/environment';
+import { ConfirmationDialogService } from '../../shared/services/confirmation-dialog.service';
 
 import { NotificationBellComponent } from './notification-bell/notification-bell.component';
 
@@ -25,7 +26,8 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private profileService: ProfileService,
-    private eRef: ElementRef
+    private eRef: ElementRef,
+    private dialog: ConfirmationDialogService
   ) {}
 
   ngOnInit(): void {
@@ -86,9 +88,13 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    sessionStorage.clear();
-    this.router.navigate(['/'], { replaceUrl: true });
+    this.dialog.confirm('Are you sure you want to log out?').then((res) => {
+      if (res) {
+        this.authService.logout();
+        sessionStorage.clear();
+        this.router.navigate(['/'], { replaceUrl: true });
+      }
+    });
   }
 
   toggleTheme(): void {

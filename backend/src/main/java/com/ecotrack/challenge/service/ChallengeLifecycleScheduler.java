@@ -30,7 +30,7 @@ public class ChallengeLifecycleScheduler {
     private final ApplicationEventPublisher eventPublisher;
     private final jakarta.persistence.EntityManager entityManager;
 
-    @Scheduled(cron = "0 0 * * * *") // Run hourly
+    @Scheduled(cron = "0 * * * * *") // Run every minute
     @Transactional
     public void processChallengeLifecycle() {
         log.info("Processing challenge lifecycle transitions");

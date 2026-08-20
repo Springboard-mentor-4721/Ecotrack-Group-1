@@ -15,7 +15,7 @@ import { LucideAngularModule, Lightbulb, Zap, Calendar } from 'lucide-angular';
     <div class="card-premium border-0 rounded-4 shadow-sm d-flex flex-column overflow-hidden position-relative group" 
          style="background: color-mix(in srgb, var(--color-emerald) 8%, var(--bg-surface)); backdrop-filter: blur(10px); border-left: 4px solid #0d9488 !important;">
       
-      <div class="p-2 px-3 d-flex flex-column position-relative z-1">
+      <div class="p-2 px-2 d-flex flex-column position-relative z-1">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <h6 class="fw-bold text-teal text-uppercase tracking-wider fs-xs mb-0 d-flex align-items-center gap-2">
             <span class="text-teal d-flex"><lucide-angular [img]="CalendarIcon" size="16"></lucide-angular></span>

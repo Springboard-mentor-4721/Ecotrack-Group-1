@@ -10,6 +10,7 @@ import { AiFeatureState } from '../../models/ai-feature-state.model';
 import { SmartSuggestionResponse } from '../../models/ai-models';
 import { AiSkeletonLineComponent } from '../../shared/components/ai-skeleton-line/ai-skeleton-line.component';
 import { DashboardService } from '../../services/dashboard.service';
+import { ConfirmationDialogService } from '../../shared/services/confirmation-dialog.service';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
@@ -171,7 +172,8 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private carbonEntryService: CarbonEntryService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private dialog: ConfirmationDialogService
   ) {
     this.entryForm = this.fb.group({
       categoryId: ['', Validators.required],
@@ -874,13 +876,15 @@ export class CarbonTrackerComponent implements OnInit, OnDestroy {
 
   bulkDelete() {
     if (this.selectedEntries.size === 0) return;
-    if (confirm(`Are you sure you want to delete ${this.selectedEntries.size} entries?`)) {
-      // In a real app with bulk delete API, call it here.
-      // For now, simulating success since bulk delete API was noted missing or just front-end simulation.
-      this.toasts.push({ id: this.toastIdCounter++, message: `Deleted ${this.selectedEntries.size} entries successfully (Simulated)`, type: 'success' });
-      this.selectedEntries.clear();
-      this.loadEntries();
-    }
+    this.dialog.confirm(`Are you sure you want to delete ${this.selectedEntries.size} entries?`).then((res) => {
+      if (res) {
+        // In a real app with bulk delete API, call it here.
+        // For now, simulating success since bulk delete API was noted missing or just front-end simulation.
+        this.toasts.push({ id: this.toastIdCounter++, message: `Deleted ${this.selectedEntries.size} entries successfully (Simulated)`, type: 'success' });
+        this.selectedEntries.clear();
+        this.loadEntries();
+      }
+    });
   }
 
   exportToCsv() {

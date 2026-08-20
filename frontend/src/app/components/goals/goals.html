@@ -3073,7 +3073,7 @@
           <div class="spinner-border text-primary" role="status"></div>
         </div>
 
-        <div *ngIf="!isTimelineLoading && analytics">
+        <div *ngIf="!isTimelineLoading() && analytics()">
           <div class="d-flex justify-content-between mb-4">
             <div>
               <span class="fs-7 text-muted">Current Progress</span>
@@ -3245,7 +3245,7 @@
                         <path d="M12 18h.01"></path>
                         <path d="M16 18h.01"></path>
                       </svg>
-                      {{ item.timestamp | date: 'shortTime' }}
+                      {{ item.timestamp | date: 'MMM d, y, h:mm a' }}
                     </span>
                   </div>
                   <div class="d-flex flex-column gap-1 mb-2 mt-2">
@@ -3547,6 +3547,18 @@
                 </div>
               </div>
             </div>
+          </div>
+          
+          <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3" *ngIf="analytics()?.history?.length">
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" [disabled]="timelinePage() === 1" (click)="prevTimelinePage()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              Previous
+            </button>
+            <span class="fs-8 text-muted">Page {{ timelinePage() }}</span>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" [disabled]="timelinePage() * timelinePageSize >= analytics()!.history!.length" (click)="nextTimelinePage()">
+              Next
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
           </div>
         </div>
       </div>

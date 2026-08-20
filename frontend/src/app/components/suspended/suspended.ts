@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ConfirmationDialogService } from '../../shared/services/confirmation-dialog.service';
 
 @Component({
   selector: 'app-suspended',
@@ -11,10 +12,18 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./suspended.css']
 })
 export class SuspendedComponent {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private dialog: ConfirmationDialogService
+  ) {}
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    this.dialog.confirm('Are you sure you want to log out?').then((res) => {
+      if (res) {
+        this.authService.logout();
+        this.router.navigate(['/']);
+      }
+    });
   }
 }

@@ -14,6 +14,7 @@ import { CarbonCategory, CarbonSubcategory } from '../../../../../models/carbon-
 import { environment } from '../../../../../../environments/environment';
 import { TemplateTrackingMapperService } from '../../services/template-tracking-mapper.service';
 import { TrackingSourceCode } from '../../../../../models/challenge-template.model';
+import { ConfirmationDialogService } from '../../../../../shared/services/confirmation-dialog.service';
 
 @Component({
   selector: 'app-admin-challenges-wizard',
@@ -712,6 +713,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
   private toast = inject(ToastService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private dialog = inject(ConfirmationDialogService);
   isCatDropdownOpen = false;
   isMetricDropdownOpen = false;
   isBadgeDropdownOpen = false;
@@ -1295,7 +1297,7 @@ export class WizardComponent implements OnInit, CanComponentDeactivate {
     if (this.isSaved || !this.wizardForm.dirty) {
       return true;
     }
-    return window.confirm('Discard draft and go back?');
+    return this.dialog.confirm('Discard draft and go back?');
   }
 
   isInvalid(field: string): boolean {

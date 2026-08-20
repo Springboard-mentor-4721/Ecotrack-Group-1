@@ -79,6 +79,8 @@ export class GoalsComponent implements OnInit {
   showTimelineModal = signal(false);
   timelineGoal = signal<GoalResponse | null>(null);
   isTimelineLoading = signal(false);
+  timelinePage = signal(1);
+  timelinePageSize = 10;
 
   activeDropdownId = signal<number | null>(null);
 
@@ -964,7 +966,8 @@ export class GoalsComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.analytics.set(data);
-          this.groupTimelineItems(data.history || []);
+          this.timelinePage.set(1);
+          this.updateTimelineView();
         },
         error: (err) => {
           console.error('Failed to fetch analytics', err);
@@ -974,6 +977,32 @@ export class GoalsComponent implements OnInit {
       });
 
     document.body.style.overflow = 'hidden';
+  }
+
+  updateTimelineView(): void {
+    const data = this.analytics();
+    if (!data || !data.history) {
+      this.groupTimelineItems([]);
+      return;
+    }
+    const start = (this.timelinePage() - 1) * this.timelinePageSize;
+    const pagedHistory = data.history.slice(start, start + this.timelinePageSize);
+    this.groupTimelineItems(pagedHistory);
+  }
+
+  nextTimelinePage(): void {
+    const data = this.analytics();
+    if (data && data.history && this.timelinePage() * this.timelinePageSize < data.history.length) {
+      this.timelinePage.set(this.timelinePage() + 1);
+      this.updateTimelineView();
+    }
+  }
+
+  prevTimelinePage(): void {
+    if (this.timelinePage() > 1) {
+      this.timelinePage.set(this.timelinePage() - 1);
+      this.updateTimelineView();
+    }
   }
 
   groupTimelineItems(history: any[]): void {

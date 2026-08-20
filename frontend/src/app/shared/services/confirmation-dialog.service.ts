@@ -34,64 +34,34 @@ export class ConfirmationDialogService {
 
       // Create modal container
       const modal = document.createElement('div');
-      modal.style.backgroundColor = '#ffffff';
-      modal.style.borderRadius = '12px';
-      modal.style.padding = '1.5rem 2rem';
-      modal.style.maxWidth = '400px';
+      modal.className = 'bg-white rounded p-4 shadow-lg text-center';
       modal.style.width = '90%';
-      modal.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)';
+      modal.style.maxWidth = '400px';
       modal.style.animation = 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
       modal.style.fontFamily = "'Inter', sans-serif";
 
       // Title
       const title = document.createElement('h3');
       title.innerText = 'Confirm Action';
-      title.style.margin = '0 0 1rem 0';
-      title.style.color = '#0f172a';
-      title.style.fontSize = '1.25rem';
-      title.style.fontWeight = '600';
+      title.className = 'm-0 mb-3 text-dark fs-5 fw-bold';
 
       // Message
       const msg = document.createElement('p');
       msg.innerText = message;
-      msg.style.margin = '0 0 1.5rem 0';
-      msg.style.color = '#475569';
-      msg.style.fontSize = '0.95rem';
-      msg.style.lineHeight = '1.5';
+      msg.className = 'm-0 mb-4 text-muted fs-6';
 
-      // Button container
       const btnContainer = document.createElement('div');
-      btnContainer.style.display = 'flex';
-      btnContainer.style.justifyContent = 'flex-end';
-      btnContainer.style.gap = '0.75rem';
+      btnContainer.className = 'd-flex justify-content-center gap-3 mt-4';
 
       // Cancel button
       const cancelBtn = document.createElement('button');
       cancelBtn.innerText = 'Cancel';
-      cancelBtn.style.padding = '0.5rem 1rem';
-      cancelBtn.style.borderRadius = '6px';
-      cancelBtn.style.border = '1px solid #cbd5e1';
-      cancelBtn.style.backgroundColor = '#ffffff';
-      cancelBtn.style.color = '#334155';
-      cancelBtn.style.fontWeight = '500';
-      cancelBtn.style.cursor = 'pointer';
-      cancelBtn.style.transition = 'all 0.2s';
-      cancelBtn.onmouseover = () => cancelBtn.style.backgroundColor = '#f1f5f9';
-      cancelBtn.onmouseout = () => cancelBtn.style.backgroundColor = '#ffffff';
+      cancelBtn.className = 'btn btn-outline-secondary px-4';
 
       // Confirm button
       const confirmBtn = document.createElement('button');
       confirmBtn.innerText = 'Confirm';
-      confirmBtn.style.padding = '0.5rem 1rem';
-      confirmBtn.style.borderRadius = '6px';
-      confirmBtn.style.border = 'none';
-      confirmBtn.style.backgroundColor = '#059669';
-      confirmBtn.style.color = '#ffffff';
-      confirmBtn.style.fontWeight = '500';
-      confirmBtn.style.cursor = 'pointer';
-      confirmBtn.style.transition = 'all 0.2s';
-      confirmBtn.onmouseover = () => confirmBtn.style.backgroundColor = '#047857';
-      confirmBtn.onmouseout = () => confirmBtn.style.backgroundColor = '#059669';
+      confirmBtn.className = 'btn btn-success px-4';
 
       // Cleanup function
       const cleanup = () => {

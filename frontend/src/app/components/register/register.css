@@ -27,7 +27,9 @@
   flex-direction: row;
   width: max-content;
   max-width: 98vw;
-  height: 90vh;
+  height: auto;
+  min-height: 85vh;
+  max-height: 96vh;
   /* slightly less than 100vh to show background around it */
   border-radius: 30px;
   overflow: hidden;
@@ -76,7 +78,7 @@
   position: relative;
   z-index: 20;
   /* Reduced side padding: Top, Right, Bottom, Left */
-  padding: clamp(1rem, 2vh, 2rem) clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(1rem, 1.5vh, 1.5rem) clamp(1rem, 1.5vw, 1.5rem);
   border-top-left-radius: 30px;
   border-bottom-left-radius: 30px;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
@@ -86,9 +88,9 @@
 /* Premium Floating Auth Card (Now Transparent inside solid split-right) */
 .auth-form-container {
   width: 100%;
-  max-width: 380px;
+  max-width: 340px;
   background: transparent;
-  padding: clamp(1.5rem, 2vh, 2.5rem);
+  padding: clamp(1rem, 1.5vh, 2rem);
   position: relative;
   z-index: 30;
 }
@@ -142,15 +144,15 @@
   line-height: 1.4;
   font-weight: 400;
   max-width: 90%;
-  margin-bottom: clamp(0.5rem, 1.5vh, 1.5rem);
+  margin-bottom: clamp(0.25rem, 1vh, 1rem);
 }
 
 /* Feature Cards */
 .features-list {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.4rem, 1vh, 1rem);
-  margin-bottom: clamp(0.5rem, 1vh, 1.5rem);
+  gap: clamp(0.2rem, 0.8vh, 0.8rem);
+  margin-bottom: clamp(0.25rem, 1vh, 1.25rem);
   width: fit-content;
   max-width: 100%;
   margin-left: auto;
@@ -232,7 +234,7 @@
    AUTH CARD INTERNALS
    ========================================================= */
 .auth-heading {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--color-text-main);
   letter-spacing: -0.02em;
@@ -240,13 +242,13 @@
 }
 
 .auth-subheading {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-muted);
 }
 
 .form-label {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: #1e293b;
   margin-bottom: 0.4rem;
   display: block;
@@ -255,7 +257,7 @@
 .auth-action-link {
   color: var(--color-primary);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   transition: color var(--transition-fast);
 }
@@ -269,7 +271,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: clamp(1rem, 3vh, 1.5rem) 0;
+  margin: clamp(0.5rem, 2vh, 1.2rem) 0;
 }
 
 .divider-wrapper::before,
@@ -282,7 +284,7 @@
 .divider-text {
   padding: 0 15px;
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
 }
 

@@ -1580,3 +1580,53 @@ input:focus-visible,
 [data-theme="dark"] main .bg-white:not(.navbar):not(.sidebar):not(.toast):not(nav) {
   background-color: var(--bg-surface) !important;
 }
+
+/* =========================================================
+   AUTH PAGES - DISABLE DARK MODE TEXT OVERRIDES
+   ========================================================= */
+[data-theme="dark"] .split-layout .hero-title,
+[data-theme="dark"] .split-layout .brand-text-main,
+[data-theme="dark"] .split-layout .feature-title,
+[data-theme="dark"] .split-layout .text-dark,
+[data-theme="dark"] .split-layout h1,
+[data-theme="dark"] .split-layout h2,
+[data-theme="dark"] .split-layout h3,
+[data-theme="dark"] .split-layout h4,
+[data-theme="dark"] .split-layout h5,
+[data-theme="dark"] .split-layout h6 {
+  color: #0f172a !important;
+}
+
+[data-theme="dark"] .split-layout .hero-subtitle,
+[data-theme="dark"] .split-layout .brand-text-sub,
+[data-theme="dark"] .split-layout .feature-desc,
+[data-theme="dark"] .split-layout .text-muted,
+[data-theme="dark"] .split-layout p {
+  color: #334155 !important;
+}
+
+[data-theme="dark"] .split-layout .form-control,
+[data-theme="dark"] .split-layout .premium-input {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+[data-theme="dark"] .split-layout .form-control::placeholder,
+[data-theme="dark"] .split-layout .premium-input::placeholder {
+  color: #94a3b8 !important;
+}
+[data-theme="dark"] .split-layout .form-control:focus,
+[data-theme="dark"] .split-layout .premium-input:focus {
+  background-color: #ffffff !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1) !important;
+}
+
+[data-theme="dark"] .split-layout .social-btn {
+  background-color: #ffffff !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+[data-theme="dark"] .split-layout .social-btn:hover {
+  background-color: #f8fafc !important;
+}

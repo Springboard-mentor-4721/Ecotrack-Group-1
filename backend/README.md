@@ -1,92 +1,111 @@
 # EcoTrack Backend
 
-## Project Overview
-The backend for the EcoTrack platform, providing secure user authentication, stateless JWT session management, and Google OAuth2 integration.
+## 1. EcoTrack Backend Overview
+EcoTrack is a comprehensive sustainability tracking platform. The backend provides secure REST APIs for carbon tracking, goal setting, challenge participation, gamification (XP/badges), AI-powered insights, notifications, comprehensive reporting, and admin analytics.
 
-## Features
-- **Core Architecture:** Spring Boot 3.x, Spring Security 6, Spring Data JPA, Maven Wrapper.
-- **Local Authentication:** Email/Password registration and login with BCrypt hashing.
-- **Stateless Sessions:** JWT generation, validation, and Bearer token API filtering.
-- **Google OAuth2:** Integrated OAuth2 login, automatic account linking by email, and database persistence for OAuth users.
-- **Account Recovery:** Forgot password and Reset password workflows.
+## 2. Technology Stack
+- **Core**: Java 21, Spring Boot 3.5.x
+- **Security**: Spring Security 6, JWT, Google OAuth2
+- **Database**: MySQL 8.x, Spring Data JPA, Hibernate
+- **Migrations**: Flyway
+- **Build Tool**: Maven
 
-## Tech Stack
-- Java 21
-- Spring Boot 3.5.x
-- Spring Security 6
-- Hibernate ORM
-- Spring Data JPA
-- JWT (io.jsonwebtoken)
-- MySQL 8.x
-- Maven
+## 3. Backend Architecture
+- **Presentation**: REST Controllers securing endpoints with JWT filtering and `@PreAuthorize`.
+- **Business**: Modular services (`auth`, `tracking`, `gamification`, `ai`, `report`, `admin`).
+- **Data Access**: Spring Data JPA repositories.
+- **Integrations**: Gemini AI for insights, Mailtrap for SMTP emails.
 
-## Architecture
-- Presentation Layer (Controllers)
-- Business Layer (Services)
-- Persistence Layer (Repositories)
-- Domain Layer (Entities)
-- Security Layer (JWT Filter, Spring Security, OAuth2 Components)
+## 4. Prerequisites
+- **Java**: JDK 21
+- **Database**: MySQL Server 8.x running on port `3306`
+- **Maven**: Use the included `./mvnw` wrapper
 
-**Authentication Note:** Protected REST endpoints are configured to return HTTP `401 Unauthorized` JSON responses when authentication is missing or invalid, rather than redirecting to the Google OAuth login page.
-
-## Folder Structure
-```text
-src/main/java/com/ecotrack/
-├── auth/           # Authentication, Registration, Password Reset logic
-├── common/         # Enums, Global Exception Handling, Email Services
-├── security/       # JWT Filters, OAuth2 Handlers, WebSecurity configuration
-├── user/           # User entities and repository
-└── EcotrackBackendApplication.java
-```
-
-## Requirements
-- Java Development Kit (JDK) 21
-- MySQL Server 8.x running on port 3306
-- Maven (or use the provided `./mvnw` wrapper)
-
-## Environment Setup
+## 5. Environment Configuration
 Duplicate the provided example environment file to configure your local credentials:
 ```bash
 cp .env.example .env
 ```
-Fill in the `.env` file with your local MySQL credentials, Mailtrap SMTP settings, and Google OAuth2 Client ID/Secret. **Never commit `.env` to Git.**
+Fill in the `.env` file with your environment settings.
 
-## Database Setup
-1. Open your MySQL client.
-2. Create the database: `CREATE DATABASE ecotrack_dev;`
-3. Spring Boot will automatically generate the schema on startup based on the JPA entities.
+**Crucial Variables**:
+- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`: Your local MySQL credentials.
+- `JWT_SECRET`: A secure 256-bit Base64 Key.
+- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`: SMTP credentials (e.g., Mailtrap).
+- `GEMINI_API_KEY`: API key for Gemini AI features.
+- `ECOTRACK_INITIAL_ADMIN_EMAIL`, `ECOTRACK_INITIAL_ADMIN_PASSWORD`, `ECOTRACK_INITIAL_ADMIN_NAME`: Initial credentials for the `AdminBootstrapRunner`.
 
-## Google OAuth Setup
-1. Go to Google Cloud Console.
-2. Create a new OAuth 2.0 Client ID.
-3. Add `http://localhost:8080/login/oauth2/code/google` to the Authorized redirect URIs.
-4. Copy the Client ID and Secret into your `.env` file.
+**Security Note**: Never commit your `.env` file containing real secrets to version control.
 
-## Mail Configuration
-We use Mailtrap for local email testing (password reset links).
-1. Go to Mailtrap.io and create a free account.
-2. Retrieve your SMTP credentials and place them in the `.env` file.
+## 6. Database Setup
+1. Open your MySQL client and create the database:
+   ```sql
+   CREATE DATABASE ecotrack_dev;
+   ```
+2. Flyway will automatically manage schema initialization and migrations upon startup based on the scripts in `src/main/resources/db/migration`. 
+   *(Do NOT rely on `spring.jpa.hibernate.ddl-auto=update`)*.
 
-## Build & Run Instructions
+## 7. Initial ADMIN Setup
+To ensure a secure environment on a fresh clone, the platform includes a **First-Admin Bootstrap**:
+1. Before starting the backend, define your desired admin credentials in your `.env` file (e.g., `ECOTRACK_INITIAL_ADMIN_EMAIL` and `ECOTRACK_INITIAL_ADMIN_PASSWORD`).
+2. When the backend starts, if exactly **0** admins exist in the database, `AdminBootstrapRunner` will securely create a brand new admin account using these credentials, assign `Role.ADMIN`, and hash the password with BCrypt.
+3. If an admin already exists, or if the email is taken by a normal user, the bootstrap safely skips execution to prevent overrides.
+4. You can log in via `/api/auth/login` using these credentials. Normal users registering via the frontend will strictly receive `Role.USER`.
+
+## 8. Running the Backend
 ```bash
 # Clean and compile the project
-./mvnw clean install
+.\mvnw.cmd clean install
 
-# Run the Spring Boot application
-./mvnw spring-boot:run
+# Run the application
+.\mvnw.cmd spring-boot:run
 ```
 The server will start on `http://localhost:8080`.
 
-## Test Instructions
-To run the automated test suite:
+## 9. Running the Frontend
+The backend is configured to accept CORS requests from `http://localhost:4200`. Start the Angular frontend in a separate terminal:
 ```bash
-./mvnw test
+cd ../frontend
+npm install
+npm start
 ```
 
-## API Documentation
-The OpenAPI specifications and Postman collections are stored in the `/postman` directory. You can import `postman/collections/API_EcoTrack` directly into Postman to test the endpoints.
+## 10. Authentication
+The backend uses **JWT (JSON Web Tokens)** for stateless session management.
+- Protected endpoints require an `Authorization: Bearer <token>` header.
+- Token expiration and secrets are configured in `application.yaml`.
 
-## Troubleshooting
-- **`ApplicationContext` fails to load:** Ensure your `.env` file is properly configured. The application requires DB and Mail properties to boot.
-- **OAuth2 Redirects loop:** Verify your Google Authorized Redirect URI matches `http://localhost:8080/login/oauth2/code/google`.
-- **CORS Errors:** The backend currently explicitly allows requests from `http://localhost:4200`. Update `SecurityConfig` if testing from a different origin.
+## 11. AI Configuration
+EcoTrack uses Google Gemini for insights, tips, and summaries. 
+- Ensure `GEMINI_API_KEY` is set in your `.env`. 
+- AI features can be globally toggled via `ecotrack.ai.enabled` in `application.yaml`.
+
+## 12. Reports & Exports
+EcoTrack generates comprehensive analytics available to users and admins:
+- Supported Formats: **PDF**, **Excel**, **CSV/ZIP**.
+- Features include user carbon tracking reports, goals/challenges progress, and overall sustainability metrics.
+
+## 13. Gamification
+- Users earn **XP** for carbon entries and challenges.
+- **Badges** are awarded based on milestones.
+- Managed centrally by the `gamification` and `challenge` modules.
+
+## 14. Admin Features
+Admins have access to privileged endpoints (`/api/admin/**`) for:
+- Platform-wide Analytics and Metrics.
+- User management (viewing, suspending, role management).
+- Global challenges and badge configuration.
+
+## 15. Testing
+Run the comprehensive test suite (Unit and Integration):
+```bash
+.\mvnw.cmd test
+```
+
+## 16. Fresh Clone / Infosys Evaluation Procedure
+1. Clone the repository.
+2. Create `.env` from `.env.example` and fill in secrets (DB, SMTP, GEMINI, ADMIN credentials).
+3. Create the `ecotrack_dev` database in MySQL.
+4. Run the backend: `.\mvnw.cmd spring-boot:run`. Flyway will initialize the schema, and the bootstrap will create your initial admin.
+5. Run the frontend: `npm start`.
+6. Log in as ADMIN to verify the setup, and register a new USER to verify normal operations.

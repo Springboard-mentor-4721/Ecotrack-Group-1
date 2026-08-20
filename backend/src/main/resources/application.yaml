@@ -23,7 +23,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -66,6 +66,10 @@ app:
     url: ${FRONTEND_URL:http://localhost:4200}
 
 ecotrack:
+  admin:
+    initial-email: ${ECOTRACK_INITIAL_ADMIN_EMAIL:}
+    initial-password: ${ECOTRACK_INITIAL_ADMIN_PASSWORD:}
+    initial-name: ${ECOTRACK_INITIAL_ADMIN_NAME:Admin}
   ai:
     enabled: ${AI_FEATURES_ENABLED:true}
     features:

@@ -109,36 +109,62 @@ public class LeaderboardService {
         return dtos;
     }
 
-    public LeaderboardEntryDTO getMyRank(Long userId) {
-        return profileRepository.findByUserId(userId)
-                .map(profile -> {
-                    long xp = profile.getLifetimeEcoXp() != null ? profile.getLifetimeEcoXp() : 0L;
-                    long betterRankCount = profileRepository.countByLifetimeEcoXpGreaterThan(xp);
-                    String username = userRepository.findById(userId)
-                            .map(User::getName)
-                            .orElse("User " + userId);
-                            
-                    long xpToNextRank = 0L;
-                    if (betterRankCount > 0) {
-                        xpToNextRank = profileRepository.findLowestXpGreaterThan(xp)
-                                .map(val -> val - xp + 1)
-                                .orElse(0L);
-                    }
+    public LeaderboardEntryDTO getMyRank(Long userId, com.ecotrack.leaderboard.enums.LeaderboardType type, com.ecotrack.leaderboard.enums.LeaderboardPeriod period) {
+        if (type == com.ecotrack.leaderboard.enums.LeaderboardType.ECO_SCORE) {
+            return profileRepository.findByUserId(userId)
+                    .map(profile -> {
+                        double ecoScore = profile.getCurrentEcoScore() != null ? profile.getCurrentEcoScore().doubleValue() : 0.0;
+                        long betterRankCount = profileRepository.countDistinctByCurrentEcoScoreGreaterThan(new java.math.BigDecimal(ecoScore));
+                        String username = userRepository.findById(userId).map(User::getName).orElse("User " + userId);
+                        var userProfileOpt = userProfileRepository.findByUser_Id(userId);
+                        String profilePic = userProfileOpt.isPresent() ? userProfileOpt.get().getProfilePictureUrl() : null;
 
-                    var userProfileOpt = userProfileRepository.findByUser_Id(userId);
-                    String profilePic = userProfileOpt.isPresent() ? userProfileOpt.get().getProfilePictureUrl() : null;
+                        return LeaderboardEntryDTO.builder()
+                                .userId(userId)
+                                .username(username)
+                                .metricValue(new java.math.BigDecimal(ecoScore))
+                                .rank((int) betterRankCount + 1)
+                                .level(profile.getCurrentLevel())
+                                .profilePictureUrl(profilePic)
+                                .build();
+                    })
+                    .orElseGet(() -> LeaderboardEntryDTO.builder().userId(userId).rank(-1).build());
+        } else if (period == com.ecotrack.leaderboard.enums.LeaderboardPeriod.MONTHLY) {
+            return getMyMonthlyRank(userId);
+        } else if (period == com.ecotrack.leaderboard.enums.LeaderboardPeriod.WEEKLY) {
+            // Fallback for weekly if needed
+            return getMyMonthlyRank(userId); 
+        } else {
+            return profileRepository.findByUserId(userId)
+                    .map(profile -> {
+                        long xp = profile.getLifetimeEcoXp() != null ? profile.getLifetimeEcoXp() : 0L;
+                        long betterRankCount = profileRepository.countDistinctByLifetimeEcoXpGreaterThan(xp);
+                        String username = userRepository.findById(userId)
+                                .map(User::getName)
+                                .orElse("User " + userId);
+                                
+                        long xpToNextRank = 0L;
+                        if (betterRankCount > 0) {
+                            xpToNextRank = profileRepository.findLowestXpGreaterThan(xp)
+                                    .map(val -> val - xp + 1)
+                                    .orElse(0L);
+                        }
 
-                    return LeaderboardEntryDTO.builder()
-                            .userId(userId)
-                            .username(username)
-                            .scoreValue(xp)
-                            .rank((int) betterRankCount + 1)
-                            .level(profile.getCurrentLevel())
-                            .xpToNextRank(xpToNextRank)
-                            .profilePictureUrl(profilePic)
-                            .build();
-                })
-                .orElseGet(() -> LeaderboardEntryDTO.builder().userId(userId).rank(-1).build());
+                        var userProfileOpt = userProfileRepository.findByUser_Id(userId);
+                        String profilePic = userProfileOpt.isPresent() ? userProfileOpt.get().getProfilePictureUrl() : null;
+
+                        return LeaderboardEntryDTO.builder()
+                                .userId(userId)
+                                .username(username)
+                                .scoreValue(xp)
+                                .rank((int) betterRankCount + 1)
+                                .level(profile.getCurrentLevel())
+                                .xpToNextRank(xpToNextRank)
+                                .profilePictureUrl(profilePic)
+                                .build();
+                    })
+                    .orElseGet(() -> LeaderboardEntryDTO.builder().userId(userId).rank(-1).build());
+        }
     }
 
     public LeaderboardEntryDTO getMyMonthlyRank(Long userId) {
@@ -184,7 +210,7 @@ public class LeaderboardService {
                     .collect(Collectors.toMap(User::getId, User::getName));
             
             for (var p : page.getContent()) {
-                long rank = profileRepository.countByCurrentEcoScoreGreaterThan(p.getCurrentEcoScore()) + 1;
+                long rank = profileRepository.countDistinctByCurrentEcoScoreGreaterThan(p.getCurrentEcoScore()) + 1;
                 var userProfileOpt = userProfileRepository.findByUser_Id(p.getUserId());
                 String profilePic = userProfileOpt.isPresent() ? userProfileOpt.get().getProfilePictureUrl() : null;
                 
@@ -208,7 +234,7 @@ public class LeaderboardService {
                         .collect(Collectors.toMap(User::getId, User::getName));
                         
                 for (var p : page.getContent()) {
-                    long rank = profileRepository.countByLifetimeEcoXpGreaterThan(p.getLifetimeEcoXp()) + 1;
+                    long rank = profileRepository.countDistinctByLifetimeEcoXpGreaterThan(p.getLifetimeEcoXp()) + 1;
                     var userProfileOpt = userProfileRepository.findByUser_Id(p.getUserId());
                     String profilePic = userProfileOpt.isPresent() ? userProfileOpt.get().getProfilePictureUrl() : null;
                     
@@ -303,10 +329,10 @@ public class LeaderboardService {
         
         allParticipants.sort((a, b) -> {
             if (isBudget) {
-                boolean aExceeded = a.getProgress().doubleValue() > budgetVal;
-                boolean bExceeded = b.getProgress().doubleValue() > budgetVal;
-                if (aExceeded != bExceeded) {
-                    return aExceeded ? 1 : -1;
+                boolean aFailed = a.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.FAILED || a.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.DROPPED || a.getProgress().doubleValue() > budgetVal;
+                boolean bFailed = b.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.FAILED || b.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.DROPPED || b.getProgress().doubleValue() > budgetVal;
+                if (aFailed != bFailed) {
+                    return aFailed ? 1 : -1;
                 }
                 return a.getProgress().compareTo(b.getProgress());
             } else {
@@ -339,9 +365,9 @@ public class LeaderboardService {
                 var prev = allParticipants.get(i - 1);
                 boolean isTie = false;
                 if (isBudget) {
-                    boolean aExceeded = p.getProgress().doubleValue() > budgetVal;
-                    boolean bExceeded = prev.getProgress().doubleValue() > budgetVal;
-                    if (aExceeded == bExceeded && p.getProgress().compareTo(prev.getProgress()) == 0) {
+                    boolean aFailed = p.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.FAILED || p.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.DROPPED || p.getProgress().doubleValue() > budgetVal;
+                    boolean bFailed = prev.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.FAILED || prev.getStatus() == com.ecotrack.challenge.enums.ChallengeParticipantStatus.DROPPED || prev.getProgress().doubleValue() > budgetVal;
+                    if (aFailed == bFailed && p.getProgress().compareTo(prev.getProgress()) == 0) {
                         isTie = true;
                     }
                 } else {
@@ -379,10 +405,19 @@ public class LeaderboardService {
                     .build());
         }
         
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), dtos.size());
+        int start = pageable.isUnpaged() ? 0 : (int) pageable.getOffset();
+        int end = pageable.isUnpaged() ? dtos.size() : Math.min((start + pageable.getPageSize()), dtos.size());
         List<LeaderboardEntryDTO> pageList = start <= end ? dtos.subList(start, end) : new java.util.ArrayList<>();
         
         return new org.springframework.data.domain.PageImpl<>(pageList, pageable, dtos.size());
+    }
+
+    public LeaderboardEntryDTO getMyChallengeRank(Long challengeId, Long userId) {
+        org.springframework.data.domain.Pageable unpaged = org.springframework.data.domain.Pageable.unpaged();
+        org.springframework.data.domain.Page<LeaderboardEntryDTO> allRankings = getChallengeLeaderboard(challengeId, userId, unpaged);
+        return allRankings.getContent().stream()
+                .filter(dto -> dto.getUserId().equals(userId))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -39,6 +39,10 @@ export class LeaderboardService {
     return this.http.get<Page<LeaderboardEntry>>(`${this.apiUrl}/api/leaderboards/challenge/${challengeId}`, { params });
   }
 
+  getMyChallengeRank(challengeId: number): Observable<LeaderboardEntry> {
+    return this.http.get<LeaderboardEntry>(`${this.apiUrl}/api/leaderboards/challenge/${challengeId}/my-rank`);
+  }
+
   // Preserve for backward compatibility if needed by other components
   getAllTime(): Observable<LeaderboardEntry[]> {
     return this.http.get<LeaderboardEntry[]>(`${this.apiUrl}/api/leaderboards/all-time`);
@@ -52,7 +56,13 @@ export class LeaderboardService {
     return this.http.get<LeaderboardEntry[]>(`${this.apiUrl}/api/leaderboards/weekly`);
   }
 
-  getMyRank(): Observable<LeaderboardEntry> {
-    return this.http.get<LeaderboardEntry>(`${this.apiUrl}/api/leaderboards/my-rank`);
+  getMyRank(
+    type: 'XP' | 'ECO_SCORE' = 'XP',
+    period: 'ALL_TIME' | 'MONTHLY' | 'WEEKLY' = 'ALL_TIME'
+  ): Observable<LeaderboardEntry> {
+    let params = new HttpParams()
+      .set('type', type)
+      .set('period', period);
+    return this.http.get<LeaderboardEntry>(`${this.apiUrl}/api/leaderboards/my-rank`, { params });
   }
 }

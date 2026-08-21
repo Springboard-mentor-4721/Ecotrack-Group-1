@@ -116,7 +116,7 @@ public class DashboardSummaryServiceImpl implements DashboardSummaryService {
                         .build());
 
         // 5. Leaderboard Rank
-        LeaderboardEntryDTO leaderboardRank = leaderboardService.getMyRank(userId);
+        LeaderboardEntryDTO leaderboardRank = leaderboardService.getMyRank(userId, com.ecotrack.leaderboard.enums.LeaderboardType.XP, com.ecotrack.leaderboard.enums.LeaderboardPeriod.ALL_TIME);
         LeaderboardEntryDTO monthlyLeaderboardRank = leaderboardService.getMyMonthlyRank(userId);
 
         // 6. Active Challenges

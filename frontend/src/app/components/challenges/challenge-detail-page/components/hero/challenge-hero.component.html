@@ -1,29 +1,28 @@
-<div class="position-relative overflow-hidden mb-5 rounded-4 shadow-sm group" 
+<div class="position-relative overflow-hidden mb-5 rounded-4 shadow-sm group d-flex flex-column" 
      [style.background]="'url(' + ($any(challenge).imageUrl | challengeImage: $any(challenge).id) + ') center/cover'" 
      style="min-height: 380px;"
      role="img"
      [attr.aria-label]="challenge.title + ' cover banner'">
   <!-- Gradient overlay -->
-  <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(90deg, rgba(2,44,34,1) 0%, rgba(2,44,34,0.95) 45%, rgba(6,78,59,0) 100%);"></div>
+  <div class="position-absolute top-0 start-0 w-100 h-100 z-0" style="background: linear-gradient(90deg, rgba(2,44,34,1) 0%, rgba(2,44,34,0.95) 45%, rgba(6,78,59,0) 100%); pointer-events: none;"></div>
   
-  <div class="position-absolute top-0 start-0 m-4 z-2">
+  <!-- Top Navigation Bar -->
+  <div class="d-flex justify-content-between align-items-start p-4 z-2 w-100">
     <button (click)="backClicked.emit()" class="btn bg-white text-dark border-0 rounded-pill px-4 py-2 shadow fw-bold fs-sm d-flex align-items-center gap-2 transition-transform hover-translate-up">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Challenges
     </button>
-  </div>
-
-  <div class="position-absolute top-0 end-0 m-4 z-2">
-       <button [routerLink]="['/leaderboard']" [queryParams]="{ challengeId: challenge.id }" class="btn bg-white text-dark border-0 rounded-pill px-4 py-2 shadow fw-bold fs-sm d-flex align-items-center gap-2 transition-transform hover-translate-up">
-         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-           <line x1="18" y1="20" x2="18" y2="10"></line>
-           <line x1="12" y1="20" x2="12" y2="4"></line>
-           <line x1="6" y1="20" x2="6" y2="14"></line>
-         </svg> View Leaderboard
-     </button>
+    
+    <button [routerLink]="['/leaderboard']" [queryParams]="{ challengeId: challenge.id }" class="btn bg-white text-dark border-0 rounded-pill px-4 py-2 shadow fw-bold fs-sm d-flex align-items-center gap-2 transition-transform hover-translate-up">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"></line>
+        <line x1="12" y1="20" x2="12" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="14"></line>
+      </svg> View Leaderboard
+    </button>
   </div>
 
   <!-- Content -->
-  <div class="position-absolute bottom-0 start-0 w-100 p-4 p-md-5 z-1 d-flex flex-column justify-content-end" style="height: 100%;">
+  <div class="p-4 p-md-5 z-1 d-flex flex-column justify-content-end mt-auto w-100">
     <div class="d-flex flex-wrap gap-2 mb-3">
       <span class="badge bg-dark bg-opacity-50 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill fs-xs fw-bolder tracking-wide shadow-sm d-flex align-items-center gap-2 backdrop-blur">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>

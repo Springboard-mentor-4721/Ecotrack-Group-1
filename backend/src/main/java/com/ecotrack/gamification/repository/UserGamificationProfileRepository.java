@@ -33,6 +33,12 @@ public interface UserGamificationProfileRepository extends JpaRepository<UserGam
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(p) FROM UserGamificationProfile p WHERE p.currentEcoScore > :ecoScore AND p.userId IN (SELECT u.id FROM User u WHERE u.role = 'USER')")
     long countByCurrentEcoScoreGreaterThan(java.math.BigDecimal ecoScore);
     
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT p.currentEcoScore) FROM UserGamificationProfile p WHERE p.currentEcoScore > :ecoScore AND p.userId IN (SELECT u.id FROM User u WHERE u.role = 'USER')")
+    long countDistinctByCurrentEcoScoreGreaterThan(java.math.BigDecimal ecoScore);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT p.lifetimeEcoXp) FROM UserGamificationProfile p WHERE p.lifetimeEcoXp > :xp AND p.userId IN (SELECT u.id FROM User u WHERE u.role = 'USER')")
+    long countDistinctByLifetimeEcoXpGreaterThan(Long xp);
+    
     @org.springframework.data.jpa.repository.Query("SELECT MIN(p.currentEcoScore) FROM UserGamificationProfile p WHERE p.currentEcoScore > :score")
     Optional<java.math.BigDecimal> findLowestEcoScoreGreaterThan(@org.springframework.data.repository.query.Param("score") java.math.BigDecimal score);
 

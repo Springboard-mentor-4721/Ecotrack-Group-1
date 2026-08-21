@@ -153,7 +153,7 @@
       </div>
 
       <!-- Current User Standout (Only if applicable and outside current view) -->
-      <div *ngIf="myRank() && currentPage() === 0 && filterScore() === 'XP' && filterPeriod() === 'ALL_TIME' && myRank()!.rank > 3" class="card-premium p-3 d-flex align-items-center gap-3 mb-3 border border-emerald shadow-sm bg-emerald-light bg-opacity-10 rounded-4">
+      <div *ngIf="myRank() && currentPage() === 0 && filterPeriod() === 'ALL_TIME' && myRank()!.rank > 3" class="card-premium p-3 d-flex align-items-center gap-3 mb-3 border border-emerald shadow-sm bg-emerald-light bg-opacity-10 rounded-4">
         <div class="d-flex align-items-center justify-content-center flex-shrink-0 fw-bold fs-5 text-emerald" style="width: 40px;">
           {{ myRank()!.rank > 0 ? myRank()!.rank : '-' }}
         </div>
@@ -171,7 +171,7 @@
           </div>
         </div>
         <div class="text-end">
-          <div class="fw-bold text-emerald fs-5">{{ myRank()!.scoreValue | number }} <span class="fs-xs text-muted">XP</span></div>
+          <div class="fw-bold text-emerald fs-5">{{ (filterScore() === 'XP' ? myRank()!.scoreValue : myRank()!.metricValue) | number }} <span class="fs-xs text-muted">{{ filterScore() === 'XP' ? 'XP' : 'Eco Score' }}</span></div>
         </div>
       </div>
 
@@ -352,6 +352,30 @@
         <div *ngIf="!isLoading() && challengePage() && challengePage()!.content.length > 0" id="challenge-leaderboard-section">
 
           <div class="table-responsive border-top">
+            
+            <!-- Current User Standout for Challenge (Only if applicable and outside current view) -->
+            <div *ngIf="myChallengeRankEntry() && currentPage() === 0 && myChallengeRankEntry()!.rank > 3" class="card-premium mx-4 mt-4 p-3 d-flex align-items-center gap-3 mb-4 border border-emerald shadow-sm bg-emerald-light bg-opacity-10 rounded-4">
+              <div class="d-flex align-items-center justify-content-center flex-shrink-0 fw-bold fs-5 text-emerald" style="width: 40px;">
+                {{ myChallengeRankEntry()!.rank > 0 ? myChallengeRankEntry()!.rank : '-' }}
+              </div>
+              <div class="d-flex align-items-center gap-3 flex-grow-1">
+                <img [src]="resolveImageUrl(myChallengeRankEntry()!.profilePictureUrl) || ('https://ui-avatars.com/api/?name=' + myChallengeRankEntry()!.username + '&background=random&color=fff')"
+                     class="bg-surface rounded-circle shadow-sm border"
+                     style="width: 48px; height: 48px; object-fit: cover;"
+                     alt="User Avatar">
+                <div>
+                  <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                    You
+                    <span class="badge text-white fs-xs rounded-pill" style="background-color: #059669;">Current Rank</span>
+                  </h6>
+                  <span class="fs-xs text-muted">Level {{ myChallengeRankEntry()!.level || 1 }}</span>
+                </div>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-emerald fs-5">{{ myChallengeRankEntry()!.metricValue | number }} <span class="fs-xs text-muted">Progress</span></div>
+              </div>
+            </div>
+
             <table class="table table-borderless mb-0 align-middle" role="grid">
               <thead class="bg-slate-50 border-bottom">
                 <tr>

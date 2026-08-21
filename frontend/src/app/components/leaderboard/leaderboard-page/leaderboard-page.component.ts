@@ -213,13 +213,15 @@ export class LeaderboardPageComponent implements OnInit {
     this.isLoading.set(true);
 
     // Fetch my rank if needed (fire and forget)
-    if (this.filterScore() === 'XP' && this.filterPeriod() === 'ALL_TIME' && !this.myRank()) {
-       this.leaderboardService.getMyRank().subscribe({
+    if (this.filterPeriod() === 'ALL_TIME') {
+       this.leaderboardService.getMyRank(this.filterScore(), this.filterPeriod()).subscribe({
           next: (rank) => {
             if (rank) this.myRank.set(rank);
           },
           error: (err) => console.error('Failed to load user rank', err)
        });
+    } else {
+       this.myRank.set(null); // Clear rank if not ALL_TIME, unless we want monthly rank too
     }
 
     // Fetch the global page independently
@@ -264,6 +266,8 @@ export class LeaderboardPageComponent implements OnInit {
     });
   }
 
+  myChallengeRankEntry = signal<LeaderboardEntry | null>(null);
+
   getChallengeProgressPercentage(): number {
     const participant = this.selectedChallengeParticipant();
     if (!participant || !participant.targetValue) return 0;
@@ -272,9 +276,7 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   getMyChallengeRank(): number | null {
-    if (!this.currentUserId() || !this.challengePage() || !this.challengePage()!.content) return null;
-    const myEntry = this.challengePage()!.content.find(e => e.userId === this.currentUserId());
-    return myEntry ? myEntry.rank : null;
+    return this.myChallengeRankEntry() ? this.myChallengeRankEntry()!.rank : null;
   }
 
   scrollToLeaderboard() {
@@ -289,6 +291,13 @@ export class LeaderboardPageComponent implements OnInit {
     this.isLoading.set(true);
     this.challengeError.set(null);
     this.challengeErrorIs403.set(false);
+
+    // Fetch user rank independently
+    this.myChallengeRankEntry.set(null);
+    this.leaderboardService.getMyChallengeRank(this.selectedChallengeId()!).subscribe({
+        next: (rank) => this.myChallengeRankEntry.set(rank),
+        error: () => {}
+    });
 
     this.leaderboardService.getChallengeLeaderboard(this.selectedChallengeId()!, this.currentPage(), this.pageSize())
       .pipe(

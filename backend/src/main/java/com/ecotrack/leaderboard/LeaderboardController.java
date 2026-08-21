@@ -32,12 +32,15 @@ public class LeaderboardController {
     }
 
     @GetMapping("/my-rank")
-    public ResponseEntity<LeaderboardEntryDTO> getMyRank(org.springframework.security.core.Authentication authentication) {
+    public ResponseEntity<LeaderboardEntryDTO> getMyRank(
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "XP") com.ecotrack.leaderboard.enums.LeaderboardType type,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "ALL_TIME") com.ecotrack.leaderboard.enums.LeaderboardPeriod period,
+            org.springframework.security.core.Authentication authentication) {
         String email = authentication.getName();
         Long userId = userRepository.findByEmail(email)
                 .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found"))
                 .getId();
-        return ResponseEntity.ok(leaderboardService.getMyRank(userId));
+        return ResponseEntity.ok(leaderboardService.getMyRank(userId, type, period));
     }
     @GetMapping("/global")
     public ResponseEntity<org.springframework.data.domain.Page<LeaderboardEntryDTO>> getGlobalLeaderboard(
@@ -57,5 +60,17 @@ public class LeaderboardController {
                 .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found"))
                 .getId();
         return ResponseEntity.ok(leaderboardService.getChallengeLeaderboard(challengeId, userId, pageable));
+    }
+
+    @GetMapping("/challenge/{challengeId}/my-rank")
+    public ResponseEntity<LeaderboardEntryDTO> getMyChallengeRank(
+            @org.springframework.web.bind.annotation.PathVariable Long challengeId,
+            org.springframework.security.core.Authentication authentication) {
+        String email = authentication.getName();
+        Long userId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found"))
+                .getId();
+        LeaderboardEntryDTO rank = leaderboardService.getMyChallengeRank(challengeId, userId);
+        return rank != null ? ResponseEntity.ok(rank) : ResponseEntity.notFound().build();
     }
 }

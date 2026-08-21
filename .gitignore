@@ -45,6 +45,53 @@ plans\EcoTrack_User_Challenge_Module_V2_UI_Design_Blueprint.md
 backend\ARCHITECTURE.md
 
 backend/uploads/profile-images
+backend/RepairFlyway.java
+
+backend/generate_seed.js
+
+backend/scripts/normalize_challenges_newlines.py
+
+backend/update_backend.ps1
+
+backend/update_service.ps1
+
+frontend/update_frontend.ps1
+
+frontend/update_frontend_ts.ps1
+
+# IDEs
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Plans
+plans/
+Audit Reports/
+specification.pdf
+final report.docx
+testimony.pptx
+backend/uploads/profile-images/1013.webp
+backend/AI_REDESIGN_PHASE_C_FINAL_AUDIT.md
+token.txt
+M5_Leaderboard_Existing_Implementation_Audit.md
+M5_Leaderboard_Backend_Implementation_Report.md
+M5_Leaderboard_Final_QA_Report.md
+M5_Leaderboard_Frontend_Implementation_Report.md
+M5_Leaderboard_UI_Fix_Report.md
+pdf_text_clean.txt
+pdf_text.txt
+
+plans\EcoTrack_User_Challenge_Module_V2_Implementation_Plan.md
+plans\EcoTrack_User_Challenge_Module_V2_Master_Execution_Plan.md
+plans\EcoTrack_User_Challenge_Module_V2_Sprint_Execution_Guide.md
+plans\EcoTrack_User_Challenge_Module_V2_UI_Design_Blueprint.md
+
+backend\ARCHITECTURE.md
+
+backend/uploads/profile-images
 backend/render_pdfs.py
 ECOTRACK_PHASE_2A_COMPLETE_DATA_REQUIREMENTS_AUDIT.md
 ECOTRACK_CLEAN_DATABASE_BASELINE_REPORT.md
@@ -52,3 +99,14 @@ ECOTRACK_CHALLENGE_BASELINE_VERIFICATION.md
 ECOTRACK_PHASE_2B_DATASET_GENERATION_SPECIFICATION.md
 ecotrack_dev_pre_clean_database_20260820_112014.sql
 fix.py
+*.bak
+
+# Dataset and backups
+dataset/*.sql
+*.sql
+*.bak
+backend/HashCheck.java
+check.py
+*.md
+!README.md
+!backend/ARCHITECTURE.md

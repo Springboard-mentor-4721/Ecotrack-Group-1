@@ -53,13 +53,16 @@ export class ChallengeDetailPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAdminUser.set(this.authService.isAdmin());
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadChallenge(Number(id));
-    } else {
-      this.error.set(true);
-      this.isLoading.set(false);
-    }
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.loadChallenge(Number(id));
+        window.scrollTo(0, 0); // scroll to top when changing challenge
+      } else {
+        this.error.set(true);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   navigateBack(): void {

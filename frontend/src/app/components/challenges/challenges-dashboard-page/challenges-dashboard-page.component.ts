@@ -92,8 +92,8 @@ export class ChallengesDashboardPageComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         const myChallenges = data.my;
-        this.myActiveChallenges.set(myChallenges.filter(c => ['ACTIVE', 'WITHIN_BUDGET', 'EXCEEDED'].includes(c.participant.status)));
-        this.myCompletedChallenges.set(myChallenges.filter(c => ['COMPLETED', 'FAILED', 'DROPPED'].includes(c.participant.status)));
+        this.myActiveChallenges.set(myChallenges.filter(c => ['ACTIVE', 'WITHIN_BUDGET'].includes(c.participant.status)));
+        this.myCompletedChallenges.set(myChallenges.filter(c => ['COMPLETED', 'FAILED', 'DROPPED', 'EXCEEDED'].includes(c.participant.status)));
         
         // Calculate total XP
         this.totalXpEarned.set(this.myCompletedChallenges().reduce((sum, c) => sum + (c.challenge.rewardXp || 0), 0));
@@ -108,6 +108,11 @@ export class ChallengesDashboardPageComponent implements OnInit {
         const alerts: UrgencyAlert[] = [];
         const now = new Date().getTime();
         this.myActiveChallenges().forEach(entry => {
+          // Skip if the challenge has already ended
+          if (entry.challenge.endDate && new Date(entry.challenge.endDate).getTime() <= now) {
+            return;
+          }
+
           if (entry.challenge.challengeEvaluationType === 'BUDGET') {
             const usage = entry.participant.progress / (entry.challenge.targetValue || 1);
             if (usage >= 0.8) {
@@ -121,14 +126,16 @@ export class ChallengesDashboardPageComponent implements OnInit {
           }
           if (entry.challenge.endDate) {
             const end = new Date(entry.challenge.endDate).getTime();
-            const days = Math.max(0, Math.ceil((end - now) / (1000 * 3600 * 24)));
-            if (days <= 2) {
-              alerts.push({
-                challengeId: entry.challenge.id,
-                title: entry.challenge.title,
-                type: 'EXPIRING_SOON',
-                message: `${days} days remaining`
-              });
+            if (end > now) {
+              const days = Math.ceil((end - now) / (1000 * 3600 * 24));
+              if (days <= 2) {
+                alerts.push({
+                  challengeId: entry.challenge.id,
+                  title: entry.challenge.title,
+                  type: 'EXPIRING_SOON',
+                  message: `${days} days remaining`
+                });
+              }
             }
           }
         });

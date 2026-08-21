@@ -179,14 +179,14 @@ class RbacSecurityIntegrationTest {
         // Give user some XP
         UserGamificationProfile userProfile = new UserGamificationProfile();
         userProfile.setUserId(testUser.getId());
-        userProfile.setLifetimeEcoXp(500L);
+        userProfile.setLifetimeEcoXp(9999999L);
         userProfile.setCurrentEcoScore(new java.math.BigDecimal("1.5"));
         profileRepository.save(userProfile);
 
         // Give admin some XP (even though V46 clears it, we test the query itself)
         UserGamificationProfile adminProfile = new UserGamificationProfile();
         adminProfile.setUserId(testAdmin.getId());
-        adminProfile.setLifetimeEcoXp(1000L); // More XP than user
+        adminProfile.setLifetimeEcoXp(9999998L); // Massive XP, but slightly less than user
         adminProfile.setCurrentEcoScore(new java.math.BigDecimal("2.0"));
         profileRepository.save(adminProfile);
 

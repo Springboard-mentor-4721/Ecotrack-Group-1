@@ -108,14 +108,14 @@ public class LeaderboardServiceTest {
                 .lifetimeEcoXp(2000L)
                 .build();
         when(profileRepository.findByUserId(2L)).thenReturn(java.util.Optional.of(profile));
-        when(profileRepository.countByLifetimeEcoXpGreaterThan(2000L)).thenReturn(5L);
+        when(profileRepository.countDistinctByLifetimeEcoXpGreaterThan(2000L)).thenReturn(5L);
         
         com.ecotrack.user.entity.User user = new com.ecotrack.user.entity.User();
         user.setId(2L);
         user.setName("My Real Name");
         when(userRepository.findById(2L)).thenReturn(java.util.Optional.of(user));
 
-        LeaderboardEntryDTO result = leaderboardService.getMyRank(2L);
+        LeaderboardEntryDTO result = leaderboardService.getMyRank(2L, com.ecotrack.leaderboard.enums.LeaderboardType.XP, com.ecotrack.leaderboard.enums.LeaderboardPeriod.ALL_TIME);
 
         assertNotNull(result);
         assertEquals(2L, result.getUserId());

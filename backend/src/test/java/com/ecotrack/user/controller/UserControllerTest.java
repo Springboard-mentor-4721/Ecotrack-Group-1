@@ -42,6 +42,9 @@ public class UserControllerTest {
     @MockBean
     private com.ecotrack.user.repository.UserRepository userRepository;
 
+    @MockBean
+    private com.ecotrack.util.AdminBootstrapRunner adminBootstrapRunner;
+
     @Test
     void getCurrentUser_MissingJwt_Returns401() throws Exception {
         mockMvc.perform(get("/api/users/me"))

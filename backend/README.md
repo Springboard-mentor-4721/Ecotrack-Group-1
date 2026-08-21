@@ -1,7 +1,7 @@
 # EcoTrack Backend
 
-## 1. EcoTrack Backend Overview
-EcoTrack is a comprehensive sustainability tracking platform. The backend provides secure REST APIs for carbon tracking, goal setting, challenge participation, gamification (XP/badges), AI-powered insights, notifications, comprehensive reporting, and admin analytics.
+## 1. Overview
+EcoTrack Backend is a comprehensive Spring Boot application providing secure REST APIs for carbon tracking, goal setting, challenge participation, gamification (XP, badges, leaderboards), AI-powered insights, notifications, comprehensive reporting, and admin analytics.
 
 ## 2. Technology Stack
 - **Core**: Java 21, Spring Boot 3.5.x
@@ -12,7 +12,7 @@ EcoTrack is a comprehensive sustainability tracking platform. The backend provid
 
 ## 3. Backend Architecture
 - **Presentation**: REST Controllers securing endpoints with JWT filtering and `@PreAuthorize`.
-- **Business**: Modular services (`auth`, `tracking`, `gamification`, `ai`, `report`, `admin`).
+- **Business**: Modular services (`auth`, `tracking`, `gamification`, `leaderboard`, `ai`, `report`, `admin`).
 - **Data Access**: Spring Data JPA repositories.
 - **Integrations**: Gemini AI for insights, Mailtrap for SMTP emails.
 
@@ -37,75 +37,58 @@ Fill in the `.env` file with your environment settings.
 
 **Security Note**: Never commit your `.env` file containing real secrets to version control.
 
-## 6. Database Setup
-1. Open your MySQL client and create the database:
+## 6. Database & Initial ADMIN Setup
+
+This project uses an automated **Initial ADMIN Bootstrap** process to ensure a secure, zero-friction setup for evaluators on a completely fresh install.
+
+Follow this exact fresh-install flow:
+
+1. **Create an empty database:** Open your MySQL client and run:
    ```sql
    CREATE DATABASE ecotrack_dev;
    ```
-2. Flyway will automatically manage schema initialization and migrations upon startup based on the scripts in `src/main/resources/db/migration`. 
-   *(Do NOT rely on `spring.jpa.hibernate.ddl-auto=update`)*.
+2. **Configure Environment:** Copy the `backend/.env.example` file to `backend/.env`.
+   *Note: `backend/.env` is local/private and must never be committed. `backend/.env.example` contains safe placeholders only.*
+3. **Configure Initial Administrator:** In your new `backend/.env` file, replace the safe placeholder values for the following variables with your desired initial administrator details. **Ensure you replace the password with a strong private password:**
+   ```env
+   ECOTRACK_INITIAL_ADMIN_EMAIL=admin@example.com
+   ECOTRACK_INITIAL_ADMIN_PASSWORD=change-me-to-a-strong-password
+   ECOTRACK_INITIAL_ADMIN_NAME=System Administrator
+   ```
+4. **Configure Connections:** Configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, and `GEMINI_API_KEY` in the `.env` file.
+5. **Start the Backend:** Run `.\mvnw.cmd spring-boot:run`.
+6. **Automatic Schema Creation:** Flyway will automatically create and apply the database schema and reference data (categories, badges, etc.) upon startup. Flyway migrations are the authoritative mechanism for creating the application schema.
+7. **Automatic Admin Creation:** The `AdminBootstrapRunner` will check if an ADMIN already exists.
+   - **If no ADMIN exists:** It automatically creates the administrator account using your `.env` variables, securely hashes the password, creates the associated profile, and initializes the required gamification profile.
+   - **If an ADMIN already exists:** Bootstrap is safely skipped to preserve existing administrators.
+   - **If the configured email already belongs to a normal USER:** The bootstrap process does NOT overwrite or promote that user, preventing accidental account takeover.
+8. **Login:** After a successful startup, you can log in to the frontend using the configured administrator email and password.
 
-## 7. Initial ADMIN Setup
-To ensure a secure environment on a fresh clone, the platform includes a **First-Admin Bootstrap**:
-1. Before starting the backend, define your desired admin credentials in your `.env` file (e.g., `ECOTRACK_INITIAL_ADMIN_EMAIL` and `ECOTRACK_INITIAL_ADMIN_PASSWORD`).
-2. When the backend starts, if exactly **0** admins exist in the database, `AdminBootstrapRunner` will securely create a brand new admin account using these credentials, assign `Role.ADMIN`, and hash the password with BCrypt.
-3. If an admin already exists, or if the email is taken by a normal user, the bootstrap safely skips execution to prevent overrides.
-4. You can log in via `/api/auth/login` using these credentials. Normal users registering via the frontend will strictly receive `Role.USER`.
+*Please note: "Initial ADMIN Bootstrap" is distinct from ordinary user registration. The normal registration UI only creates standard users. You do NOT need to manually execute SQL inserts to create an administrator.*
 
-## 8. Running the Backend
+## 7. Running the Backend
 ```bash
 # Clean and compile the project
-.\mvnw.cmd clean install
+.\mvnw.cmd clean compile
 
 # Run the application
 .\mvnw.cmd spring-boot:run
 ```
 The server will start on `http://localhost:8080`.
 
-## 9. Running the Frontend
-The backend is configured to accept CORS requests from `http://localhost:4200`. Start the Angular frontend in a separate terminal:
-```bash
-cd ../frontend
-npm install
-npm start
-```
-
-## 10. Authentication
+## 8. Authentication
 The backend uses **JWT (JSON Web Tokens)** for stateless session management.
 - Protected endpoints require an `Authorization: Bearer <token>` header.
 - Token expiration and secrets are configured in `application.yaml`.
 
-## 11. AI Configuration
-EcoTrack uses Google Gemini for insights, tips, and summaries. 
-- Ensure `GEMINI_API_KEY` is set in your `.env`. 
-- AI features can be globally toggled via `ecotrack.ai.enabled` in `application.yaml`.
+## 9. Key Modules
+- **AI Integration**: Uses Google Gemini for insights, tips, and summaries. Ensure `GEMINI_API_KEY` is set in your `.env`. AI features can be globally toggled via `ecotrack.ai.enabled` in `application.yaml`.
+- **Gamification & Leaderboard**: Users earn **XP** for carbon entries and challenges. **Badges** are awarded based on milestones. The global **Leaderboard** uses dense ranking to fairly display top users (admins are excluded).
+- **Reports & Exports**: EcoTrack generates comprehensive analytics available to users and admins. Supported formats: **PDF**, **Excel**, **CSV/ZIP**.
+- **Admin Features**: Admins have access to privileged endpoints (`/api/admin/**`) for platform-wide analytics, user management, and global challenges configuration.
 
-## 12. Reports & Exports
-EcoTrack generates comprehensive analytics available to users and admins:
-- Supported Formats: **PDF**, **Excel**, **CSV/ZIP**.
-- Features include user carbon tracking reports, goals/challenges progress, and overall sustainability metrics.
-
-## 13. Gamification
-- Users earn **XP** for carbon entries and challenges.
-- **Badges** are awarded based on milestones.
-- Managed centrally by the `gamification` and `challenge` modules.
-
-## 14. Admin Features
-Admins have access to privileged endpoints (`/api/admin/**`) for:
-- Platform-wide Analytics and Metrics.
-- User management (viewing, suspending, role management).
-- Global challenges and badge configuration.
-
-## 15. Testing
+## 10. Testing
 Run the comprehensive test suite (Unit and Integration):
 ```bash
-.\mvnw.cmd test
+.\mvnw.cmd clean test
 ```
-
-## 16. Fresh Clone / Infosys Evaluation Procedure
-1. Clone the repository.
-2. Create `.env` from `.env.example` and fill in secrets (DB, SMTP, GEMINI, ADMIN credentials).
-3. Create the `ecotrack_dev` database in MySQL.
-4. Run the backend: `.\mvnw.cmd spring-boot:run`. Flyway will initialize the schema, and the bootstrap will create your initial admin.
-5. Run the frontend: `npm start`.
-6. Log in as ADMIN to verify the setup, and register a new USER to verify normal operations.

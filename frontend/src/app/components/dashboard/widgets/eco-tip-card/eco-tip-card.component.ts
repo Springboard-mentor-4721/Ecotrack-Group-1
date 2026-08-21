@@ -16,12 +16,12 @@ import { LucideAngularModule, Lightbulb, Zap, Calendar } from 'lucide-angular';
          style="background: color-mix(in srgb, var(--color-emerald) 8%, var(--bg-surface)); backdrop-filter: blur(10px); border-left: 4px solid #0d9488 !important;">
       
       <div class="p-2 px-2 d-flex flex-column position-relative z-1">
-        <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
           <h6 class="fw-bold text-teal text-uppercase tracking-wider fs-xs mb-0 d-flex align-items-center gap-2">
             <span class="text-teal d-flex"><lucide-angular [img]="CalendarIcon" size="16"></lucide-angular></span>
             Today's Eco Tip
           </h6>
-          <span class="fs-xs fw-medium d-flex align-items-center gap-1 px-2 py-1 rounded-pill border shadow-sm eco-tip-badge" style="color: #6366f1;">
+          <span class="fs-xs fw-medium d-flex align-items-center gap-1 px-2 py-1 rounded-pill border shadow-sm eco-tip-badge text-nowrap" style="color: #6366f1;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"></path>
               <path d="M7 16l2.5-7 2.5 7"></path>

@@ -89,7 +89,7 @@
   border-radius: 16px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  /* overflow: hidden; removed to allow dropdown */
 }
 
 /* Directory Header */
@@ -218,3 +218,5 @@
     justify-content: center !important;
   }
 }
+
+

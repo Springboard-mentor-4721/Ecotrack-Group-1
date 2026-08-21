@@ -33,7 +33,7 @@
       <div class="divider d-none d-sm-block"></div>
 
       <!-- Notifications -->
-      <app-notification-bell></app-notification-bell>
+      <app-notification-bell *ngIf="!isAdminUser()"></app-notification-bell>
 
       <div class="divider d-none d-sm-block"></div>
 
@@ -60,7 +60,7 @@
 
         <!-- Dropdown Menu -->
         <div class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3 position-absolute end-0 mt-2 py-2 bg-surface" style="min-width: 200px;" [class.show]="isMenuOpen()">
-          <a routerLink="/profile" class="dropdown-item px-3 py-2 border-bottom mb-2 text-decoration-none" (click)="toggleMenu()">
+          <a [routerLink]="isAdminUser() ? '/admin/settings' : '/profile'" class="dropdown-item px-3 py-2 border-bottom mb-2 text-decoration-none" (click)="toggleMenu()">
             <span class="d-block fw-bold text-dark fs-7">{{ userProfile()?.name || 'User' }}</span>
             <span class="d-block text-muted fs-xs">{{ userProfile()?.email || 'user@ecotrack.com' }}</span>
           </a>

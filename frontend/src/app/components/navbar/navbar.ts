@@ -19,6 +19,7 @@ export class NavbarComponent implements OnInit {
   isDark = signal(false);
   isMenuOpen = signal(false);
   userProfile = signal<any>(null);
+  isAdminUser = signal<boolean>(false);
 
   @Output() toggleSidebar = new EventEmitter<void>();
 
@@ -33,10 +34,14 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
     // Check saved theme or system preference
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (savedTheme) {
+      this.isDark.set(savedTheme === 'dark');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       this.isDark.set(true);
       document.documentElement.setAttribute('data-theme', 'dark');
     }
+    this.isAdminUser.set(this.authService.isAdmin());
     this.loadUserProfile();
   }
 

@@ -475,11 +475,12 @@
   }
 
   .merged-auth-wrapper {
-    flex-direction: column;
-    width: 92vw;
-    max-width: 600px;
-    height: auto;
-  }
+      flex-direction: column;
+      width: 92vw;
+      max-width: 600px;
+      height: auto;
+      max-height: none;
+    }
 
   .split-left {
     padding: clamp(1.5rem, 4vw, 3rem);
@@ -529,3 +530,4 @@
 
   /* Mobile keeps 4 leaves */
 }
+

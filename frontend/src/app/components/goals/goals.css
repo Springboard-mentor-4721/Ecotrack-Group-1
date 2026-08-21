@@ -1,5 +1,10 @@
 /* Placeholder for goals-specific styles, currently leveraging global styles.css */
 
+.dashboard-wrapper {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* Enhanced Stat Cards (Goals) */
 .goal-stat-card {
   transition: transform 0.25s ease, box-shadow 0.25s ease;

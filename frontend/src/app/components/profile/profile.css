@@ -312,7 +312,14 @@
 }
 
 .ro-label {
+  min-width: 160px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .ro-label { min-width: 110px; }
+  .custom-tabs .nav-item { width: 100%; text-align: center; }
+  .custom-tabs .nav-link { width: 100%; }
 }

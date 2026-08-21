@@ -20,14 +20,14 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="admin-detail-container">
-      <div class="header d-flex justify-content-between align-items-center mb-4">
-        <div>
+      <div class="header-container mb-4" *ngIf="challenge() as c">
+        <div class="header-title-area">
           <button class="btn btn-icon mb-2" routerLink="/admin/challenges">
             <span class="material-icons">arrow_back</span> Back to Library
           </button>
-          <h1 class="mb-1" style="font-size: 1.8rem; font-weight: 700; color: #0f172a;">Challenge Details</h1>
+          <h1 class="mb-1" style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary);">Challenge Details</h1>
         </div>
-        <div class="actions d-flex gap-2" *ngIf="challenge() as c">
+        <div class="actions-area">
           <button class="btn btn-outline" *ngIf="c.status === 'PENDING' || c.status === 'UPCOMING'" (click)="editChallenge(c.id)">
             <span class="material-icons text-primary">edit</span> Edit
           </button>
@@ -161,6 +161,15 @@ import { DEFAULT_CHALLENGE_TEMPLATES } from '../../challenge-default-templates';
     .banner-UPCOMING { background: #3b82f6; }
     .banner-CLOSED { background: #ef4444; }
     .challenge-image-banner { height: 350px; width: 100%; border-bottom: 1px solid var(--border-color); }
+    
+    .header-container { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .actions-area { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    
+    @media (max-width: 768px) {
+      .admin-detail-container { padding: 1.5rem 1rem; }
+      .challenge-image-banner { height: 200px; }
+      .header-container { flex-direction: column; align-items: flex-start; }
+    }
     
     .info-block.bg-light { background-color: var(--bg-surface-hover) !important; border-color: var(--border-color) !important; color: var(--text-primary); }
     .bg-light { background-color: var(--bg-surface-hover) !important; }

@@ -25,9 +25,9 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
     <div class="wizard-page">
       <div class="wizard-header-top">
         <button class="back-link" (click)="cancel()">
-          <span class="material-icons">arrow_back</span> Back to Templates
+          <span class="material-icons">arrow_back</span> <span class="back-text">Back to Templates</span>
         </button>
-        <h2 style="margin: 0; font-size: 1.5rem; font-weight: bold; color: #0f172a; position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none;">Create Challenge</h2>
+        <h2 class="wizard-title">Create Challenge</h2>
       </div>
 
       <div *ngIf="isDuplicating" class="duplicate-banner animate-fade-in" style="background: #e0e7ff; color: #3730a3; padding: 1rem 1.5rem; margin: 0 2rem 1rem 2rem; border-radius: 8px; border-left: 4px solid #6366f1; display: flex; align-items: center; gap: 1rem;">
@@ -82,7 +82,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
 
           <!-- STEPS 1-3 WITH SPLIT LAYOUT -->
           <div class="split-layout" *ngIf="currentStep() < 4">
-            <div class="form-section-wrapper" style="min-width: 0;">
+            <div class="form-section-wrapper" style="min-width: 0; position: relative; z-index: 10;">
 
               <!-- STEP 1: BASIC INFORMATION -->
               <div class="step-content animate-fade-in" *ngIf="currentStep() === 1">
@@ -105,7 +105,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                 </div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+              <div class="date-grid">
                 <div class="form-group">
                   <label>Start Date <span class="required">*</span></label>
                   <div class="custom-dropdown" tabindex="0">
@@ -170,14 +170,14 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
 
             <div class="form-section">
               <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Tracking Method</h4>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div class="step-header-row">
                 <p style="font-size: 0.8125rem; color: #64748b; margin: 0;">Choose how participants can earn progress in this challenge.</p>
                 <button *ngIf="isTemplate" class="btn btn-sm btn-outline-warning rounded-pill" (click)="isTemplate = false">
                   <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">lock_open</span> Unlock Template
                 </button>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
+              <div class="cards-grid" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                 <div class="tracking-card" [class.active]="wizardForm.get('trackingMethod')?.value === 'AUTOMATIC'" (click)="wizardForm.patchValue({trackingMethod: 'AUTOMATIC'})" role="radio" [attr.aria-checked]="wizardForm.get('trackingMethod')?.value === 'AUTOMATIC'" tabindex="0">
                   <div class="tc-icon-wrapper"><span class="material-icons tc-icon">eco</span></div>
                   <div class="tc-content">
@@ -270,7 +270,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
 
             <div class="form-section">
               <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Evaluation Type</h4>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
+              <div class="cards-grid" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                 <!-- Achievement Card -->
                 <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'"
                      (click)="wizardForm.patchValue({challengeEvaluationType: 'ACHIEVEMENT'})" role="radio" [attr.aria-checked]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'" tabindex="0">
@@ -306,7 +306,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                 </div>
               </div>
 
-              <div style="display: flex; gap: 2rem; align-items: flex-start; margin-bottom: 2rem;">
+              <div class="cards-grid target-xp-grid" style="align-items: flex-start;">
                 <div style="flex: 1; position: relative;">
                   <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">{{ wizardForm.get('challengeEvaluationType')?.value === 'BUDGET' ? 'Budget Value' : 'Target Value' }} ({{ derivedUnitLabel }}) <span class="required">*</span></label>
                   <input type="number" class="premium-input" formControlName="targetValue" [attr.aria-invalid]="isInvalid('targetValue')" aria-describedby="target-error" />
@@ -362,8 +362,8 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
             </div>
 
             <!-- SHARED PREVIEW -->
-            <div class="preview-section">
-              <div class="preview-card" style="position: sticky; top: 2rem;">
+            <div class="preview-section" style="position: relative; z-index: 5;">
+              <div class="preview-card" style="position: sticky; top: 2rem; z-index: 1;">
                 <h4>Challenge Preview</h4>
                 <div class="p-image" [style.backgroundColor]="'#10b981'" style="overflow: hidden; position: relative;">
                   <img *ngIf="imagePreviewUrl" [src]="resolveImageUrl(imagePreviewUrl)" (error)="onImageError()" style="width:100%; height:100%; object-fit:cover; position: absolute; inset: 0;" />
@@ -392,7 +392,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                   </div>
                 </div>
 
-                <div style="padding: 2rem;">
+                <div class="review-content">
                   <h4 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; font-size: 1.5rem;">{{ wizardForm.value.title || 'Untitled' }}</h4>
 
                   <div class="review-row" style="margin-bottom: 2rem;">
@@ -403,7 +403,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                     </div>
                   </div>
 
-                  <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem;">
+                  <div class="review-grid">
 
                 <div class="review-row" *ngIf="wizardForm.value.maxParticipants">
                   <span class="material-icons review-icon">group</span>
@@ -453,7 +453,10 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                   <span class="material-icons review-icon">calendar_today</span>
                   <div>
                     <small>Duration</small>
-                    <strong>{{ wizardForm.value.startDate | date:'MMM d, y, h:mm a' }} - {{ wizardForm.value.endDate | date:'MMM d, y, h:mm a' }}</strong>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                      <strong><span style="color: var(--text-muted); font-weight: normal; margin-right: 4px;">Start:</span>{{ wizardForm.value.startDate | date:'MMM d, y, h:mm a' }}</strong>
+                      <strong><span style="color: var(--text-muted); font-weight: normal; margin-right: 4px;">End:</span>{{ wizardForm.value.endDate | date:'MMM d, y, h:mm a' }}</strong>
+                    </div>
                   </div>
                 </div>
                 <div class="review-row">
@@ -488,7 +491,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
         </form>
 
         <ng-template #datePickerTemplate let-field="field">
-          <div class="custom-dp-popup-inner" style="display:flex; gap:1rem; background:white; padding:1.5rem; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); border:1px solid #e2e8f0; width:max-content; position:absolute; z-index:1100; margin-top:0.5rem; top: 100%; left: 0;" (mousedown)="$event.stopPropagation()">
+          <div class="custom-dp-popup-inner" (mousedown)="$event.stopPropagation()">
              <div style="min-width:240px;">
                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.5rem;">
                  <button type="button" style="background:none; border:none; cursor:pointer;" (click)="prevMonth($event)"><span class="material-icons">chevron_left</span></button>
@@ -512,7 +515,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                  <button type="button" (click)="selectToday(field, $event)" style="background:none; border:none; color:#10b981; font-weight:600; cursor:pointer; font-size:0.875rem;">Today</button>
                </div>
              </div>
-             <div style="border-left:1px solid #f1f5f9; padding-left:1rem; display:flex; flex-direction:column;">
+             <div class="time-picker-section">
                <span style="font-weight:600; font-size:0.9rem; margin-bottom:1rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.5rem; text-align:center;">Time</span>
                <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center;">
                  <div style="display:flex; flex-direction:column; align-items:center;">
@@ -611,6 +614,8 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
     /* STEP 1 SPLIT LAYOUT */
     .split-layout { display: grid; grid-template-columns: 1fr 340px; gap: 3rem; }
     @media (max-width: 900px) { .split-layout { grid-template-columns: 1fr; } }
+    
+    .date-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
 
     .form-group { margin-bottom: 1.5rem; position: relative; }
     .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.625rem; color: var(--text-secondary); letter-spacing: -0.01em; }
@@ -618,9 +623,49 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
 
     .premium-input {
       width: 100%; border: 1px solid var(--border-color); border-radius: 10px; padding: 0.875rem 1.25rem;
-      font-size: 0.95rem; font-weight: 500; color: var(--text-primary); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: var(--bg-surface);
-      font-family: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      font-size: 0.95rem; font-weight: 500; color: var(--text-primary); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--bg-surface);
+      box-sizing: border-box;
     }
+    
+    .wizard-title { margin: 0; font-size: 1.5rem; font-weight: bold; color: #0f172a; position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    
+    @media (max-width: 768px) {
+      .wizard-page { padding: 1rem; }
+      .wizard-title { position: static; transform: none; font-size: 1.25rem; }
+      .back-text { display: none; }
+      .wizard-header-top { justify-content: flex-start; gap: 1rem; }
+      .stepper-nav { padding: 1rem 0; gap: 0.5rem; }
+      .step-label { font-size: 0.7rem; max-width: 60px; }
+      .step-line { margin: 0 0.5rem; }
+      .step-content { padding: 1.5rem 1rem; }
+      .date-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .wizard-footer { padding: 1rem; }
+      .cover-upload-area { flex-direction: column; align-items: flex-start; }
+      .custom-dp-popup-inner { flex-direction: column; width: auto; left: 0; }
+      .time-picker-section { border-left: none; border-top: 1px solid #f1f5f9; padding-left: 0; padding-top: 1rem; }
+      .cards-grid { grid-template-columns: 1fr !important; }
+      .target-xp-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+      .step-header-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .review-grid { grid-template-columns: 1fr !important; }
+      .review-content { padding: 1.5rem 1rem !important; }
+    }
+    
+    .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .target-xp-grid { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 2rem; gap: 2rem; }
+    .step-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .review-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem; }
+    .review-content { padding: 2rem; }
+    
+    .custom-dp-popup-inner {
+      display: flex; gap: 1rem; background: white; padding: 1.5rem; border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; width: max-content;
+      position: absolute; z-index: 1100; margin-top: 0.5rem; top: 100%; left: 0;
+    }
+    .time-picker-section {
+      border-left: 1px solid #f1f5f9; padding-left: 1rem; display: flex; flex-direction: column;
+    }
+
     .premium-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: var(--bg-surface); }
     .premium-input[aria-invalid="true"] { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); background: #fef2f2; }
     .premium-input[aria-invalid="true"]:focus { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); }

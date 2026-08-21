@@ -170,7 +170,7 @@
     <!-- ===============================
          TAB NAVIGATION
          =============================== -->
-    <ul class="nav nav-pills custom-tabs mb-4 gap-2" role="tablist">
+    <ul class="nav nav-pills custom-tabs justify-content-center mb-4 gap-2" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link fw-bold px-4 py-2 rounded-pill" [class.active]="activeTab() === 'overview'" (click)="activeTab.set('overview')" type="button" role="tab" [attr.aria-selected]="activeTab() === 'overview'">Overview & Achievements</button>
       </li>
@@ -379,7 +379,7 @@
     
               <div class="read-only-fields d-flex flex-column gap-4">
                 <div class="ro-field d-flex align-items-center flex-wrap gap-2">
-                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     Full Name
                     <span class="ms-auto">:</span>
@@ -388,7 +388,7 @@
                 </div>
                 
                 <div class="ro-field d-flex align-items-center flex-wrap gap-2">
-                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     Email Address
                     <span class="ms-auto">:</span>
@@ -397,7 +397,7 @@
                 </div>
     
                 <div class="ro-field d-flex align-items-center flex-wrap gap-2">
-                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     Status
                     <span class="ms-auto">:</span>
@@ -408,7 +408,7 @@
                 </div>
                 
                 <div class="ro-field d-flex align-items-center flex-wrap gap-2">
-                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" style="min-width: 160px;">
+                  <span class="ro-label text-muted fs-7 d-flex align-items-center m-0" >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                     Member Since
                     <span class="ms-auto">:</span>
@@ -470,3 +470,4 @@
     </div> <!-- END TAB CONTENT -->
   </ng-container>
 </div>
+

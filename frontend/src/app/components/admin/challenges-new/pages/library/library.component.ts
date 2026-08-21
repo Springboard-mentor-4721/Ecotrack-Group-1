@@ -79,7 +79,7 @@ import { environment } from '../../../../../../environments/environment';
           </div>
 
           <!-- Category Dropdown -->
-          <div class="action-dropdown-container" style="min-width: 170px;">
+          <div class="action-dropdown-container filter-item">
             <div class="filter-dropdown" (click)="showCategoryDropdown = !showCategoryDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ getCategoryLabel() }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
@@ -92,7 +92,7 @@ import { environment } from '../../../../../../environments/environment';
           </div>
 
           <!-- Tracking Method Dropdown -->
-          <div class="action-dropdown-container" style="min-width: 170px;">
+          <div class="action-dropdown-container filter-item">
             <div class="filter-dropdown" (click)="showTrackingDropdown = !showTrackingDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ trackingControl.value === '' ? 'Tracking Method' : (trackingControl.value === 'AUTOMATIC' ? 'Automatic' : 'Manual') }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
@@ -106,7 +106,7 @@ import { environment } from '../../../../../../environments/environment';
           </div>
 
           <!-- Type Dropdown -->
-          <div class="action-dropdown-container" style="min-width: 170px;">
+          <div class="action-dropdown-container filter-item">
             <div class="filter-dropdown" (click)="showTypeDropdown = !showTypeDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ typeControl.value === '' ? 'Type' : (typeControl.value === 'ACHIEVEMENT' ? 'Achievement' : 'Budget') }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
@@ -120,7 +120,7 @@ import { environment } from '../../../../../../environments/environment';
           </div>
 
           <!-- Sort Dropdown -->
-          <div class="action-dropdown-container" style="min-width: 150px;">
+          <div class="action-dropdown-container filter-item">
             <div class="filter-dropdown" (click)="showSortDropdown = !showSortDropdown; $event.stopPropagation()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
               <span>{{ getSortLabel() }}</span>
               <span class="material-icons" style="font-size: 1.1rem; color: #94a3b8;">expand_more</span>
@@ -194,7 +194,7 @@ import { environment } from '../../../../../../environments/environment';
                   </tr>
                 </thead>
                 <tbody>
-                  <ng-container *ngFor="let c of challenges(); trackBy: trackById">
+                  <ng-container *ngFor="let c of challenges(); let i = index; trackBy: trackById">
                     <tr [class.archived]="c.status === 'ARCHIVED'" [class.expanded]="expandedRowId() === c.id" (click)="viewChallenge(c.id)" (dblclick)="onRowDoubleClick(c.id, $event)">
                       <td style="padding-right: 0" *ngIf="selectionMode()">
                         <input type="checkbox" class="custom-checkbox"
@@ -243,7 +243,12 @@ import { environment } from '../../../../../../environments/environment';
                           <button class="btn-icon" title="Actions" (click)="toggleActionMenu(c.id, $event)">
                             <span class="material-icons">more_vert</span>
                           </button>
-                          <div class="action-dropdown" *ngIf="activeActionMenuId() === c.id">
+                          <div class="action-dropdown" *ngIf="activeActionMenuId() === c.id" 
+                               [style.position]="'fixed'"
+                               [style.top]="menuPos().top"
+                               [style.bottom]="menuPos().bottom"
+                               [style.right]="menuPos().right"
+                               style="z-index: 99999; margin: 0;">
                             <button class="dropdown-item" (click)="$event.stopPropagation(); viewChallenge(c.id)">
                               <span class="material-icons">visibility</span> View Details
                             </button>
@@ -385,15 +390,15 @@ import { environment } from '../../../../../../environments/environment';
     }
     .filter-group { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; flex: 1; }
     .filter-right { display: flex; }
-    .search-input {
-      position: relative; display: flex; align-items: center; width: 280px;
-    }
+    .search-input { position: relative; display: flex; align-items: center; width: 280px; flex: 0 0 auto; }
     .search-input input {
       width: 100%; padding: 0.5rem 1rem 0.5rem 2.5rem; border: 1px solid #cbd5e1;
       border-radius: 8px; font-size: 0.875rem; color: #000000ff;
     }
     .search-input input:focus { outline: none; border-color: #059669; }
     .search-input .material-icons { position: absolute; left: 0.75rem; color: #94a3b8; font-size: 1.25rem; }
+    
+    .filter-item { flex: 0 0 auto; }
     .filter-btn { display: flex; align-items: center; justify-content: center; gap: 0.25rem; font-weight: 500; color: var(--text-primary); }
     .badge-count { background: #059669; color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; margin-left: 0.25rem; }
     .date-range-btn { display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-weight: 500; font-size: 0.875rem; border-color: #cbd5e1; }
@@ -407,19 +412,32 @@ import { environment } from '../../../../../../environments/environment';
     }
 
     .tabs {
-      display: flex; gap: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;
+      display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;
+      overflow-x: auto; white-space: nowrap; padding-bottom: 4px;
+      /* Hide scrollbar for cleaner look */
+      scrollbar-width: none;
     }
+    .tabs::-webkit-scrollbar { display: none; }
     .tab {
       background: none; border: none; padding: 0.75rem 0; font-size: 0.9rem;
       font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent;
-      margin-bottom: -1px; transition: all 0.2s;
+      margin-bottom: -1px; transition: all 0.2s; flex-shrink: 0;
     }
     .tab:hover { color: var(--text-primary); }
     .tab.active { color: #059669; border-bottom-color: #059669; font-weight: 600; }
+    
+    @media (max-width: 576px) {
+      .library-container { max-width: 100vw; overflow-x: hidden; padding: 1rem; }
+      .table-card { max-width: calc(100vw - 2rem); border-radius: 8px; }
+      .filter-item { flex: 1 1 100%; }
+      .search-input { flex: 1 1 100%; width: 100%; }
+    }
+    
+    @keyframes popIn { from { opacity: 0; transform: translateY(-4px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-    .table-card { background: var(--bg-surface); border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
-    .table-responsive { }
-    .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .table-card { background: var(--bg-surface); border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); overflow: hidden; width: 100%; max-width: calc(100vw - 2rem); }
+    .table-responsive { width: 100%; display: block; max-width: 100%; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 800px; }
     .data-table th { padding: 0.5rem 0.25rem; background: var(--bg-surface-hover); color: var(--text-muted); font-weight: 500; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; text-align: center; }
     .data-table th:first-child { border-top-left-radius: 12px; }
     .data-table th:last-child { border-top-right-radius: 12px; }
@@ -465,7 +483,10 @@ import { environment } from '../../../../../../environments/environment';
     .action-dropdown {
       position: absolute; right: 0; top: 100%; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px;
       box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding: 0.5rem 0;
-      z-index: 50; min-width: 180px; animation: fadeIn 0.15s ease-out;
+      z-index: 50; min-width: 180px; animation: fadeIn 0.15s ease-out; margin-top: 4px;
+    }
+    .action-dropdown.drop-up {
+      top: auto; bottom: 100%; margin-top: 0; margin-bottom: 4px;
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
     .dropdown-item {
@@ -497,7 +518,7 @@ import { environment } from '../../../../../../environments/environment';
     .page-buttons { display: flex; gap: 0.5rem; align-items: center; }
     
     /* Make table scrollable if it still exceeds screen width */
-    .table-responsive { width: 100%; overflow: visible !important; }
+    .table-responsive { width: 100%; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
   `]
 })
 export class LibraryComponent implements OnInit {
@@ -523,6 +544,7 @@ export class LibraryComponent implements OnInit {
   apiError = signal<boolean>(false);
   expandedRowId = signal<number | null>(null);
   activeActionMenuId = signal<number | null>(null);
+  menuPos = signal<{top: string, right: string, bottom: string}>({top: 'auto', right: 'auto', bottom: 'auto'});
   selectionMode = signal<boolean>(false);
 
   currentPage = signal<number>(0);
@@ -818,7 +840,19 @@ export class LibraryComponent implements OnInit {
 
   toggleActionMenu(id: number, event: Event) {
     event.stopPropagation();
-    this.activeActionMenuId.update(current => current === id ? null : id);
+    if (this.activeActionMenuId() === id) {
+      this.activeActionMenuId.set(null);
+    } else {
+      const btn = (event.currentTarget as HTMLElement);
+      const rect = btn.getBoundingClientRect();
+      const isBottom = window.innerHeight - rect.bottom < 220; // If close to bottom, drop up
+      this.menuPos.set({
+        top: isBottom ? 'auto' : (rect.bottom + 4) + 'px',
+        bottom: isBottom ? (window.innerHeight - rect.top + 4) + 'px' : 'auto',
+        right: (window.innerWidth - rect.right) + 'px'
+      });
+      this.activeActionMenuId.set(id);
+    }
   }
 
   toggleParticipants(id: number) {
@@ -971,3 +1005,9 @@ export class LibraryComponent implements OnInit {
     return encodeURI(`${baseUrl}/uploads/${url}`);
   }
 }
+
+
+
+
+
+

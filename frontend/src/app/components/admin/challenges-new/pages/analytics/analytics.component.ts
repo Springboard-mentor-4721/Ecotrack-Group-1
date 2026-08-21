@@ -51,18 +51,24 @@ interface SectionState<T> {
               <div class="dropdown-option" [class.selected]="dateRange() === '365'" (mousedown)="selectDateRange('365'); $event.preventDefault();">This Year</div>
             </div>
           </div>
-          <button class="btn btn-outline" [disabled]="isExporting()" (click)="export('pdf')">
-            <span class="material-icons">picture_as_pdf</span> 
-            {{ isExporting() ? 'Exporting...' : 'Export PDF' }}
-          </button>
-          <button class="btn btn-outline" [disabled]="isExporting()" (click)="export('excel')">
-            <span class="material-icons">table_view</span> 
-            {{ isExporting() ? 'Exporting...' : 'Export Excel' }}
-          </button>
-          <button class="btn btn-outline" [disabled]="isExporting()" (click)="export('csv')">
-            <span class="material-icons">text_snippet</span> 
-            {{ isExporting() ? 'Exporting...' : 'Export CSV (Zip)' }}
-          </button>
+          <div class="custom-dropdown" tabindex="0" (blur)="isExportDropdownOpen.set(false)">
+            <button class="btn btn-outline" [disabled]="isExporting()" (click)="isExportDropdownOpen.set(!isExportDropdownOpen())" style="padding-right: 0.5rem;">
+              <span class="material-icons">download</span> 
+              {{ isExporting() ? 'Exporting...' : 'Export Report' }}
+              <span class="material-icons">arrow_drop_down</span>
+            </button>
+            <div class="dropdown-options" *ngIf="isExportDropdownOpen()">
+              <div class="dropdown-option" (mousedown)="doExport('pdf'); $event.preventDefault();">
+                <span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">picture_as_pdf</span> PDF Report
+              </div>
+              <div class="dropdown-option" (mousedown)="doExport('excel'); $event.preventDefault();">
+                <span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">table_view</span> Excel Sheet
+              </div>
+              <div class="dropdown-option" (mousedown)="doExport('csv'); $event.preventDefault();">
+                <span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">text_snippet</span> CSV (Zip)
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -87,7 +93,7 @@ interface SectionState<T> {
           Failed to load overview data. <button (click)="loadOverview()">Retry</button>
         </div>
 
-        <div class="stats-row" *ngIf="overview().data as data">
+        <div class="stats-row" *ngIf="overview().data as data" >
           <div class="stat-card">
             <span class="material-icons icon-bg-blue">group</span>
             <div class="stat-content">
@@ -145,7 +151,7 @@ interface SectionState<T> {
         </div>
 
         <ng-container *ngIf="users().data as data">
-          <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stats-row" >
             <div class="stat-card">
               <div class="stat-content">
                 <span class="stat-label">Total Users</span>
@@ -256,7 +262,7 @@ interface SectionState<T> {
         </div>
 
         <ng-container *ngIf="badges().data as data">
-          <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stats-row" >
             <div class="stat-card">
               <div class="stat-content">
                 <span class="stat-label">Total Badges Awarded</span>
@@ -356,7 +362,7 @@ interface SectionState<T> {
         </div>
 
         <ng-container *ngIf="sustainability().data as data">
-          <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stats-row" >
             <div class="stat-card">
               <span class="material-icons icon-bg-emerald">eco</span>
               <div class="stat-content">
@@ -437,8 +443,8 @@ interface SectionState<T> {
     
     .section-title { display: none; }
 
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .stat-card { background: var(--bg-surface); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid rgba(241,245,249,0.8); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden; align-items: center; text-align: center; }
+    .stats-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { flex: 1 1 160px; max-width: 200px; background: var(--bg-surface); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid rgba(241,245,249,0.8); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden; align-items: center; text-align: center; }
     .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08), 0 8px 10px -5px rgba(0,0,0,0.04); border-color: var(--border-color); }
     
     .stat-card .material-icons { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; margin: 0 auto; }
@@ -473,6 +479,19 @@ interface SectionState<T> {
       .charts-row { grid-template-columns: 1fr; }
       .charts-row .chart-wide { grid-column: span 1; }
     }
+    
+    @media (max-width: 768px) {
+      .admin-analytics-container { padding: 1rem; }
+      .header-section { flex-direction: column; align-items: flex-start; }
+      .stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        .stat-card { max-width: 100%; flex: none; }
+      .stat-card { padding: 1rem; }
+      .stat-value { font-size: 1.5rem; }
+      .chart-card { padding: 1rem; max-width: 100%; overflow: hidden; }
+      .chart-wrapper { height: 250px; }
+      .tabs-container { margin-bottom: 1.5rem; width: 100%; justify-content: flex-start; -webkit-overflow-scrolling: touch; }
+      .tabs-container button { padding: 0.5rem 1rem; font-size: 0.85rem; }
+    }
   `]
 })
 export class AnalyticsComponent implements OnInit {
@@ -482,6 +501,7 @@ export class AnalyticsComponent implements OnInit {
   dateRange = signal<string>('30');
   activeTab = signal<string>('overview');
   isDropdownOpen = signal<boolean>(false);
+  isExportDropdownOpen = signal<boolean>(false);
   
   overview = signal<SectionState<AdminOverviewAnalyticsDTO>>({ data: null, loading: true, error: false });
   users = signal<SectionState<AdminUserAnalyticsDTO>>({ data: null, loading: true, error: false });
@@ -558,6 +578,11 @@ export class AnalyticsComponent implements OnInit {
   onDateRangeChange(range: string) {
     this.dateRange.set(range);
     this.loadAllData();
+  }
+
+  doExport(format: 'pdf' | 'excel' | 'csv') {
+    this.isExportDropdownOpen.set(false);
+    this.export(format);
   }
 
   selectDateRange(range: string) {
@@ -730,3 +755,6 @@ export class AnalyticsComponent implements OnInit {
     };
   }
 }
+
+
+

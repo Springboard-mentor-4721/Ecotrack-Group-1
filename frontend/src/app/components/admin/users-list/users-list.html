@@ -126,7 +126,7 @@
         <span class="text-muted fw-bold" style="font-size: 1.1rem;">{{ totalElements() }} Accounts Found</span>
       </div>
 
-      <div class="user-list bg-surface border rounded-4 overflow-hidden shadow-sm" *ngIf="users().length > 0; else emptyUsers">
+      <div class="user-list bg-surface border rounded-4 shadow-sm" *ngIf="users().length > 0; else emptyUsers">
 
         <!-- Directory Header -->
         <div class="d-none d-md-grid directory-header px-4 py-3" style="grid-template-columns: 2fr 3fr 2fr; gap: 1rem;">
@@ -243,3 +243,4 @@
 
   </ng-container>
 </div>
+

@@ -604,7 +604,7 @@
             </button>
           </div>
 
-          <div class="d-flex align-items-center gap-3 ms-auto">
+          <div class="d-flex align-items-center gap-2 ms-auto">
             <!-- Search Bar -->
             <div class="position-relative">
               <svg
@@ -629,7 +629,7 @@
                   padding-left: 36px;
                   padding-right: 16px;
                   font-size: 0.875rem;
-                  min-width: 250px;
+                  min-width: 150px; width: 100%;
                 "
                 placeholder="Search by name or type..."
                 [value]="searchQuery()"
@@ -801,8 +801,8 @@
                 this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
               "
             >
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-start mb-3 gap-2 w-100">
+                <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width: 0;">
                   <div
                     class="bg-surface-hover rounded-3 p-3 border text-primary fs-3 d-flex align-items-center justify-content-center"
                     style="width: 56px; height: 56px"
@@ -923,8 +923,8 @@
                     </svg>
                   </div>
                   <div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <h3 class="fw-bold fs-6 mb-0 text-dark">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                      <h3 class="fw-bold fs-6 mb-0 text-dark" style="word-break: break-word;">
                         {{ getGoalCategory(goal.goalType) }}
                       </h3>
                       <span
@@ -953,9 +953,9 @@
                   </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
-                  <span
-                    class="badge bg-surface border fw-bold px-2 py-1 fs-7 d-flex align-items-center gap-1"
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <span
+                      class="badge bg-surface border fw-bold px-2 py-1 fs-7 d-flex align-items-center gap-1"
                     [ngClass]="getStatusClass(getComputedStatus(goal))"
                   >
                     <span [ngSwitch]="getComputedStatus(goal)">
@@ -1441,8 +1441,8 @@
                 this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
               "
             >
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-start mb-3 gap-2 w-100">
+                <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width: 0;">
                   <div
                     class="bg-surface-hover rounded-3 p-3 border text-secondary fs-3 d-flex align-items-center justify-content-center"
                     style="width: 56px; height: 56px"
@@ -1563,8 +1563,8 @@
                     </svg>
                   </div>
                   <div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <h3 class="fw-bold fs-6 mb-0 text-dark">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                      <h3 class="fw-bold fs-6 mb-0 text-dark" style="word-break: break-word;">
                         {{ getGoalCategory(goal.goalType) }}
                       </h3>
                       <span
@@ -1595,9 +1595,9 @@
                   </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
-                  <span
-                    class="badge bg-surface border fw-bold px-2 py-1 fs-7 d-flex align-items-center gap-1"
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <span
+                      class="badge bg-surface border fw-bold px-2 py-1 fs-7 d-flex align-items-center gap-1"
                     [ngClass]="getStatusClass(getComputedStatus(goal))"
                   >
                     <span [ngSwitch]="getComputedStatus(goal)">
@@ -2012,7 +2012,7 @@
               }}
               of {{ totalElements() }} Goals
             </span>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width: 0;">
               <div class="d-flex align-items-center gap-2">
                 <span class="fs-8 text-muted fw-bold">Page Size:</span>
                 <div class="dropdown" style="position: relative">
@@ -3593,7 +3593,7 @@
           color: #111827;
         "
       >
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width: 0;">
           <div
             class="rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center"
             style="width: 44px; height: 44px; background-color: #ffffff"
@@ -3730,7 +3730,7 @@
                 </svg>
               </div>
               <div class="flex-grow-1">
-                <div class="d-flex align-items-center gap-2 mb-1">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                   <h6 class="fw-bold text-dark mb-0 fs-6">{{ getGoalCategory(goal.goalType) }}</h6>
                   <span
                     class="badge border rounded-pill px-2 py-1 fs-8 fw-bold"
@@ -4047,3 +4047,7 @@
     </div>
   </div>
 </div>
+
+
+
+

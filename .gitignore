@@ -1,6 +1,5 @@
 # IDEs
 .idea/
-.vscode/
 *.iws
 *.iml
 *.ipr
@@ -23,6 +22,7 @@ plans/
 scratch/
 pdf_text.txt
 pdf_text_clean.txt
+temp_auto_push.bat
 backend/render_pdfs.py
 backend/update_backend.ps1
 backend/update_service.ps1
@@ -48,3 +48,5 @@ dataset/*.sql
 # Ignore all root-level temp MDs but allow critical ones
 /*.md
 !/README.md
+.gitignore
+branch_structure.json

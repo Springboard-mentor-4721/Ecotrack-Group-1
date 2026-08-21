@@ -39,7 +39,7 @@ import { CommonModule } from '@angular/common';
       border: 1px solid #e2e8f0;
     }
     .selection-info { display: flex; align-items: center; gap: 1rem; }
-    .count { font-weight: 600; color: #0f172a; }
+    .count { font-weight: 600; color: var(--text-primary); }
     .btn-clear { background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.875rem; font-weight: 500; }
     .btn-clear:hover { text-decoration: underline; }
     .actions { display: flex; gap: 0.75rem; }

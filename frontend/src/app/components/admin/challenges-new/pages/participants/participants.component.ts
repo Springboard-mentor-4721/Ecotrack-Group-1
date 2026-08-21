@@ -20,7 +20,7 @@ import { of } from 'rxjs';
           <button class="btn btn-icon mb-2" [routerLink]="['/admin/challenges', challengeId()]">
             <span class="material-icons">arrow_back</span> Back to Challenge
           </button>
-          <h1 class="mb-1" style="font-size: 1.8rem; font-weight: 700; color: #0f172a;">Challenge Participants</h1>
+          <h1 class="mb-1" style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary);">Challenge Participants</h1>
           <p class="text-muted" *ngIf="challenge()">{{ challenge()?.title }}</p>
         </div>
       </div>

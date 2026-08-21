@@ -224,8 +224,8 @@ import { environment } from '../../../../../../environments/environment';
                           {{ (c.challengeEvaluationType || 'ACHIEVEMENT') | titlecase }}
                         </span>
                       </td>
-                      <td style="font-weight: 500; color: #0f172a">{{ c.participantCount || 0 | number }}</td>
-                      <td style="font-weight: 500; color: #0f172a">{{ c.rewardXp }} XP</td>
+                      <td style="font-weight: 500; color: var(--text-primary)">{{ c.participantCount || 0 | number }}</td>
+                      <td style="font-weight: 500; color: var(--text-primary)">{{ c.rewardXp }} XP</td>
                       <td>
                         <span class="badge" [ngClass]="getStatusClass(c.status)">
                           {{ c.status === 'PENDING' ? 'Draft' : (c.status | titlecase) }}
@@ -468,7 +468,7 @@ import { environment } from '../../../../../../environments/environment';
     .status-CLOSED { background: #fee2e2; color: #991b1b; }
 
     .progress-cell { display: flex; flex-direction: column; gap: 0.375rem; width: 100px; margin: 0 auto; align-items: center; }
-    .progress-text { font-size: 0.75rem; font-weight: 600; color: #0f172a; text-align: center; width: 100%; }
+    .progress-text { font-size: 0.75rem; font-weight: 600; color: var(--text-primary); text-align: center; width: 100%; }
     .progress-bar-bg { width: 100%; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
 
     /* Pagination Details */

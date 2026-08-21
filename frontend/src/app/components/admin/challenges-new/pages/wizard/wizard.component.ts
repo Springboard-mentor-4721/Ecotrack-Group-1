@@ -81,7 +81,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
         <form [formGroup]="wizardForm">
 
           <!-- STEPS 1-3 WITH SPLIT LAYOUT -->
-          <div class="split-layout" *ngIf="currentStep() < 4">
+          <div class="wizard-split-layout" *ngIf="currentStep() < 4">
             <div class="form-section-wrapper" style="min-width: 0; position: relative; z-index: 10;">
 
               <!-- STEP 1: BASIC INFORMATION -->
@@ -169,9 +169,9 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
             <p class="step-subtitle">Define how progress will be tracked for this challenge.</p>
 
             <div class="form-section">
-              <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Tracking Method</h4>
+              <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: var(--text-primary); font-weight: 600;">Tracking Method</h4>
               <div class="step-header-row">
-                <p style="font-size: 0.8125rem; color: #64748b; margin: 0;">Choose how participants can earn progress in this challenge.</p>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Choose how participants can earn progress in this challenge.</p>
                 <button *ngIf="isTemplate" class="btn btn-sm btn-outline-warning rounded-pill" (click)="isTemplate = false">
                   <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">lock_open</span> Unlock Template
                 </button>
@@ -200,11 +200,11 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
               <!-- AUTOMATIC TRACKING CONFIGURATION -->
               <div *ngIf="wizardForm.get('trackingMethod')?.value === 'AUTOMATIC'" style="margin-bottom: 2rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
 
-                <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Tracking Sources</h4>
-                <p style="font-size: 0.8125rem; color: #64748b; margin-bottom: 1rem;">Select specific subcategories to aggregate progress for this challenge.</p>
+                <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: var(--text-primary); font-weight: 600;">Tracking Sources</h4>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem;">Select specific subcategories to aggregate progress for this challenge.</p>
 
                 <div style="margin-bottom: 1rem;">
-                  <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Category Filter</label>
+                  <label style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">Category Filter</label>
                   <div class="custom-dropdown" tabindex="0" (blur)="isCatDropdownOpen = false" style="max-width: 400px; display: block;">
                     <div class="premium-input dropdown-header" (click)="isCatDropdownOpen = !isCatDropdownOpen" [class.active]="isCatDropdownOpen">
                       {{ getCategoryLabel(multiSourceFilterCategoryId) }}
@@ -223,11 +223,11 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                        style="display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--text-primary); background: var(--bg-surface); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; user-select: none;"
                        [style.opacity]="resolvedSubcategoryIds.includes(sub.id) ? '1' : '0.5'"
                        [style.borderColor]="resolvedSubcategoryIds.includes(sub.id) ? '#10b981' : '#e2e8f0'">
-                    <span class="material-icons" [style.color]="resolvedSubcategoryIds.includes(sub.id) ? '#10b981' : '#64748b'" style="font-size: 1.1rem;">
+                    <span class="material-icons" [style.color]="resolvedSubcategoryIds.includes(sub.id) ? '#10b981' : 'var(--text-muted)'" style="font-size: 1.1rem;">
                       {{ resolvedSubcategoryIds.includes(sub.id) ? 'check_box' : 'check_box_outline_blank' }}
                     </span> {{ sub.name }}
                   </div>
-                  <div *ngIf="getFilteredSubcategories().length === 0" style="color: #64748b; font-size: 0.875rem;">
+                  <div *ngIf="getFilteredSubcategories().length === 0" style="color: var(--text-muted); font-size: 0.875rem;">
                     No tracking sources found for this category.
                   </div>
                 </div>
@@ -242,9 +242,9 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
 
 
 
-              <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Progress Measurement</h4>
+              <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: var(--text-primary); font-weight: 600;">Progress Measurement</h4>
               <div style="margin-bottom: 1rem;" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
-                <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Metric</label>
+                <label style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">Metric</label>
                 <div class="custom-dropdown" tabindex="0" (blur)="isMetricDropdownOpen = false" style="max-width: 400px; display: block;">
                   <div class="premium-input dropdown-header" (click)="isMetricDropdownOpen = !isMetricDropdownOpen" [class.active]="isMetricDropdownOpen">
                     {{ getMetricLabel(wizardForm.get('progressMetric')?.value) }}
@@ -269,7 +269,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
             <p class="step-subtitle">Define the evaluation criteria and numeric goal for the challenge.</p>
 
             <div class="form-section">
-              <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: #0f172a; font-weight: 600;">Evaluation Type</h4>
+              <h4 style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: var(--text-primary); font-weight: 600;">Evaluation Type</h4>
               <div class="cards-grid" [style.opacity]="isTemplate ? '0.6' : '1'" [style.pointer-events]="isTemplate ? 'none' : 'auto'">
                 <!-- Achievement Card -->
                 <div class="tracking-card" [class.active]="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT'"
@@ -279,7 +279,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                   </div>
                   <div class="tc-content">
                     <h5>Achievement Challenge</h5>
-                    <div style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                    <div style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
                       User reaches or exceeds a target.
                     </div>
                   </div>
@@ -296,7 +296,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                   </div>
                   <div class="tc-content">
                     <h5>Budget Challenge</h5>
-                    <div style="font-size: 0.8125rem; color: #64748b; margin-top: 0.25rem;">
+                    <div style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
                       User stays at or below a limit.
                     </div>
                   </div>
@@ -308,7 +308,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
 
               <div class="cards-grid target-xp-grid" style="align-items: flex-start;">
                 <div style="flex: 1; position: relative;">
-                  <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">{{ wizardForm.get('challengeEvaluationType')?.value === 'BUDGET' ? 'Budget Value' : 'Target Value' }} ({{ derivedUnitLabel }}) <span class="required">*</span></label>
+                  <label style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">{{ wizardForm.get('challengeEvaluationType')?.value === 'BUDGET' ? 'Budget Value' : 'Target Value' }} ({{ derivedUnitLabel }}) <span class="required">*</span></label>
                   <input type="number" class="premium-input" formControlName="targetValue" [attr.aria-invalid]="isInvalid('targetValue')" aria-describedby="target-error" />
                   <div id="target-error" class="validation-error" *ngIf="isInvalid('targetValue')">Valid target required ({{ wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT' ? '> 0' : '>= 0' }}).</div>
                   <div class="validation-error" *ngIf="wizardForm.get('challengeEvaluationType')?.value === 'ACHIEVEMENT' && wizardForm.get('targetValue')?.value === 0">
@@ -317,14 +317,14 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                 </div>
 
                 <div style="flex: 1; position: relative;">
-                  <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">XP Reward <span class="required">*</span></label>
+                  <label style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">XP Reward <span class="required">*</span></label>
                   <input type="number" class="premium-input" formControlName="rewardXp" [attr.aria-invalid]="isInvalid('rewardXp')" aria-describedby="xp-error" />
                   <div id="xp-error" class="validation-error" *ngIf="isInvalid('rewardXp')">Valid XP required.</div>
                 </div>
               </div>
 
               <div style="margin-bottom: 2rem;">
-                <label style="font-size: 0.8125rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Challenge Badge (Optional)</label>
+                <label style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">Challenge Badge (Optional)</label>
                 <div class="custom-dropdown" tabindex="0" (blur)="isBadgeDropdownOpen = false" style="width: 100%; display: block;">
                   <div class="premium-input dropdown-header" (click)="isBadgeDropdownOpen = !isBadgeDropdownOpen" [class.active]="isBadgeDropdownOpen">
                     {{ getBadgeLabel(wizardForm.get('badgeId')?.value) }}
@@ -337,7 +337,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                     </div>
                   </div>
                 </div>
-                <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
                   Select a Challenge-specific badge to award upon completion. Generic milestone badges are not available here.
                 </div>
               </div>
@@ -384,7 +384,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
             <p class="step-subtitle" style="text-align: center;">Please review all the information before publishing.</p>
 
             <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; width: 100%; max-width: 800px;">
-              <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff;">
+              <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: var(--bg-surface);">
                 <div style="height: 250px; background-color: #10b981; position: relative;">
                   <img *ngIf="imagePreviewUrl" [src]="resolveImageUrl(imagePreviewUrl)" (error)="onImageError()" style="width:100%; height:100%; object-fit:cover; position: absolute; inset: 0;" />
                   <div *ngIf="!imagePreviewUrl" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
@@ -483,7 +483,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
           <div class="step-content animate-fade-in" *ngIf="submitting()" style="position: absolute; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <div style="text-align: center;">
               <span class="material-icons" style="font-size: 6rem; color: #10b981; margin-bottom: 1.5rem;">rocket_launch</span>
-              <h2 style="font-size: 2rem; color: #0f172a; margin-bottom: 1rem;">Publishing Challenge...</h2>
+              <h2 style="font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem;">Publishing Challenge...</h2>
               <p style="color: #64748b;">Please wait while we set up your new challenge.</p>
             </div>
           </div>
@@ -520,13 +520,13 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
                <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center;">
                  <div style="display:flex; flex-direction:column; align-items:center;">
                    <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeHour(1, field)">expand_less</span>
-                   <span style="font-size:1.5rem; font-weight:bold; padding:0.25rem 0.5rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; color:#0f172a; width: 3rem; text-align: center; user-select: none;">{{ selectedHour }}</span>
+                   <span style="font-size:1.5rem; font-weight:bold; padding:0.25rem 0.5rem; background: var(--bg-surface-hover); border:1px solid var(--border-color); border-radius:6px; color:var(--text-primary); width: 3rem; text-align: center; user-select: none;">{{ selectedHour }}</span>
                    <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeHour(-1, field)">expand_more</span>
                  </div>
-                 <span style="font-size:1.5rem; font-weight:bold; color:#0f172a; margin-top: -1rem;">:</span>
+                 <span style="font-size:1.5rem; font-weight:bold; color:var(--text-primary); margin-top: -1rem;">:</span>
                  <div style="display:flex; flex-direction:column; align-items:center;">
                    <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeMinute(1, field)">expand_less</span>
-                   <span style="font-size:1.5rem; font-weight:bold; padding:0.25rem 0.5rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; color:#0f172a; width: 3rem; text-align: center; user-select: none;">{{ selectedMinute }}</span>
+                   <span style="font-size:1.5rem; font-weight:bold; padding:0.25rem 0.5rem; background: var(--bg-surface-hover); border:1px solid var(--border-color); border-radius:6px; color:var(--text-primary); width: 3rem; text-align: center; user-select: none;">{{ selectedMinute }}</span>
                    <span class="material-icons" style="cursor:pointer; font-size:1.25rem; color:#64748b;" (click)="changeMinute(-1, field)">expand_more</span>
                  </div>
                  <div style="display:flex; flex-direction:column; align-items:center; margin-left:0.5rem; gap:0.25rem;">
@@ -590,9 +590,9 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
       display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer;
     }
     .step-circle {
-      width: 32px; height: 32px; border-radius: 50%; border: 1px solid #cbd5e1;
-      display: flex; align-items: center; justify-content: center; font-size: 0.875rem; color: #64748b; font-weight: 500;
-      background: white; transition: all 0.2s;
+      width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: center; font-size: 0.875rem; color: var(--text-muted); font-weight: 500;
+      background: var(--bg-surface); transition: all 0.2s;
     }
     .step.active .step-circle { background: #10b981; color: white; border-color: #10b981; }
     .step.completed .step-circle { border-color: #10b981; color: #10b981; }
@@ -612,8 +612,8 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     /* STEP 1 SPLIT LAYOUT */
-    .split-layout { display: grid; grid-template-columns: 1fr 340px; gap: 3rem; }
-    @media (max-width: 900px) { .split-layout { grid-template-columns: 1fr; } }
+    .wizard-split-layout { display: grid; grid-template-columns: 1fr 340px; gap: 3rem; }
+    @media (max-width: 900px) { .wizard-split-layout { grid-template-columns: 1fr; } }
     
     .date-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
 
@@ -628,7 +628,7 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
       box-sizing: border-box;
     }
     
-    .wizard-title { margin: 0; font-size: 1.5rem; font-weight: bold; color: #0f172a; position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .wizard-title { margin: 0; font-size: 1.5rem; font-weight: bold; color: var(--text-primary); position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
     
     @media (max-width: 768px) {
       .wizard-page { padding: 1rem; }
@@ -658,12 +658,12 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
     .review-content { padding: 2rem; }
     
     .custom-dp-popup-inner {
-      display: flex; gap: 1rem; background: white; padding: 1.5rem; border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; width: max-content;
+      display: flex; gap: 1rem; background: var(--bg-surface); padding: 1.5rem; border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border-color); width: max-content;
       position: absolute; z-index: 1100; margin-top: 0.5rem; top: 100%; left: 0;
     }
     .time-picker-section {
-      border-left: 1px solid #f1f5f9; padding-left: 1rem; display: flex; flex-direction: column;
+      border-left: 1px solid var(--border-color); padding-left: 1rem; display: flex; flex-direction: column;
     }
 
     .premium-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); background: var(--bg-surface); }
@@ -738,9 +738,9 @@ import { ConfirmationDialogService } from '../../../../../shared/services/confir
     .tc-icon { color: #10b981; font-size: 1.5rem; }
     .tc-icon-wrapper.manual .tc-icon { color: var(--text-muted); }
     .tc-content { flex: 1; }
-    .tc-content h5 { margin: 0 0 0.5rem 0; font-size: 1rem; color: #0f172a; }
-    .tc-content p { margin: 0; font-size: 0.8125rem; color: #64748b; line-height: 1.4; }
-    .tc-radio { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid #cbd5e1; }
+    .tc-content h5 { margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--text-primary); }
+    .tc-content p { margin: 0; font-size: 0.8125rem; color: var(--text-muted); line-height: 1.4; }
+    .tc-radio { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border-color); }
     .tracking-card.active .tc-radio { border: none; }
     .tc-radio .material-icons { color: #10b981; font-size: 24px; }
 

@@ -1,94 +1,165 @@
 # EcoTrack Backend
 
-## 1. Overview
-EcoTrack Backend is a comprehensive Spring Boot application providing secure REST APIs for carbon tracking, goal setting, challenge participation, gamification (XP, badges, leaderboards), AI-powered insights, notifications, comprehensive reporting, and admin analytics.
+## Overview
 
-## 2. Technology Stack
-- **Core**: Java 21, Spring Boot 3.5.x
-- **Security**: Spring Security 6, JWT, Google OAuth2
-- **Database**: MySQL 8.x, Spring Data JPA, Hibernate
-- **Migrations**: Flyway
-- **Build Tool**: Maven
+The EcoTrack Backend is a robust Spring Boot REST API that handles user authentication, carbon tracking logic, gamification rules (XP, badges, leaderboards), AI-powered insights, notifications, and comprehensive data exporting.
 
-## 3. Backend Architecture
-- **Presentation**: REST Controllers securing endpoints with JWT filtering and `@PreAuthorize`.
-- **Business**: Modular services (`auth`, `tracking`, `gamification`, `leaderboard`, `ai`, `report`, `admin`).
-- **Data Access**: Spring Data JPA repositories.
-- **Integrations**: Gemini AI for insights, Mailtrap for SMTP emails.
+## Technology Stack
 
-## 4. Prerequisites
-- **Java**: JDK 21
-- **Database**: MySQL Server 8.x running on port `3306`
-- **Maven**: Use the included `./mvnw` wrapper
+- Java 21
+- Spring Boot 3.5.16
+- Spring Security 6, JWT, Google OAuth2
+- MySQL 8.x, Spring Data JPA, Hibernate
+- Flyway Migrations
+- Maven wrapper
 
-## 5. Environment Configuration
-Duplicate the provided example environment file to configure your local credentials:
+## Prerequisites
+
+- JDK 21
+- MySQL 8.x
+- Maven wrapper (included in the repository)
+
+## Environment Configuration
+
+Copy the provided example environment file to configure your local credentials:
+
+Linux/macOS:
 ```bash
 cp .env.example .env
 ```
-Fill in the `.env` file with your environment settings.
 
-**Crucial Variables**:
-- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`: Your local MySQL credentials.
-- `JWT_SECRET`: A secure 256-bit Base64 Key.
-- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`: SMTP credentials (e.g., Mailtrap).
-- `GEMINI_API_KEY`: API key for Gemini AI features.
-- `ECOTRACK_INITIAL_ADMIN_EMAIL`, `ECOTRACK_INITIAL_ADMIN_PASSWORD`, `ECOTRACK_INITIAL_ADMIN_NAME`: Initial credentials for the `AdminBootstrapRunner`.
+Windows (PowerShell):
+```powershell
+Copy-Item .env.example -Destination .env
+```
 
-**Security Note**: Never commit your `.env` file containing real secrets to version control.
+| Variable | Purpose |
+|----------|---------|
+| `DB_URL` | MySQL database connection (e.g., `jdbc:mysql://localhost:3306/ecotrack_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true`) |
+| `DB_USERNAME` | MySQL username |
+| `DB_PASSWORD` | MySQL password |
+| `JWT_SECRET` | Strong 256-bit Base64 secret key for signing JWTs |
+| `MAIL_HOST` | SMTP host for email functionality (optional) |
+| `MAIL_PORT` | SMTP port (optional) |
+| `MAIL_USERNAME` | SMTP username (optional) |
+| `MAIL_PASSWORD` | SMTP password (optional) |
+| `FRONTEND_URL` | URL of the frontend client (e.g., `http://localhost:4200`) |
+| `GOOGLE_CLIENT_ID` | Google OAuth2 Client ID (optional) |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth2 Client Secret (optional) |
+| `GEMINI_API_KEY` | Google Gemini API key required for AI-powered features |
+| `ECOTRACK_INITIAL_ADMIN_EMAIL` | Initial administrator login email |
+| `ECOTRACK_INITIAL_ADMIN_PASSWORD` | Initial administrator password |
+| `ECOTRACK_INITIAL_ADMIN_NAME` | Initial administrator name |
 
-## 6. Database & Initial ADMIN Setup
+**Security Note:**
+`.env` is local/private and must never be committed to version control. The `.env.example` file contains placeholders only. Never expose real credentials, API keys, or JWT secrets.
 
-This project uses an automated **Initial ADMIN Bootstrap** process to ensure a secure, zero-friction setup for evaluators on a completely fresh install.
+## Database & Initial ADMIN Setup
 
-Follow this exact fresh-install flow:
+Follow this exact fresh-install flow to configure the database and administrator securely:
 
-1. **Create an empty database:** Open your MySQL client and run:
+1. **Create the Database:** Open your MySQL client and execute:
    ```sql
    CREATE DATABASE ecotrack_dev;
    ```
-2. **Configure Environment:** Copy the `backend/.env.example` file to `backend/.env`.
-   *Note: `backend/.env` is local/private and must never be committed. `backend/.env.example` contains safe placeholders only.*
-3. **Configure Initial Administrator:** In your new `backend/.env` file, replace the safe placeholder values for the following variables with your desired initial administrator details. **Ensure you replace the password with a strong private password:**
+
+2. **Configure Environment:** Copy `.env.example` to `.env`.
+
+3. **Configure Database Connection:** Set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`.
+
+4. **Configure Initial Administrator:** Set the following variables in `.env` using safe placeholder examples (replace the password with a strong private password):
    ```env
-   ECOTRACK_INITIAL_ADMIN_EMAIL=admin@example.com
-   ECOTRACK_INITIAL_ADMIN_PASSWORD=change-me-to-a-strong-password
    ECOTRACK_INITIAL_ADMIN_NAME=System Administrator
+   ECOTRACK_INITIAL_ADMIN_EMAIL=admin@example.com
+   ECOTRACK_INITIAL_ADMIN_PASSWORD=your-strong-password
    ```
-4. **Configure Connections:** Configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, and `GEMINI_API_KEY` in the `.env` file.
-5. **Start the Backend:** Run `.\mvnw.cmd spring-boot:run`.
-6. **Automatic Schema Creation:** Flyway will automatically create and apply the database schema and reference data (categories, badges, etc.) upon startup. Flyway migrations are the authoritative mechanism for creating the application schema.
-7. **Automatic Admin Creation:** The `AdminBootstrapRunner` will check if an ADMIN already exists.
-   - **If no ADMIN exists:** It automatically creates the administrator account using your `.env` variables, securely hashes the password, creates the associated profile, and initializes the required gamification profile.
-   - **If an ADMIN already exists:** Bootstrap is safely skipped to preserve existing administrators.
-   - **If the configured email already belongs to a normal USER:** The bootstrap process does NOT overwrite or promote that user, preventing accidental account takeover.
-8. **Login:** After a successful startup, you can log in to the frontend using the configured administrator email and password.
 
-*Please note: "Initial ADMIN Bootstrap" is distinct from ordinary user registration. The normal registration UI only creates standard users. You do NOT need to manually execute SQL inserts to create an administrator.*
+5. **Start the Backend:**
+   Windows:
+   ```cmd
+   .\mvnw.cmd spring-boot:run
+   ```
+   Linux/macOS:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
 
-## 7. Running the Backend
-```bash
-# Clean and compile the project
-.\mvnw.cmd clean compile
+6. **Automatic Schema Creation (Flyway):**
+   - A fresh database is expected.
+   - Flyway runs automatically during backend startup.
+   - It creates and applies the schema initialization automatically.
+   - The evaluator does not need to manually execute migration SQL files.
 
-# Run the application
+7. **Initial ADMIN Bootstrap (`AdminBootstrapRunner`):**
+   - It runs automatically during application startup.
+   - It checks whether an ADMIN already exists in the database.
+   - If no ADMIN exists, it automatically creates the configured administrator.
+   - The configured credentials come from the `ECOTRACK_INITIAL_ADMIN_*` environment variables.
+   - The password is securely hashed.
+   - The associated user profile and gamification initialization occurs automatically.
+   - If an ADMIN already exists, bootstrap is skipped.
+   - If the configured email belongs to an ordinary USER, it does not promote or overwrite that user.
+   - Normal registration and administrator bootstrap are separate mechanisms.
+   - **The normal registration page creates standard USER accounts, not ADMIN accounts.**
+   - **Manual SQL insertion of an ADMIN is unnecessary.**
+
+Log into the frontend using the configured admin email and password.
+
+## Running the Backend
+
+Expected backend URL: `http://localhost:8080`
+
+Windows:
+```cmd
 .\mvnw.cmd spring-boot:run
 ```
-The server will start on `http://localhost:8080`.
 
-## 8. Authentication
-The backend uses **JWT (JSON Web Tokens)** for stateless session management.
-- Protected endpoints require an `Authorization: Bearer <token>` header.
-- Token expiration and secrets are configured in `application.yaml`.
-
-## 9. Key Modules
-- **AI Integration**: Uses Google Gemini for insights, tips, and summaries. Ensure `GEMINI_API_KEY` is set in your `.env`. AI features can be globally toggled via `ecotrack.ai.enabled` in `application.yaml`.
-- **Gamification & Leaderboard**: Users earn **XP** for carbon entries and challenges. **Badges** are awarded based on milestones. The global **Leaderboard** uses dense ranking to fairly display top users (admins are excluded).
-- **Reports & Exports**: EcoTrack generates comprehensive analytics available to users and admins. Supported formats: **PDF**, **Excel**, **CSV/ZIP**.
-- **Admin Features**: Admins have access to privileged endpoints (`/api/admin/**`) for platform-wide analytics, user management, and global challenges configuration.
-
-## 10. Testing
-Run the comprehensive test suite (Unit and Integration):
+Linux/macOS:
 ```bash
+./mvnw spring-boot:run
+```
+
+## Compilation
+
+To compile the project without running the application or tests:
+
+Windows:
+```cmd
+.\mvnw.cmd clean compile
+```
+
+Linux/macOS:
+```bash
+./mvnw clean compile
+```
+
+## Testing
+
+Tests are optional for normal application startup.
+
+Windows:
+```cmd
 .\mvnw.cmd clean test
 ```
+
+Linux/macOS:
+```bash
+./mvnw clean test
+```
+
+## Authentication
+
+The application secures endpoints using JWT (JSON Web Tokens) for stateless session management and natively supports Google OAuth2 authentication integrations. Protected endpoints require an `Authorization: Bearer <token>` header.
+
+## Key Modules
+
+- Authentication/security
+- Carbon tracking
+- Goals
+- Challenges
+- Gamification
+- Leaderboard
+- AI
+- Notifications
+- Reporting/export
+- Admin analytics

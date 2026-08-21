@@ -1,75 +1,117 @@
-# AI-Powered Carbon Footprint & Sustainability Management Platform
+# AI-Powered Carbon Footprint & Sustainability Management Platform (EcoTrack)
 
 ## Project Overview
 
-The **AI-Powered Carbon Footprint & Sustainability Management Platform (EcoTrack)** is a full-stack web application designed to support sustainable practices. It empowers users to monitor, manage, and analyze their carbon footprint through a secure, gamified, and AI-enhanced interface.
-
-Built with an Angular frontend and a Spring Boot backend, EcoTrack delivers a responsive, scalable, and secure architecture.
-
----
+EcoTrack is a full-stack carbon-footprint and sustainability-management platform using an Angular frontend and a Spring Boot backend. It empowers users to monitor, manage, and analyze their environmental impact through a secure, gamified, and AI-enhanced interface.
 
 ## Key Features
 
-EcoTrack is fully implemented and feature-complete, including:
-
-- **Authentication & Security:** Secure JWT login, Google OAuth 2.0, and Role-Based Access Control (RBAC).
-- **Carbon Tracking & Dashboard:** Comprehensive dashboard to log emissions, visualize footprint trends, and track sustainability metrics.
+- **Authentication:** Secure JWT authentication, Google OAuth2, and Role-Based Access Control (RBAC).
+- **Carbon Tracking:** Comprehensive dashboard to log emissions and visualize footprint trends.
 - **Goals & Challenges:** Create personal carbon reduction goals and participate in global community challenges.
-- **Gamification:** Earn **XP**, maintain daily **Streaks**, unlock **Badges**, and level up your sustainability profile.
-- **Leaderboard:** Compete against other users in global, all-time, or monthly leaderboards using dense ranking.
-- **AI Integration:** Receive AI-powered daily tips, smart suggestions, and journal summaries powered by Google Gemini.
-- **Notifications:** Real-time push notifications and in-app alerts for achievements and challenge updates.
-- **Admin Analytics & Reporting:** Dedicated admin dashboard for platform-wide analytics, user management, and PDF/Excel/CSV data exports.
-
----
+- **Gamification:** Earn XP, maintain daily streaks, unlock badges, and level up your sustainability profile.
+- **Leaderboard:** Compete against other users in global leaderboards using dense ranking.
+- **AI Integration:** Receive AI-powered recommendations, daily tips, and journal summaries.
+- **Notifications:** Real-time push notifications and in-app alerts.
+- **Admin Analytics:** Dedicated admin dashboard for platform-wide analytics and user management.
+- **Reporting:** Export data in PDF, Excel, and CSV formats.
 
 ## Technology Stack
 
-- **Frontend:** Angular 17+ (Standalone Components), TypeScript, RxJS, Bootstrap.
-- **Backend:** Java 21, Spring Boot 3.5.x, Spring Security 6.
-- **Database:** MySQL 8.x, Spring Data JPA, Hibernate, Flyway Migrations.
-- **AI Services:** Google Gemini API.
-
----
+- **Frontend:** Angular 22, TypeScript, RxJS, Bootstrap
+- **Backend:** Java 21, Spring Boot 3.5.16, Spring Security 6
+- **Database:** MySQL 8.x, Hibernate, Flyway Migrations
+- **AI Services:** Google Gemini API
 
 ## Repository Overview
 
-| Module | Description |
-|--------|-------------|
-| [**frontend/**](./frontend/README.md) | Angular-based client application. Contains UI components, services, and routing. |
-| [**backend/**](./backend/README.md) | Spring Boot REST API. Contains business logic, security, and database models. |
+- [Frontend README](./frontend/README.md)
+- [Backend README](./backend/README.md)
 
-Detailed technical documentation, setup instructions, and architecture details are available in the respective module directories.
+## Fresh Evaluator Setup
 
----
+1. **Create an empty MySQL database:**
+   Create a completely fresh database named `ecotrack_dev`.
 
-## Quick Setup
+2. **Configure the Backend:**
+   Navigate to the `backend/` directory.
 
-### Prerequisites
-- **Java:** JDK 21
-- **Node.js:** v18+ & npm
-- **Database:** MySQL Server 8.x (running on port `3306`)
+3. **Set up Environment Variables:**
+   Copy the example environment file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
 
-### 1. Database, Backend, & Initial ADMIN Setup
-EcoTrack uses an automated **Initial ADMIN Bootstrap** process. A fresh evaluator database is expected to start entirely empty.
+4. **Configure Local Credentials:**
+   Edit the `.env` file to include your database and required service credentials using safe placeholders. Do not commit this file.
 
-1. Create a MySQL database named `ecotrack_dev`.
-2. Navigate to the `backend/` directory.
-3. Copy `backend/.env.example` to `backend/.env` (never commit real `.env` credentials).
-4. Configure your required credentials in `backend/.env` (DB, SMTP, Gemini API).
-5. Configure the required initial administrator variables in `backend/.env` (`ECOTRACK_INITIAL_ADMIN_NAME`, `ECOTRACK_INITIAL_ADMIN_EMAIL`, `ECOTRACK_INITIAL_ADMIN_PASSWORD`), replacing placeholders with a strong private password.
-6. Run tests to verify the environment: `.\mvnw.cmd clean test`
-7. Start the backend: `.\mvnw.cmd spring-boot:run`
+5. **Configure the Initial Administrator:**
+   Set the following variables in `.env` to bootstrap your administrator account. Replace the safe placeholders with your own name, email, and strong password:
+   ```env
+   ECOTRACK_INITIAL_ADMIN_NAME=System Administrator
+   ECOTRACK_INITIAL_ADMIN_EMAIL=admin@example.com
+   ECOTRACK_INITIAL_ADMIN_PASSWORD=your-strong-password
+   ```
+   **Note on Administrator Bootstrap:**
+   - The normal Sign Up flow creates normal users only.
+   - The initial ADMIN creation is handled automatically by `AdminBootstrapRunner`.
+   - On a fresh database with zero ADMIN users, the configured administrator is created automatically.
+   - The password is securely hashed.
+   - The associated user profile and gamification initialization is performed automatically by the backend.
+   - If an ADMIN already exists, the bootstrap process is skipped.
+   - If the configured email already belongs to a normal USER, the existing user is not promoted.
+   - **The evaluator does NOT need to manually INSERT an administrator.**
 
-*Note: Upon backend startup, Flyway will automatically create the database schema and reference data. The `AdminBootstrapRunner` will then securely create the initial administrator account if no admin exists. You do NOT need to manually insert an admin into MySQL. See `backend/README.md` for full environment setup details.*
+6. **Start the Backend:**
+   Windows:
+   ```cmd
+   .\mvnw.cmd spring-boot:run
+   ```
+   Linux/macOS:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
 
-### 2. Frontend Setup
-1. Navigate to the `frontend/` directory.
-2. Install dependencies: `npm install`
-3. Start the application: `npm start`
-4. Access the platform at `http://localhost:4200`.
+7. **Database Migrations:**
+   Flyway automatically applies all schema migrations and necessary reference data when the backend starts. The `dataset/*.sql` files are local testing data only and are NOT part of the normal fresh evaluator setup.
 
----
+8. **Start the Frontend:**
+   Navigate to the `frontend/` directory and run:
+   ```bash
+   npm install
+   npm start
+   ```
+
+9. **Access the Application:**
+   Open the frontend at `http://localhost:4200`.
+10. **Login:**
+   Log in using the administrator credentials configured in `backend/.env`. The backend API runs at `http://localhost:8080`.
+
+## Testing & Verification
+
+Testing is optional and separated from normal application startup.
+
+Windows:
+```cmd
+.\mvnw.cmd clean test
+```
+
+Linux/macOS:
+```bash
+./mvnw clean test
+```
+
+Optional compilation without running tests:
+
+Windows:
+```cmd
+.\mvnw.cmd clean compile
+```
+
+Linux/macOS:
+```bash
+./mvnw clean compile
+```
 
 ## Development Team
 
@@ -77,8 +119,6 @@ EcoTrack uses an automated **Initial ADMIN Bootstrap** process. A fresh evaluato
 - Gokul S
 - Anushka Kumari
 
----
-
 ## Project Status
 
-**Complete and Submission-Ready.** All planned milestones, including AI integrations, leaderboards, and gamification, are fully implemented and verified.
+Ready for Evaluation.

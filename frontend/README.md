@@ -1,55 +1,72 @@
 # EcoTrack Frontend
 
-This is the frontend application for the EcoTrack platform. It is built using modern Angular 17+ with standalone components and reactive forms.
+## Overview
+
+This is the frontend application for the EcoTrack platform. It is a modern, responsive web client built with Angular that communicates with the Spring Boot backend to deliver carbon tracking, gamification, and AI-powered insights.
 
 ## Key Features
 
-- **Authentication:** Fully integrated authentication supporting both standard email/password login and Google OAuth2.
-- **Responsive Dashboard:** View personal carbon tracking metrics, recent activities, and AI-generated insights.
-- **Goals & Challenges:** Interactive interfaces to manage personal sustainability goals and join community challenges.
-- **Gamification & Leaderboard:** Track your XP, Streaks, and Badges. Compete with others on the global Leaderboard.
-- **AI Integration:** Receive personalized daily eco-tips and journal summaries directly in the UI.
-- **Reports:** Generate and download detailed sustainability reports in PDF format.
-- **Admin Panel:** Dedicated views for platform administrators to manage users, monitor analytics, and configure challenges.
-- **State & Error Handling:** Interceptors are configured to handle API tokens and cleanly manage session expiration (e.g., automatic logout on 401 Unauthorized).
+- Authentication
+- Dashboard
+- Carbon tracking
+- Goals
+- Challenges
+- Gamification
+- Leaderboard
+- AI insights
+- Reports
+- Admin panel
+- Error/session handling
 
 ## Technology Stack
 
-- Angular (Standalone Components)
+- Angular 22
 - TypeScript
 - RxJS
 - Bootstrap
 
-## Development Setup
+## Environment Configuration
 
-### 1. Environment Configuration
+The frontend relies on `src/environments/environment.ts` to locate the backend API.
 
-The frontend needs to know where the backend API is located. Ensure your environment files in `src/environments/` are correctly configured. By default, it expects the backend to be running on `http://localhost:8080`.
+The actual configuration uses:
 
-*Note: The frontend requires the backend to be running. Administrator credentials are not configured here; the Initial Administrator is created automatically by the backend via the `backend/.env` configuration.*
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080'
+};
+```
 
-### 2. Running the Application
+**Administrator Credentials:**
+Administrator credentials are NOT stored in the frontend. The initial administrator configuration belongs entirely to `backend/.env`. The frontend only sends authentication requests to the backend.
 
-To start the local development server:
+## Installation & Startup
 
+The backend should be running before the frontend.
+
+Install dependencies:
 ```bash
 npm install
+```
+
+Start the development server:
+```bash
 npm start
 ```
 
-Once running, navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Frontend URL: `http://localhost:4200`
 
-### 3. Building for Production
+## Production Build
 
-To create a production build:
-
+To generate a production build:
 ```bash
 npm run build
 ```
 
-The build artifacts will be stored in the `dist/` directory.
+The generated `dist/` folder contains the build artifacts. This is generated output and should not be treated as source code (it is properly ignored by `.gitignore`).
 
 ## Documentation References
 
-- **Backend Integration:** For backend architecture, API details, and server-side setup, please see the `backend/` directory documentation.
-- **Project Overview:** For the high-level project goals, complete system architecture, and repository guidelines, refer to the [Root README](../README.md).
+- [Backend README](../backend/README.md)
+- [Root README](../README.md)
